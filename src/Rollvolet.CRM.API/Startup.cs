@@ -50,24 +50,6 @@ namespace Rollvolet.CRM.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add framework services.
-            services.AddMvc(
-            //Add this filter globally so every request runs this filter to recored execution time
-                config =>
-                {
-                    config.AddResponseFilters();
-                })
-                .AddJsonOptions(x =>
-                {
-                    x.SerializerSettings.ContractResolver =
-                     new CamelCasePropertyNamesContractResolver();
-                    x.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                    x.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                }
-            );
-
-
-
             services.AddSingleton(sp => _mapperConfiguration.CreateMapper());
 
             services.AddSwaggerGen();
@@ -75,12 +57,11 @@ namespace Rollvolet.CRM.API
             {
                 options.SingleApiVersion(new Info
                 {
-                    Contact = new Contact { Name = "Narato NV" },
-                    Description = "Narato Libraries Rollvolet.CRM.API API",
+                    Contact = new Contact { Name = "MOOF bvba" },
+                    Description = "Rollvolet CRM API",
                     Version = "v1",
                     Title = "Rollvolet.CRM.API"
                 });
-                //options.OperationFilter<ProducesConsumesFilter>();
 
                 var xmlPaths = GetXmlCommentsPaths();
                 foreach (var entry in xmlPaths)
@@ -106,8 +87,6 @@ namespace Rollvolet.CRM.API
             loggerFactory.AddDebug();
             loggerFactory.AddNLog();
             app.AddNLogWeb();
-
-            app.UseExceptionHandler();
             app.UseCorrelations();
             app.UseExecutionTiming();
 
@@ -116,8 +95,6 @@ namespace Rollvolet.CRM.API
 
             // Enable middleware to serve swagger-ui assets (HTML, JS, CSS etc.)
             app.UseSwaggerUi();
-
-            app.UseMvc();
         }
 
         private List<string> GetXmlCommentsPaths()
