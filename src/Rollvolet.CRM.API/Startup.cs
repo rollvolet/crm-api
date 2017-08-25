@@ -18,6 +18,14 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using Rollvolet.CRM.API.Mappers;
+using Rollvolet.CRM.DataProvider.Contexts;
+using Microsoft.EntityFrameworkCore;
+using Rollvolet.CRM.Domain.Contracts.DataProviders;
+using Rollvolet.CRM.DataProviders;
+using Rollvolet.CRM.Domain.Managers;
+using Rollvolet.CRM.Domain.Managers.Interfaces;
+using System.Linq;
+using Rollvolet.CRM.DataProvider.Models;
 
 namespace Rollvolet.CRM.API
 {
@@ -50,14 +58,21 @@ namespace Rollvolet.CRM.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<CrmContext>(options => options.UseSqlServer(Configuration["DatabaseConfiguration:ConnectionString"]));
+
+            services.AddMvc();
+
             services.AddSingleton(sp => _mapperConfiguration.CreateMapper());
+
+            services.AddTransient<ICustomerDataProvider, CustomerDataProvider>();
+            services.AddTransient<ICustomerManager, CustomerManager>();
 
             services.AddSwaggerGen();
             services.ConfigureSwaggerGen(options =>
             {
                 options.SingleApiVersion(new Info
                 {
-                    Contact = new Contact { Name = "MOOF bvba" },
+                    Contact = new Swashbuckle.Swagger.Model.Contact { Name = "MOOF bvba" },
                     Description = "Rollvolet CRM API",
                     Version = "v1",
                     Title = "Rollvolet.CRM.API"
@@ -70,7 +85,7 @@ namespace Rollvolet.CRM.API
                     {
                         options.IncludeXmlComments(entry);
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                     }
                 }
@@ -83,6 +98,12 @@ namespace Rollvolet.CRM.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            // auto migrations
+            using (var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                scope.ServiceProvider.GetRequiredService<CrmContext>().Database.Migrate();
+            }
+
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
             loggerFactory.AddNLog();
@@ -95,6 +116,8 @@ namespace Rollvolet.CRM.API
 
             // Enable middleware to serve swagger-ui assets (HTML, JS, CSS etc.)
             app.UseSwaggerUi();
+
+            app.UseMvc();
         }
 
         private List<string> GetXmlCommentsPaths()
