@@ -15,9 +15,14 @@ namespace Rollvolet.CRM.Domain.Managers
             _customerDataProvider = customerDataProvider;
         }
         
-        public async Task<IEnumerable<Customer>> GetAllAsync()
+        public async Task<Paged<Customer>> GetAllAsync(QuerySet query)
         {
-            return await _customerDataProvider.GetAll();
+            return await _customerDataProvider.GetAllAsync(query);
+        }
+
+        public async Task<Customer> GetByIdAsync(int id)
+        {
+            return await _customerDataProvider.GetByIdAsync(id);
         }
     }
 }

@@ -6,6 +6,7 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
 {
     public interface ICustomerManager
     {
-        Task<IEnumerable<Customer>> GetAllAsync();
+        Task<Paged<Customer>> GetAllAsync(QuerySet query);
+        Task<Customer> GetByIdAsync(int id);
     }  
 }

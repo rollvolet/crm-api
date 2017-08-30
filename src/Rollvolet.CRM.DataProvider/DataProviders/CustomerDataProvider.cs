@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Narato.ResponseMiddleware.Models.Exceptions;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Models;
@@ -19,11 +21,37 @@ namespace Rollvolet.CRM.DataProviders
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Customer>> GetAll()
+        public async Task<Paged<Customer>> GetAllAsync(QuerySet query)
         {
-            var customers = await _context.Customers.ToListAsync();
+            var skip = (query.Page.Number - 1) * query.Page.Size;
+            var take = query.Page.Size;
 
-            return _mapper.Map<IEnumerable<Customer>>(customers);
+            var source = _context.Customers;
+
+            var customers = await source.Skip(skip).Take(take).ToListAsync();
+            var count = await source.CountAsync();
+
+            var mappedCustomers = _mapper.Map<IEnumerable<Customer>>(customers);
+
+            return new Paged<Customer>() {
+                Items = mappedCustomers,
+                Count = count,
+                PageNumber = query.Page.Number,
+                PageSize = query.Page.Size
+            };
+        }
+
+        public async Task<Customer> GetByIdAsync(int id)
+        {
+            var customer = await _context.Customers.Where(c => c.DataId == id).FirstOrDefaultAsync();
+            
+            if (customer == null)
+            {
+                // TODO implement and handle exceptions according to jsonapi
+                throw new EntityNotFoundException("ENF", $"Customer with id {id} not found");
+            }
+
+            return _mapper.Map<Customer>(customer);
         }
     }
 }
