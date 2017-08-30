@@ -8,6 +8,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Building> Buildings { get; set; }
+        public DbSet<Country> Countries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,6 +24,13 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<CustomerRecord>()
                 .ToTable("tblData", schema: "dbo");
+
+            modelBuilder.Entity<Country>()
+                .HasKey(e => e.Id)
+                .HasName("LandId");
+
+            modelBuilder.Entity<Country>()
+                .ToTable("TblLand", schema: "dbo");
         }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)

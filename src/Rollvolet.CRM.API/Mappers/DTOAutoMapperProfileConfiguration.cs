@@ -19,6 +19,10 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<Building, BuildingDto>()
                 .ForMember(dest => dest.Type, opt => opt.Ignore())
                 .ReverseMap();
+                
+            CreateMap<Country, CountryDto>()
+                .ForMember(dest => dest.Type, opt => opt.Ignore())
+                .ReverseMap();
         }
     }
 }

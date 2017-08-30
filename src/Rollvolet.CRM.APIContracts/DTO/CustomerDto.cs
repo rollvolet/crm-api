@@ -1,13 +1,8 @@
 namespace Rollvolet.CRM.APIContracts.DTO
 {
-    public class CustomerDto
+    public class CustomerDto : CustomerEntityDto
     {
-        public string Id { get; set; }
-        public string Type = "customers";
+        public override string Type { get; set; } = "customers";
         public int DataId { get; set; }
-        public string Name { get; set; }
-        public string Address1 { get; set; }
-        public string Address2 { get; set; }
-        public string Address3 { get; set; }
   }
 }

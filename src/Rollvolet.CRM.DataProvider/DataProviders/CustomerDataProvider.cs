@@ -28,7 +28,7 @@ namespace Rollvolet.CRM.DataProviders
 
             var source = _context.Customers;
 
-            var customers = await source.Skip(skip).Take(take).ToListAsync();
+            var customers = await source.Include(c => c.Country).Skip(skip).Take(take).ToListAsync();
             var count = await source.CountAsync();
 
             var mappedCustomers = _mapper.Map<IEnumerable<Customer>>(customers);

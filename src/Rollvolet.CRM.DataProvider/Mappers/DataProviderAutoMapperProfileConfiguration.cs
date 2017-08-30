@@ -25,6 +25,11 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();
+                
+            CreateMap<Models.Country, Domain.Models.Country>()
+                .PreserveReferences()
+                .ReverseMap()
+                .PreserveReferences();
         }
     }
 }
