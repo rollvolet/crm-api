@@ -36,12 +36,12 @@ namespace Rollvolet.CRM.API.Controllers
             var querySet = jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
             var pagedCustomers = await _customerManager.GetAllAsync(querySet);
-            var customerDtos = _mapper.Map<IEnumerable<CustomerDto>>(pagedCustomers.Items);
+            var customerResources = _mapper.Map<IEnumerable<Resource<CustomerDto>>>(pagedCustomers.Items);
 
             var links = jsonApiBuilder.BuildLinks(HttpContext.Request.Path, querySet, pagedCustomers);
             var meta = jsonApiBuilder.BuildMeta(pagedCustomers);
 
-            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = customerDtos });
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = customerResources });
         }
         
         [HttpGet("{id}")]
@@ -50,11 +50,11 @@ namespace Rollvolet.CRM.API.Controllers
             var jsonApiBuilder = new JsonApiBuilder();
 
             var customer = await _customerManager.GetByIdAsync(id);
-            var customerDto = _mapper.Map<CustomerDto>(customer);
+            var customerResource = _mapper.Map<Resource<CustomerDto>>(customer);
 
             var links = jsonApiBuilder.BuildLinks(HttpContext.Request.Path);
 
-            return Ok(new ResourceResponse() { Links = links, Data = customer});
+            return Ok(new ResourceResponse() { Links = links, Data = customerResource});
         }
 
         [HttpGet("{customerId}/relationships/contacts")]
@@ -64,12 +64,12 @@ namespace Rollvolet.CRM.API.Controllers
             var querySet = jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
             var pagedContacts = await _contactManager.GetAllByCustomerIdAsync(customerId, querySet);
-            var contactDtos = _mapper.Map<IEnumerable<ContactDto>>(pagedContacts.Items);
+            var contactResources = _mapper.Map<IEnumerable<Resource<ContactDto>>>(pagedContacts.Items);
 
             var links = jsonApiBuilder.BuildLinks(HttpContext.Request.Path, querySet, pagedContacts);
             var meta = jsonApiBuilder.BuildMeta(pagedContacts);
 
-            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = contactDtos });
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = contactResources });
         }
 
         [HttpGet("{customerId}/relationships/buildings")]
@@ -79,12 +79,12 @@ namespace Rollvolet.CRM.API.Controllers
             var querySet = jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
             var pagedBuildings = await _buildingManager.GetAllByCustomerIdAsync(customerId, querySet);
-            var buildingDtos = _mapper.Map<IEnumerable<BuildingDto>>(pagedBuildings.Items);
+            var buildingResources = _mapper.Map<IEnumerable<Resource<BuildingDto>>>(pagedBuildings.Items);
 
             var links = jsonApiBuilder.BuildLinks(HttpContext.Request.Path, querySet, pagedBuildings);
             var meta = jsonApiBuilder.BuildMeta(pagedBuildings);
 
-            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = buildingDtos });
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = buildingResources });
         }
     }
 } 
