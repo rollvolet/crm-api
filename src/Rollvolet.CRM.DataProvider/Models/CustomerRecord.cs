@@ -2,13 +2,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rollvolet.CRM.DataProvider.Models
 {
-    public abstract class CustomerEntity
+    public abstract class CustomerRecord
     {
         public int DataId { get; set; }
-
         [Column("Naam")]
         public string Name { get; set; } 
-
         [Column("Adres1")]
         public string Address1 { get; set; }
         [Column("Adres2")]

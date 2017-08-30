@@ -16,11 +16,16 @@ namespace Rollvolet.CRM.API.Controllers
     public class CustomersController : Controller
     {
         private readonly ICustomerManager _customerManager;
+        private readonly IContactManager _contactManager;
+        private readonly IBuildingManager _buildingManager;
+        
         private readonly IMapper _mapper;
 
-        public CustomersController(ICustomerManager customerManager, IMapper mapper)
+        public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager, IMapper mapper)
         {
             _customerManager = customerManager;
+            _contactManager = contactManager;
+            _buildingManager = buildingManager;
             _mapper = mapper;
         }
 
@@ -31,12 +36,12 @@ namespace Rollvolet.CRM.API.Controllers
             var querySet = jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
             var pagedCustomers = await _customerManager.GetAllAsync(querySet);
-            var mappedCustomers = _mapper.Map<IEnumerable<CustomerDto>>(pagedCustomers.Items);
+            var customerDtos = _mapper.Map<IEnumerable<CustomerDto>>(pagedCustomers.Items);
 
             var links = jsonApiBuilder.BuildLinks(HttpContext.Request.Path, querySet, pagedCustomers);
             var meta = jsonApiBuilder.BuildMeta(pagedCustomers);
 
-            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = mappedCustomers });
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = customerDtos });
         }
         
         [HttpGet("{id}")]
@@ -45,23 +50,41 @@ namespace Rollvolet.CRM.API.Controllers
             var jsonApiBuilder = new JsonApiBuilder();
 
             var customer = await _customerManager.GetByIdAsync(id);
-            var mappedCustomer = _mapper.Map<CustomerDto>(customer);
+            var customerDto = _mapper.Map<CustomerDto>(customer);
 
             var links = jsonApiBuilder.BuildLinks(HttpContext.Request.Path);
 
             return Ok(new ResourceResponse() { Links = links, Data = customer});
         }
 
-        [HttpGet("{id}/relationships/contacts")]
-        public async Task<IActionResult> GetRelatedContactsById(int id)
+        [HttpGet("{customerId}/relationships/contacts")]
+        public async Task<IActionResult> GetRelatedContactsByCustomerId(int customerId)
         {
-            throw new NotImplementedException();
+            var jsonApiBuilder = new JsonApiBuilder();
+            var querySet = jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedContacts = await _contactManager.GetAllByCustomerIdAsync(customerId, querySet);
+            var contactDtos = _mapper.Map<IEnumerable<ContactDto>>(pagedContacts.Items);
+
+            var links = jsonApiBuilder.BuildLinks(HttpContext.Request.Path, querySet, pagedContacts);
+            var meta = jsonApiBuilder.BuildMeta(pagedContacts);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = contactDtos });
         }
 
-        [HttpGet("{id}/relationships/buildings")]
-        public async Task<IActionResult> GetRelatedBuildingsById(int id)
+        [HttpGet("{customerId}/relationships/buildings")]
+        public async Task<IActionResult> GetRelatedBuildingsById(int customerId)
         {
-            throw new NotImplementedException();
+            var jsonApiBuilder = new JsonApiBuilder();
+            var querySet = jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedBuildings = await _buildingManager.GetAllByCustomerIdAsync(customerId, querySet);
+            var buildingDtos = _mapper.Map<IEnumerable<BuildingDto>>(pagedBuildings.Items);
+
+            var links = jsonApiBuilder.BuildLinks(HttpContext.Request.Path, querySet, pagedBuildings);
+            var meta = jsonApiBuilder.BuildMeta(pagedBuildings);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = buildingDtos });
         }
     }
 } 

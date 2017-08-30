@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Rollvolet.CRM.Domain.Models.Interfaces;
 
@@ -32,7 +33,7 @@ namespace Rollvolet.CRM.Domain.Models
         {
             get
             {
-                return Count / PageSize;
+                return PageSize < Count ? Convert.ToInt32(Math.Ceiling(Count / (PageSize * 1.0))) : First;
             }
         }
 

@@ -11,17 +11,17 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CustomerEntity>()
+            modelBuilder.Entity<CustomerRecord>()
                 .HasDiscriminator<string>("DataType")
                 .HasValue<Customer>("KLA")
                 .HasValue<Contact>("CON")
                 .HasValue<Building>("GEB");
 
-            modelBuilder.Entity<CustomerEntity>()
+            modelBuilder.Entity<CustomerRecord>()
                 .HasKey(b => b.DataId)
                 .HasName("DataID");
 
-            modelBuilder.Entity<CustomerEntity>()
+            modelBuilder.Entity<CustomerRecord>()
                 .ToTable("tblData", schema: "dbo");
         }
 

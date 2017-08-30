@@ -66,6 +66,10 @@ namespace Rollvolet.CRM.API
 
             services.AddTransient<ICustomerDataProvider, CustomerDataProvider>();
             services.AddTransient<ICustomerManager, CustomerManager>();
+            services.AddTransient<IContactDataProvider, ContactDataProvider>();
+            services.AddTransient<IContactManager, ContactManager>();
+            services.AddTransient<IBuildingDataProvider, BuildingDataProvider>();
+            services.AddTransient<IBuildingManager, BuildingManager>();
 
             services.AddSwaggerGen();
             services.ConfigureSwaggerGen(options =>

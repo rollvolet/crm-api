@@ -43,7 +43,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Customer> GetByIdAsync(int id)
         {
-            var customer = await _context.Customers.Where(c => c.DataId == id).FirstOrDefaultAsync();
+            var customer = await _context.Customers.Where(c => c.CustomerId == id).FirstOrDefaultAsync();
             
             if (customer == null)
             {
