@@ -7,6 +7,7 @@ using Narato.ResponseMiddleware.Models.Exceptions;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Models;
+using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.DataProviders
 {   
@@ -28,10 +29,11 @@ namespace Rollvolet.CRM.DataProviders
 
             var source = _context.Customers;
 
-            var customers = await source.Include(c => c.Country).Skip(skip).Take(take).ToListAsync();
-            var count = await source.CountAsync();
-
+            var sourceQuery = AddIncludeClauses(source, query);
+            var customers = await sourceQuery.Skip(skip).Take(take).ToListAsync();
             var mappedCustomers = _mapper.Map<IEnumerable<Customer>>(customers);
+
+            var count = await source.CountAsync();
 
             return new Paged<Customer>() {
                 Items = mappedCustomers,
@@ -41,9 +43,11 @@ namespace Rollvolet.CRM.DataProviders
             };
         }
 
-        public async Task<Customer> GetByIdAsync(int id)
+        public async Task<Customer> GetByIdAsync(int id, QuerySet query)
         {
-            var customer = await _context.Customers.Where(c => c.CustomerId == id).FirstOrDefaultAsync();
+            var source = _context.Customers.Where(c => c.AlternateId == id);
+            var sourceQuery = AddIncludeClauses(source, query);
+            var customer = await sourceQuery.FirstOrDefaultAsync();
             
             if (customer == null)
             {
@@ -52,6 +56,23 @@ namespace Rollvolet.CRM.DataProviders
             }
 
             return _mapper.Map<Customer>(customer);
+        }
+
+        private IQueryable<DataProvider.Models.Customer> AddIncludeClauses(IQueryable<DataProvider.Models.Customer> sourceQuery, QuerySet query)
+        {
+            foreach (var field in query.Include.Fields)
+            {
+                if ("country".Equals(field))
+                    sourceQuery = sourceQuery.Include(c => c.Country);
+
+                if ("contacts".Equals(field))
+                    sourceQuery = sourceQuery.Include(c => c.Contacts);
+
+                if ("buildings".Equals(field))
+                    sourceQuery = sourceQuery.Include(c => c.Buildings);
+            }
+
+            return sourceQuery;
         }
     }
 }

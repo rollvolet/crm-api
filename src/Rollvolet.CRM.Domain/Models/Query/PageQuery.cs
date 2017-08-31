@@ -1,4 +1,4 @@
-namespace Rollvolet.CRM.Domain.Models
+namespace Rollvolet.CRM.Domain.Models.Query
 {
     public class PageQuery
     {

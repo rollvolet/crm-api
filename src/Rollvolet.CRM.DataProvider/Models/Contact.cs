@@ -6,8 +6,6 @@ namespace Rollvolet.CRM.DataProvider.Models
     {
         [Column("ParentID")]
         public int CustomerId { get; set; }
-
-        [Column("ID")]
-        public int ContactId { get; set; }
+        public Customer Customer { get; set; }
     }
 }

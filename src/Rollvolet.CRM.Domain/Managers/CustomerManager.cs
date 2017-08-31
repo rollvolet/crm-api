@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
+using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.Domain.Managers
 {
@@ -20,9 +21,9 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _customerDataProvider.GetAllAsync(query);
         }
 
-        public async Task<Customer> GetByIdAsync(int id)
+        public async Task<Customer> GetByIdAsync(int id, QuerySet query)
         {
-            return await _customerDataProvider.GetByIdAsync(id);
+            return await _customerDataProvider.GetByIdAsync(id, query);
         }
     }
 }

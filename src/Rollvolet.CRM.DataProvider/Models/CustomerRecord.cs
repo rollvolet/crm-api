@@ -6,6 +6,8 @@ namespace Rollvolet.CRM.DataProvider.Models
     {
         [Column("DataID")]
         public int DataId { get; set; }
+        [Column("ID")]
+        public int AlternateId { get; set; }
         [Column("Naam")]
         public string Name { get; set; } 
         [Column("Adres1")]

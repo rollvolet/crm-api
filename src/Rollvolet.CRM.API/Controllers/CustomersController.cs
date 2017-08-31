@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -8,8 +9,9 @@ using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.JsonApi;
-using Rollvolet.CRM.APIContracts.JsonApi.Interfaces;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
+using Rollvolet.CRM.Domain.Models;
+using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.API.Controllers
 {
@@ -37,25 +39,36 @@ namespace Rollvolet.CRM.API.Controllers
             var querySet = jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
             var pagedCustomers = await _customerManager.GetAllAsync(querySet);
-            var customerResources = _mapper.Map<IEnumerable<Resource<CustomerDto>>>(pagedCustomers.Items);
+
+            var included = new HashSet<Resource>();
+            var customerResources = new List<CustomerDto>();
+
+            foreach (var customer in pagedCustomers.Items)
+            {
+                var customerResource = MapToResourceAndUpdateIncluded(customer, querySet, included);
+                customerResources.Add(customerResource);
+            }
 
             var links = jsonApiBuilder.BuildLinks(HttpContext.Request.Path, querySet, pagedCustomers);
             var meta = jsonApiBuilder.BuildMeta(pagedCustomers);
 
-            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = customerResources });
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = customerResources, Included = included });
         }
         
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var jsonApiBuilder = new JsonApiBuilder();
+            var querySet = jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
-            var customer = await _customerManager.GetByIdAsync(id);
-            var customerResource = _mapper.Map<Resource<CustomerDto>>(customer);
+            var customer = await _customerManager.GetByIdAsync(id, querySet);
+
+            var included = new HashSet<Resource>();
+            var customerResource = MapToResourceAndUpdateIncluded(customer, querySet, included);
 
             var links = jsonApiBuilder.BuildLinks(HttpContext.Request.Path);
 
-            return Ok(new ResourceResponse() { Links = links, Data = customerResource});
+            return Ok(new ResourceResponse() { Links = links, Data = customerResource, Included = included });
         }
 
         [HttpGet("{customerId}/contacts")]
@@ -66,7 +79,7 @@ namespace Rollvolet.CRM.API.Controllers
             var querySet = jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
             var pagedContacts = await _contactManager.GetAllByCustomerIdAsync(customerId, querySet);
-            var contactResources = _mapper.Map<IEnumerable<Resource<ContactDto>>>(pagedContacts.Items);
+            var contactResources = _mapper.Map<IEnumerable<ContactDto>>(pagedContacts.Items);
 
             var links = jsonApiBuilder.BuildLinks(HttpContext.Request.Path, querySet, pagedContacts);
             var meta = jsonApiBuilder.BuildMeta(pagedContacts);
@@ -82,12 +95,37 @@ namespace Rollvolet.CRM.API.Controllers
             var querySet = jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
             var pagedBuildings = await _buildingManager.GetAllByCustomerIdAsync(customerId, querySet);
-            var buildingResources = _mapper.Map<IEnumerable<Resource<BuildingDto>>>(pagedBuildings.Items);
+            var buildingResources = _mapper.Map<IEnumerable<BuildingDto>>(pagedBuildings.Items);
 
             var links = jsonApiBuilder.BuildLinks(HttpContext.Request.Path, querySet, pagedBuildings);
             var meta = jsonApiBuilder.BuildMeta(pagedBuildings);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = buildingResources });
+        }
+
+        private CustomerDto MapToResourceAndUpdateIncluded(Customer customer, QuerySet querySet, ISet<Resource> included)
+        {
+            var resource = _mapper.Map<CustomerDto>(customer);
+
+            if (querySet.Include.Contains("country") && customer.Country != null)
+            {
+                resource.Relationships["country"].Data = _mapper.Map<RelationResource>(customer.Country);
+                included.Add(_mapper.Map<CountryDto>(customer.Country));
+            }
+
+            if (querySet.Include.Contains("contacts") && customer.Contacts.Count() > 0)
+            {
+                resource.Relationships["contacts"].Data = _mapper.Map<IEnumerable<RelationResource>>(customer.Contacts);
+                included.UnionWith(_mapper.Map<IEnumerable<ContactDto>>(customer.Contacts));
+            }
+
+            if (querySet.Include.Contains("buildings") && customer.Buildings.Count() > 0)
+            {
+                resource.Relationships["buildings"].Data = _mapper.Map<IEnumerable<RelationResource>>(customer.Buildings);
+                included.UnionWith(_mapper.Map<IEnumerable<BuildingDto>>(customer.Buildings));
+            }
+
+            return resource;
         }
     }
 } 

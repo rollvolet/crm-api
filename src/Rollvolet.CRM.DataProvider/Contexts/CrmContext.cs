@@ -25,6 +25,18 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             modelBuilder.Entity<CustomerRecord>()
                 .ToTable("tblData", schema: "dbo");
 
+            modelBuilder.Entity<Contact>()
+                .HasOne(e => e.Customer)
+                .WithMany(e => e.Contacts)
+                .HasForeignKey(e => e.CustomerId)
+                .HasPrincipalKey(e => e.AlternateId);
+
+            modelBuilder.Entity<Building>()
+                .HasOne(e => e.Customer)
+                .WithMany(e => e.Buildings)
+                .HasForeignKey(e => e.CustomerId)
+                .HasPrincipalKey(e => e.AlternateId);
+
             modelBuilder.Entity<Country>()
                 .HasKey(e => e.Id)
                 .HasName("LandId");
