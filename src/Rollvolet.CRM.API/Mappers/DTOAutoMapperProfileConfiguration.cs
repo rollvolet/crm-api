@@ -47,8 +47,8 @@ namespace Rollvolet.CRM.API.Mappers
         private object GetCustomerRelationships(int id)
         {
             return new {
-                Contacts = new { Links = new { Self = $"/customers/{id}/relationships/contacts" }},
-                Buildings = new { Links = new { Self = $"/customers/{id}/relationships/buildings" }}
+                Contacts = new { Links = new { Self = $"/customers/{id}/links/contacts", Related = $"/customers/{id}/contacts" }},
+                Buildings = new { Links = new { Self = $"/customers/{id}/links/buildings", Related = $"/customers/{id}/builidngs" }}
             };
         }
 

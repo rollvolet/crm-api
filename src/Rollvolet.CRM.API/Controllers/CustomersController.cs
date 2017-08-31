@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.JsonApi;
+using Rollvolet.CRM.APIContracts.JsonApi.Interfaces;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 
 namespace Rollvolet.CRM.API.Controllers
@@ -57,7 +58,8 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Links = links, Data = customerResource});
         }
 
-        [HttpGet("{customerId}/relationships/contacts")]
+        [HttpGet("{customerId}/contacts")]
+        [HttpGet("{customerId}/links/contacts")]
         public async Task<IActionResult> GetRelatedContactsByCustomerId(int customerId)
         {
             var jsonApiBuilder = new JsonApiBuilder();
@@ -72,7 +74,8 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = contactResources });
         }
 
-        [HttpGet("{customerId}/relationships/buildings")]
+        [HttpGet("{customerId}/buildings")]
+        [HttpGet("{customerId}/links/buildings")]
         public async Task<IActionResult> GetRelatedBuildingsById(int customerId)
         {
             var jsonApiBuilder = new JsonApiBuilder();
