@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +31,10 @@ namespace Rollvolet.CRM.DataProviders
 
             var source = _context.Contacts.Where(c => c.CustomerId == customerId);
 
-            var contacts = await source.Skip(skip).Take(take).ToListAsync();
+            var sourceQuery = AddIncludeClauses(source, query);
+            sourceQuery = AddSortClause(sourceQuery, query);
+
+            var contacts = await sourceQuery.Skip(skip).Take(take).ToListAsync();
             var count = await source.CountAsync();
 
             var mappedContacts = _mapper.Map<IEnumerable<Contact>>(contacts);
@@ -40,6 +45,39 @@ namespace Rollvolet.CRM.DataProviders
                 PageNumber = query.Page.Number,
                 PageSize = query.Page.Size
             };
+        }
+
+        private IQueryable<DataProvider.Models.Contact> AddIncludeClauses(IQueryable<DataProvider.Models.Contact> sourceQuery, QuerySet query)
+        {
+            foreach (var field in query.Include.Fields)
+            {
+                if ("country".Equals(field))
+                    sourceQuery = sourceQuery.Include(c => c.Country);
+            }
+
+            return sourceQuery;
+        }
+
+        private IQueryable<DataProvider.Models.Contact> AddSortClause(IQueryable<DataProvider.Models.Contact> sourceQuery, QuerySet query)
+        {
+            Expression<Func<DataProvider.Models.Contact, string>> selector = null;
+
+            switch (query.Sort.Field)
+            {
+                case "name":
+                    selector = x => x.Name;
+                    break;
+                default:
+                    selector = null;
+                    break;
+            }
+
+            if (selector != null)
+            {
+                sourceQuery = query.Sort.Order == SortQuery.ORDER_ASC ? sourceQuery.OrderBy(selector) : sourceQuery.OrderByDescending(selector);
+            }
+
+            return sourceQuery;
         }
     }
 }

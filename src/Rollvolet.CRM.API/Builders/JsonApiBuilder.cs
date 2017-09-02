@@ -19,6 +19,7 @@ namespace Rollvolet.CRM.API.Builders
             {
                 if (pair.Key.StartsWith("page"))
                 {
+                    // TODO throw exception if System.IndexOutOfRangeException
                     var propertyName = pair.Key.Split('[', ']')[1];
 
                     if (propertyName == "size")
@@ -32,6 +33,22 @@ namespace Rollvolet.CRM.API.Builders
                     var includeFields = pair.Value.ToString().Split(',');
 
                     querySet.Include.Fields = includeFields;
+                }
+
+                if (pair.Key.StartsWith("sort"))
+                {
+                    var field = pair.Value.ToString();
+
+                    if (field.StartsWith("-"))
+                    {
+                        querySet.Sort.Order = SortQuery.ORDER_DESC;
+                        querySet.Sort.Field = field.Substring(1);
+                    }
+                    else
+                    {
+                        querySet.Sort.Order = SortQuery.ORDER_ASC;
+                        querySet.Sort.Field = field;
+                    }
                 }
             }
 
@@ -51,14 +68,14 @@ namespace Rollvolet.CRM.API.Builders
         {
             var links = new CollectionLinks();
 
-            links.Self = $"{path}?{this.BuildPaginationQuery(paged.PageSize, paged.PageNumber)}&{this.BuildIncludeQuery(query.Include.Fields)}";
-            links.First = $"{path}?{this.BuildPaginationQuery(paged.PageSize, paged.First)}&{this.BuildIncludeQuery(query.Include.Fields)}";
-            links.Last = $"{path}?{this.BuildPaginationQuery(paged.PageSize, paged.Last)}&{this.BuildIncludeQuery(query.Include.Fields)}";
+            links.Self = $"{path}?{BuildPaginationQuery(paged.PageSize, paged.PageNumber)}{BuildIncludeQuery(query.Include.Fields)}{BuildSortQuery(query.Sort.Field, query.Sort.Order)}";
+            links.First = $"{path}?{BuildPaginationQuery(paged.PageSize, paged.First)}{BuildIncludeQuery(query.Include.Fields)}{BuildSortQuery(query.Sort.Field, query.Sort.Order)}";
+            links.Last = $"{path}?{BuildPaginationQuery(paged.PageSize, paged.Last)}{BuildIncludeQuery(query.Include.Fields)}{BuildSortQuery(query.Sort.Field, query.Sort.Order)}";
             
             if (paged.HasPrev)
-                links.Prev = $"{path}?{this.BuildPaginationQuery(paged.PageSize, paged.Prev)}&{this.BuildIncludeQuery(query.Include.Fields)}";
+                links.Prev = $"{path}?{BuildPaginationQuery(paged.PageSize, paged.Prev)}{BuildIncludeQuery(query.Include.Fields)}{BuildSortQuery(query.Sort.Field, query.Sort.Order)}";
             if (paged.HasNext)
-                links.Next = $"{path}?{this.BuildPaginationQuery(paged.PageSize, paged.Next)}&{this.BuildIncludeQuery(query.Include.Fields)}";
+                links.Next = $"{path}?{BuildPaginationQuery(paged.PageSize, paged.Next)}{BuildIncludeQuery(query.Include.Fields)}{BuildSortQuery(query.Sort.Field, query.Sort.Order)}";
 
             return links;
         }
@@ -75,7 +92,19 @@ namespace Rollvolet.CRM.API.Builders
 
         private string BuildIncludeQuery(string[] fields)
         {
-            return $"include={string.Join(",", fields)}";
+            return fields.Length > 0 ? $"&include={string.Join(",", fields)}" : "";
+        }
+
+        private string BuildSortQuery(string field, string order)
+        {
+            if (!string.IsNullOrEmpty(field))
+            {
+                return order == SortQuery.ORDER_ASC ? $"&sort={field}" : $"&sort=-{field}";
+            }
+            else
+            {
+                return "";
+            }
         }
     }
 }

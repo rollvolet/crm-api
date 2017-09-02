@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +32,7 @@ namespace Rollvolet.CRM.DataProviders
             var source = _context.Customers;
 
             var sourceQuery = AddIncludeClauses(source, query);
+            sourceQuery = AddSortClause(sourceQuery, query);
             var customers = await sourceQuery.Skip(skip).Take(take).ToListAsync();
             var mappedCustomers = _mapper.Map<IEnumerable<Customer>>(customers);
 
@@ -70,6 +73,28 @@ namespace Rollvolet.CRM.DataProviders
 
                 if ("buildings".Equals(field))
                     sourceQuery = sourceQuery.Include(c => c.Buildings);
+            }
+
+            return sourceQuery;
+        }
+
+        private IQueryable<DataProvider.Models.Customer> AddSortClause(IQueryable<DataProvider.Models.Customer> sourceQuery, QuerySet query)
+        {
+            Expression<Func<DataProvider.Models.Customer, string>> selector = null;
+
+            switch (query.Sort.Field)
+            {
+                case "name":
+                    selector = x => x.Name;
+                    break;
+                default:
+                    selector = null;
+                    break;
+            }
+
+            if (selector != null)
+            {
+                sourceQuery = query.Sort.Order == SortQuery.ORDER_ASC ? sourceQuery.OrderBy(selector) : sourceQuery.OrderByDescending(selector);
             }
 
             return sourceQuery;
