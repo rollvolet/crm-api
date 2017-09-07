@@ -7,6 +7,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Narato.ResponseMiddleware.Models.Exceptions;
 using Rollvolet.CRM.DataProvider.Contexts;
+using Rollvolet.CRM.DataProvider.Extensions;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -26,14 +27,12 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Paged<Customer>> GetAllAsync(QuerySet query)
         {
-            var skip = (query.Page.Number - 1) * query.Page.Size;
-            var take = query.Page.Size;
+            var source = _context.Customers
+                            .Include(query)
+                            .Sort(query);
 
-            var source = _context.Customers;
+            var customers = source.Skip(query.Page.Skip).Take(query.Page.Take).AsEnumerable();
 
-            var sourceQuery = AddIncludeClauses(source, query);
-            sourceQuery = AddSortClause(sourceQuery, query);
-            var customers = await sourceQuery.Skip(skip).Take(take).ToListAsync();
             var mappedCustomers = _mapper.Map<IEnumerable<Customer>>(customers);
 
             var count = await source.CountAsync();
@@ -48,9 +47,11 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Customer> GetByIdAsync(int id, QuerySet query)
         {
-            var source = _context.Customers.Where(c => c.AlternateId == id);
-            var sourceQuery = AddIncludeClauses(source, query);
-            var customer = await sourceQuery.FirstOrDefaultAsync();
+            var source = _context.Customers
+                            .Where(c => c.AlternateId == id)
+                            .Include(query);
+
+            var customer = await source.FirstOrDefaultAsync();
             
             if (customer == null)
             {
@@ -59,45 +60,6 @@ namespace Rollvolet.CRM.DataProviders
             }
 
             return _mapper.Map<Customer>(customer);
-        }
-
-        private IQueryable<DataProvider.Models.Customer> AddIncludeClauses(IQueryable<DataProvider.Models.Customer> sourceQuery, QuerySet query)
-        {
-            foreach (var field in query.Include.Fields)
-            {
-                if ("country".Equals(field))
-                    sourceQuery = sourceQuery.Include(c => c.Country);
-
-                if ("contacts".Equals(field))
-                    sourceQuery = sourceQuery.Include(c => c.Contacts);
-
-                if ("buildings".Equals(field))
-                    sourceQuery = sourceQuery.Include(c => c.Buildings);
-            }
-
-            return sourceQuery;
-        }
-
-        private IQueryable<DataProvider.Models.Customer> AddSortClause(IQueryable<DataProvider.Models.Customer> sourceQuery, QuerySet query)
-        {
-            Expression<Func<DataProvider.Models.Customer, string>> selector = null;
-
-            switch (query.Sort.Field)
-            {
-                case "name":
-                    selector = x => x.Name;
-                    break;
-                default:
-                    selector = null;
-                    break;
-            }
-
-            if (selector != null)
-            {
-                sourceQuery = query.Sort.Order == SortQuery.ORDER_ASC ? sourceQuery.OrderBy(selector) : sourceQuery.OrderByDescending(selector);
-            }
-
-            return sourceQuery;
         }
     }
 }

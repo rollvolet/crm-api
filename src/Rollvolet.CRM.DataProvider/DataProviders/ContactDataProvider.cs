@@ -10,6 +10,7 @@ using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
+using Rollvolet.CRM.DataProvider.Extensions;
 
 namespace Rollvolet.CRM.DataProviders
 {   
@@ -26,15 +27,13 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Paged<Contact>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
-            var skip = (query.Page.Number - 1) * query.Page.Size;
-            var take = query.Page.Size;
+            var source = _context.Contacts
+                            .Where(c => c.CustomerId == customerId)
+                            .Include(query)
+                            .Sort(query);
 
-            var source = _context.Contacts.Where(c => c.CustomerId == customerId);
+            var contacts = source.Skip(query.Page.Skip).Take(query.Page.Take).AsEnumerable();
 
-            var sourceQuery = AddIncludeClauses(source, query);
-            sourceQuery = AddSortClause(sourceQuery, query);
-
-            var contacts = await sourceQuery.Skip(skip).Take(take).ToListAsync();
             var count = await source.CountAsync();
 
             var mappedContacts = _mapper.Map<IEnumerable<Contact>>(contacts);
@@ -45,39 +44,6 @@ namespace Rollvolet.CRM.DataProviders
                 PageNumber = query.Page.Number,
                 PageSize = query.Page.Size
             };
-        }
-
-        private IQueryable<DataProvider.Models.Contact> AddIncludeClauses(IQueryable<DataProvider.Models.Contact> sourceQuery, QuerySet query)
-        {
-            foreach (var field in query.Include.Fields)
-            {
-                if ("country".Equals(field))
-                    sourceQuery = sourceQuery.Include(c => c.Country);
-            }
-
-            return sourceQuery;
-        }
-
-        private IQueryable<DataProvider.Models.Contact> AddSortClause(IQueryable<DataProvider.Models.Contact> sourceQuery, QuerySet query)
-        {
-            Expression<Func<DataProvider.Models.Contact, string>> selector = null;
-
-            switch (query.Sort.Field)
-            {
-                case "name":
-                    selector = x => x.Name;
-                    break;
-                default:
-                    selector = null;
-                    break;
-            }
-
-            if (selector != null)
-            {
-                sourceQuery = query.Sort.Order == SortQuery.ORDER_ASC ? sourceQuery.OrderBy(selector) : sourceQuery.OrderByDescending(selector);
-            }
-
-            return sourceQuery;
         }
     }
 }
