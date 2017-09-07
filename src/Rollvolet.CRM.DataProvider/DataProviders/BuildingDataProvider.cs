@@ -8,6 +8,7 @@ using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
+using Rollvolet.CRM.DataProvider.Extensions;
 
 namespace Rollvolet.CRM.DataProviders
 {   
@@ -24,12 +25,13 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Paged<Building>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
-            var skip = (query.Page.Number - 1) * query.Page.Size;
-            var take = query.Page.Size;
+            var source = _context.Buildings
+                            .Where(c => c.CustomerId == customerId)
+                            .Include(query)
+                            .Sort(query);
 
-            var source = _context.Buildings.Where(c => c.CustomerId == customerId);
+            var buildings = source.Skip(query.Page.Skip).Take(query.Page.Take).AsEnumerable();
 
-            var buildings = await source.Skip(skip).Take(take).ToListAsync();
             var count = await source.CountAsync();
 
             var mappedBuildings = _mapper.Map<IEnumerable<Building>>(buildings);

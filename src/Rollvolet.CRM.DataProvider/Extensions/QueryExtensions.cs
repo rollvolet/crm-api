@@ -48,6 +48,24 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             return Sort<Contact>(source, querySet, selectors);
         }
 
+        public static IQueryable<Building> Include(this IQueryable<Building> source, QuerySet querySet)
+        {
+            var selectors = new Dictionary<string, Expression<Func<Building, object>>>();
+            
+            selectors.Add("country", c => c.Country);
+
+            return Include<Building>(source, querySet, selectors);         
+        }
+
+        public static IQueryable<Building> Sort(this IQueryable<Building> source, QuerySet querySet)
+        {
+            var selectors = new Dictionary<string, Expression<Func<Building, string>>>();
+            
+            selectors.Add("name", x => x.Name);
+
+            return Sort<Building>(source, querySet, selectors);
+        }
+
         private static IQueryable<T> Include<T>(IQueryable<T> source, QuerySet querySet, IDictionary<string, Expression<Func<T, object>>> selectors) where T : class
         {
             foreach(var field in querySet.Include.Fields)
