@@ -25,5 +25,10 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             return await _customerDataProvider.GetByIdAsync(id, query);
         }
+
+        public async Task<Customer> Create(Customer customer)
+        {
+            return await _customerDataProvider.Create(customer);
+        }
     }
 }

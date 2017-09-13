@@ -18,7 +18,12 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Type, opt => opt.UseValue("customers"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetCustomerRelationships(src.Id)))
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Country, opt => opt.Ignore())
+                .ForMember(dest => dest.Contacts, opt => opt.Ignore())
+                .ForMember(dest => dest.Buildings, opt => opt.Ignore())
+                .ConstructUsing((src, context) => context.Mapper.Map<Customer>(src.Attributes));
             
             CreateMap<Customer, RelationResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("customers"))

@@ -64,6 +64,15 @@ namespace Rollvolet.CRM.API.Builders
             return links;
         }
 
+        public Links BuildLinks(string path, string id)
+        {
+            var links = new Links();
+
+            links.Self = $"{path}/{id}";
+
+            return links;
+        }
+
         public CollectionLinks BuildLinks(string path, QuerySet query, IPaged paged)
         {
             var links = new CollectionLinks();

@@ -61,5 +61,15 @@ namespace Rollvolet.CRM.DataProviders
 
             return _mapper.Map<Customer>(customer);
         }
+
+        public async Task<Customer> Create(Customer customer)
+        {
+            var customerRecord = _mapper.Map<DataProvider.Models.Customer>(customer);
+
+            _context.Customers.Add(customerRecord);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Customer>(customerRecord); // id is filled in now
+        }
     }
 }
