@@ -45,10 +45,10 @@ namespace Rollvolet.CRM.DataProviders
             };
         }
 
-        public async Task<Customer> GetByIdAsync(int id, QuerySet query)
+        public async Task<Customer> GetByNumberAsync(int number, QuerySet query)
         {
             var source = _context.Customers
-                            .Where(c => c.AlternateId == id)
+                            .Where(c => c.Number == number)
                             .Include(query);
 
             var customer = await source.FirstOrDefaultAsync();
@@ -56,7 +56,7 @@ namespace Rollvolet.CRM.DataProviders
             if (customer == null)
             {
                 // TODO implement and handle exceptions according to jsonapi
-                throw new EntityNotFoundException("ENF", $"Customer with id {id} not found");
+                throw new EntityNotFoundException("ENF", $"Customer with number {number} not found");
             }
 
             return _mapper.Map<Customer>(customer);

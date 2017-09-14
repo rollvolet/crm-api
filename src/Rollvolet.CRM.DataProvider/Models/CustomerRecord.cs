@@ -5,9 +5,9 @@ namespace Rollvolet.CRM.DataProvider.Models
     public abstract class CustomerRecord
     {
         [Column("DataID")]
-        public int DataId { get; set; }
+        public int DataId { get; set; } // the public ID for Contact / Building 
         [Column("ID")]
-        public int AlternateId { get; set; }
+        public int Number { get; set; } // the public ID for Customer
         [Column("Naam")]
         public string Name { get; set; } 
         [Column("Adres1")]

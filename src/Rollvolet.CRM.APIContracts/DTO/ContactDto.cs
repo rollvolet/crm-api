@@ -11,7 +11,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public string Address1 { get; set; }
             public string Address2 { get; set; }
             public string Address3 { get; set; }
-            public int RelativeId { get; set; }
+            public int Number { get; set; }
             public int CustomerId { get; set; }
         }
   }

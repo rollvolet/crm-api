@@ -9,6 +9,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
 
         public class AttributesDto {
             public int DataId { get; set; }
+            public int Number { get; set; }
             public string Name { get; set; }
             public string Address1 { get; set; }
             public string Address2 { get; set; }

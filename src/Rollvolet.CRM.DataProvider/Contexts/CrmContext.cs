@@ -19,8 +19,8 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasValue<Building>("GEB");
 
             modelBuilder.Entity<CustomerRecord>()
-                .HasKey(b => b.DataId)
-                .HasName("DataID");
+                .HasKey(b => b.DataId) // primary key
+                .HasName("TblData$PrimaryKey"); // name of the primary key constraint
 
             modelBuilder.Entity<CustomerRecord>()
                 .ToTable("tblData", schema: "dbo");
@@ -29,13 +29,13 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasOne(e => e.Customer)
                 .WithMany(e => e.Contacts)
                 .HasForeignKey(e => e.CustomerId)
-                .HasPrincipalKey(e => e.AlternateId);
+                .HasPrincipalKey(e => e.Number);
 
             modelBuilder.Entity<Building>()
                 .HasOne(e => e.Customer)
                 .WithMany(e => e.Buildings)
                 .HasForeignKey(e => e.CustomerId)
-                .HasPrincipalKey(e => e.AlternateId);
+                .HasPrincipalKey(e => e.Number);
 
             modelBuilder.Entity<Country>()
                 .HasKey(e => e.Id)
