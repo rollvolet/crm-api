@@ -2,15 +2,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rollvolet.CRM.DataProvider.Models
 {
-    public class Country
+    public class Language
     {
-        [Column("LandId")]
+        [Column("TaalID")]
         public int Id { get; set; }
 
-        [Column("Landcode")]
+        [Column("Taalcode")]
         public string Code { get; set; }
-        
-        [Column("LandOmschrijving")]
+
+        [Column("Taal")]
         public string Name { get; set; }
     }
   

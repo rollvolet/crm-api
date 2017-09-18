@@ -1,9 +1,8 @@
 namespace Rollvolet.CRM.Domain.Models
 {
-    public class Country
+    public class HonorificPrefix
     {
         public string Id { get; set; }
-        public string Code { get; set; }
         public string Name { get; set; }
     }
 }

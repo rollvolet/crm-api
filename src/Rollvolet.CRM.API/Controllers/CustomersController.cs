@@ -127,6 +127,24 @@ namespace Rollvolet.CRM.API.Controllers
                 included.Add(_mapper.Map<CountryDto>(customer.Country));
             }
 
+            if (querySet.Include.Contains("language") && customer.Language != null)
+            {
+                resource.Relationships["language"].Data = _mapper.Map<RelationResource>(customer.Language);
+                included.Add(_mapper.Map<LanguageDto>(customer.Language));
+            }
+
+            if (querySet.Include.Contains("postal-code") && customer.PostalCode != null)
+            {
+                resource.Relationships["postal-code"].Data = _mapper.Map<RelationResource>(customer.PostalCode);
+                included.Add(_mapper.Map<PostalCodeDto>(customer.PostalCode));
+            }
+
+            if (querySet.Include.Contains("honorific-prefix") && customer.HonorificPrefix != null)
+            {
+                resource.Relationships["honorific-prefix"].Data = _mapper.Map<RelationResource>(customer.HonorificPrefix);
+                included.Add(_mapper.Map<HonorificPrefixDto>(customer.HonorificPrefix));
+            }
+
             if (querySet.Include.Contains("contacts") && customer.Contacts.Count() > 0)
             {
                 resource.Relationships["contacts"].Data = _mapper.Map<IEnumerable<RelationResource>>(customer.Contacts);

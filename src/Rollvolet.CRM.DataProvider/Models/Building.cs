@@ -6,6 +6,8 @@ namespace Rollvolet.CRM.DataProvider.Models
     {
         [Column("ParentID")]
         public int CustomerId { get; set; }
+
+        // Include resources
         public Customer Customer { get; set; }
     }
 }

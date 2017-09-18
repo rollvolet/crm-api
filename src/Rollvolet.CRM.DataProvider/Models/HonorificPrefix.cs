@@ -2,16 +2,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rollvolet.CRM.DataProvider.Models
 {
-    public class Country
+    public class HonorificPrefix
     {
-        [Column("LandId")]
+        [Column("AanspreekID")]
         public int Id { get; set; }
 
-        [Column("Landcode")]
-        public string Code { get; set; }
-        
-        [Column("LandOmschrijving")]
+        [Column("TaalId")]
+        public int LanguageId { get; set; }
+
+        [Column("Omschrijving")]
         public string Name { get; set; }
     }
-  
 }

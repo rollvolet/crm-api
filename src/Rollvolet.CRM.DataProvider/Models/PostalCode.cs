@@ -2,16 +2,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rollvolet.CRM.DataProvider.Models
 {
-    public class Country
+    public class PostalCode
     {
-        [Column("LandId")]
+        [Column("PostcodeId")]
         public int Id { get; set; }
 
-        [Column("Landcode")]
+        [Column("Postcode")]
         public string Code { get; set; }
         
-        [Column("LandOmschrijving")]
+        [Column("Gemeente")]
         public string Name { get; set; }
+
+        [Column("AfstandRollvolet")]
+        public int Distance { get; set; }
     }
   
 }

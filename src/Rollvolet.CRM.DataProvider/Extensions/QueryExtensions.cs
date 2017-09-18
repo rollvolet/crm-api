@@ -15,6 +15,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             var selectors = new Dictionary<string, Expression<Func<Customer, object>>>();
             
             selectors.Add("country", c => c.Country);
+            selectors.Add("language", c => c.Language);
+            selectors.Add("postal-code", c => c.PostalCode);
+            selectors.Add("honorific-prefix", c => c.HonorificPrefix);
             selectors.Add("contacts", c => c.Contacts);
             selectors.Add("buildings", c => c.Buildings);
 
@@ -35,6 +38,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             var selectors = new Dictionary<string, Expression<Func<Contact, object>>>();
             
             selectors.Add("country", c => c.Country);
+            selectors.Add("language", c => c.Language);
+            selectors.Add("postal-code", c => c.PostalCode);
 
             return Include<Contact>(source, querySet, selectors);         
         }
@@ -53,6 +58,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             var selectors = new Dictionary<string, Expression<Func<Building, object>>>();
             
             selectors.Add("country", c => c.Country);
+            selectors.Add("language", c => c.Language);
+            selectors.Add("postal-code", c => c.PostalCode);
 
             return Include<Building>(source, querySet, selectors);         
         }

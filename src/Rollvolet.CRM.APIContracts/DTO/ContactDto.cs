@@ -1,3 +1,4 @@
+using System;
 using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.APIContracts.DTO
@@ -13,6 +14,8 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public string Address3 { get; set; }
             public int Number { get; set; }
             public int CustomerId { get; set; }
+            public DateTime Created { get; set; }
+            public DateTime Updated { get; set; }
         }
   }
 }

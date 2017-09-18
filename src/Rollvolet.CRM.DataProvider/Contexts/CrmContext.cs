@@ -9,9 +9,20 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Building> Buildings { get; set; }
         public DbSet<Country> Countries { get; set; }
+        public DbSet<Language> Languages { get; set; }
+        public DbSet<PostalCode> PostalCodes { get; set; }
+
+        public CrmContext(DbContextOptions<CrmContext> options) : base(options)
+        {
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Customer / contact / building
+
+            modelBuilder.Entity<CustomerRecord>()
+                .ToTable("tblData", schema: "dbo");
+
             modelBuilder.Entity<CustomerRecord>()
                 .HasDiscriminator<string>("DataType")
                 .HasValue<Customer>("KLA")
@@ -22,8 +33,10 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasKey(b => b.DataId) // primary key
                 .HasName("TblData$PrimaryKey"); // name of the primary key constraint
 
-            modelBuilder.Entity<CustomerRecord>()
-                .ToTable("tblData", schema: "dbo");
+            modelBuilder.Entity<Customer>()
+                .HasOne(e => e.HonorificPrefix)
+                .WithOne()
+                .HasForeignKey((Customer e) => new { e.HonorificPrefixId, e.LanguageId });
 
             modelBuilder.Entity<Contact>()
                 .HasOne(e => e.Customer)
@@ -37,16 +50,45 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.Number);
 
-            modelBuilder.Entity<Country>()
-                .HasKey(e => e.Id)
-                .HasName("LandId");
+
+            // Country
 
             modelBuilder.Entity<Country>()
                 .ToTable("TblLand", schema: "dbo");
-        }
 
-        public CrmContext(DbContextOptions<CrmContext> options) : base(options)
-        {
+            modelBuilder.Entity<Country>()
+                .HasKey(e => e.Id)
+                .HasName("TblLand$PrimaryKey");
+
+
+            // HonorificPrefix
+
+            modelBuilder.Entity<HonorificPrefix>()
+                .ToTable("TblAanspreekTitel", schema: "dbo");
+
+            modelBuilder.Entity<HonorificPrefix>()
+                .HasKey(e => new { e.Id, e.LanguageId })
+                .HasName("TblAanspreekTitel$PrimaryKey");
+
+
+            // Language
+
+            modelBuilder.Entity<Language>()
+                .ToTable("TblTaal", schema: "dbo");
+
+            modelBuilder.Entity<Language>()
+                .HasKey(e => e.Id)
+                .HasName("TblTaal$PrimaryKey");
+
+
+            // PostalCode
+
+            modelBuilder.Entity<PostalCode>()
+                .ToTable("TblPostCode", schema: "dbo");
+
+            modelBuilder.Entity<PostalCode>()
+                .HasKey(e => e.Id)
+                .HasName("TblPostCode$PrimaryKey");
         }
     }
 }
