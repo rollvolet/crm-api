@@ -112,11 +112,25 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<PostalCode, RelationResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("postal-codes"))
                 .ReverseMap();
+
+            CreateMap<Telephone, TelephoneDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("telephones;"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetEmptyRelationships()))
+                .ReverseMap();
+
+            CreateMap<Telephone, TelephoneDto.AttributesDto>()
+                .ReverseMap();
+
+            CreateMap<Telephone, RelationResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("telephones"))
+                .ReverseMap();
         }
   
         private IDictionary<string, Relationship> GetCustomerRelationships(int id)
         {
-            var fields = new string[6] {"contacts", "buildings", "country", "honorific-prefix", "language", "postal-code"};
+            var fields = new string[7] {"contacts", "buildings", "country", "honorific-prefix", "language", "postal-code", "telephones"};
 
             return GetResourceRelationships("customers", id, fields);
         }

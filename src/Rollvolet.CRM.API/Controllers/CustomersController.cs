@@ -157,6 +157,12 @@ namespace Rollvolet.CRM.API.Controllers
                 included.UnionWith(_mapper.Map<IEnumerable<BuildingDto>>(customer.Buildings));
             }
 
+            if (querySet.Include.Contains("telephones") && customer.Telephones.Count() > 0)
+            {
+                resource.Relationships["telephones"].Data = _mapper.Map<IEnumerable<RelationResource>>(customer.Telephones);
+                included.UnionWith(_mapper.Map<IEnumerable<TelephoneDto>>(customer.Telephones));
+            }
+
             return resource;
         }
     }

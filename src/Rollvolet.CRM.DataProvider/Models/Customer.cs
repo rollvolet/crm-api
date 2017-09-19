@@ -43,5 +43,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public HonorificPrefix HonorificPrefix { get; set; }
         public IEnumerable<Contact> Contacts { get; set; }
         public IEnumerable<Building> Buildings { get; set; }
+        public IEnumerable<Telephone> Telephones { get; set; }
     }
 }

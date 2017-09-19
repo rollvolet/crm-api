@@ -47,6 +47,17 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();
+
+            CreateMap<Models.Telephone, Domain.Models.Telephone>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => $"{src.CustomerId}-{src.TelephoneTypeId}-{src.CountryId}-{src.Area}-{src.Number}"))
+                .PreserveReferences()
+                .ReverseMap()
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Id.Split('-')[0]))
+                .ForMember(dest => dest.TelephoneTypeId, opt => opt.MapFrom(src => src.Id.Split('-')[1]))
+                .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.Id.Split('-')[2]))
+                .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Id.Split('-')[3]))
+                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => src.Id.Split('-')[4]))
+                .PreserveReferences();
         }
     }
 }

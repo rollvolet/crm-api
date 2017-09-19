@@ -20,6 +20,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("honorific-prefix", c => c.HonorificPrefix);
             selectors.Add("contacts", c => c.Contacts);
             selectors.Add("buildings", c => c.Buildings);
+            selectors.Add("telephones", c => c.Telephones);
 
             return Include<Customer>(source, querySet, selectors);              
         }
