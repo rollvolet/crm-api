@@ -16,20 +16,17 @@ using Rollvolet.CRM.Domain.Models.Query;
 namespace Rollvolet.CRM.API.Controllers
 {
     [Route("[controller]")]
-    public class CustomersController : Controller
+    public class CustomersController : JsonApiController
     {
         private readonly ICustomerManager _customerManager;
         private readonly IContactManager _contactManager;
         private readonly IBuildingManager _buildingManager;
-        
-        private readonly IMapper _mapper;
 
-        public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager, IMapper mapper)
+        public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager, IMapper mapper) : base(mapper)
         {
             _customerManager = customerManager;
             _contactManager = contactManager;
             _buildingManager = buildingManager;
-            _mapper = mapper;
         }
 
         [HttpGet]
@@ -121,49 +118,17 @@ namespace Rollvolet.CRM.API.Controllers
         {
             var resource = _mapper.Map<CustomerDto>(customer);
 
-            if (querySet.Include.Contains("country") && customer.Country != null)
-            {
-                resource.Relationships["country"].Data = _mapper.Map<RelationResource>(customer.Country);
-                included.Add(_mapper.Map<CountryDto>(customer.Country));
-            }
+            MapOneAndUpdateIncluded<Country, CountryDto>("country", customer.Country, querySet, resource, included);
+            MapOneAndUpdateIncluded<Language, LanguageDto>("language", customer.Language, querySet, resource, included);
+            MapOneAndUpdateIncluded<PostalCode, PostalCodeDto>("postal-code", customer.PostalCode, querySet, resource, included);
+            MapOneAndUpdateIncluded<HonorificPrefix, HonorificPrefixDto>("honorific-preix", customer.HonorificPrefix, querySet, resource, included);
 
-            if (querySet.Include.Contains("language") && customer.Language != null)
-            {
-                resource.Relationships["language"].Data = _mapper.Map<RelationResource>(customer.Language);
-                included.Add(_mapper.Map<LanguageDto>(customer.Language));
-            }
-
-            if (querySet.Include.Contains("postal-code") && customer.PostalCode != null)
-            {
-                resource.Relationships["postal-code"].Data = _mapper.Map<RelationResource>(customer.PostalCode);
-                included.Add(_mapper.Map<PostalCodeDto>(customer.PostalCode));
-            }
-
-            if (querySet.Include.Contains("honorific-prefix") && customer.HonorificPrefix != null)
-            {
-                resource.Relationships["honorific-prefix"].Data = _mapper.Map<RelationResource>(customer.HonorificPrefix);
-                included.Add(_mapper.Map<HonorificPrefixDto>(customer.HonorificPrefix));
-            }
-
-            if (querySet.Include.Contains("contacts") && customer.Contacts.Count() > 0)
-            {
-                resource.Relationships["contacts"].Data = _mapper.Map<IEnumerable<RelationResource>>(customer.Contacts);
-                included.UnionWith(_mapper.Map<IEnumerable<ContactDto>>(customer.Contacts));
-            }
-
-            if (querySet.Include.Contains("buildings") && customer.Buildings.Count() > 0)
-            {
-                resource.Relationships["buildings"].Data = _mapper.Map<IEnumerable<RelationResource>>(customer.Buildings);
-                included.UnionWith(_mapper.Map<IEnumerable<BuildingDto>>(customer.Buildings));
-            }
-
-            if (querySet.Include.Contains("telephones") && customer.Telephones.Count() > 0)
-            {
-                resource.Relationships["telephones"].Data = _mapper.Map<IEnumerable<RelationResource>>(customer.Telephones);
-                included.UnionWith(_mapper.Map<IEnumerable<TelephoneDto>>(customer.Telephones));
-            }
+            MapManyAndUpdateIncluded<Contact, ContactDto>("contacts", customer.Contacts, querySet, resource, included);
+            MapManyAndUpdateIncluded<Building, BuildingDto>("buildings", customer.Buildings, querySet, resource, included);
+            MapManyAndUpdateIncluded<Telephone, TelephoneDto>("telephones", customer.Telephones, querySet, resource, included);
 
             return resource;
         }
+
     }
 } 
