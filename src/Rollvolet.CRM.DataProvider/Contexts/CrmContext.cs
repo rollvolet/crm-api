@@ -12,6 +12,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Language> Languages { get; set; }
         public DbSet<PostalCode> PostalCodes { get; set; }
         public DbSet<Telephone> Telephones { get; set; }
+        public DbSet<TelephoneType> TelephoneTypes { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
         {
@@ -106,6 +107,16 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithMany(e => e.Telephones)
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.DataId);
+
+
+            // Telephone Type
+
+            modelBuilder.Entity<TelephoneType>()
+                .ToTable("TblTelType", schema: "dbo");
+
+            modelBuilder.Entity<TelephoneType>()
+                .HasKey(e => e.Id)
+                .HasName("TblTelType$PrimaryKey");
         }
     }
 }

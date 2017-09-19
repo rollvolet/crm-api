@@ -14,7 +14,7 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.UseValue("customers"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetCustomerRelationships(src.Id)))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetCustomerRelationships(src.Id.ToString())))
                 .ReverseMap()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Country, opt => opt.Ignore())
@@ -33,7 +33,7 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.UseValue("contacts"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetContactRelationships(src.Id)))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetContactRelationships(src.Id.ToString())))
                 .ReverseMap();
             
             CreateMap<Contact, ContactDto.AttributesDto>()
@@ -47,7 +47,7 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.UseValue("buildings"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetBuildingRelationships(src.Id)))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetBuildingRelationships(src.Id.ToString())))
                 .ReverseMap();
 
             CreateMap<Building, BuildingDto.AttributesDto>()
@@ -115,9 +115,9 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<Telephone, TelephoneDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Type, opt => opt.UseValue("telephones;"))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("telephones"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetEmptyRelationships()))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetTelephoneRelationships(src.Id)))
                 .ReverseMap();
 
             CreateMap<Telephone, TelephoneDto.AttributesDto>()
@@ -126,30 +126,51 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<Telephone, RelationResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("telephones"))
                 .ReverseMap();
+
+            CreateMap<TelephoneType, TelephoneTypeDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("telephone-types"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetEmptyRelationships()))
+                .ReverseMap();
+
+            CreateMap<TelephoneType, TelephoneTypeDto.AttributesDto>()
+                .ReverseMap();
+
+            CreateMap<TelephoneType, RelationResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("telephone-types"))
+                .ReverseMap();
         }
   
-        private IDictionary<string, Relationship> GetCustomerRelationships(int id)
+        private IDictionary<string, Relationship> GetCustomerRelationships(string id)
         {
             var fields = new string[7] {"contacts", "buildings", "country", "honorific-prefix", "language", "postal-code", "telephones"};
 
             return GetResourceRelationships("customers", id, fields);
         }
 
-        private IDictionary<string, Relationship> GetContactRelationships(int id)
+        private IDictionary<string, Relationship> GetContactRelationships(string id)
         {
             var fields = new string[3] {"country", "language", "postal-code"};
 
             return GetResourceRelationships("contacts", id, fields);
         }
 
-        private IDictionary<string, Relationship> GetBuildingRelationships(int id)
+        private IDictionary<string, Relationship> GetBuildingRelationships(string id)
         {
             var fields = new string[3] {"country", "language", "postal-code"};
 
             return GetResourceRelationships("buildings", id, fields);
         }
 
-        private IDictionary<string, Relationship> GetResourceRelationships(string name, int id, string[] fields)
+        private IDictionary<string, Relationship> GetTelephoneRelationships(string id)
+        {
+            var fields = new string[2] {"country", "telephone-type"};
+
+            return GetResourceRelationships("telephones", id, fields);
+        }
+
+        private IDictionary<string, Relationship> GetResourceRelationships(string name, string id, string[] fields)
         {
             var relationships = new Dictionary<string, Relationship>();
             

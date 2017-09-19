@@ -21,12 +21,15 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly ICustomerManager _customerManager;
         private readonly IContactManager _contactManager;
         private readonly IBuildingManager _buildingManager;
+        private readonly ITelephoneManager _telephoneManager;
 
-        public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager, IMapper mapper) : base(mapper)
+        public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager, 
+                                    ITelephoneManager telephoneManager, IMapper mapper) : base(mapper)
         {
             _customerManager = customerManager;
             _contactManager = contactManager;
             _buildingManager = buildingManager;
+            _telephoneManager = telephoneManager;
         }
 
         [HttpGet]
@@ -114,6 +117,31 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = buildingResources });
         }
 
+        [HttpGet("{customerId}/telephones")]
+        [HttpGet("{customerId}/links/telephones")]
+        public async Task<IActionResult> GetRelatedTelephonesById(int customerId)
+        {
+            var jsonApiBuilder = new JsonApiBuilder();
+            var querySet = jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedTelephones = await _telephoneManager.GetAllByCustomerIdAsync(customerId, querySet);
+
+            var included = new HashSet<Resource>();
+            var telephoneResources = new List<TelephoneDto>();
+
+            foreach (var telephone in pagedTelephones.Items)
+            {
+                var telephoneResource = MapToResourceAndUpdateIncluded(telephone, querySet, included);
+                telephoneResources.Add(telephoneResource);
+            }
+
+            var links = jsonApiBuilder.BuildLinks(HttpContext.Request.Path, querySet, pagedTelephones);
+            var meta = jsonApiBuilder.BuildMeta(pagedTelephones);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = telephoneResources, Included = included });
+        }
+
+        // TODO: refactor to extension method of CustomerDto
         private CustomerDto MapToResourceAndUpdateIncluded(Customer customer, QuerySet querySet, ISet<Resource> included)
         {
             var resource = _mapper.Map<CustomerDto>(customer);
@@ -126,6 +154,17 @@ namespace Rollvolet.CRM.API.Controllers
             MapManyAndUpdateIncluded<Contact, ContactDto>("contacts", customer.Contacts, querySet, resource, included);
             MapManyAndUpdateIncluded<Building, BuildingDto>("buildings", customer.Buildings, querySet, resource, included);
             MapManyAndUpdateIncluded<Telephone, TelephoneDto>("telephones", customer.Telephones, querySet, resource, included);
+
+            return resource;
+        }
+
+        // TODO: refactor to extension method of TelephoneDto
+        private TelephoneDto MapToResourceAndUpdateIncluded(Telephone telephone, QuerySet querySet, ISet<Resource> included)
+        {
+            var resource = _mapper.Map<TelephoneDto>(telephone);
+
+            MapOneAndUpdateIncluded<Country, CountryDto>("country", telephone.Country, querySet, resource, included);
+            MapOneAndUpdateIncluded<TelephoneType, TelephoneTypeDto>("telephone-type", telephone.TelephoneType, querySet, resource, included);
 
             return resource;
         }

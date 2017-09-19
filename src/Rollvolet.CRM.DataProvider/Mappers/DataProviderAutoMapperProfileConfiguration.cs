@@ -58,6 +58,11 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Id.Split('-')[3]))
                 .ForMember(dest => dest.Number, opt => opt.MapFrom(src => src.Id.Split('-')[4]))
                 .PreserveReferences();
+                
+            CreateMap<Models.TelephoneType, Domain.Models.TelephoneType>()
+                .PreserveReferences()
+                .ReverseMap()
+                .PreserveReferences();
         }
     }
 }

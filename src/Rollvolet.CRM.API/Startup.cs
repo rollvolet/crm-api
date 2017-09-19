@@ -70,6 +70,8 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IContactManager, ContactManager>();
             services.AddTransient<IBuildingDataProvider, BuildingDataProvider>();
             services.AddTransient<IBuildingManager, BuildingManager>();
+            services.AddTransient<ITelephoneDataProvider, TelephoneDataProvider>();
+            services.AddTransient<ITelephoneManager, TelephoneManager>();
 
             services.AddSwaggerGen();
             services.ConfigureSwaggerGen(options =>

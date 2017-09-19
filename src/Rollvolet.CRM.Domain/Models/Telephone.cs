@@ -9,5 +9,6 @@ namespace Rollvolet.CRM.Domain.Models
         public int Order { get; set; }
         public Customer Customer { get; set; }
         public Country Country { get; set; }
+        public TelephoneType TelephoneType { get; set; }
     }
 }

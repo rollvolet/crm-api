@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.DataProvider.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 
@@ -74,16 +75,36 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             return Sort<Building>(source, querySet, selectors);
         }
 
+        public static IQueryable<Telephone> Include(this IQueryable<Telephone> source, QuerySet querySet)
+        {
+            var selectors = new Dictionary<string, Expression<Func<Telephone, object>>>();
+            
+            selectors.Add("country", c => c.Country);
+            selectors.Add("telephone-type", c => c.TelephoneType);
+
+            return Include<Telephone>(source, querySet, selectors);         
+        }
+
+        public static IQueryable<Telephone> Sort(this IQueryable<Telephone> source, QuerySet querySet)
+        {
+            var selectors = new Dictionary<string, Expression<Func<Telephone, string>>>();
+            
+            selectors.Add("order", x => x.Order.ToString());
+
+            return Sort<Telephone>(source, querySet, selectors);
+        }
+
         private static IQueryable<T> Include<T>(IQueryable<T> source, QuerySet querySet, IDictionary<string, Expression<Func<T, object>>> selectors) where T : class
         {
             foreach(var field in querySet.Include.Fields)
             {
-                var selector = selectors[field];
+                Expression<Func<T, object>> selector;
             
-                if (selector != null)
+                if (selectors.TryGetValue(field, out selector))
                 {
                     source = source.Include(selector);
                 }
+                // TODO: add else-clause to log invalid include field
             }
 
             return source;
@@ -91,12 +112,13 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         private static IQueryable<T> Sort<T>(IQueryable<T> source, QuerySet querySet, IDictionary<string, Expression<Func<T, string>>> selectors)
         {
-            var selector = querySet.Sort.Field != null ? selectors[querySet.Sort.Field] : null;
+            Expression<Func<T, string>> selector;
 
-            if (selector != null)
+            if (querySet.Sort.Field != null && selectors.TryGetValue(querySet.Sort.Field, out selector))
             {
                 source = querySet.Sort.Order == SortQuery.ORDER_ASC ? source.OrderBy(selector) : source.OrderByDescending(selector);
             }
+            // TODO: add else-clause to log invalid sort field
 
             return source;
         }
