@@ -74,6 +74,10 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IBuildingManager, BuildingManager>();
             services.AddTransient<ITelephoneDataProvider, TelephoneDataProvider>();
             services.AddTransient<ITelephoneManager, TelephoneManager>();
+            services.AddTransient<ICountryDataProvider, CountryDataProvider>();
+            services.AddTransient<IHonorificPrefixDataProvider, HonorificPrefixDataProvider>();
+            services.AddTransient<ILanguageDataProvider, LanguageDataProvider>();
+            services.AddTransient<IPostalCodeDataProvider, PostalCodeDataProvider>();
             
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
 

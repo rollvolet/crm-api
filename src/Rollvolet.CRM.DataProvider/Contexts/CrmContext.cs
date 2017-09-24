@@ -5,10 +5,11 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 {
     public class CrmContext : DbContext
     {
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Contact> Contacts { get; set; }
         public DbSet<Building> Buildings { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
+        public DbSet<Customer> Customers { get; set; }
         public DbSet<Country> Countries { get; set; }
+        public DbSet<HonorificPrefix> HonorificPrefixes { get; set; }
         public DbSet<Language> Languages { get; set; }
         public DbSet<PostalCode> PostalCodes { get; set; }
         public DbSet<Telephone> Telephones { get; set; }

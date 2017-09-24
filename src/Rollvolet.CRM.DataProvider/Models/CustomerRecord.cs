@@ -47,5 +47,16 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Language Language { get; set; }
         public PostalCode PostalCode { get; set; }
 
+
+        // Embedded properties
+        [Column("Postcode")]
+        public string EmbeddedPostalCode { get; set; }
+
+        [Column("Gemeente")]
+        public string EmbeddedCity { get; set; }
+        
+        [Column("ZoekNaam")]
+        public string SearchName { get; set; }
+
     }
 }

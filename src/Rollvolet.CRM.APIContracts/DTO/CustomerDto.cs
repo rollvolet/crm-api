@@ -8,7 +8,8 @@ namespace Rollvolet.CRM.APIContracts.DTO
     {
         public new AttributesDto Attributes { get; set; }
 
-        public class AttributesDto {
+        public class AttributesDto
+        {
             public int DataId { get; set; }
             public int Number { get; set; }
             public string Name { get; set; }
@@ -29,5 +30,6 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public DateTime Created { get; set; }
             public DateTime Updated { get; set; }
         }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AutoMapper;
+using Newtonsoft.Json.Linq;
 using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
@@ -17,9 +18,13 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetCustomerRelationships(src.Id.ToString())))
                 .ReverseMap()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Country, opt => opt.Ignore())
+                .ForMember(dest => dest.Country, opt => opt.MapFrom(src => GetRelationship("country", src.Relationships)))
+                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => GetRelationship("language", src.Relationships))) 
+                .ForMember(dest => dest.HonorificPrefix, opt => opt.MapFrom(src => GetRelationship("honorific-prefix", src.Relationships)))
+                .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => GetRelationship("postal-code", src.Relationships)))
                 .ForMember(dest => dest.Contacts, opt => opt.Ignore())
                 .ForMember(dest => dest.Buildings, opt => opt.Ignore())
+                .ForMember(dest => dest.Telephones, opt => opt.Ignore())
                 .ConstructUsing((src, context) => context.Mapper.Map<Customer>(src.Attributes));
 
             CreateMap<Customer, CustomerDto.AttributesDto>()
@@ -67,9 +72,14 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<Country, CountryDto.AttributesDto>()
                 .ReverseMap();
 
+            CreateMap<Relationship, Country>()
+                .ConstructUsing((src, context) => context.Mapper.Map<Country>(((JObject) src.Data).ToObject<RelationResource>()))
+                .ForAllMembers(opt => opt.Ignore());
+
             CreateMap<Country, RelationResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("countries"))
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
             CreateMap<HonorificPrefix, HonorificPrefixDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -81,9 +91,14 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<HonorificPrefix, HonorificPrefixDto.AttributesDto>()
                 .ReverseMap();
 
+            CreateMap<Relationship, HonorificPrefix>()
+                .ConstructUsing((src, context) => context.Mapper.Map<HonorificPrefix>(((JObject) src.Data).ToObject<RelationResource>()))
+                .ForAllMembers(opt => opt.Ignore());
+
             CreateMap<HonorificPrefix, RelationResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("honorific-prefixes"))
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
             CreateMap<Language, LanguageDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -95,9 +110,14 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<Language, LanguageDto.AttributesDto>()
                 .ReverseMap();
 
+            CreateMap<Relationship, Language>()
+                .ConstructUsing((src, context) => context.Mapper.Map<Language>(((JObject) src.Data).ToObject<RelationResource>()))
+                .ForAllMembers(opt => opt.Ignore());
+
             CreateMap<Language, RelationResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("languages"))
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
             CreateMap<PostalCode, PostalCodeDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -109,9 +129,14 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<PostalCode, PostalCodeDto.AttributesDto>()
                 .ReverseMap();
 
+            CreateMap<Relationship, PostalCode>()
+                .ConstructUsing((src, context) => context.Mapper.Map<PostalCode>(((JObject) src.Data).ToObject<RelationResource>()))
+                .ForAllMembers(opt => opt.Ignore());
+
             CreateMap<PostalCode, RelationResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("postal-codes"))
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
             CreateMap<Telephone, TelephoneDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -140,6 +165,11 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<TelephoneType, RelationResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("telephone-types"))
                 .ReverseMap();
+        }
+
+        private Relationship GetRelationship(string key, IDictionary<string, Relationship> relationships)
+        {
+            return relationships.ContainsKey(key) ? relationships[key] : null;
         }
   
         private IDictionary<string, Relationship> GetCustomerRelationships(string id)

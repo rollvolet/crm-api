@@ -66,6 +66,8 @@ namespace Rollvolet.CRM.DataProviders
         {
             var customerRecord = _mapper.Map<DataProvider.Models.Customer>(customer);
 
+            // TODO auto-fill properties: embeddedPostalCode, embeddedCity, searchName
+
             _context.Customers.Add(customerRecord);
             await _context.SaveChangesAsync();
 
