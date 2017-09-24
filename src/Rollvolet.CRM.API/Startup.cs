@@ -26,6 +26,8 @@ using Rollvolet.CRM.Domain.Managers;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using System.Linq;
 using Rollvolet.CRM.DataProvider.Models;
+using Rollvolet.CRM.API.Builders;
+using Rollvolet.CRM.API.Builders.Interfaces;
 
 namespace Rollvolet.CRM.API
 {
@@ -72,6 +74,8 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IBuildingManager, BuildingManager>();
             services.AddTransient<ITelephoneDataProvider, TelephoneDataProvider>();
             services.AddTransient<ITelephoneManager, TelephoneManager>();
+            
+            services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
 
             services.AddSwaggerGen();
             services.ConfigureSwaggerGen(options =>

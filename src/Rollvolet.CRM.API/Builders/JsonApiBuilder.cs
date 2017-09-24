@@ -6,10 +6,11 @@ using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.Domain.Models.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using Rollvolet.CRM.API.Builders.Interfaces;
 
 namespace Rollvolet.CRM.API.Builders
 {
-    public class JsonApiBuilder
+    public class JsonApiBuilder : IJsonApiBuilder
     {
         public QuerySet BuildQuerySet(IQueryCollection query)
         {

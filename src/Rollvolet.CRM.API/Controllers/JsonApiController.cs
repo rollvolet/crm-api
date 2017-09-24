@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models.Query;
 
@@ -10,10 +11,12 @@ namespace Rollvolet.CRM.API.Controllers
     public class JsonApiController : Controller
     {
         protected readonly IMapper _mapper;
+        protected readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public JsonApiController(IMapper mapper)
+        public JsonApiController(IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _mapper = mapper;
+            _jsonApiBuilder = jsonApiBuilder;
         }
 
         protected void MapOneAndUpdateIncluded<T, U>(string key, T value, QuerySet querySet, Resource resource, ISet<Resource> included) where U : Resource
