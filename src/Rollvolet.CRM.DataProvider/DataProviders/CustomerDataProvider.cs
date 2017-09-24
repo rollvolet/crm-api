@@ -18,11 +18,13 @@ namespace Rollvolet.CRM.DataProviders
     {
         private readonly CrmContext _context;
         private readonly IMapper _mapper;
+        private readonly ISequenceDataProvider _sequenceDataProvider;
 
-        public CustomerDataProvider(CrmContext context, IMapper mapper)
+        public CustomerDataProvider(CrmContext context, IMapper mapper, ISequenceDataProvider sequenceDataProvider)
         {
             _context = context;
             _mapper = mapper;
+            _sequenceDataProvider = sequenceDataProvider;
         }
 
         public async Task<Paged<Customer>> GetAllAsync(QuerySet query)
@@ -66,7 +68,15 @@ namespace Rollvolet.CRM.DataProviders
         {
             var customerRecord = _mapper.Map<DataProvider.Models.Customer>(customer);
 
-            // TODO auto-fill properties: embeddedPostalCode, embeddedCity, searchName
+            if (customer.PostalCode != null)
+            {
+                customerRecord.EmbeddedPostalCode = customer.PostalCode.Code;
+                customerRecord.EmbeddedCity = customer.PostalCode.Name;
+            }
+
+            customerRecord.Number = await _sequenceDataProvider.GetNextCustomerNumber();
+
+            // TODO auto-fill properties: searchName
 
             _context.Customers.Add(customerRecord);
             await _context.SaveChangesAsync();

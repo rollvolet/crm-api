@@ -49,9 +49,6 @@ namespace Rollvolet.CRM.Domain.Managers
             if (customer.PostalCode != null)
                 customer.PostalCode = await _postalCodeDataProvider.GetByIdAsync(int.Parse(customer.PostalCode.Id));
 
-            customer.Created = DateTime.Now;
-            customer.Updated = DateTime.Now;
-
             return await _customerDataProvider.Create(customer);
         }
     }
