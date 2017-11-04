@@ -41,18 +41,20 @@ namespace Rollvolet.CRM.API.Controllers
             var pagedCustomers = await _customerManager.GetAllAsync(querySet);
 
             var included = new HashSet<Resource>();
-            var customerResources = new List<CustomerDto>();
 
-            foreach (var customer in pagedCustomers.Items)
-            {
-                var customerResource = MapToResourceAndUpdateIncluded(customer, querySet, included);
-                customerResources.Add(customerResource);
-            }
+            var customerDtos = _mapper.Map<IEnumerable<CustomerDto>>(pagedCustomers.Items);
+            
+            // var customerResources = new List<CustomerDto>();
+            // foreach (var customer in pagedCustomers.Items)
+            // {
+            //     var customerResource = MapToResourceAndUpdateIncluded(customer, querySet, included);
+            //     customerResources.Add(customerResource);
+            // }
 
-            var links = _jsonApiBuilder.BuildLinks(HttpContext.Request.Path, querySet, pagedCustomers);
-            var meta = _jsonApiBuilder.BuildMeta(pagedCustomers);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedCustomers);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedCustomers);
 
-            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = customerResources, Included = included });
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = customerDtos, Included = included });
         }
         
         [HttpGet("{id}")]
@@ -66,7 +68,7 @@ namespace Rollvolet.CRM.API.Controllers
             // var customerDto = MapToResourceAndUpdateIncluded(customer, querySet, included);
             var customerDto = _mapper.Map<CustomerDto>(customer);
 
-            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path, querySet);
 
             return Ok(new ResourceResponse() { Links = links, Data = customerDto, Included = included });
         }

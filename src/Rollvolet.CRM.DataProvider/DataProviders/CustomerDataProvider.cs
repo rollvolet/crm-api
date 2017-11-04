@@ -52,7 +52,6 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Customer> GetByNumberAsync(int number, QuerySet query)
         {
-            _logger.LogDebug($"Get customer by number {number}");
             var source = _context.Customers
                             .Where(c => c.Number == number)
                             .Include(query);

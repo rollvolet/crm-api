@@ -56,22 +56,39 @@ namespace Rollvolet.CRM.API.Builders
             return querySet;
         }
 
-        public Links BuildSingleResourceLinks(string path)
+        public Links BuildSingleResourceLinks(string path, QuerySet query)
         {
             var links = new Links();
+            
+            var includeQuery = BuildIncludeQuery(query.Include.Fields);
 
-            links.Self = $"{path}";
+            links.Self = String.IsNullOrEmpty(includeQuery) ? path : $"{path}?{includeQuery}";
+            
+            return links;
+        }
+
+        public CollectionLinks BuildCollectionLinks(string path, QuerySet query, IPaged paged)
+        {
+            var links = new CollectionLinks();
+
+            var includeQuery = BuildIncludeQuery(query.Include.Fields);
+            var sortQuery = BuildSortQuery(query.Sort.Field, query.Sort.Order);
+
+            links.Self = $"{path}?{String.Join("&", new List<string>() { BuildPaginationQuery(paged.PageSize, paged.PageNumber), includeQuery, sortQuery }.FindAll(q => q != null))}";
+            links.First = $"{path}?{String.Join("&", new List<string>() { BuildPaginationQuery(paged.PageSize, paged.First), includeQuery, sortQuery }.FindAll(q => q != null))}";
+            links.Last = $"{path}?{String.Join("&", new List<string>() { BuildPaginationQuery(paged.PageSize, paged.Last), includeQuery, sortQuery }.FindAll(q => q != null))}";
+            
+            if (paged.HasPrev)
+                links.Prev = $"{path}?{String.Join("&", new List<string>() { BuildPaginationQuery(paged.PageSize, paged.Prev), includeQuery, sortQuery }.FindAll(q => q != null))}";
+            if (paged.HasNext)
+                links.Next = $"{path}?{String.Join("&", new List<string>() { BuildPaginationQuery(paged.PageSize, paged.Next), includeQuery, sortQuery }.FindAll(q => q != null))}";
 
             return links;
         }
 
-        public Links BuildLinks(string path)
+        public object BuildCollectionMetadata(IPaged paged)
         {
-            var links = new Links();
-
-            links.Self = $"{path}";
-
-            return links;
+            return new { Count = paged.Count, Page = new { Number = paged.PageNumber, Size = paged.PageSize } };
         }
 
         public Links BuildLinks(string path, string id)
@@ -85,23 +102,12 @@ namespace Rollvolet.CRM.API.Builders
 
         public CollectionLinks BuildLinks(string path, QuerySet query, IPaged paged)
         {
-            var links = new CollectionLinks();
-
-            links.Self = $"{path}?{BuildPaginationQuery(paged.PageSize, paged.PageNumber)}{BuildIncludeQuery(query.Include.Fields)}{BuildSortQuery(query.Sort.Field, query.Sort.Order)}";
-            links.First = $"{path}?{BuildPaginationQuery(paged.PageSize, paged.First)}{BuildIncludeQuery(query.Include.Fields)}{BuildSortQuery(query.Sort.Field, query.Sort.Order)}";
-            links.Last = $"{path}?{BuildPaginationQuery(paged.PageSize, paged.Last)}{BuildIncludeQuery(query.Include.Fields)}{BuildSortQuery(query.Sort.Field, query.Sort.Order)}";
-            
-            if (paged.HasPrev)
-                links.Prev = $"{path}?{BuildPaginationQuery(paged.PageSize, paged.Prev)}{BuildIncludeQuery(query.Include.Fields)}{BuildSortQuery(query.Sort.Field, query.Sort.Order)}";
-            if (paged.HasNext)
-                links.Next = $"{path}?{BuildPaginationQuery(paged.PageSize, paged.Next)}{BuildIncludeQuery(query.Include.Fields)}{BuildSortQuery(query.Sort.Field, query.Sort.Order)}";
-
-            return links;
+            return BuildCollectionLinks(path, query, paged);
         }
 
         public object BuildMeta(IPaged paged)
         {
-            return new { Count = paged.Count, Page = new { Number = paged.PageNumber, Size = paged.PageSize } };
+            return BuildCollectionMetadata(paged);
         }
 
         private string BuildPaginationQuery(int size, int number)
@@ -111,18 +117,18 @@ namespace Rollvolet.CRM.API.Builders
 
         private string BuildIncludeQuery(string[] fields)
         {
-            return fields.Length > 0 ? $"&include={string.Join(",", fields)}" : "";
+            return fields.Length > 0 ? $"include={string.Join(",", fields)}" : null;
         }
 
         private string BuildSortQuery(string field, string order)
         {
             if (!string.IsNullOrEmpty(field))
             {
-                return order == SortQuery.ORDER_ASC ? $"&sort={field}" : $"&sort=-{field}";
+                return order == SortQuery.ORDER_ASC ? $"sort={field}" : $"sort=-{field}";
             }
             else
             {
-                return "";
+                return null;
             }
         }
     }
