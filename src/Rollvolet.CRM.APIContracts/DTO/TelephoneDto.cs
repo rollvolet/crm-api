@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.APIContracts.DTO
@@ -14,6 +15,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
 
         public class RelationshipsDto
         {
+            [JsonProperty("telephone-type")]
             public OneRelationship TelephoneType { get; set; }
             public OneRelationship Country { get; set; }
         }
