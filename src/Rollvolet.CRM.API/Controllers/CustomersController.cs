@@ -63,9 +63,10 @@ namespace Rollvolet.CRM.API.Controllers
             var customer = await _customerManager.GetByIdAsync(id, querySet);
 
             var included = new HashSet<Resource>();
-            var customerDto = MapToResourceAndUpdateIncluded(customer, querySet, included);
+            // var customerDto = MapToResourceAndUpdateIncluded(customer, querySet, included);
+            var customerDto = _mapper.Map<CustomerDto>(customer);
 
-            var links = _jsonApiBuilder.BuildLinks(HttpContext.Request.Path);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
 
             return Ok(new ResourceResponse() { Links = links, Data = customerDto, Included = included });
         }

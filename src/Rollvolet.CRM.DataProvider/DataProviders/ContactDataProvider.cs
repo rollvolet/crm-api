@@ -25,6 +25,13 @@ namespace Rollvolet.CRM.DataProviders
             _mapper = mapper;
         }
 
+        public async Task<Contact> GetByIdAsync(int id)
+        {
+            var contact = _context.Contacts.Single(x => x.DataId == id);
+
+            return _mapper.Map<Contact>(contact);
+        }
+
         public async Task<Paged<Contact>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
             var source = _context.Contacts

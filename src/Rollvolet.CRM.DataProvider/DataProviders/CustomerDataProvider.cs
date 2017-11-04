@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Narato.ResponseMiddleware.Models.Exceptions;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.DataProvider.Extensions;
@@ -19,12 +20,14 @@ namespace Rollvolet.CRM.DataProviders
         private readonly CrmContext _context;
         private readonly IMapper _mapper;
         private readonly ISequenceDataProvider _sequenceDataProvider;
+        private readonly ILogger _logger;
 
-        public CustomerDataProvider(CrmContext context, IMapper mapper, ISequenceDataProvider sequenceDataProvider)
+        public CustomerDataProvider(CrmContext context, IMapper mapper, ISequenceDataProvider sequenceDataProvider, ILogger<CustomerDataProvider> logger)
         {
             _context = context;
             _mapper = mapper;
             _sequenceDataProvider = sequenceDataProvider;
+            _logger = logger;
         }
 
         public async Task<Paged<Customer>> GetAllAsync(QuerySet query)
@@ -49,6 +52,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Customer> GetByNumberAsync(int number, QuerySet query)
         {
+            _logger.LogDebug($"Get customer by number {number}");
             var source = _context.Customers
                             .Where(c => c.Number == number)
                             .Include(query);
@@ -58,6 +62,7 @@ namespace Rollvolet.CRM.DataProviders
             if (customer == null)
             {
                 // TODO implement and handle exceptions according to jsonapi
+                _logger.LogError($"No customer found with number {number}");
                 throw new EntityNotFoundException("ENF", $"Customer with number {number} not found");
             }
 
@@ -76,12 +81,17 @@ namespace Rollvolet.CRM.DataProviders
 
             customerRecord.Number = await _sequenceDataProvider.GetNextCustomerNumber();
 
+            foreach (var contact in customerRecord.Contacts)
+            {
+                contact.CustomerId = customerRecord.Number;
+            }
+
             // TODO auto-fill properties: searchName
 
             _context.Customers.Add(customerRecord);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<Customer>(customerRecord); // id is filled in now
+            return _mapper.Map<Customer>(customerRecord); // dataId is filled in now
         }
     }
 }

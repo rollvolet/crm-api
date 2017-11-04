@@ -56,6 +56,15 @@ namespace Rollvolet.CRM.API.Builders
             return querySet;
         }
 
+        public Links BuildSingleResourceLinks(string path)
+        {
+            var links = new Links();
+
+            links.Self = $"{path}";
+
+            return links;
+        }
+
         public Links BuildLinks(string path)
         {
             var links = new Links();

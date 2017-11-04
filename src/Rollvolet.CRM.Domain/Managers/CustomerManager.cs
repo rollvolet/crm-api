@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
@@ -15,16 +17,21 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IHonorificPrefixDataProvider _honorificPrefixDataProvider;
         private readonly ILanguageDataProvider _langugageDataProvider;
         private readonly IPostalCodeDataProvider _postalCodeDataProvider;
+        private readonly IContactDataProvider _contactDataProvider;
+        private readonly ILogger _logger;
 
         public CustomerManager(ICustomerDataProvider customerDataProvider, ICountryDataProvider countryDataProvider,
                                 IHonorificPrefixDataProvider honorificPrefixDataProvider, ILanguageDataProvider languageDataProvider,
-                                IPostalCodeDataProvider postalCodeDataProvider)
+                                IPostalCodeDataProvider postalCodeDataProvider, IContactDataProvider contactDataProvider,
+                                ILogger<CustomerManager> logger)
         {
             _customerDataProvider = customerDataProvider;
             _countryDataProvider = countryDataProvider;
             _honorificPrefixDataProvider = honorificPrefixDataProvider;
             _langugageDataProvider = languageDataProvider;
             _postalCodeDataProvider = postalCodeDataProvider;
+            _contactDataProvider = contactDataProvider;
+            _logger = logger;
         }
         
         public async Task<Paged<Customer>> GetAllAsync(QuerySet query)
@@ -48,6 +55,9 @@ namespace Rollvolet.CRM.Domain.Managers
                 customer.Language = await _langugageDataProvider.GetByIdAsync(int.Parse(customer.Language.Id));
             if (customer.PostalCode != null)
                 customer.PostalCode = await _postalCodeDataProvider.GetByIdAsync(int.Parse(customer.PostalCode.Id));
+
+            if (customer.Contacts != null)
+                customer.Contacts = customer.Contacts.Select(x => _contactDataProvider.GetByIdAsync(x.Id).Result);
 
             return await _customerDataProvider.Create(customer);
         }

@@ -7,6 +7,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
     public class CustomerDto : Resource
     {
         public new AttributesDto Attributes { get; set; }
+        public new RelationshipsDto Relationships { get; set; }
 
         public class AttributesDto
         {
@@ -31,5 +32,15 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public DateTime Updated { get; set; }
         }
 
+        public class RelationshipsDto
+        {
+            public ManyRelationship Contacts { get; set; }
+            public ManyRelationship Buildings { get; set; }
+            public OneRelationship Country { get; set; }
+            public OneRelationship Language { get; set; }
+            public OneRelationship PostalCode { get; set; }
+            public OneRelationship HonorificPrefix { get; set; }
+            public ManyRelationship Telephones { get; set; } 
+        }
     }
 }

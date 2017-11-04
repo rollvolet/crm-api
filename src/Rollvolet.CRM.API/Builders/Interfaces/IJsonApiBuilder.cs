@@ -10,6 +10,7 @@ namespace Rollvolet.CRM.API.Builders.Interfaces
     public interface IJsonApiBuilder
     {
         QuerySet BuildQuerySet(IQueryCollection query);
+        Links BuildSingleResourceLinks(string path);
         Links BuildLinks(string path);
         Links BuildLinks(string path, string id);
         CollectionLinks BuildLinks(string path, QuerySet query, IPaged paged);
