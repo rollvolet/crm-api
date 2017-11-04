@@ -2,12 +2,12 @@ using System.Collections.Generic;
 
 namespace Rollvolet.CRM.APIContracts.JsonApi
 {
-    public abstract class Resource
+    public abstract class Resource<A, R> : IResource
     {
         public string Id { get; set; }
         public string Type { get; set; }
-        public object Attributes { get; set; }
-        public IDictionary<string, Relationship> Relationships { get; set; }
+        public A Attributes { get; set; }
+        public R Relationships { get; set; }
 
         public override int GetHashCode()
         {
@@ -19,7 +19,7 @@ namespace Rollvolet.CRM.APIContracts.JsonApi
             if (obj == null || GetType() != obj.GetType()) 
                 return false;
 
-            Resource r = (Resource)obj;
+            Resource<A,R> r = (Resource<A,R>)obj;
             return (Id == r.Id) && (Type == r.Type);
         }
     }

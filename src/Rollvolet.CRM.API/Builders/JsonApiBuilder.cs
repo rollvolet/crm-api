@@ -67,6 +67,15 @@ namespace Rollvolet.CRM.API.Builders
             return links;
         }
 
+        public Links BuildNewSingleResourceLinks(string path, string id)
+        {
+            var links = new Links();
+
+            links.Self = $"{path}/{id}";
+
+            return links;
+        }
+
         public CollectionLinks BuildCollectionLinks(string path, QuerySet query, IPaged paged)
         {
             var links = new CollectionLinks();
@@ -89,25 +98,6 @@ namespace Rollvolet.CRM.API.Builders
         public object BuildCollectionMetadata(IPaged paged)
         {
             return new { Count = paged.Count, Page = new { Number = paged.PageNumber, Size = paged.PageSize } };
-        }
-
-        public Links BuildLinks(string path, string id)
-        {
-            var links = new Links();
-
-            links.Self = $"{path}/{id}";
-
-            return links;
-        }
-
-        public CollectionLinks BuildLinks(string path, QuerySet query, IPaged paged)
-        {
-            return BuildCollectionLinks(path, query, paged);
-        }
-
-        public object BuildMeta(IPaged paged)
-        {
-            return BuildCollectionMetadata(paged);
         }
 
         private string BuildPaginationQuery(int size, int number)

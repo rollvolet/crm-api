@@ -4,11 +4,8 @@ using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.APIContracts.DTO
 {
-    public class CustomerDto : Resource
+    public class CustomerDto : Resource<CustomerDto.AttributesDto, CustomerDto.RelationshipsDto>
     {
-        public new AttributesDto Attributes { get; set; }
-        public new RelationshipsDto Relationships { get; set; }
-
         public class AttributesDto
         {
             public int DataId { get; set; }

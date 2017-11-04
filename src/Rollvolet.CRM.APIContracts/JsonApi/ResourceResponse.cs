@@ -2,9 +2,11 @@ using System.Collections.Generic;
 
 namespace Rollvolet.CRM.APIContracts.JsonApi
 {
-    public class ResourceResponse : JsonApiResponse
+    public class ResourceResponse
     {
-        public object Data { get; set; } // data may be an Resource or an IEnumerable<Resource>
-        public IEnumerable<Resource> Included { get; set; } = new List<Resource>();
+        public object Meta { get; set; }
+        public object Links { get; set; }
+        public object Data { get; set; } // data may be a Resource or an IEnumerable<Resource>
+        public IEnumerable<IResource> Included { get; set; }
     }
 }

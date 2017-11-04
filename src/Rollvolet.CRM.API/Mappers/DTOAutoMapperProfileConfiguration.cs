@@ -32,7 +32,7 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<Customer, CustomerDto.AttributesDto>();
 
-            CreateMap<Customer, CustomerDto.RelationshipsDto>().ConvertUsing<CustomerDtoRelationshipsConverter>();
+            CreateMap<Customer, CustomerDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<Customer, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("customers"));
@@ -44,13 +44,15 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.UseValue("contacts"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetContactRelationships(src.Id.ToString())));
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
             
             CreateMap<Contact, ContactDto.AttributesDto>();
 
-            CreateMap<Relationship, IEnumerable<Contact>>()
-                .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<Contact>>(((JArray) src.Data).ToObject<List<RelationResource>>()))
-                .ForAllMembers(opt => opt.Ignore());
+            CreateMap<Contact, ContactDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            // CreateMap<Relationship, IEnumerable<Contact>>()
+            //     .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<Contact>>(((JArray) src.Data).ToObject<List<RelationResource>>()))
+            //     .ForAllMembers(opt => opt.Ignore());
 
             CreateMap<Contact, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("contacts"));
@@ -62,9 +64,11 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.UseValue("buildings"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetBuildingRelationships(src.Id.ToString())));
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
             CreateMap<Building, BuildingDto.AttributesDto>();
+
+            CreateMap<Building, BuildingDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
             
             CreateMap<Building, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("buildings"));
@@ -76,13 +80,15 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.UseValue("countries"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetEmptyRelationships()));
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
             CreateMap<Country, CountryDto.AttributesDto>();
 
-            CreateMap<Relationship, Country>()
-                .ConstructUsing((src, context) => context.Mapper.Map<Country>(((JObject) src.Data).ToObject<RelationResource>()))
-                .ForAllMembers(opt => opt.Ignore());
+            CreateMap<Country, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            // CreateMap<Relationship, Country>()
+            //     .ConstructUsing((src, context) => context.Mapper.Map<Country>(((JObject) src.Data).ToObject<RelationResource>()))
+            //     .ForAllMembers(opt => opt.Ignore());
 
             CreateMap<Country, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("countries"));
@@ -94,13 +100,15 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.UseValue("honorific-prefixes"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetEmptyRelationships()));
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
             CreateMap<HonorificPrefix, HonorificPrefixDto.AttributesDto>();
 
-            CreateMap<Relationship, HonorificPrefix>()
-                .ConstructUsing((src, context) => context.Mapper.Map<HonorificPrefix>(((JObject) src.Data).ToObject<RelationResource>()))
-                .ForAllMembers(opt => opt.Ignore());
+            CreateMap<HonorificPrefix, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            // CreateMap<Relationship, HonorificPrefix>()
+            //     .ConstructUsing((src, context) => context.Mapper.Map<HonorificPrefix>(((JObject) src.Data).ToObject<RelationResource>()))
+            //     .ForAllMembers(opt => opt.Ignore());
 
             CreateMap<HonorificPrefix, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("honorific-prefixes"));
@@ -112,13 +120,15 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.UseValue("languages"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetEmptyRelationships()));
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
             CreateMap<Language, LanguageDto.AttributesDto>();
 
-            CreateMap<Relationship, Language>()
-                .ConstructUsing((src, context) => context.Mapper.Map<Language>(((JObject) src.Data).ToObject<RelationResource>()))
-                .ForAllMembers(opt => opt.Ignore());
+            CreateMap<Language, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            // CreateMap<Relationship, Language>()
+            //     .ConstructUsing((src, context) => context.Mapper.Map<Language>(((JObject) src.Data).ToObject<RelationResource>()))
+            //     .ForAllMembers(opt => opt.Ignore());
 
             CreateMap<Language, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("languages"));
@@ -130,13 +140,15 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.UseValue("postal-codes"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetEmptyRelationships()));
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
             CreateMap<PostalCode, PostalCodeDto.AttributesDto>();
 
-            CreateMap<Relationship, PostalCode>()
-                .ConstructUsing((src, context) => context.Mapper.Map<PostalCode>(((JObject) src.Data).ToObject<RelationResource>()))
-                .ForAllMembers(opt => opt.Ignore());
+            CreateMap<PostalCode, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            // CreateMap<Relationship, PostalCode>()
+            //     .ConstructUsing((src, context) => context.Mapper.Map<PostalCode>(((JObject) src.Data).ToObject<RelationResource>()))
+            //     .ForAllMembers(opt => opt.Ignore());
 
             CreateMap<PostalCode, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("postal-codes"));
@@ -148,9 +160,11 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.UseValue("telephones"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetTelephoneRelationships(src.Id)));
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
             CreateMap<Telephone, TelephoneDto.AttributesDto>();
+
+            CreateMap<Telephone, TelephoneDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<Telephone, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("telephones"));
@@ -162,57 +176,15 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.UseValue("telephone-types"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => GetEmptyRelationships()));
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
             CreateMap<TelephoneType, TelephoneTypeDto.AttributesDto>();
+
+            CreateMap<TelephoneType, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<TelephoneType, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("telephone-types"));
         }
 
-        private Relationship GetRelationship(string key, IDictionary<string, Relationship> relationships)
-        {
-            return relationships.ContainsKey(key) ? relationships[key] : null;
-        }
-
-        private IDictionary<string, Relationship> GetContactRelationships(string id)
-        {
-            var fields = new string[3] {"country", "language", "postal-code"};
-
-            return GetResourceRelationships("contacts", id, fields);
-        }
-
-        private IDictionary<string, Relationship> GetBuildingRelationships(string id)
-        {
-            var fields = new string[3] {"country", "language", "postal-code"};
-
-            return GetResourceRelationships("buildings", id, fields);
-        }
-
-        private IDictionary<string, Relationship> GetTelephoneRelationships(string id)
-        {
-            var fields = new string[2] {"country", "telephone-type"};
-
-            return GetResourceRelationships("telephones", id, fields);
-        }
-
-        private IDictionary<string, Relationship> GetResourceRelationships(string name, string id, string[] fields)
-        {
-            var relationships = new Dictionary<string, Relationship>();
-            
-            foreach (var field in fields)
-            {             
-                relationships.Add(field, new Relationship() {
-                    Links = new Links { Self = $"/{name}/{id}/links/{field}", Related = $"/{name}/{id}/{field}" }
-                });   
-            }
-            
-            return relationships;
-        }
-
-        private IDictionary<string, Relationship> GetEmptyRelationships()
-        {
-            return new Dictionary<string, Relationship>();
-        }
     }
 }

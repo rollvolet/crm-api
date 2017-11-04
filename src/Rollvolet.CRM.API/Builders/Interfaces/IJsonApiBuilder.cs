@@ -11,10 +11,8 @@ namespace Rollvolet.CRM.API.Builders.Interfaces
     {
         QuerySet BuildQuerySet(IQueryCollection query);
         Links BuildSingleResourceLinks(string path, QuerySet query);
+        Links BuildNewSingleResourceLinks(string path, string id);
         CollectionLinks BuildCollectionLinks(string path, QuerySet query, IPaged paged);
         object BuildCollectionMetadata(IPaged paged);
-        Links BuildLinks(string path, string id);
-        CollectionLinks BuildLinks(string path, QuerySet query, IPaged paged);
-        object BuildMeta(IPaged paged);
     }
 }

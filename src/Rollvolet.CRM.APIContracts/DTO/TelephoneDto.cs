@@ -2,7 +2,7 @@ using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.APIContracts.DTO
 {
-    public class TelephoneDto : Resource
+    public class TelephoneDto : Resource<TelephoneDto.AttributesDto, TelephoneDto.RelationshipsDto>
     {        
         public new AttributesDto Attributes { get; set; }
         public class AttributesDto {
@@ -10,6 +10,12 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public string Number { get; set; }
             public string Memo { get; set; }
             public int Order { get; set; }
+        }
+
+        public class RelationshipsDto
+        {
+            public OneRelationship TelephoneType { get; set; }
+            public OneRelationship Country { get; set; }
         }
   }
 }

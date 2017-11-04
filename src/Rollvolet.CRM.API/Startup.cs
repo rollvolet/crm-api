@@ -28,6 +28,7 @@ using System.Linq;
 using Rollvolet.CRM.DataProvider.Models;
 using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
+using Rollvolet.CRM.API.Collectors;
 
 namespace Rollvolet.CRM.API
 {
@@ -81,6 +82,7 @@ namespace Rollvolet.CRM.API
             services.AddTransient<ISequenceDataProvider, SequenceDataProvider>();
             
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
+            services.AddTransient<IIncludedCollector, IncludedCollector>();
 
             services.AddSwaggerGen();
             services.ConfigureSwaggerGen(options =>
