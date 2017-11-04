@@ -28,9 +28,12 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         public static IQueryable<Customer> Sort(this IQueryable<Customer> source, QuerySet querySet)
         {
-            var selectors = new Dictionary<string, Expression<Func<Customer, string>>>();
+            var selectors = new Dictionary<string, Expression<Func<Customer, object>>>();
             
             selectors.Add("name", x => x.Name);
+            selectors.Add("postal-code", x => x.PostalCode);
+            selectors.Add("created", x => x.Created);
+            selectors.Add("updated", x => x.Updated);
 
             return Sort<Customer>(source, querySet, selectors);
         }
@@ -48,9 +51,11 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         public static IQueryable<Contact> Sort(this IQueryable<Contact> source, QuerySet querySet)
         {
-            var selectors = new Dictionary<string, Expression<Func<Contact, string>>>();
+            var selectors = new Dictionary<string, Expression<Func<Contact, object>>>();
             
             selectors.Add("name", x => x.Name);
+            selectors.Add("created", x => x.Created);
+            selectors.Add("updated", x => x.Updated);
 
             return Sort<Contact>(source, querySet, selectors);
         }
@@ -68,9 +73,11 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         public static IQueryable<Building> Sort(this IQueryable<Building> source, QuerySet querySet)
         {
-            var selectors = new Dictionary<string, Expression<Func<Building, string>>>();
+            var selectors = new Dictionary<string, Expression<Func<Building, object>>>();
             
             selectors.Add("name", x => x.Name);
+            selectors.Add("created", x => x.Created);
+            selectors.Add("updated", x => x.Updated);
 
             return Sort<Building>(source, querySet, selectors);
         }
@@ -87,7 +94,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         public static IQueryable<Telephone> Sort(this IQueryable<Telephone> source, QuerySet querySet)
         {
-            var selectors = new Dictionary<string, Expression<Func<Telephone, string>>>();
+            var selectors = new Dictionary<string, Expression<Func<Telephone, object>>>();
             
             selectors.Add("order", x => x.Order.ToString());
 
@@ -110,9 +117,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             return source;
         }        
 
-        private static IQueryable<T> Sort<T>(IQueryable<T> source, QuerySet querySet, IDictionary<string, Expression<Func<T, string>>> selectors)
+        private static IQueryable<T> Sort<T>(IQueryable<T> source, QuerySet querySet, IDictionary<string, Expression<Func<T, object>>> selectors)
         {
-            Expression<Func<T, string>> selector;
+            Expression<Func<T, object>> selector;
 
             if (querySet.Sort.Field != null && selectors.TryGetValue(querySet.Sort.Field, out selector))
             {
