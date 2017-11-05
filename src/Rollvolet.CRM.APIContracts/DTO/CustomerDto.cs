@@ -13,11 +13,8 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public int DataId { get; set; }
             public int Number { get; set; }
             public string Name { get; set; }
-            [JsonProperty("address-1")]
             public string Address1 { get; set; }
-            [JsonProperty("address-2")]
             public string Address2 { get; set; }
-            [JsonProperty("address-3")]
             public string Address3 { get; set; }
             [JsonProperty("is-company")]
             public bool IsCompany { get; set; }
@@ -26,7 +23,6 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public string Prefix { get; set; }
             public string Suffix { get; set; }
             public string Email { get; set; }
-            [JsonProperty("email-2")]
             public string Email2 { get; set; }
             public string Url { get; set; }
             [JsonProperty("print-prefix")]

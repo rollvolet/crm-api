@@ -8,11 +8,8 @@ namespace Rollvolet.CRM.APIContracts.DTO
     {
         public class AttributesDto {
             public string Name { get; set; }
-            [JsonProperty("address-1")]
             public string Address1 { get; set; }
-            [JsonProperty("address-2")]
             public string Address2 { get; set; }
-            [JsonProperty("address-3")]
             public string Address3 { get; set; }
             public int Number { get; set; }
             [JsonProperty("customer-id")]

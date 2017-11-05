@@ -31,6 +31,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             var selectors = new Dictionary<string, Expression<Func<Customer, object>>>();
             
             selectors.Add("name", x => x.Name);
+            selectors.Add("number", x => x.Number);
             selectors.Add("postal-code", x => x.PostalCode);
             selectors.Add("created", x => x.Created);
             selectors.Add("updated", x => x.Updated);
