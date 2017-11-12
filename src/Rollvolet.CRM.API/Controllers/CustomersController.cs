@@ -104,6 +104,7 @@ namespace Rollvolet.CRM.API.Controllers
         public async Task<IActionResult> GetRelatedBuildingsById(int customerId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+            querySet.Include.Fields = new string[] {"postal-code", "country", "language"};
 
             var pagedBuildings = await _buildingManager.GetAllByCustomerIdAsync(customerId, querySet);
 
@@ -120,6 +121,7 @@ namespace Rollvolet.CRM.API.Controllers
         public async Task<IActionResult> GetRelatedTelephonesById(int customerId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+            querySet.Include.Fields = new string[] {"country"};
 
             var pagedTelephones = await _telephoneManager.GetAllByCustomerIdAsync(customerId, querySet);
 
