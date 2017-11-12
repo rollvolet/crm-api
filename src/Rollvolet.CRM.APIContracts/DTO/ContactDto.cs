@@ -20,11 +20,10 @@ namespace Rollvolet.CRM.APIContracts.DTO
 
         public class RelationshipsDto
         {
-            public OneRelationship Customer { get; set; }
-            public OneRelationship Country { get; set; }
-            public OneRelationship Language { get; set; }
+            public IRelationship Country { get; set; }
+            public IRelationship Language { get; set; }
             [JsonProperty("postal-code")]
-            public OneRelationship PostalCode { get; set; }
+            public IRelationship PostalCode { get; set; }
         }
   }
 }

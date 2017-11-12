@@ -16,8 +16,8 @@ namespace Rollvolet.CRM.APIContracts.DTO
         public class RelationshipsDto
         {
             [JsonProperty("telephone-type")]
-            public OneRelationship TelephoneType { get; set; }
-            public OneRelationship Country { get; set; }
+            public IRelationship TelephoneType { get; set; }
+            public IRelationship Country { get; set; }
         }
   }
 }

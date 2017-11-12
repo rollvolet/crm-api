@@ -38,15 +38,15 @@ namespace Rollvolet.CRM.APIContracts.DTO
 
         public class RelationshipsDto
         {
-            public ManyRelationship Contacts { get; set; }
-            public ManyRelationship Buildings { get; set; }
-            public OneRelationship Country { get; set; }
-            public OneRelationship Language { get; set; }
+            public IRelationship Contacts { get; set; }
+            public IRelationship Buildings { get; set; }
+            public IRelationship Country { get; set; }
+            public IRelationship Language { get; set; }
             [JsonProperty("postal-code")]
-            public OneRelationship PostalCode { get; set; }
+            public IRelationship PostalCode { get; set; }
             [JsonProperty("honorific-prefix")]
-            public OneRelationship HonorificPrefix { get; set; }
-            public ManyRelationship Telephones { get; set; } 
+            public IRelationship HonorificPrefix { get; set; }
+            public IRelationship Telephones { get; set; } 
         }
     }
 }

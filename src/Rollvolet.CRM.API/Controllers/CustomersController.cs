@@ -47,7 +47,7 @@ namespace Rollvolet.CRM.API.Controllers
 
             var pagedCustomers = await _customerManager.GetAllAsync(querySet);
 
-            var customerDtos = _mapper.Map<IEnumerable<CustomerDto>>(pagedCustomers.Items);
+            var customerDtos = _mapper.Map<IEnumerable<CustomerDto>>(pagedCustomers.Items, opt => opt.Items["include"] = querySet.Include);
             var included = _includedCollector.CollectIncluded(pagedCustomers.Items, querySet.Include);
             var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedCustomers);
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedCustomers);
@@ -62,7 +62,7 @@ namespace Rollvolet.CRM.API.Controllers
 
             var customer = await _customerManager.GetByIdAsync(id, querySet);
 
-            var customerDto = _mapper.Map<CustomerDto>(customer);
+            var customerDto = _mapper.Map<CustomerDto>(customer, opt => opt.Items["include"] = querySet.Include);
             var included = _includedCollector.CollectIncluded(customer, querySet.Include);
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path, querySet);
 
@@ -87,10 +87,11 @@ namespace Rollvolet.CRM.API.Controllers
         public async Task<IActionResult> GetRelatedContactsByCustomerId(int customerId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+            querySet.Include.Fields = new string[] {"postal-code", "country", "language"};
 
             var pagedContacts = await _contactManager.GetAllByCustomerIdAsync(customerId, querySet);
 
-            var contactDtos = _mapper.Map<IEnumerable<ContactDto>>(pagedContacts.Items);
+            var contactDtos = _mapper.Map<IEnumerable<ContactDto>>(pagedContacts.Items, opt => opt.Items["include"] = querySet.Include);
             var included = _includedCollector.CollectIncluded(pagedContacts.Items, querySet.Include);
             var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedContacts);
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedContacts);
@@ -106,7 +107,7 @@ namespace Rollvolet.CRM.API.Controllers
 
             var pagedBuildings = await _buildingManager.GetAllByCustomerIdAsync(customerId, querySet);
 
-            var buildingDtos = _mapper.Map<IEnumerable<BuildingDto>>(pagedBuildings.Items);
+            var buildingDtos = _mapper.Map<IEnumerable<BuildingDto>>(pagedBuildings.Items, opt => opt.Items["include"] = querySet.Include);
             var included = _includedCollector.CollectIncluded(pagedBuildings.Items, querySet.Include);
             var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedBuildings);
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedBuildings);

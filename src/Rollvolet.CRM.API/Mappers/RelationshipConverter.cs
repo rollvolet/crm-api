@@ -3,6 +3,7 @@ using AutoMapper;
 using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
+using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.API.Mappers
 {
@@ -80,35 +81,49 @@ namespace Rollvolet.CRM.API.Mappers
             return new EmptyRelationshipsDto();
         }
 
-        private ManyRelationship GetManyRelationship<T>(string resourceName, int id, string relatedResourceName, IEnumerable<T> relatedResources, ResolutionContext context)
+        private IRelationship GetManyRelationship<T>(string resourceName, int id, string relatedResourceName, IEnumerable<T> relatedResources, ResolutionContext context)
         {
             return GetManyRelationship<T>(resourceName, id.ToString(), relatedResourceName, relatedResources, context);       
         }
 
-        private ManyRelationship GetManyRelationship<T>(string resourceName, string id, string relatedResourceName, IEnumerable<T> relatedResources, ResolutionContext context)
+        private IRelationship GetManyRelationship<T>(string resourceName, string id, string relatedResourceName, IEnumerable<T> relatedResources, ResolutionContext context)
         {
-            return new ManyRelationship() { 
-                Links = GetRelationshipLinks(resourceName, id, relatedResourceName),
-                Data = context.Mapper.Map<IEnumerable<RelatedResource>>(relatedResources)
-            };          
+            if (context.Items.Keys.Contains("include") && !((IncludeQuery) context.Items["include"]).Contains(relatedResourceName))
+            {
+                return new Relationship() { Links = GetRelationshipLinks(resourceName, id, relatedResourceName) };
+            }
+            else
+            {
+                return new ManyRelationship() { 
+                    Links = GetRelationshipLinks(resourceName, id, relatedResourceName),
+                    Data = context.Mapper.Map<IEnumerable<RelatedResource>>(relatedResources)
+                };
+            }
         }
 
-        private OneRelationship GetOneRelationship<T>(string resourceName, int id, string relatedResourceName, T relatedResource, ResolutionContext context)
+        private IRelationship GetOneRelationship<T>(string resourceName, int id, string relatedResourceName, T relatedResource, ResolutionContext context)
         {
             return GetOneRelationship<T>(resourceName, id.ToString(), relatedResourceName, relatedResource, context);
         }
 
-        private OneRelationship GetOneRelationship<T>(string resourceName, string id, string relatedResourceName, T relatedResource, ResolutionContext context)
+        private IRelationship GetOneRelationship<T>(string resourceName, string id, string relatedResourceName, T relatedResource, ResolutionContext context)
         {
-            return new OneRelationship() { 
-                Links = GetRelationshipLinks(resourceName, id, relatedResourceName),
-                Data = context.Mapper.Map<RelatedResource>(relatedResource)
-            };          
+            if (context.Items.Keys.Contains("include") && !((IncludeQuery) context.Items["include"]).Contains(relatedResourceName))
+            {
+                return new Relationship() { Links = GetRelationshipLinks(resourceName, id, relatedResourceName) };
+            }
+            else
+            {
+                return new OneRelationship() { 
+                    Links = GetRelationshipLinks(resourceName, id, relatedResourceName),
+                    Data = context.Mapper.Map<RelatedResource>(relatedResource)
+                };
+            }         
         }
 
         private Links GetRelationshipLinks(string resourceName, string id, string relationName) {
             return new Links { 
-                Self = $"/{resourceName}/{id}/links/{relationName}", 
+                Self = $"/{resourceName}/{id}/links/{relationName}",
                 Related = $"/{resourceName}/{id}/{relationName}"
             };
         }
