@@ -27,8 +27,12 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Paged<Telephone>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Number == customerId);
+
+            // TODO throw EntityNotFound if customer is null
+
             var source = _context.Telephones
-                            .Where(t => t.CustomerId == customerId)
+                            .Where(t => t.CustomerId == customer.DataId)
                             .Include(query)
                             .Sort(query);
 
