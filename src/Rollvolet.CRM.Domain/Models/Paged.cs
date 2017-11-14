@@ -15,7 +15,7 @@ namespace Rollvolet.CRM.Domain.Models
         {
             get
             {
-                return PageNumber > 1;
+                return PageNumber > 0;
             }
         }
 
@@ -23,17 +23,17 @@ namespace Rollvolet.CRM.Domain.Models
         {
             get
             {
-                return PageNumber * PageSize < Count;
+                return (PageNumber + 1) * PageSize < Count;
             }
         }
 
-        public int First { get; } = 1;
+        public int First { get; } = 0;
 
         public int Last
         {
             get
             {
-                return PageSize < Count ? Convert.ToInt32(Math.Ceiling(Count / (PageSize * 1.0))) : First;
+                return PageSize < Count ? Convert.ToInt32(Math.Ceiling(Count / (PageSize * 1.0))) - 1 : First;
             }
         }
 
