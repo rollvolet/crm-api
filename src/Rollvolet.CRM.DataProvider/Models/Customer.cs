@@ -11,9 +11,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("BTWNummer")]
         public string VatNumber { get; set; }
 
-        [Column("AanspreekID")]
-        public int? HonorificPrefixId { get; set; }
-
         [Column("Suffix")]
         public string Suffix { get; set; }
         
@@ -40,7 +37,6 @@ namespace Rollvolet.CRM.DataProvider.Models
 
 
         // Include resources
-        public HonorificPrefix HonorificPrefix { get; set; }
         public IEnumerable<Contact> Contacts { get; set; }
         public IEnumerable<Building> Buildings { get; set; }
         public IEnumerable<Telephone> Telephones { get; set; }

@@ -34,6 +34,7 @@ namespace Rollvolet.CRM.API.Mappers
             var relationships = new ContactDto.RelationshipsDto();
             relationships.Country = GetOneRelationship<Country>("contacts", source.Id, "country", source.Country, context);
             relationships.Language = GetOneRelationship<Language>("contacts", source.Id, "language", source.Language, context);
+            relationships.HonorificPrefix = GetOneRelationship<HonorificPrefix>("contacts", source.Id, "honorific-prefix", source.HonorificPrefix, context);
             return relationships;
         }
 
@@ -42,6 +43,7 @@ namespace Rollvolet.CRM.API.Mappers
             var relationships = new BuildingDto.RelationshipsDto();
             relationships.Country = GetOneRelationship<Country>("buildings", source.Id, "country", source.Country, context);
             relationships.Language = GetOneRelationship<Language>("buildings", source.Id, "language", source.Language, context);
+            relationships.HonorificPrefix = GetOneRelationship<HonorificPrefix>("buildings", source.Id, "honorific-prefix", source.HonorificPrefix, context);
             return relationships;
         }
 

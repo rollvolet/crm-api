@@ -11,7 +11,10 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("ID")]
         public int Number { get; set; } // the public ID for Customer
 
-        [Column("Prefix")]
+        [Column("AanspreekID")]
+        public int? HonorificPrefixId { get; set; }
+
+        [Column("Prefix")] // use for firstName in Contact / Building
         public string Prefix { get; set; }
         
         [Column("Naam")]
@@ -45,6 +48,7 @@ namespace Rollvolet.CRM.DataProvider.Models
 
 
         // Included resources
+        public HonorificPrefix HonorificPrefix { get; set; }
         public Country Country { get; set; }
         public Language Language { get; set; }
 

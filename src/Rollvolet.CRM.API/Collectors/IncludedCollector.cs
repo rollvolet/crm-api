@@ -25,8 +25,6 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<CountryDto>(customer.Country));
             if (includeQuery.Contains("language") && customer.Language != null)
                 included.Add(_mapper.Map<LanguageDto>(customer.Language));
-            if (includeQuery.Contains("postal-code") && customer.PostalCode != null)
-                included.Add(_mapper.Map<PostalCodeDto>(customer.PostalCode));
             if (includeQuery.Contains("honorific-prefix") && customer.HonorificPrefix != null)
                 included.Add(_mapper.Map<HonorificPrefixDto>(customer.HonorificPrefix));
 
@@ -58,8 +56,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<CountryDto>(contact.Country));
             if (includeQuery.Contains("language") && contact.Language != null)
                 included.Add(_mapper.Map<LanguageDto>(contact.Language));
-            if (includeQuery.Contains("postal-code") && contact.PostalCode != null)
-                included.Add(_mapper.Map<PostalCodeDto>(contact.PostalCode));
+            if (includeQuery.Contains("honorific-prefix") && contact.HonorificPrefix != null)
+                included.Add(_mapper.Map<HonorificPrefixDto>(contact.HonorificPrefix));
 
             return included;
         }
@@ -82,8 +80,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<CountryDto>(building.Country));
             if (includeQuery.Contains("language") && building.Language != null)
                 included.Add(_mapper.Map<LanguageDto>(building.Language));
-            if (includeQuery.Contains("postal-code") && building.PostalCode != null)
-                included.Add(_mapper.Map<PostalCodeDto>(building.PostalCode));
+            if (includeQuery.Contains("honorific-prefix") && building.HonorificPrefix != null)
+                included.Add(_mapper.Map<HonorificPrefixDto>(building.HonorificPrefix));
 
             return included;
         }

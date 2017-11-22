@@ -8,12 +8,14 @@ namespace Rollvolet.CRM.APIContracts.DTO
     {
         public class AttributesDto {
             public string Name { get; set; }
+            public string Prefix { get; set; }
             public string Address1 { get; set; }
             public string Address2 { get; set; }
             public string Address3 { get; set; }
             [JsonProperty("postal-code")]
             public string PostalCode { get; set; }
             public string City { get; set; }
+            public string Email { get; set; }
             public int Number { get; set; }
             [JsonProperty("customer-id")]
             public int CustomerId { get; set; }
@@ -25,6 +27,8 @@ namespace Rollvolet.CRM.APIContracts.DTO
         {
             public IRelationship Country { get; set; }
             public IRelationship Language { get; set; }
+            [JsonProperty("honorific-prefix")]
+            public IRelationship HonorificPrefix { get; set; }
         }
   }
 }

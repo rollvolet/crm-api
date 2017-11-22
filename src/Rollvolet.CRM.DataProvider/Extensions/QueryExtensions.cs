@@ -45,6 +45,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             
             selectors.Add("country", c => c.Country);
             selectors.Add("language", c => c.Language);
+            selectors.Add("honorific-prefix", c => c.HonorificPrefix);
 
             return Include<Contact>(source, querySet, selectors);         
         }
@@ -68,6 +69,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             
             selectors.Add("country", c => c.Country);
             selectors.Add("language", c => c.Language);
+            selectors.Add("honorific-prefix", c => c.HonorificPrefix);
 
             return Include<Building>(source, querySet, selectors);         
         }

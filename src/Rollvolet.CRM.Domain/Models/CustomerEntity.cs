@@ -6,7 +6,9 @@ namespace Rollvolet.CRM.Domain.Models
     {
         public int Id { get; set; }
         public int Number { get; set; }
+        public HonorificPrefix HonorificPrefix { get; set; }
         public string Name { get; set; }
+        public string Prefix { get; set; }
         public string Address1 { get; set; }
         public string Address2 { get; set; }
         public string Address3 { get; set; }
