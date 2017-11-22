@@ -51,6 +51,14 @@ namespace Rollvolet.CRM.API.Builders
                         querySet.Sort.Field = field;
                     }
                 }
+
+                if (pair.Key.StartsWith("filter"))
+                {
+                    // TODO throw exception if System.IndexOutOfRangeException
+                    var propertyName = pair.Key.Split('[', ']')[1];
+
+                    querySet.Filter.Fields.Add(propertyName, pair.Value);
+                }
             }
 
             return querySet;
