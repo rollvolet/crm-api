@@ -18,6 +18,9 @@ namespace Rollvolet.CRM.Domain.Managers
         
         public async Task<Paged<Building>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
+            if (query.Sort.Field == null)
+                query.Sort.Field = "name";
+
             return await _buildingDataProvider.GetAllByCustomerIdAsync(customerId, query);
         }
     }

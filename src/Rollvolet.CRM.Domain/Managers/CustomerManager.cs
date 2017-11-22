@@ -36,6 +36,9 @@ namespace Rollvolet.CRM.Domain.Managers
         
         public async Task<Paged<Customer>> GetAllAsync(QuerySet query)
         {
+            if (query.Sort.Field == null)
+                query.Sort.Field = "name";
+                
             return await _customerDataProvider.GetAllAsync(query);
         }
 
@@ -53,8 +56,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 customer.HonorificPrefix = await _honorificPrefixDataProvider.GetByIdAsync(int.Parse(customer.HonorificPrefix.Id));
             if (customer.Language != null)
                 customer.Language = await _langugageDataProvider.GetByIdAsync(int.Parse(customer.Language.Id));
-            if (customer.PostalCode != null)
-                customer.PostalCode = await _postalCodeDataProvider.GetByIdAsync(int.Parse(customer.PostalCode.Id));
 
             if (customer.Contacts != null)
                 customer.Contacts = customer.Contacts.Select(x => _contactDataProvider.GetByIdAsync(x.Id).Result);
