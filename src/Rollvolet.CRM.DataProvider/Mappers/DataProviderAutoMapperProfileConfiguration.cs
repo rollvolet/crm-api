@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using AutoMapper;
 
 namespace Rollvolet.CRM.DataProvider.Mappers
@@ -40,8 +41,8 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => $"{src.Id}-{src.LanguageId}"))
                 .PreserveReferences()
                 .ReverseMap()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.Split('-').FirstOrDefault()))
-                .ForMember(dest => dest.LanguageId, opt => opt.MapFrom(src => src.Id.Split('-').LastOrDefault()))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None).FirstOrDefault()))
+                .ForMember(dest => dest.LanguageId, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None).LastOrDefault()))
                 .PreserveReferences();
                 
             CreateMap<Models.Language, Domain.Models.Language>()
@@ -58,11 +59,11 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => $"{src.CustomerId}-{src.TelephoneTypeId}-{src.CountryId}-{src.Area}-{src.Number}"))
                 .PreserveReferences()
                 .ReverseMap()
-                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Id.Split('-')[0]))
-                .ForMember(dest => dest.TelephoneTypeId, opt => opt.MapFrom(src => src.Id.Split('-')[1]))
-                .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.Id.Split('-')[2]))
-                .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Id.Split('-')[3]))
-                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => src.Id.Split('-')[4]))
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None)[0]))
+                .ForMember(dest => dest.TelephoneTypeId, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None)[1]))
+                .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None)[2]))
+                .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None)[3]))
+                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None)[4]))
                 .PreserveReferences();
                 
             CreateMap<Models.TelephoneType, Domain.Models.TelephoneType>()
