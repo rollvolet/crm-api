@@ -9,18 +9,24 @@ namespace Rollvolet.CRM.DataProvider.Mappers
         {
             CreateMap<Models.Customer, Domain.Models.Customer>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Number))
+                .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.EmbeddedPostalCode))
+                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.EmbeddedCity))
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();
             
             CreateMap<Models.Contact, Domain.Models.Contact>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.DataId))
+                .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.EmbeddedPostalCode))
+                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.EmbeddedCity))
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();
                 
             CreateMap<Models.Building, Domain.Models.Building>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.DataId))
+                .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.EmbeddedPostalCode))
+                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.EmbeddedCity))
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();

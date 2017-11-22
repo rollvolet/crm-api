@@ -47,7 +47,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         // Included resources
         public Country Country { get; set; }
         public Language Language { get; set; }
-        public PostalCode PostalCode { get; set; }
 
 
         // Embedded properties

@@ -16,6 +16,9 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public string Address1 { get; set; }
             public string Address2 { get; set; }
             public string Address3 { get; set; }
+            [JsonProperty("postal-code")]
+            public string PostalCode { get; set; }
+            public string City { get; set; }
             [JsonProperty("is-company")]
             public bool IsCompany { get; set; }
             [JsonProperty("vat-number")]
@@ -42,8 +45,6 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public IRelationship Buildings { get; set; }
             public IRelationship Country { get; set; }
             public IRelationship Language { get; set; }
-            [JsonProperty("postal-code")]
-            public IRelationship PostalCode { get; set; }
             [JsonProperty("honorific-prefix")]
             public IRelationship HonorificPrefix { get; set; }
             public IRelationship Telephones { get; set; } 

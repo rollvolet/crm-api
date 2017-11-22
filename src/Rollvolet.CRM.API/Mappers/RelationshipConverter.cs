@@ -24,7 +24,6 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Buildings = GetManyRelationship<Building>("customers", source.Id, "buildings", source.Buildings, context);
             relationships.Country = GetOneRelationship<Country>("customers", source.Id, "country", source.Country, context);
             relationships.Language = GetOneRelationship<Language>("customers", source.Id, "language", source.Language, context);
-            relationships.PostalCode = GetOneRelationship<PostalCode>("customers", source.Id, "postal-code", source.PostalCode, context);
             relationships.HonorificPrefix = GetOneRelationship<HonorificPrefix>("customers", source.Id, "honorific-prefix", source.HonorificPrefix, context);
             relationships.Telephones = GetManyRelationship<Telephone>("customers", source.Id, "telephones", source.Telephones, context);
             return relationships;
@@ -35,7 +34,6 @@ namespace Rollvolet.CRM.API.Mappers
             var relationships = new ContactDto.RelationshipsDto();
             relationships.Country = GetOneRelationship<Country>("contacts", source.Id, "country", source.Country, context);
             relationships.Language = GetOneRelationship<Language>("contacts", source.Id, "language", source.Language, context);
-            relationships.PostalCode = GetOneRelationship<PostalCode>("contacts", source.Id, "postal-code", source.PostalCode, context);
             return relationships;
         }
 
@@ -44,7 +42,6 @@ namespace Rollvolet.CRM.API.Mappers
             var relationships = new BuildingDto.RelationshipsDto();
             relationships.Country = GetOneRelationship<Country>("buildings", source.Id, "country", source.Country, context);
             relationships.Language = GetOneRelationship<Language>("buildings", source.Id, "language", source.Language, context);
-            relationships.PostalCode = GetOneRelationship<PostalCode>("buildings", source.Id, "postal-code", source.PostalCode, context);
             return relationships;
         }
 

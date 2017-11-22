@@ -74,8 +74,8 @@ namespace Rollvolet.CRM.DataProviders
 
             if (customer.PostalCode != null)
             {
-                customerRecord.EmbeddedPostalCode = customer.PostalCode.Code;
-                customerRecord.EmbeddedCity = customer.PostalCode.Name;
+                // customerRecord.EmbeddedPostalCode = customer.PostalCode.Code;
+                // customerRecord.EmbeddedCity = customer.PostalCode.Name;
             }
 
             customerRecord.Number = await _sequenceDataProvider.GetNextCustomerNumber();
