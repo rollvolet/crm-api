@@ -69,6 +69,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             
             selectors.Add("name", x => x.SearchName);
             selectors.Add("number", x => x.Number);
+            selectors.Add("address", x => x.Address1);
             selectors.Add("postal-code", x => x.EmbeddedPostalCode);
             selectors.Add("city", x => x.EmbeddedCity);
             selectors.Add("created", x => x.Created);
@@ -136,6 +137,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             var selectors = new Dictionary<string, Expression<Func<Contact, object>>>();
             
             selectors.Add("name", x => x.SearchName);
+            selectors.Add("address", x => x.Address1);
             selectors.Add("postal-code", x => x.EmbeddedPostalCode);
             selectors.Add("city", x => x.EmbeddedCity);
             selectors.Add("created", x => x.Created);
@@ -203,6 +205,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             var selectors = new Dictionary<string, Expression<Func<Building, object>>>();
             
             selectors.Add("name", x => x.SearchName);
+            selectors.Add("address", x => x.Address1);
             selectors.Add("postal-code", x => x.EmbeddedPostalCode);
             selectors.Add("city", x => x.EmbeddedCity);
             selectors.Add("created", x => x.Created);
