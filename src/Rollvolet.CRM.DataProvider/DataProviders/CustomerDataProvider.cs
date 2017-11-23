@@ -34,7 +34,8 @@ namespace Rollvolet.CRM.DataProviders
         {
             var source = _context.Customers
                             .Include(query)
-                            .Sort(query);
+                            .Sort(query)
+                            .Filter(query);
 
             var customers = source.Skip(query.Page.Skip).Take(query.Page.Take).AsEnumerable();
 

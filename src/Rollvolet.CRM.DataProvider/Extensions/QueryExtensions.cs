@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.DataProvider.Models;
@@ -11,6 +12,43 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 {
     public static class QueryExtensions
     {
+        public static IQueryable<Customer> Filter(this IQueryable<Customer> source, QuerySet querySet)
+        {
+            if (querySet.Filter.Fields.ContainsKey("name"))
+            {
+                var filterValue = querySet.Filter.Fields["name"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.SearchName, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("postal-code"))
+            {
+                var filterValue = querySet.Filter.Fields["postal-code"];
+                source = source.Where(c => c.EmbeddedPostalCode == filterValue);
+            }  
+
+            if (querySet.Filter.Fields.ContainsKey("city"))
+            {
+                var filterValue = querySet.Filter.Fields["city"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.EmbeddedCity, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("street"))
+            {
+                var filterValue = querySet.Filter.Fields["street"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.Address1, filterValue) 
+                                        || EF.Functions.Like(c.Address2, filterValue)
+                                        || EF.Functions.Like(c.Address3, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("number"))
+            {
+                var filterValue = querySet.Filter.Fields["number"];
+                source = source.Where(c => c.Number == Convert.ToInt32(filterValue));
+            }  
+
+            return source;
+        }
+
         public static IQueryable<Customer> Include(this IQueryable<Customer> source, QuerySet querySet)
         {
             var selectors = new Dictionary<string, Expression<Func<Customer, object>>>();
@@ -39,6 +77,49 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             return Sort<Customer>(source, querySet, selectors);
         }
 
+        public static IQueryable<Contact> Filter(this IQueryable<Contact> source, QuerySet querySet)
+        {
+            if (querySet.Filter.Fields.ContainsKey("name"))
+            {
+                var filterValue = querySet.Filter.Fields["name"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.SearchName, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("postal-code"))
+            {
+                var filterValue = querySet.Filter.Fields["postal-code"];
+                source = source.Where(c => c.EmbeddedPostalCode == filterValue);
+            }  
+
+            if (querySet.Filter.Fields.ContainsKey("city"))
+            {
+                var filterValue = querySet.Filter.Fields["city"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.EmbeddedCity, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("street"))
+            {
+                var filterValue = querySet.Filter.Fields["street"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.Address1, filterValue) 
+                                        || EF.Functions.Like(c.Address2, filterValue)
+                                        || EF.Functions.Like(c.Address3, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("number"))
+            {
+                var filterValue = querySet.Filter.Fields["number"];
+                source = source.Where(c => c.Number == Convert.ToInt32(filterValue));
+            }  
+
+            if (querySet.Filter.Fields.ContainsKey("customer"))
+            {
+                var filterValue = querySet.Filter.Fields["customer"];
+                source = source.Where(c => c.CustomerId == Convert.ToInt32(filterValue));
+            }             
+
+            return source;
+        }        
+
         public static IQueryable<Contact> Include(this IQueryable<Contact> source, QuerySet querySet)
         {
             var selectors = new Dictionary<string, Expression<Func<Contact, object>>>();
@@ -62,6 +143,49 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             return Sort<Contact>(source, querySet, selectors);
         }
+
+        public static IQueryable<Building> Filter(this IQueryable<Building> source, QuerySet querySet)
+        {
+            if (querySet.Filter.Fields.ContainsKey("name"))
+            {
+                var filterValue = querySet.Filter.Fields["name"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.SearchName, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("postal-code"))
+            {
+                var filterValue = querySet.Filter.Fields["postal-code"];
+                source = source.Where(c => c.EmbeddedPostalCode == filterValue);
+            }  
+
+            if (querySet.Filter.Fields.ContainsKey("city"))
+            {
+                var filterValue = querySet.Filter.Fields["city"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.EmbeddedCity, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("street"))
+            {
+                var filterValue = querySet.Filter.Fields["street"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.Address1, filterValue) 
+                                        || EF.Functions.Like(c.Address2, filterValue)
+                                        || EF.Functions.Like(c.Address3, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("number"))
+            {
+                var filterValue = querySet.Filter.Fields["number"];
+                source = source.Where(c => c.Number == Convert.ToInt32(filterValue));
+            }  
+
+            if (querySet.Filter.Fields.ContainsKey("customer"))
+            {
+                var filterValue = querySet.Filter.Fields["customer"];
+                source = source.Where(c => c.CustomerId == Convert.ToInt32(filterValue));
+            }             
+
+            return source;
+        } 
 
         public static IQueryable<Building> Include(this IQueryable<Building> source, QuerySet querySet)
         {
@@ -104,6 +228,11 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("order", x => x.Order.ToString());
 
             return Sort<Telephone>(source, querySet, selectors);
+        }
+
+        private static string FilterWildcard(this string value)
+        {
+            return value.Replace("*", "%") + "%";
         }
 
         private static IQueryable<T> Include<T>(IQueryable<T> source, QuerySet querySet, IDictionary<string, Expression<Func<T, object>>> selectors) where T : class

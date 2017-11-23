@@ -28,7 +28,8 @@ namespace Rollvolet.CRM.DataProviders
             var source = _context.Buildings
                             .Where(c => c.CustomerId == customerId)
                             .Include(query)
-                            .Sort(query);
+                            .Sort(query)
+                            .Filter(query);
 
             var buildings = source.Skip(query.Page.Skip).Take(query.Page.Take).AsEnumerable();
 
