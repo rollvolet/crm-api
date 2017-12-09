@@ -100,13 +100,13 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .ToTable("tblTel", schema: "dbo");
 
             modelBuilder.Entity<Telephone>()
-                .HasKey(e => new { e.CustomerId, e.TelephoneTypeId, e.CountryId, e.Area, e.Number })
+                .HasKey(e => new { e.CustomerRecordId, e.TelephoneTypeId, e.CountryId, e.Area, e.Number })
                 .HasName("tblTel$PrimaryKey");
 
             modelBuilder.Entity<Telephone>()
-                .HasOne(e => e.Customer)
+                .HasOne(e => e.CustomerRecord)
                 .WithMany(e => e.Telephones)
-                .HasForeignKey(e => e.CustomerId)
+                .HasForeignKey(e => e.CustomerRecordId)
                 .HasPrincipalKey(e => e.DataId);
 
 

@@ -32,7 +32,7 @@ namespace Rollvolet.CRM.DataProviders
             // TODO throw EntityNotFound if customer is null
 
             var source = _context.Telephones
-                            .Where(t => t.CustomerId == customer.DataId)
+                            .Where(t => t.CustomerRecordId == customer.DataId)
                             .Include(query)
                             .Sort(query);
 

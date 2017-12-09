@@ -56,10 +56,13 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences();
 
             CreateMap<Models.Telephone, Domain.Models.Telephone>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => $"{src.CustomerId}-{src.TelephoneTypeId}-{src.CountryId}-{src.Area}-{src.Number}"))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => $"{src.CustomerRecordId}-{src.TelephoneTypeId}-{src.CountryId}-{src.Area}-{src.Number}"))
+                .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.CustomerRecord.GetType() == typeof(Models.Customer) ? src.CustomerRecord : null))
+                .ForMember(dest => dest.Contact, opt => opt.MapFrom(src => src.CustomerRecord.GetType() == typeof(Models.Contact) ? src.CustomerRecord : null))
+                .ForMember(dest => dest.Building, opt => opt.MapFrom(src => src.CustomerRecord.GetType() == typeof(Models.Building) ? src.CustomerRecord : null))
                 .PreserveReferences()
                 .ReverseMap()
-                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None)[0]))
+                .ForMember(dest => dest.CustomerRecordId, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None)[0]))
                 .ForMember(dest => dest.TelephoneTypeId, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None)[1]))
                 .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None)[2]))
                 .ForMember(dest => dest.Area, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None)[3]))

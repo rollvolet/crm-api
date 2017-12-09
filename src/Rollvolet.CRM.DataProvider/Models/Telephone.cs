@@ -5,7 +5,7 @@ namespace Rollvolet.CRM.DataProvider.Models
     public class Telephone
     {
         [Column("DataId")]
-        public int CustomerId { get; set; }
+        public int CustomerRecordId { get; set; }
 
         [Column("TelTypeId")]
         public int TelephoneTypeId { get; set; }
@@ -27,7 +27,7 @@ namespace Rollvolet.CRM.DataProvider.Models
 
 
         // Include resources
-        public Customer Customer { get; set; }
+        public CustomerRecord CustomerRecord { get; set; }
         public Country Country { get; set; }
         public TelephoneType TelephoneType { get; set; }
     }

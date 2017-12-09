@@ -21,6 +21,7 @@ namespace Rollvolet.CRM.API.Collectors
         {
             ISet<IResource> included = new HashSet<IResource>();
             
+            // one-relations
             if (includeQuery.Contains("country") && customer.Country != null)
                 included.Add(_mapper.Map<CountryDto>(customer.Country));
             if (includeQuery.Contains("language") && customer.Language != null)
@@ -28,6 +29,7 @@ namespace Rollvolet.CRM.API.Collectors
             if (includeQuery.Contains("honorific-prefix") && customer.HonorificPrefix != null)
                 included.Add(_mapper.Map<HonorificPrefixDto>(customer.HonorificPrefix));
 
+            // many-relations
             if (includeQuery.Contains("contacts") && customer.Contacts.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<ContactDto>>(customer.Contacts));
             if (includeQuery.Contains("buildings") && customer.Buildings.Count() > 0)
@@ -52,12 +54,17 @@ namespace Rollvolet.CRM.API.Collectors
         {
             ISet<IResource> included = new HashSet<IResource>();
             
+            // one-relations
             if (includeQuery.Contains("country") && contact.Country != null)
                 included.Add(_mapper.Map<CountryDto>(contact.Country));
             if (includeQuery.Contains("language") && contact.Language != null)
                 included.Add(_mapper.Map<LanguageDto>(contact.Language));
             if (includeQuery.Contains("honorific-prefix") && contact.HonorificPrefix != null)
                 included.Add(_mapper.Map<HonorificPrefixDto>(contact.HonorificPrefix));
+                
+            // many-relations
+            if (includeQuery.Contains("telephones") && contact.Telephones.Count() > 0)
+                included.UnionWith(_mapper.Map<IEnumerable<TelephoneDto>>(contact.Telephones));
 
             return included;
         }
@@ -76,12 +83,17 @@ namespace Rollvolet.CRM.API.Collectors
         {
             ISet<IResource> included = new HashSet<IResource>();
             
+            // one-relations
             if (includeQuery.Contains("country") && building.Country != null)
                 included.Add(_mapper.Map<CountryDto>(building.Country));
             if (includeQuery.Contains("language") && building.Language != null)
                 included.Add(_mapper.Map<LanguageDto>(building.Language));
             if (includeQuery.Contains("honorific-prefix") && building.HonorificPrefix != null)
                 included.Add(_mapper.Map<HonorificPrefixDto>(building.HonorificPrefix));
+                
+            // many-relations
+            if (includeQuery.Contains("telephones") && building.Telephones.Count() > 0)
+                included.UnionWith(_mapper.Map<IEnumerable<TelephoneDto>>(building.Telephones));
 
             return included;
         }

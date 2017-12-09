@@ -3,10 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Rollvolet.CRM.DataProvider.Models
 {
     public class Contact : CustomerRecord
-    {
-        [Column("email")]
-        public string Email { get; set; }
-        
+    {        
         [Column("ParentID")]
         public int CustomerId { get; set; }
 
