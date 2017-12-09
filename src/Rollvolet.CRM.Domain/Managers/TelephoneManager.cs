@@ -23,5 +23,21 @@ namespace Rollvolet.CRM.Domain.Managers
 
             return await _telephoneDataProvider.GetAllByCustomerIdAsync(customerId, query);
         }
+        
+        public async Task<Paged<Telephone>> GetAllByContactIdAsync(int contactId, QuerySet query)
+        {
+            if (query.Sort.Field == null)
+                query.Sort.Field = "order";
+
+            return await _telephoneDataProvider.GetAllByContactIdAsync(contactId, query);
+        }
+        
+        public async Task<Paged<Telephone>> GetAllByBuildingIdAsync(int buildingId, QuerySet query)
+        {
+            if (query.Sort.Field == null)
+                query.Sort.Field = "order";
+
+            return await _telephoneDataProvider.GetAllByBuildingIdAsync(buildingId, query);
+        }
     }
 }
