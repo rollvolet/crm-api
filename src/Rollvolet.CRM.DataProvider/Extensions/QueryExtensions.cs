@@ -43,7 +43,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
                 var filterValue = querySet.Filter.Fields["number"];
-                source = source.Where(c => c.Number == Convert.ToInt32(filterValue));
+                if (!String.IsNullOrEmpty(filterValue))
+                    source = source.Where(c => c.Number == Convert.ToInt32(filterValue));
             }  
 
             return source;
@@ -109,13 +110,15 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
                 var filterValue = querySet.Filter.Fields["number"];
-                source = source.Where(c => c.Number == Convert.ToInt32(filterValue));
+                if (!String.IsNullOrEmpty(filterValue))
+                    source = source.Where(c => c.Number == Convert.ToInt32(filterValue));
             }  
 
             if (querySet.Filter.Fields.ContainsKey("customer"))
             {
                 var filterValue = querySet.Filter.Fields["customer"];
-                source = source.Where(c => c.CustomerId == Convert.ToInt32(filterValue));
+                if (!String.IsNullOrEmpty(filterValue))
+                    source = source.Where(c => c.CustomerId == Convert.ToInt32(filterValue));
             }             
 
             return source;
@@ -177,13 +180,15 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
                 var filterValue = querySet.Filter.Fields["number"];
-                source = source.Where(c => c.Number == Convert.ToInt32(filterValue));
+                if (!String.IsNullOrEmpty(filterValue))
+                    source = source.Where(c => c.Number == Convert.ToInt32(filterValue));
             }  
 
             if (querySet.Filter.Fields.ContainsKey("customer"))
             {
                 var filterValue = querySet.Filter.Fields["customer"];
-                source = source.Where(c => c.CustomerId == Convert.ToInt32(filterValue));
+                if (!String.IsNullOrEmpty(filterValue))
+                    source = source.Where(c => c.CustomerId == Convert.ToInt32(filterValue));
             }             
 
             return source;
