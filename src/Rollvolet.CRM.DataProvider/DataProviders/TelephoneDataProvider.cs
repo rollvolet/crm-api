@@ -57,10 +57,10 @@ namespace Rollvolet.CRM.DataProviders
             
             search = _digitsOnly.Replace(search, "");
 
-            var countryCode = search.Substring(0, 4); // TODO: country code may contain more or less than 4 chars
+            var countryCode = search.Length >= 4 ? search.Substring(0, 4) : "9999"; // TODO: country code may contain more or less than 4 chars
             var searchFullNumber = search + "%";
             var searchFullNumberPrefixed = "0" + searchFullNumber;
-            var searchWithoutCountry = searchFullNumber.Substring(4);
+            var searchWithoutCountry = search.Length >= 4 ? searchFullNumber.Substring(4) : searchFullNumber;
             var searchWithoutCountryPrefixed = "0" + searchWithoutCountry;
 
             return _context.Telephones
