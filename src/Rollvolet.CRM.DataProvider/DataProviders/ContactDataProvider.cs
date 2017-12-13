@@ -18,11 +18,13 @@ namespace Rollvolet.CRM.DataProviders
     {
         private readonly CrmContext _context;
         private readonly IMapper _mapper;
+        private readonly ITelephoneDataProvider _telephoneDataProvider;
 
-        public ContactDataProvider(CrmContext context, IMapper mapper)
+        public ContactDataProvider(CrmContext context, IMapper mapper, ITelephoneDataProvider telephoneDataProvider)
         {
             _context = context;
             _mapper = mapper;
+            _telephoneDataProvider = telephoneDataProvider;
         }
 
         public async Task<Contact> GetByIdAsync(int id)
@@ -34,6 +36,22 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Paged<Contact>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
+            if (query.Filter.Fields.ContainsKey("telephone"))
+            {
+                var ids = _telephoneDataProvider.SearchDataIds(query.Filter.Fields["telephone"]);
+                if (ids.Count() == 0) {
+                    return new Paged<Contact>() {
+                        Items = new List<Contact>(),
+                        Count = 0,
+                        PageNumber = query.Page.Number,
+                        PageSize = query.Page.Size
+                    };
+                }
+
+                query.Filter.Fields.Remove("telephone");
+                query.Filter.Fields.Add("ids", string.Join(",", ids));
+            }
+
             var source = _context.Contacts
                             .Where(c => c.CustomerId == customerId)
                             .Include(query)

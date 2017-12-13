@@ -45,7 +45,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 var filterValue = querySet.Filter.Fields["number"];
                 if (!String.IsNullOrEmpty(filterValue))
                     source = source.Where(c => c.Number == Convert.ToInt32(filterValue));
-            }         
+            }
 
             if (querySet.Filter.Fields.ContainsKey("ids"))
             {
@@ -127,6 +127,12 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                     source = source.Where(c => c.CustomerId == Convert.ToInt32(filterValue));
             }
 
+            if (querySet.Filter.Fields.ContainsKey("ids"))
+            {
+                var ids = querySet.Filter.Fields["ids"].Split(",").Select(int.Parse).ToList();
+                source = source.Where(c => ids.Contains(c.DataId));
+            }
+
             return source;
         }        
 
@@ -196,7 +202,13 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 var filterValue = querySet.Filter.Fields["customer"];
                 if (!String.IsNullOrEmpty(filterValue))
                     source = source.Where(c => c.CustomerId == Convert.ToInt32(filterValue));
-            }             
+            }     
+
+            if (querySet.Filter.Fields.ContainsKey("ids"))
+            {
+                var ids = querySet.Filter.Fields["ids"].Split(",").Select(int.Parse).ToList();
+                source = source.Where(c => ids.Contains(c.DataId));
+            }        
 
             return source;
         } 
