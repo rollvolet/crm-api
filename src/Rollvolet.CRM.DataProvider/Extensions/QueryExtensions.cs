@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.DataProvider.Models;
@@ -16,7 +17,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
         {
             if (querySet.Filter.Fields.ContainsKey("name"))
             {
-                var filterValue = querySet.Filter.Fields["name"].FilterWildcard();
+                var filterValue = querySet.Filter.Fields["name"].FilterWhitespace().FilterWildcard();
                 source = source.Where(c => EF.Functions.Like(c.SearchName, filterValue));
             }
 
@@ -89,7 +90,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
         {
             if (querySet.Filter.Fields.ContainsKey("name"))
             {
-                var filterValue = querySet.Filter.Fields["name"].FilterWildcard();
+                var filterValue = querySet.Filter.Fields["name"].FilterWhitespace().FilterWildcard();
                 source = source.Where(c => EF.Functions.Like(c.SearchName, filterValue));
             }
 
@@ -166,7 +167,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
         {
             if (querySet.Filter.Fields.ContainsKey("name"))
             {
-                var filterValue = querySet.Filter.Fields["name"].FilterWildcard();
+                var filterValue = querySet.Filter.Fields["name"].FilterWhitespace().FilterWildcard();
                 source = source.Where(c => EF.Functions.Like(c.SearchName, filterValue));
             }
 
@@ -256,6 +257,11 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("order", x => x.Order.ToString());
 
             return Sort<Telephone>(source, querySet, selectors);
+        }
+
+        private static string FilterWhitespace(this string value)
+        {
+            return Regex.Replace(value, @"\s+", "");
         }
 
         private static string FilterWildcard(this string value)
