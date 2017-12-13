@@ -23,7 +23,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public string Memo { get; set; }
 
         [Column("Volgorde")]
-        public short Order { get; set; }
+        public short? Order { get; set; }
 
 
         // Include resources
