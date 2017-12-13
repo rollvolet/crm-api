@@ -20,18 +20,38 @@ namespace Rollvolet.CRM.DataProviders
         private readonly CrmContext _context;
         private readonly IMapper _mapper;
         private readonly ISequenceDataProvider _sequenceDataProvider;
+        private readonly ITelephoneDataProvider _telephoneDataProvider;
         private readonly ILogger _logger;
 
-        public CustomerDataProvider(CrmContext context, IMapper mapper, ISequenceDataProvider sequenceDataProvider, ILogger<CustomerDataProvider> logger)
+        public CustomerDataProvider(CrmContext context, IMapper mapper, ISequenceDataProvider sequenceDataProvider, 
+                                    ITelephoneDataProvider telephoneDataProvider, ILogger<CustomerDataProvider> logger)
         {
             _context = context;
             _mapper = mapper;
             _sequenceDataProvider = sequenceDataProvider;
+            _telephoneDataProvider = telephoneDataProvider;
             _logger = logger;
         }
 
         public async Task<Paged<Customer>> GetAllAsync(QuerySet query)
         {
+
+            if (query.Filter.Fields.ContainsKey("telephone"))
+            {
+                var ids = _telephoneDataProvider.SearchDataIds(query.Filter.Fields["telephone"]);
+                if (ids.Count() == 0) {
+                    return new Paged<Customer>() {
+                        Items = new List<Customer>(),
+                        Count = 0,
+                        PageNumber = query.Page.Number,
+                        PageSize = query.Page.Size
+                    };
+                }
+
+                query.Filter.Fields.Remove("telephone");
+                query.Filter.Fields.Add("ids", string.Join(",", ids));
+            }
+
             var source = _context.Customers
                             .Include(query)
                             .Sort(query)
