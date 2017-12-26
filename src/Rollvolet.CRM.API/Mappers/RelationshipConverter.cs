@@ -11,11 +11,13 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Contact, ContactDto.RelationshipsDto>,
                                             ITypeConverter<Building, BuildingDto.RelationshipsDto>,
                                             ITypeConverter<Telephone, TelephoneDto.RelationshipsDto>,
+                                            ITypeConverter<Request, RequestDto.RelationshipsDto>,
                                             ITypeConverter<Country, EmptyRelationshipsDto>,
                                             ITypeConverter<Language, EmptyRelationshipsDto>,
                                             ITypeConverter<PostalCode, EmptyRelationshipsDto>,
                                             ITypeConverter<TelephoneType, EmptyRelationshipsDto>,
-                                            ITypeConverter<HonorificPrefix, EmptyRelationshipsDto>
+                                            ITypeConverter<HonorificPrefix, EmptyRelationshipsDto>,
+                                            ITypeConverter<WayOfEntry, EmptyRelationshipsDto>
     {
         CustomerDto.RelationshipsDto ITypeConverter<Customer, CustomerDto.RelationshipsDto>.Convert(Customer source, CustomerDto.RelationshipsDto destination, ResolutionContext context)
         {
@@ -57,6 +59,15 @@ namespace Rollvolet.CRM.API.Mappers
             return relationships;
         }
 
+        RequestDto.RelationshipsDto ITypeConverter<Request, RequestDto.RelationshipsDto>.Convert(Request source, RequestDto.RelationshipsDto destination, ResolutionContext context)
+        {
+            var relationships = new RequestDto.RelationshipsDto();
+            relationships.Customer = GetOneRelationship<Customer>("requests", source.Id, "customer", source.Customer, context);
+            relationships.Building = GetOneRelationship<Building>("requests", source.Id, "building", source.Building, context);
+            relationships.Contact = GetOneRelationship<Contact>("requests", source.Id, "contact", source.Contact, context);
+            return relationships;
+        }        
+
         EmptyRelationshipsDto ITypeConverter<Country, EmptyRelationshipsDto>.Convert(Country source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
@@ -78,6 +89,11 @@ namespace Rollvolet.CRM.API.Mappers
         }
 
         EmptyRelationshipsDto ITypeConverter<HonorificPrefix, EmptyRelationshipsDto>.Convert(HonorificPrefix source, EmptyRelationshipsDto destination, ResolutionContext context)
+        {
+            return new EmptyRelationshipsDto();
+        }
+
+        EmptyRelationshipsDto ITypeConverter<WayOfEntry, EmptyRelationshipsDto>.Convert(WayOfEntry source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
         }

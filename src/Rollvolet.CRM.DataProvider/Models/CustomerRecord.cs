@@ -78,6 +78,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Language Language { get; set; }
         public IEnumerable<Telephone> Telephones { get; set; }
 
+        public IEnumerable<Request> Requests { get; set; }
 
         // Embedded properties
         [Column("Postcode")]

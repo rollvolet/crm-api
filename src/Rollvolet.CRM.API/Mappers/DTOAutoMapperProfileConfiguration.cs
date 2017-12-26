@@ -50,10 +50,6 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<Contact, ContactDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
-            // CreateMap<Relationship, IEnumerable<Contact>>()
-            //     .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<Contact>>(((JArray) src.Data).ToObject<List<RelationResource>>()))
-            //     .ForAllMembers(opt => opt.Ignore());
-
             CreateMap<Contact, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("contacts"));
 
@@ -86,10 +82,6 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<Country, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
-            // CreateMap<Relationship, Country>()
-            //     .ConstructUsing((src, context) => context.Mapper.Map<Country>(((JObject) src.Data).ToObject<RelationResource>()))
-            //     .ForAllMembers(opt => opt.Ignore());
-
             CreateMap<Country, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("countries"));
 
@@ -105,10 +97,6 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<HonorificPrefix, HonorificPrefixDto.AttributesDto>();
 
             CreateMap<HonorificPrefix, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
-
-            // CreateMap<Relationship, HonorificPrefix>()
-            //     .ConstructUsing((src, context) => context.Mapper.Map<HonorificPrefix>(((JObject) src.Data).ToObject<RelationResource>()))
-            //     .ForAllMembers(opt => opt.Ignore());
 
             CreateMap<HonorificPrefix, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("honorific-prefixes"));
@@ -126,10 +114,6 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<Language, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
-            // CreateMap<Relationship, Language>()
-            //     .ConstructUsing((src, context) => context.Mapper.Map<Language>(((JObject) src.Data).ToObject<RelationResource>()))
-            //     .ForAllMembers(opt => opt.Ignore());
-
             CreateMap<Language, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("languages"));
 
@@ -145,10 +129,6 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<PostalCode, PostalCodeDto.AttributesDto>();
 
             CreateMap<PostalCode, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
-
-            // CreateMap<Relationship, PostalCode>()
-            //     .ConstructUsing((src, context) => context.Mapper.Map<PostalCode>(((JObject) src.Data).ToObject<RelationResource>()))
-            //     .ForAllMembers(opt => opt.Ignore());
 
             CreateMap<PostalCode, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("postal-codes"));
@@ -184,6 +164,34 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<TelephoneType, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("telephone-types"));
+
+
+            // Request mappings
+
+            CreateMap<Request, RequestDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("requests"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<Request, RequestDto.AttributesDto>();
+
+            CreateMap<Request, RequestDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+
+            // Way of Entry mappings
+
+            CreateMap<WayOfEntry, WayOfEntryDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("way-of-entries"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<WayOfEntry, WayOfEntryDto.AttributesDto>();
+
+            CreateMap<WayOfEntry, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+
         }
 
     }

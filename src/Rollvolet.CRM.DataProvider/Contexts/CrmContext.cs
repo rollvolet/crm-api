@@ -118,6 +118,34 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             modelBuilder.Entity<TelephoneType>()
                 .HasKey(e => e.Id)
                 .HasName("TblTelType$PrimaryKey");
+
+
+            // Request
+
+            modelBuilder.Entity<Request>()
+                .ToTable("TblAanvraag", schema: "dbo");
+            
+            modelBuilder.Entity<Request>()
+                .HasKey(e => e.Id)
+                .HasName("TblAanvraag$PrimaryKey");
+
+            modelBuilder.Entity<Request>()
+                .HasOne(e => e.Customer)
+                .WithMany(e => e.Requests)
+                .HasForeignKey(e => e.CustomerId)
+                .HasPrincipalKey(e => e.DataId);
+
+            modelBuilder.Entity<Request>()
+                .HasOne(e => e.Building)
+                .WithMany(e => e.Requests)
+                .HasForeignKey(e => e.BuildingId)
+                .HasPrincipalKey(e => e.Number);
+
+            modelBuilder.Entity<Request>()
+                .HasOne(e => e.Contact)
+                .WithMany(e => e.Requests)
+                .HasForeignKey(e => e.BuildingId)
+                .HasPrincipalKey(e => e.Number);
         }
     }
 }
