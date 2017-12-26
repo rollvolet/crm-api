@@ -14,6 +14,8 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<PostalCode> PostalCodes { get; set; }
         public DbSet<Telephone> Telephones { get; set; }
         public DbSet<TelephoneType> TelephoneTypes { get; set; }
+        public DbSet<Request> Requests { get; set; }
+        public DbSet<WayOfEntry> WaysOfEntry { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
         {
@@ -146,6 +148,16 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithMany(e => e.Requests)
                 .HasForeignKey(e => e.BuildingId)
                 .HasPrincipalKey(e => e.Number);
+
+
+            // Way of Entry
+
+            modelBuilder.Entity<WayOfEntry>()
+                .ToTable("TblAanmelding", schema: "dbo");
+            
+            modelBuilder.Entity<WayOfEntry>()
+                .HasKey(e => e.Id)
+                .HasName("TblAanmelding$PrimaryKey");
         }
     }
 }

@@ -275,6 +275,24 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             return Sort<Telephone>(source, querySet, selectors);
         }
 
+        public static IQueryable<Request> Filter(this IQueryable<Request> source, QuerySet querySet)  
+        {
+            // TODO implement
+            return source;
+        }      
+
+        public static IQueryable<Request> Include(this IQueryable<Request> source, QuerySet querySet)
+        {
+            // TODO implement
+            return source;
+        }
+
+        public static IQueryable<Request> Sort(this IQueryable<Request> source, QuerySet querySet)
+        {
+            // TODO implement
+            return source;
+        }
+
         private static string FilterWhitespace(this string value)
         {
             return Regex.Replace(value, @"\s+", "");
