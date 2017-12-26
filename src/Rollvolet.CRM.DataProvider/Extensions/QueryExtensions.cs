@@ -44,8 +44,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
                 var filterValue = querySet.Filter.Fields["number"];
-                if (!String.IsNullOrEmpty(filterValue))
-                    source = source.Where(c => c.Number == Convert.ToInt32(filterValue));
+                int number;
+                if (Int32.TryParse(filterValue, out number))
+                    source = source.Where(c => c.Number == number);
             }
 
             if (querySet.Filter.Fields.ContainsKey("ids"))
@@ -117,15 +118,17 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
                 var filterValue = querySet.Filter.Fields["number"];
-                if (!String.IsNullOrEmpty(filterValue))
-                    source = source.Where(c => c.Number == Convert.ToInt32(filterValue));
+                int number;
+                if (Int32.TryParse(filterValue, out number))
+                    source = source.Where(c => c.Number == number);
             }  
 
             if (querySet.Filter.Fields.ContainsKey("customer"))
             {
                 var filterValue = querySet.Filter.Fields["customer"];
-                if (!String.IsNullOrEmpty(filterValue))
-                    source = source.Where(c => c.CustomerId == Convert.ToInt32(filterValue));
+                int customerId;
+                if (Int32.TryParse(filterValue, out customerId))
+                    source = source.Where(c => c.CustomerId == customerId);
             }
 
             if (querySet.Filter.Fields.ContainsKey("ids"))
@@ -194,15 +197,17 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
                 var filterValue = querySet.Filter.Fields["number"];
-                if (!String.IsNullOrEmpty(filterValue))
-                    source = source.Where(c => c.Number == Convert.ToInt32(filterValue));
+                int number;
+                if (Int32.TryParse(filterValue, out number))
+                    source = source.Where(c => c.Number == number);
             }  
 
             if (querySet.Filter.Fields.ContainsKey("customer"))
             {
                 var filterValue = querySet.Filter.Fields["customer"];
-                if (!String.IsNullOrEmpty(filterValue))
-                    source = source.Where(c => c.CustomerId == Convert.ToInt32(filterValue));
+                int customerId;
+                if (Int32.TryParse(filterValue, out customerId))
+                    source = source.Where(c => c.CustomerId == customerId);
             }     
 
             if (querySet.Filter.Fields.ContainsKey("ids"))
