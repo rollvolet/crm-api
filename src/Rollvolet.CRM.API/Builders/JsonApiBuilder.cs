@@ -7,6 +7,7 @@ using Rollvolet.CRM.Domain.Models.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using Rollvolet.CRM.API.Builders.Interfaces;
+using System.Text.RegularExpressions;
 
 namespace Rollvolet.CRM.API.Builders
 {
@@ -54,10 +55,11 @@ namespace Rollvolet.CRM.API.Builders
 
                 if (pair.Key.StartsWith("filter"))
                 {
-                    // TODO throw exception if System.IndexOutOfRangeException
-                    var propertyName = pair.Key.Split('[', ']')[1];
+                    var pattern = @"\[(.*?)\]";
+                    var propertySegments = Regex.Matches(pair.Key, pattern).Select(x => x.Groups[1]);
+                    var propertyPath = String.Join(".", propertySegments);
 
-                    querySet.Filter.Fields.Add(propertyName, pair.Value);
+                    querySet.Filter.Fields.Add(propertyPath, pair.Value);
                 }
             }
 
