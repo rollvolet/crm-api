@@ -35,23 +35,6 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Paged<Customer>> GetAllAsync(QuerySet query)
         {
-
-            if (query.Filter.Fields.ContainsKey("telephone"))
-            {
-                var ids = _telephoneDataProvider.SearchDataIds(query.Filter.Fields["telephone"]);
-                if (ids.Count() == 0) {
-                    return new Paged<Customer>() {
-                        Items = new List<Customer>(),
-                        Count = 0,
-                        PageNumber = query.Page.Number,
-                        PageSize = query.Page.Size
-                    };
-                }
-
-                query.Filter.Fields.Remove("telephone");
-                query.Filter.Fields.Add("ids", string.Join(",", ids));
-            }
-
             var source = _context.Customers
                             .Include(query)
                             .Sort(query)

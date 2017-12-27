@@ -16,31 +16,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
     {
         public static IQueryable<Customer> Filter(this IQueryable<Customer> source, QuerySet querySet)
         {
-            if (querySet.Filter.Fields.ContainsKey("name"))
-            {
-                var filterValue = querySet.Filter.Fields["name"].FilterWhitespace().FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.SearchName, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("postal-code"))
-            {
-                var filterValue = querySet.Filter.Fields["postal-code"];
-                source = source.Where(c => c.EmbeddedPostalCode == filterValue);
-            }  
-
-            if (querySet.Filter.Fields.ContainsKey("city"))
-            {
-                var filterValue = querySet.Filter.Fields["city"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.EmbeddedCity, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("street"))
-            {
-                var filterValue = querySet.Filter.Fields["street"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Address1, filterValue) 
-                                        || EF.Functions.Like(c.Address2, filterValue)
-                                        || EF.Functions.Like(c.Address3, filterValue));
-            }
+            source = source.Filter<Customer>(querySet);
 
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
@@ -59,12 +35,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 }
                 // TODO throw exception about invalid number
             }
-
-            if (querySet.Filter.Fields.ContainsKey("ids"))
-            {
-                var ids = querySet.Filter.Fields["ids"].Split(",").Select(int.Parse).ToList();
-                source = source.Where(c => ids.Contains(c.DataId));
-            }  
 
             return source;
         }
@@ -100,31 +70,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         public static IQueryable<Contact> Filter(this IQueryable<Contact> source, QuerySet querySet)
         {
-            if (querySet.Filter.Fields.ContainsKey("name"))
-            {
-                var filterValue = querySet.Filter.Fields["name"].FilterWhitespace().FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.SearchName, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("postal-code"))
-            {
-                var filterValue = querySet.Filter.Fields["postal-code"];
-                source = source.Where(c => c.EmbeddedPostalCode == filterValue);
-            }  
-
-            if (querySet.Filter.Fields.ContainsKey("city"))
-            {
-                var filterValue = querySet.Filter.Fields["city"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.EmbeddedCity, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("street"))
-            {
-                var filterValue = querySet.Filter.Fields["street"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Address1, filterValue) 
-                                        || EF.Functions.Like(c.Address2, filterValue)
-                                        || EF.Functions.Like(c.Address3, filterValue));
-            }
+            source = source.Filter<Contact>(querySet);
 
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
@@ -140,12 +86,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 int customerId;
                 if (Int32.TryParse(filterValue, out customerId))
                     source = source.Where(c => c.CustomerId == customerId);
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("ids"))
-            {
-                var ids = querySet.Filter.Fields["ids"].Split(",").Select(int.Parse).ToList();
-                source = source.Where(c => ids.Contains(c.DataId));
             }
 
             return source;
@@ -179,31 +119,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         public static IQueryable<Building> Filter(this IQueryable<Building> source, QuerySet querySet)
         {
-            if (querySet.Filter.Fields.ContainsKey("name"))
-            {
-                var filterValue = querySet.Filter.Fields["name"].FilterWhitespace().FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.SearchName, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("postal-code"))
-            {
-                var filterValue = querySet.Filter.Fields["postal-code"];
-                source = source.Where(c => c.EmbeddedPostalCode == filterValue);
-            }  
-
-            if (querySet.Filter.Fields.ContainsKey("city"))
-            {
-                var filterValue = querySet.Filter.Fields["city"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.EmbeddedCity, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("street"))
-            {
-                var filterValue = querySet.Filter.Fields["street"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Address1, filterValue) 
-                                        || EF.Functions.Like(c.Address2, filterValue)
-                                        || EF.Functions.Like(c.Address3, filterValue));
-            }
+            source = source.Filter<Building>(querySet);
 
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
@@ -219,13 +135,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 int customerId;
                 if (Int32.TryParse(filterValue, out customerId))
                     source = source.Where(c => c.CustomerId == customerId);
-            }     
-
-            if (querySet.Filter.Fields.ContainsKey("ids"))
-            {
-                var ids = querySet.Filter.Fields["ids"].Split(",").Select(int.Parse).ToList();
-                source = source.Where(c => ids.Contains(c.DataId));
-            }        
+            }
 
             return source;
         } 
@@ -375,6 +285,78 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             return Sort<Request>(source, querySet, selectors);
         }
+
+        private static IQueryable<T> Filter<T>(this IQueryable<T> source, QuerySet querySet) where T : CustomerRecord
+        {
+            if (querySet.Filter.Fields.ContainsKey("name"))
+            {
+                var filterValue = querySet.Filter.Fields["name"].FilterWhitespace().FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.SearchName, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("postal-code"))
+            {
+                var filterValue = querySet.Filter.Fields["postal-code"];
+                source = source.Where(c => c.EmbeddedPostalCode == filterValue);
+            }  
+
+            if (querySet.Filter.Fields.ContainsKey("city"))
+            {
+                var filterValue = querySet.Filter.Fields["city"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.EmbeddedCity, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("street"))
+            {
+                var filterValue = querySet.Filter.Fields["street"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.Address1, filterValue) 
+                                        || EF.Functions.Like(c.Address2, filterValue)
+                                        || EF.Functions.Like(c.Address3, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("telephone"))
+            {
+                var search = querySet.Filter.Fields["telephone"];
+
+                if (search.StartsWith("+"))
+                    search = search.Replace("+", "00");
+
+                search = new Regex(@"[^\d]").Replace(search, ""); // only digits
+
+                // Check if search starts with a valid country code
+                // If so, match the remaining part and 0... with Zone+Tel and Tel
+                // Else, match the full search and 0... with Zone+Tel and Tel
+                var countryCode = search.Length >= 4 ? search.Substring(0, 4) : "9999"; // TODO: country code may contain more or less than 4 chars
+                var fullNumber = search + "%";
+                var paddedFullNumber = "0" + fullNumber;
+                var numberWithoutCountry = search.Length >= 4 ? fullNumber.Substring(4) : fullNumber;
+                var paddedNumberWithoutCountry = "0" + numberWithoutCountry;
+
+                source = source.Where(c => c.Telephones.Any(t =>
+                    (
+                        t.Country.TelephonePrefix == countryCode && (
+                            EF.Functions.Like((t.Area + t.Number).Replace(".", ""), numberWithoutCountry)
+                            || EF.Functions.Like(t.Number.Replace(".", ""), numberWithoutCountry)
+                            || EF.Functions.Like((t.Area + t.Number).Replace(".", ""), paddedNumberWithoutCountry)
+                            || EF.Functions.Like(t.Number.Replace(".", ""), paddedNumberWithoutCountry)
+                        )
+                    ) || (
+                        EF.Functions.Like((t.Area + t.Number).Replace(".", ""), fullNumber)
+                        || EF.Functions.Like(t.Number.Replace(".", ""), fullNumber)
+                        || EF.Functions.Like((t.Area + t.Number).Replace(".", ""), paddedFullNumber)
+                        || EF.Functions.Like(t.Number.Replace(".", ""), paddedFullNumber)
+                    )
+                ));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("ids"))
+            {
+                var ids = querySet.Filter.Fields["ids"].Split(",").Select(int.Parse).ToList();
+                source = source.Where(c => ids.Contains(c.DataId));
+            }         
+
+            return source;
+        }        
 
         private static string FilterWhitespace(this string value)
         {

@@ -27,9 +27,7 @@ namespace Rollvolet.CRM.DataProvider.Models
 
 
         // Include resources
-        public Customer Customer { get; set; }
-        public Contact Contact { get; set; }
-        public Building Building { get; set; }
+        public CustomerRecord CustomerRecord { get; set; }
         public Country Country { get; set; }
         public TelephoneType TelephoneType { get; set; }
     }

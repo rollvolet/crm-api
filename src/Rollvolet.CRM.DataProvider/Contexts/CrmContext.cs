@@ -107,19 +107,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasName("tblTel$PrimaryKey");
 
             modelBuilder.Entity<Telephone>()
-                .HasOne(e => e.Customer)
-                .WithMany(e => e.Telephones)
-                .HasForeignKey(e => e.CustomerRecordId)
-                .HasPrincipalKey(e => e.DataId);
-
-            modelBuilder.Entity<Telephone>()
-                .HasOne(e => e.Contact)
-                .WithMany(e => e.Telephones)
-                .HasForeignKey(e => e.CustomerRecordId)
-                .HasPrincipalKey(e => e.DataId);
-
-            modelBuilder.Entity<Telephone>()
-                .HasOne(e => e.Building)
+                .HasOne(e => e.CustomerRecord)
                 .WithMany(e => e.Telephones)
                 .HasForeignKey(e => e.CustomerRecordId)
                 .HasPrincipalKey(e => e.DataId);

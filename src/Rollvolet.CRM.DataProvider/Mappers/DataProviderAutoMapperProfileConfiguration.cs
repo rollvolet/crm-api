@@ -57,6 +57,9 @@ namespace Rollvolet.CRM.DataProvider.Mappers
 
             CreateMap<Models.Telephone, Domain.Models.Telephone>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => $"{src.CustomerRecordId}-{src.TelephoneTypeId}-{src.CountryId}-{src.Area}-{src.Number}"))
+                .ForMember(dest => dest.Customer, opt => opt.Ignore())
+                .ForMember(dest => dest.Building, opt => opt.Ignore())
+                .ForMember(dest => dest.Contact, opt => opt.Ignore())
                 .PreserveReferences()
                 .ReverseMap()
                 .ForMember(dest => dest.CustomerRecordId, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None)[0]))

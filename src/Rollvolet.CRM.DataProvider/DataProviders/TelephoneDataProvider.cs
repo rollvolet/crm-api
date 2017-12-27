@@ -49,9 +49,6 @@ namespace Rollvolet.CRM.DataProviders
         {
             // Search matching telephones
             // Remove non-numerical characters from the search
-            // Check if search starts with a valid country code
-            // If so, match the remaining part and 0... with Zone+Tel and Tel
-            // Else, match the full search and 0... with Zone+Tel and Tel
             if (search.StartsWith("+"))
                 search = search.Replace("+", "00");
             
