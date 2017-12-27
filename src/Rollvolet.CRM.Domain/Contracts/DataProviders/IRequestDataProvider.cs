@@ -8,5 +8,6 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     public interface IRequestDataProvider
     {
         Task<Paged<Request>> GetAllAsync(QuerySet query);
+        Task<Request> GetByIdAsync(int id, QuerySet query);
     }
 }

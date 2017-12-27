@@ -47,5 +47,19 @@ namespace Rollvolet.CRM.API.Controllers
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = requestDtos, Included = included });
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var request = await _requestManager.GetByIdAsync(id, querySet);
+
+            var requestDto = _mapper.Map<RequestDto>(request, opt => opt.Items["include"] = querySet.Include);
+            var included = _includedCollector.CollectIncluded(request, querySet.Include);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path, querySet);
+
+            return Ok(new ResourceResponse() { Links = links, Data = requestDto, Included = included });
+        }
     }
 } 

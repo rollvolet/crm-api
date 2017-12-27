@@ -9,6 +9,7 @@ using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.DataProvider.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Rollvolet.CRM.DataProviders
 {   
@@ -16,11 +17,13 @@ namespace Rollvolet.CRM.DataProviders
     {
         private readonly CrmContext _context;
         private readonly IMapper _mapper;
+        private readonly ILogger _logger;
 
-        public RequestDataProvider(CrmContext context, IMapper mapper)
+        public RequestDataProvider(CrmContext context, IMapper mapper, ILogger<RequestDataProvider> logger)
         {
             _context = context;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<Paged<Request>> GetAllAsync(QuerySet query)
@@ -42,6 +45,24 @@ namespace Rollvolet.CRM.DataProviders
                 PageNumber = query.Page.Number,
                 PageSize = query.Page.Size
             };
+        }
+
+        public async Task<Request> GetByIdAsync(int id, QuerySet query)
+        {
+            var source = _context.Requests
+                            .Where(c => c.Id == id)
+                            .Include(query);
+
+            var request = await source.FirstOrDefaultAsync();
+
+            if (request == null)
+            {
+                // TODO implement and handle exceptions according to jsonapi
+                _logger.LogError($"No request found with id {id}");
+                throw new EntityNotFoundException("ENF", $"Request with id {id} not found");
+            }
+
+            return _mapper.Map<Request>(request);
         }
     }
 }
