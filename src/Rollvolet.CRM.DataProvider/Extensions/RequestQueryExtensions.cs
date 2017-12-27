@@ -60,6 +60,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             if (querySet.Filter.Fields.ContainsKey("customer.telephone"))
             {
+                // TODO merge with telephone query in CustomerRecordExtensions
+
                 var search = querySet.Filter.Fields["customer.telephone"];
 
                 if (search.StartsWith("+"))
@@ -119,8 +121,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                                         || EF.Functions.Like(c.Building.Address3, filterValue));
             }
 
-            // TODO telefoon
-
             // TODO filter met / zonder offerte
 
             return source;
@@ -132,8 +132,10 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             selectors.Add("customer", c => c.Customer);
             selectors.Add("way-of-entry", c => c.WayOfEntry);
-            selectors.Add("building", c => c.Building);
-            selectors.Add("contact", c => c.Contact);
+
+            // The selectors below won't work since we're not able to define the relationship in CrmContext
+            // selectors.Add("building", c => c.Building);
+            // selectors.Add("contact", c => c.Contact);
 
             return source.Include<Request>(querySet, selectors);
         }

@@ -5,6 +5,9 @@ namespace Rollvolet.CRM.DataProvider.Models
 {
     public class Building : CustomerRecord
     {
+        [Column("ParentID")]
+        public int CustomerId { get; set; }
+
         public Customer Customer { get; set; }
     }
 }

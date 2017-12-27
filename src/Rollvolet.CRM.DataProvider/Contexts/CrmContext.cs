@@ -36,9 +36,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasKey(b => b.DataId) // primary key
                 .HasName("TblData$PrimaryKey");
 
-            modelBuilder.Entity<CustomerRecord>()
-                .HasAlternateKey(e => new { e.Number, e.CustomerId });
-
             modelBuilder.Entity<Customer>()
                 .HasOne(e => e.HonorificPrefix)
                 .WithOne()
@@ -138,17 +135,20 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.Number);
 
-            modelBuilder.Entity<Request>()
-                .HasOne(e => e.Building)
-                .WithMany()
-                .HasForeignKey(e => new { e.RelativeBuildingId, e.CustomerId })
-                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
+            // The below configuration doesn't work since the FK may not include the CustomerId field on a derived type
+            // As a consequence the Building and Contact need to be embedded manually in the Request resources
 
-            modelBuilder.Entity<Request>()
-                .HasOne(e => e.Contact)
-                .WithMany()
-                .HasForeignKey(e => new { e.RelativeContactId, e.CustomerId })
-                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
+            // modelBuilder.Entity<Request>()
+            //     .HasOne(e => e.Building)
+            //     .WithMany()
+            //     .HasForeignKey(e => new { e.RelativeBuildingId, e.CustomerId })
+            //     .HasPrincipalKey(e => new { e.Number, e.CustomerId });
+
+            // modelBuilder.Entity<Request>()
+            //     .HasOne(e => e.Contact)
+            //     .WithMany()
+            //     .HasForeignKey(e => new { e.RelativeContactId, e.CustomerId })
+            //     .HasPrincipalKey(e => new { e.Number, e.CustomerId });
                 
 
             // Way of Entry
