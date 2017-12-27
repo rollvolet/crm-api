@@ -144,8 +144,14 @@ namespace Rollvolet.CRM.DataProvider.Extensions
         {
             var selectors = new Dictionary<string, Expression<Func<Request, object>>>();
 
+            selectors.Add("number", x => x.Id);
             selectors.Add("request-date", x => x.RequestDate);
             selectors.Add("employee", x => x.Employee);
+            selectors.Add("customer.name", x => x.Customer.Name);
+            selectors.Add("customer.street", x => x.Customer.Address1);
+            selectors.Add("customer.postal-code", x => x.Customer.EmbeddedPostalCode);
+            selectors.Add("customer.city", x => x.Customer.EmbeddedCity);
+            selectors.Add("updated", x => x.Updated);
 
             return source.Sort<Request>(querySet, selectors);
         }
