@@ -15,7 +15,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Telephone> Telephones { get; set; }
         public DbSet<TelephoneType> TelephoneTypes { get; set; }
         public DbSet<Request> Requests { get; set; }
-        public DbSet<WayOfEntry> WaysOfEntry { get; set; }
+        public DbSet<WayOfEntry> WayOfEntries { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
         {
