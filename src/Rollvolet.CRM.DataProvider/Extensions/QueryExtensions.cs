@@ -283,14 +283,24 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         public static IQueryable<Request> Include(this IQueryable<Request> source, QuerySet querySet)
         {
-            // TODO implement
-            return source;
+            var selectors = new Dictionary<string, Expression<Func<Request, object>>>();
+
+            selectors.Add("customer", c => c.Customer);
+            selectors.Add("way-of-entry", c => c.WayOfEntry);
+            selectors.Add("building", c => c.Building);
+            selectors.Add("contact", c => c.Contact);
+
+            return Include<Request>(source, querySet, selectors);
         }
 
         public static IQueryable<Request> Sort(this IQueryable<Request> source, QuerySet querySet)
         {
-            // TODO implement
-            return source;
+            var selectors = new Dictionary<string, Expression<Func<Request, object>>>();
+
+            selectors.Add("request-date", x => x.RequestDate);
+            selectors.Add("employee", x => x.Employee);
+
+            return Sort<Request>(source, querySet, selectors);
         }
 
         private static string FilterWhitespace(this string value)

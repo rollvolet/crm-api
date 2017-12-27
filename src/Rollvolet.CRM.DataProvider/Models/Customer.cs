@@ -12,8 +12,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         public string VatNumber { get; set; }
 
 
-        // Include resources
+        // Included resources
         public IEnumerable<Contact> Contacts { get; set; }
         public IEnumerable<Building> Buildings { get; set; }
+        public IEnumerable<Request> Requests { get; set; }
     }
 }

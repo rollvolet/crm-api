@@ -26,9 +26,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             // Customer / contact / building
 
             modelBuilder.Entity<CustomerRecord>()
-                .ToTable("tblData", schema: "dbo");
-
-            modelBuilder.Entity<CustomerRecord>()
+                .ToTable("tblData", schema: "dbo")
                 .HasDiscriminator<string>("DataType")
                 .HasValue<Customer>("KLA")
                 .HasValue<Contact>("CON")
@@ -36,7 +34,10 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<CustomerRecord>()
                 .HasKey(b => b.DataId) // primary key
-                .HasName("TblData$PrimaryKey"); // name of the primary key constraint
+                .HasName("TblData$PrimaryKey");
+
+            modelBuilder.Entity<CustomerRecord>()
+                .HasAlternateKey(e => new { e.Number, e.CustomerId });
 
             modelBuilder.Entity<Customer>()
                 .HasOne(e => e.HonorificPrefix)
@@ -106,7 +107,19 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasName("tblTel$PrimaryKey");
 
             modelBuilder.Entity<Telephone>()
-                .HasOne(e => e.CustomerRecord)
+                .HasOne(e => e.Customer)
+                .WithMany(e => e.Telephones)
+                .HasForeignKey(e => e.CustomerRecordId)
+                .HasPrincipalKey(e => e.DataId);
+
+            modelBuilder.Entity<Telephone>()
+                .HasOne(e => e.Contact)
+                .WithMany(e => e.Telephones)
+                .HasForeignKey(e => e.CustomerRecordId)
+                .HasPrincipalKey(e => e.DataId);
+
+            modelBuilder.Entity<Telephone>()
+                .HasOne(e => e.Building)
                 .WithMany(e => e.Telephones)
                 .HasForeignKey(e => e.CustomerRecordId)
                 .HasPrincipalKey(e => e.DataId);
@@ -135,20 +148,20 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasOne(e => e.Customer)
                 .WithMany(e => e.Requests)
                 .HasForeignKey(e => e.CustomerId)
-                .HasPrincipalKey(e => e.DataId);
+                .HasPrincipalKey(e => e.Number);
 
             modelBuilder.Entity<Request>()
                 .HasOne(e => e.Building)
-                .WithMany(e => e.Requests)
-                .HasForeignKey(e => e.BuildingId)
-                .HasPrincipalKey(e => e.Number);
+                .WithMany()
+                .HasForeignKey(e => new { e.RelativeBuildingId, e.CustomerId })
+                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
 
             modelBuilder.Entity<Request>()
                 .HasOne(e => e.Contact)
-                .WithMany(e => e.Requests)
-                .HasForeignKey(e => e.BuildingId)
-                .HasPrincipalKey(e => e.Number);
-
+                .WithMany()
+                .HasForeignKey(e => new { e.RelativeContactId, e.CustomerId })
+                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
+                
 
             // Way of Entry
 

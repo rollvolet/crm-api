@@ -12,6 +12,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("ID")]
         public int Number { get; set; } // the public ID for Customer
 
+        [Column("ParentID")]
+        public int CustomerId { get; set; } // only relevant for Contact / Building, but must be defined on the root type
+
         [Column("AanspreekID")]
         public int? HonorificPrefixId { get; set; }
         
@@ -78,7 +81,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Language Language { get; set; }
         public IEnumerable<Telephone> Telephones { get; set; }
 
-        public IEnumerable<Request> Requests { get; set; }
 
         // Embedded properties
         [Column("Postcode")]

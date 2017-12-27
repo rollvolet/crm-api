@@ -13,10 +13,10 @@ namespace Rollvolet.CRM.DataProvider.Models
         public int? CustomerId { get; set; }
         
         [Column("GebouwID")]
-        public int? BuildingId { get; set; }
+        public int? RelativeBuildingId { get; set; }
         
         [Column("ContactID")]
-        public int? ContactId { get; set; }
+        public int? RelativeContactId { get; set; }
 
         [Column("Bezoek")]
         public bool RequiresVisit { get; set; }
@@ -36,6 +36,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [Column("UpdTimestamp")]
         public DateTime Updated { get; set; }         
+
 
         // Include resources
         public Customer Customer { get; set; }

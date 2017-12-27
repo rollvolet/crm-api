@@ -134,7 +134,15 @@ namespace Rollvolet.CRM.API.Collectors
         {
             ISet<IResource> included = new HashSet<IResource>();
             
-            // TODO: implement
+            // one-relations
+            if (includeQuery.Contains("customer") && request.Customer != null)
+                included.Add(_mapper.Map<CustomerDto>(request.Customer));
+            if (includeQuery.Contains("contact") && request.Contact != null)
+                included.Add(_mapper.Map<ContactDto>(request.Contact));
+            if (includeQuery.Contains("building") && request.Building != null)
+                included.Add(_mapper.Map<BuildingDto>(request.Building));
+            if (includeQuery.Contains("way-of-entry") && request.WayOfEntry != null)
+                included.Add(_mapper.Map<WayOfEntryDto>(request.WayOfEntry));
 
             return included;
         }
@@ -143,7 +151,8 @@ namespace Rollvolet.CRM.API.Collectors
         {
             ISet<IResource> included = new HashSet<IResource>();
             
-            // TODO: implement
+            foreach (var request in requests)
+                included.UnionWith(CollectIncluded(request, includeQuery));
 
             return included;
         }
