@@ -12,7 +12,7 @@ using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.DataProvider.Extensions
 {
-    public static class QueryExtensions
+    public static class CustomerRecordQueryExtensions
     {
         public static IQueryable<Customer> Filter(this IQueryable<Customer> source, QuerySet querySet)
         {
@@ -50,7 +50,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("buildings", c => c.Buildings);
             selectors.Add("telephones", c => c.Telephones);
 
-            return Include<Customer>(source, querySet, selectors);              
+            return source.Include<Customer>(querySet, selectors);              
         }
 
         public static IQueryable<Customer> Sort(this IQueryable<Customer> source, QuerySet querySet)
@@ -65,7 +65,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("created", x => x.Created);
             selectors.Add("updated", x => x.Updated);
 
-            return Sort<Customer>(source, querySet, selectors);
+            return source.Sort<Customer>(querySet, selectors);
         }
 
         public static IQueryable<Contact> Filter(this IQueryable<Contact> source, QuerySet querySet)
@@ -100,7 +100,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("honorific-prefix", c => c.HonorificPrefix);
             selectors.Add("telephones", c => c.Telephones);
 
-            return Include<Contact>(source, querySet, selectors);         
+            return source.Include<Contact>(querySet, selectors);         
         }
 
         public static IQueryable<Contact> Sort(this IQueryable<Contact> source, QuerySet querySet)
@@ -114,7 +114,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("created", x => x.Created);
             selectors.Add("updated", x => x.Updated);
 
-            return Sort<Contact>(source, querySet, selectors);
+            return source.Sort<Contact>(querySet, selectors);
         }
 
         public static IQueryable<Building> Filter(this IQueryable<Building> source, QuerySet querySet)
@@ -149,7 +149,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("honorific-prefix", c => c.HonorificPrefix);
             selectors.Add("telephones", c => c.Telephones);
 
-            return Include<Building>(source, querySet, selectors);         
+            return source.Include<Building>(querySet, selectors);         
         }
 
         public static IQueryable<Building> Sort(this IQueryable<Building> source, QuerySet querySet)
@@ -163,127 +163,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("created", x => x.Created);
             selectors.Add("updated", x => x.Updated);
 
-            return Sort<Building>(source, querySet, selectors);
-        }
-
-        public static IQueryable<Telephone> Include(this IQueryable<Telephone> source, QuerySet querySet)
-        {
-            var selectors = new Dictionary<string, Expression<Func<Telephone, object>>>();
-            
-            selectors.Add("country", c => c.Country);
-            selectors.Add("telephone-type", c => c.TelephoneType);
-
-            return Include<Telephone>(source, querySet, selectors);         
-        }
-
-        public static IQueryable<Telephone> Sort(this IQueryable<Telephone> source, QuerySet querySet)
-        {
-            var selectors = new Dictionary<string, Expression<Func<Telephone, object>>>();
-            
-            selectors.Add("order", x => x.Order.ToString());
-
-            return Sort<Telephone>(source, querySet, selectors);
-        }
-
-        public static IQueryable<Request> Filter(this IQueryable<Request> source, QuerySet querySet)  
-        {
-            if (querySet.Filter.Fields.ContainsKey("number"))
-            {
-                var filterValue = querySet.Filter.Fields["number"];
-                int number;
-                if (Int32.TryParse(filterValue, out number)) {
-                    var predicate = PredicateBuilder.New<Request>(c => c.Id == number);
-                    var i = 10;
-                    while (i * number < 1000000) {
-                        var from = i * number;
-                        var to = i * (number + 1);
-                        predicate.Or(c => c.Id >= from && c.Id <= to);
-                        i = i * 10;
-                    }
-                    source = source.Where(predicate);
-                }
-                // TODO throw exception about invalid number
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("customer.name"))
-            {
-                var filterValue = querySet.Filter.Fields["customer.name"].FilterWhitespace().FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Customer.SearchName, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("customer.postal-code"))
-            {
-                var filterValue = querySet.Filter.Fields["customer.postal-code"];
-                source = source.Where(c => c.Customer.EmbeddedPostalCode == filterValue);
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("customer.city"))
-            {
-                var filterValue = querySet.Filter.Fields["customer.city"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Customer.EmbeddedCity, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("customer.street"))
-            {
-                var filterValue = querySet.Filter.Fields["customer.street"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Customer.Address1, filterValue)
-                                        || EF.Functions.Like(c.Customer.Address2, filterValue)
-                                        || EF.Functions.Like(c.Customer.Address3, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("building.name"))
-            {
-                var filterValue = querySet.Filter.Fields["building.name"].FilterWhitespace().FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Building.SearchName, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("building.postal-code"))
-            {
-                var filterValue = querySet.Filter.Fields["building.postal-code"];
-                source = source.Where(c => c.Building.EmbeddedPostalCode == filterValue);
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("building.city"))
-            {
-                var filterValue = querySet.Filter.Fields["building.city"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Building.EmbeddedCity, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("building.street"))
-            {
-                var filterValue = querySet.Filter.Fields["building.street"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Building.Address1, filterValue) 
-                                        || EF.Functions.Like(c.Building.Address2, filterValue)
-                                        || EF.Functions.Like(c.Building.Address3, filterValue));
-            }
-
-            // TODO telefoon
-
-            // TODO filter met / zonder offerte
-
-            return source;
-        }      
-
-        public static IQueryable<Request> Include(this IQueryable<Request> source, QuerySet querySet)
-        {
-            var selectors = new Dictionary<string, Expression<Func<Request, object>>>();
-
-            selectors.Add("customer", c => c.Customer);
-            selectors.Add("way-of-entry", c => c.WayOfEntry);
-            selectors.Add("building", c => c.Building);
-            selectors.Add("contact", c => c.Contact);
-
-            return Include<Request>(source, querySet, selectors);
-        }
-
-        public static IQueryable<Request> Sort(this IQueryable<Request> source, QuerySet querySet)
-        {
-            var selectors = new Dictionary<string, Expression<Func<Request, object>>>();
-
-            selectors.Add("request-date", x => x.RequestDate);
-            selectors.Add("employee", x => x.Employee);
-
-            return Sort<Request>(source, querySet, selectors);
+            return source.Sort<Building>(querySet, selectors);
         }
 
         private static IQueryable<T> Filter<T>(this IQueryable<T> source, QuerySet querySet) where T : CustomerRecord
@@ -354,45 +234,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 var ids = querySet.Filter.Fields["ids"].Split(",").Select(int.Parse).ToList();
                 source = source.Where(c => ids.Contains(c.DataId));
             }         
-
-            return source;
-        }        
-
-        private static string FilterWhitespace(this string value)
-        {
-            return Regex.Replace(value, @"\s+", "");
-        }
-
-        private static string FilterWildcard(this string value)
-        {
-            return value.Replace("*", "%") + "%";
-        }
-
-        private static IQueryable<T> Include<T>(IQueryable<T> source, QuerySet querySet, IDictionary<string, Expression<Func<T, object>>> selectors) where T : class
-        {
-            foreach(var field in querySet.Include.Fields)
-            {
-                Expression<Func<T, object>> selector;
-            
-                if (selectors.TryGetValue(field, out selector))
-                {
-                    source = source.Include(selector);
-                }
-                // TODO: add else-clause to log invalid include field
-            }
-
-            return source;
-        }        
-
-        private static IQueryable<T> Sort<T>(IQueryable<T> source, QuerySet querySet, IDictionary<string, Expression<Func<T, object>>> selectors)
-        {
-            Expression<Func<T, object>> selector;
-
-            if (querySet.Sort.Field != null && selectors.TryGetValue(querySet.Sort.Field, out selector))
-            {
-                source = querySet.Sort.Order == SortQuery.ORDER_ASC ? source.OrderBy(selector) : source.OrderByDescending(selector);
-            }
-            // TODO: add else-clause to log invalid sort field
 
             return source;
         }
