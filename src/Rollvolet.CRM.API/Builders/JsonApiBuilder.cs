@@ -55,15 +55,19 @@ namespace Rollvolet.CRM.API.Builders
 
                 if (pair.Key.StartsWith("filter"))
                 {
-                    var pattern = @"\[(.*?)\]";
-                    var propertySegments = Regex.Matches(pair.Key, pattern).Select(x => x.Groups[1]);
-                    var propertyPath = String.Join(".", propertySegments);
-
+                    var propertyPath = GeneratePropertyPath(pair.Key);
                     querySet.Filter.Fields.Add(propertyPath, pair.Value);
                 }
             }
 
             return querySet;
+        }
+
+        private string GeneratePropertyPath(string key)
+        {
+            var pattern = @"\[(.*?)\]";
+            var propertySegments = Regex.Matches(key, pattern).Select(x => x.Groups[1]);
+            return String.Join(".", propertySegments);
         }
 
         public Links BuildSingleResourceLinks(string path, QuerySet query)
