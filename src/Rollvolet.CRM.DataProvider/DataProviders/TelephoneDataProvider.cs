@@ -45,45 +45,6 @@ namespace Rollvolet.CRM.DataProviders
             return await this.GetAllByCustomerDataIdAsync(contactId, query);
         }
 
-        public IEnumerable<int> SearchDataIds(string search)
-        {
-            // Search matching telephones
-            // Remove non-numerical characters from the search
-            if (search.StartsWith("+"))
-                search = search.Replace("+", "00");
-            
-            search = _digitsOnly.Replace(search, "");
-
-            var countryCode = search.Length >= 4 ? search.Substring(0, 4) : "9999"; // TODO: country code may contain more or less than 4 chars
-            var searchFullNumber = search + "%";
-            var searchFullNumberPrefixed = "0" + searchFullNumber;
-            var searchWithoutCountry = search.Length >= 4 ? searchFullNumber.Substring(4) : searchFullNumber;
-            var searchWithoutCountryPrefixed = "0" + searchWithoutCountry;
-
-            return _context.Telephones
-                .FromSql(@"SELECT [tblTel].* FROM [tblTel]
-                LEFT JOIN [TblLand] ON [tblTel].[LandId] = [TblLand].[LandId] 
-                WHERE (
-                  (
-                    [TblLand].[LandTel] = {0}
-                    AND (
-                        REPLACE(CONCAT([tblTel].[Zonenr], [tblTel].[Telnr]), '.', '') LIKE {1}
-                        OR REPLACE([tblTel].[Telnr], '.', '') LIKE {1}
-                        OR REPLACE(CONCAT([tblTel].[Zonenr], [tblTel].[Telnr]), '.', '') LIKE {2}
-                        OR REPLACE([tblTel].[Telnr], '.', '') LIKE {2}
-                    )
-                  )
-                  OR
-                  (
-                    REPLACE(CONCAT([tblTel].[Zonenr], [tblTel].[Telnr]), '.', '') LIKE {3}
-                    OR REPLACE([tblTel].[Telnr], '.', '') LIKE {3}
-                    OR REPLACE(CONCAT([tblTel].[Zonenr], [tblTel].[Telnr]), '.', '') LIKE {4}
-                    OR REPLACE([tblTel].[Telnr], '.', '') LIKE {4}
-                  )
-                )", countryCode, searchWithoutCountry, searchWithoutCountryPrefixed, searchFullNumber, searchFullNumberPrefixed)
-                .AsEnumerable().Select(t => t.CustomerRecordId);
-        }
-
         private async Task<Paged<Telephone>> GetAllByCustomerDataIdAsync(int dataId, QuerySet query)
         {
             var source = _context.Telephones
