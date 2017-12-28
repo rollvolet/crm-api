@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
+using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.DataProvider.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 
@@ -12,7 +13,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 {
     public static class RequestQueryExtensions
     {
-        public static IQueryable<Request> Filter(this IQueryable<Request> source, QuerySet querySet)  
+        public static IQueryable<Request> Filter(this IQueryable<Request> source, QuerySet querySet, CrmContext context)  
         {
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
@@ -93,32 +94,47 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                         || EF.Functions.Like(t.Number.Replace(".", ""), paddedFullNumber)
                     )
                 ));
-            }            
-
-            if (querySet.Filter.Fields.ContainsKey("building.name"))
-            {
-                var filterValue = querySet.Filter.Fields["building.name"].FilterWhitespace().FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Building.SearchName, filterValue));
             }
 
-            if (querySet.Filter.Fields.ContainsKey("building.postal-code"))
-            {
-                var filterValue = querySet.Filter.Fields["building.postal-code"];
-                source = source.Where(c => c.Building.EmbeddedPostalCode == filterValue);
-            }
+            var buildingFilters = querySet.Filter.Fields.Keys.Where(k => k.StartsWith("building"));
 
-            if (querySet.Filter.Fields.ContainsKey("building.city"))
+            if (buildingFilters.Count() > 0)
             {
-                var filterValue = querySet.Filter.Fields["building.city"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Building.EmbeddedCity, filterValue));
-            }
+                var predicate = PredicateBuilder.New<Request.BuildingTuple>(true);
 
-            if (querySet.Filter.Fields.ContainsKey("building.street"))
-            {
-                var filterValue = querySet.Filter.Fields["building.street"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Building.Address1, filterValue) 
-                                        || EF.Functions.Like(c.Building.Address2, filterValue)
-                                        || EF.Functions.Like(c.Building.Address3, filterValue));
+                if (querySet.Filter.Fields.ContainsKey("building.name"))
+                {
+                    var filterValue = querySet.Filter.Fields["building.name"].FilterWhitespace().FilterWildcard();
+                    predicate.And(c => EF.Functions.Like(c.Building.SearchName, filterValue));
+                }
+
+                if (querySet.Filter.Fields.ContainsKey("building.postal-code"))
+                {
+                    var filterValue = querySet.Filter.Fields["building.postal-code"];
+                    predicate.And(c => c.Building.EmbeddedPostalCode == filterValue);
+                }
+
+                if (querySet.Filter.Fields.ContainsKey("building.city"))
+                {
+                    var filterValue = querySet.Filter.Fields["building.city"].FilterWildcard();
+                    predicate.And(c => EF.Functions.Like(c.Building.EmbeddedCity, filterValue));
+                }
+
+                if (querySet.Filter.Fields.ContainsKey("building.street"))
+                {
+                    var filterValue = querySet.Filter.Fields["building.street"].FilterWildcard();
+                    predicate.And(c => EF.Functions.Like(c.Building.Address1, filterValue) 
+                                            || EF.Functions.Like(c.Building.Address2, filterValue)
+                                            || EF.Functions.Like(c.Building.Address3, filterValue));
+                }
+
+                source = source.Join(
+                    context.Buildings,
+                    r => new { Number = r.RelativeBuildingId, CustomerId = r.CustomerId },
+                    b => new { Number = (int?) b.Number, CustomerId = (int?) b.CustomerId },
+                    (r, b) => new Request.BuildingTuple { Request = r, Building = b }
+                ).Where(predicate)
+                .Select(x => x.Request);
             }
 
             // TODO filter met / zonder offerte

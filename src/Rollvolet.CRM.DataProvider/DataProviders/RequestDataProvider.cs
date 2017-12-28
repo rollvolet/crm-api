@@ -32,7 +32,7 @@ namespace Rollvolet.CRM.DataProviders
             var source = _context.Requests
                             .Include(query)
                             .Sort(query)
-                            .Filter(query);
+                            .Filter(query, _context);
 
             var requests = await source.Skip(query.Page.Skip).Take(query.Page.Take).ToListAsync();
 
