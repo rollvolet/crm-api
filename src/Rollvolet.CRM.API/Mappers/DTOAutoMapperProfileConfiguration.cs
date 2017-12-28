@@ -178,6 +178,9 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<Request, RequestDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
+            CreateMap<Request, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("requests"));
+
 
             // Way of Entry mappings
 
@@ -191,6 +194,8 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<WayOfEntry, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
+            CreateMap<WayOfEntry, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("way-of-entries"));
 
         }
 

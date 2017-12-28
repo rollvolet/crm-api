@@ -49,6 +49,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("contacts", c => c.Contacts);
             selectors.Add("buildings", c => c.Buildings);
             selectors.Add("telephones", c => c.Telephones);
+            selectors.Add("requests", c => c.Requests);
 
             return source.Include<Customer>(querySet, selectors);              
         }

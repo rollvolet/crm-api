@@ -28,6 +28,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Language = GetOneRelationship<Language>("customers", source.Id, "language", source.Language, context);
             relationships.HonorificPrefix = GetOneRelationship<HonorificPrefix>("customers", source.Id, "honorific-prefix", source.HonorificPrefix, context);
             relationships.Telephones = GetManyRelationship<Telephone>("customers", source.Id, "telephones", source.Telephones, context);
+            relationships.Requests = GetManyRelationship<Request>("customers", source.Id, "requests", source.Requests, context);
             return relationships;
         }
 

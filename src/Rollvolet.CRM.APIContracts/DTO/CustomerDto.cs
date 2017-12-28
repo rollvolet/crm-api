@@ -47,7 +47,8 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public IRelationship Language { get; set; }
             [JsonProperty("honorific-prefix")]
             public IRelationship HonorificPrefix { get; set; }
-            public IRelationship Telephones { get; set; } 
+            public IRelationship Telephones { get; set; }
+            public IRelationship Requests { get; set; }
         }
     }
 }
