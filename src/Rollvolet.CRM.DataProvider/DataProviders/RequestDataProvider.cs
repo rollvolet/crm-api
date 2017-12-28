@@ -34,14 +34,18 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            var requests = await source.Skip(query.Page.Skip).Take(query.Page.Take).ToListAsync();
-
-            // EF Core doesn't support IncludeWhere so we have to embed the related resource manually
-            if (query.Include.Fields.Contains("building"))
-                await EmbedBuilding(requests);
-
-            if (query.Include.Fields.Contains("contact"))
-                await EmbedContact(requests);
+            // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
+            IList<DataProvider.Models.Request> requests;
+            if (query.Include.Fields.Contains("building")  || query.Include.Fields.Contains("contact"))
+            {
+                var joinedSource = JoinBuildingAndContact(source);
+                var triplets = await joinedSource.Skip(query.Page.Skip).Take(query.Page.Take).ToListAsync();
+                requests = EmbedBuildingAndContact(triplets);
+            }
+            else
+            {
+                requests = await source.Skip(query.Page.Skip).Take(query.Page.Take).ToListAsync();
+            }
 
             var mappedRequests = _mapper.Map<IEnumerable<Request>>(requests);
 
@@ -61,7 +65,18 @@ namespace Rollvolet.CRM.DataProviders
                             .Where(c => c.Id == id)
                             .Include(query);
 
-            var request = await source.FirstOrDefaultAsync();
+            // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
+            DataProvider.Models.Request request;
+            if (query.Include.Fields.Contains("building")  || query.Include.Fields.Contains("contact"))
+            {
+                var joinedSource = JoinBuildingAndContact(source);
+                var triplet = await joinedSource.FirstOrDefaultAsync();
+                request = EmbedBuildingAndContact(triplet);
+            }
+            else
+            {
+                request = await source.FirstOrDefaultAsync();
+            }
 
             if (request == null)
             {
@@ -70,72 +85,55 @@ namespace Rollvolet.CRM.DataProviders
                 throw new EntityNotFoundException("ENF", $"Request with id {id} not found");
             }
 
-            // EF Core doesn't support IncludeWhere so we have to embed the related resource manually
-            if (query.Include.Fields.Contains("building"))
-                await EmbedBuilding(request);
-
-            if (query.Include.Fields.Contains("contact"))
-                await EmbedContact(request);
-
             return _mapper.Map<Request>(request);
         }
 
-        private async Task EmbedBuilding(DataProvider.Models.Request request)
+        private IQueryable<DataProvider.Models.Request.Triplet> JoinBuildingAndContact(IQueryable<DataProvider.Models.Request> source)
         {
-            await EmbedBuilding(new List<DataProvider.Models.Request> { request });
+            return source.GroupJoin(
+                    _context.Buildings,
+                    r => new { CustomerId = r.CustomerId, Number = r.RelativeBuildingId },
+                    b => new { CustomerId = (int?) b.CustomerId, Number = (int?) b.Number },
+                    (r, b) => new { Request = r, Buildings = b }
+                ).SelectMany(
+                    t => t.Buildings.DefaultIfEmpty(),
+                    (t, b) => new { Request = t.Request, Building = b }
+                ).GroupJoin(
+                    _context.Contacts,
+                    t => new { CustomerId = t.Request.CustomerId, Number = t.Request.RelativeContactId },
+                    c => new { CustomerId = (int?) c.CustomerId, Number = (int?) c.Number },
+                    (t, c) => new { Request = t.Request, Building = t.Building, Contacts = c }
+                ).SelectMany(
+                    u => u.Contacts.DefaultIfEmpty(),
+                    (u, c) => new DataProvider.Models.Request.Triplet { Request = u.Request, Building = u.Building, Contact = c}
+                );
         }
 
-        private async Task EmbedBuilding(IList<DataProvider.Models.Request> requests)
+        private DataProvider.Models.Request EmbedBuildingAndContact(DataProvider.Models.Request.Triplet triplet)
         {
-            var requestWithBuilding = requests.Where(x => x.RelativeBuildingId != null);
+            var request = triplet.Request;
 
-            if (requestWithBuilding.Count() > 0)
-            {
-                var relatedBuildings = requestWithBuilding.Select(x => new { Number = x.RelativeBuildingId, CustomerId = x.CustomerId });
-
-                var whereClause = PredicateBuilder.New<DataProvider.Models.Building>(false);
-
-                foreach(var building in relatedBuildings)
-                {
-                    whereClause.Or(x => x.Number == building.Number && x.CustomerId == building.CustomerId);
-                }
-
-                var buildings = await _context.Buildings.Where(whereClause).ToListAsync();
-
-                foreach(var r in requestWithBuilding)
-                {
-                    r.Building = buildings.Where(x => x.Number == r.RelativeBuildingId && x.CustomerId == r.CustomerId).FirstOrDefault();
-                }
+            if (request != null) {
+                request.Building = triplet.Building;
+                request.Contact = triplet.Contact;
             }
+
+            return request;
         }
 
-        private async Task EmbedContact(DataProvider.Models.Request request)
+        private IList<DataProvider.Models.Request> EmbedBuildingAndContact(IList<DataProvider.Models.Request.Triplet> triplets)
         {
-            await EmbedContact(new List<DataProvider.Models.Request> { request });
-        }
+            var requests = new List<DataProvider.Models.Request>();
 
-        private async Task EmbedContact(IList<DataProvider.Models.Request> requests)
-        {
-            var requestsWithContacts = requests.Where(x => x.RelativeContactId != null);
-
-            if (requestsWithContacts.Count() > 0)
+            foreach(var triplet in triplets)
             {
-                var relatedContacts = requestsWithContacts.Select(x => new { Number = x.RelativeContactId, CustomerId = x.CustomerId });
-
-                var whereClause = PredicateBuilder.New<DataProvider.Models.Contact>(false);
-
-                foreach(var contact in relatedContacts)
-                {
-                    whereClause.Or(x => x.Number == contact.Number && x.CustomerId == contact.CustomerId);
-                }
-
-                var contacts = await _context.Contacts.Where(whereClause).ToListAsync();
-
-                foreach(var r in requestsWithContacts)
-                {
-                    r.Contact = contacts.Where(x => x.Number == r.RelativeBuildingId && x.CustomerId == r.CustomerId).FirstOrDefault();
-                }
+                var request = triplet.Request;
+                request.Building = triplet.Building;
+                request.Contact = triplet.Contact;
+                requests.Add(request);
             }
-        }        
+
+            return requests;
+        }       
     }
 }

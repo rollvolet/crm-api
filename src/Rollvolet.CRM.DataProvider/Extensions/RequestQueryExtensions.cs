@@ -121,6 +121,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("way-of-entry", c => c.WayOfEntry);
 
             // The selectors below won't work since we're not able to define the relationship in CrmContext
+            // They are manually mapped in the DataProvider
             // selectors.Add("building", c => c.Building);
             // selectors.Add("contact", c => c.Contact);
 

@@ -54,10 +54,18 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Gemeente")]
         public string EmbeddedCity { get; set; }
 
+
         public class BuildingTuple
         {
             public Request Request { get; set; }
             public Building Building { get; set; }
+        }
+
+        public class Triplet
+        {
+            public Request Request { get; set; }
+            public Building Building { get; set; }
+            public Contact Contact { get; set; }
         }
     }
 }
