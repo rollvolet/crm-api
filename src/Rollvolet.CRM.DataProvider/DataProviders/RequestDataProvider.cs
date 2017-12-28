@@ -35,17 +35,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Filter(query, _context);
 
             // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-            IList<DataProvider.Models.Request> requests;
-            if (query.Include.Fields.Contains("building")  || query.Include.Fields.Contains("contact"))
-            {
-                var joinedSource = JoinBuildingAndContact(source);
-                var triplets = await joinedSource.Skip(query.Page.Skip).Take(query.Page.Take).ToListAsync();
-                requests = EmbedBuildingAndContact(triplets);
-            }
-            else
-            {
-                requests = await source.Skip(query.Page.Skip).Take(query.Page.Take).ToListAsync();
-            }
+            var requests = QueryListWithManualInclude(source, query);
 
             var mappedRequests = _mapper.Map<IEnumerable<Request>>(requests);
 
@@ -66,17 +56,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Include(query);
 
             // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-            DataProvider.Models.Request request;
-            if (query.Include.Fields.Contains("building")  || query.Include.Fields.Contains("contact"))
-            {
-                var joinedSource = JoinBuildingAndContact(source);
-                var triplet = await joinedSource.FirstOrDefaultAsync();
-                request = EmbedBuildingAndContact(triplet);
-            }
-            else
-            {
-                request = await source.FirstOrDefaultAsync();
-            }
+            var request = await QueryWithManualIncludeAsync(source, query);
 
             if (request == null)
             {
@@ -86,6 +66,55 @@ namespace Rollvolet.CRM.DataProviders
             }
 
             return _mapper.Map<Request>(request);
+        }
+
+        public async Task<Paged<Request>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
+        {
+            var source = _context.Requests
+                            .Where(r => r.CustomerId == customerId)
+                            .Include(query)
+                            .Sort(query)
+                            .Filter(query, _context);
+
+            var requests = QueryListWithManualInclude(source, query);
+
+            var mappedRequests = _mapper.Map<IEnumerable<Request>>(requests);
+
+            var count = await source.CountAsync();
+
+            return new Paged<Request>() {
+                Items = mappedRequests,
+                Count = count,
+                PageNumber = query.Page.Number,
+                PageSize = query.Page.Size
+            };            
+        }
+
+        private IEnumerable<DataProvider.Models.Request> QueryListWithManualInclude(IQueryable<DataProvider.Models.Request> source, QuerySet query)
+        {
+            if (query.Include.Fields.Contains("building")  || query.Include.Fields.Contains("contact"))
+            {
+                var joinedSource = JoinBuildingAndContact(source);
+                var triplets = joinedSource.Skip(query.Page.Skip).Take(query.Page.Take).AsEnumerable();
+                return EmbedBuildingAndContact(triplets);
+            }
+            else
+            {
+                return source.Skip(query.Page.Skip).Take(query.Page.Take).AsEnumerable();
+            }
+        }
+        private async Task<DataProvider.Models.Request> QueryWithManualIncludeAsync(IQueryable<DataProvider.Models.Request> source, QuerySet query)
+        {
+            if (query.Include.Fields.Contains("building")  || query.Include.Fields.Contains("contact"))
+            {
+                var joinedSource = JoinBuildingAndContact(source);
+                var triplet = await joinedSource.FirstOrDefaultAsync();
+                return EmbedBuildingAndContact(triplet);
+            }
+            else
+            {
+                return await source.FirstOrDefaultAsync();
+            }
         }
 
         private IQueryable<DataProvider.Models.Request.Triplet> JoinBuildingAndContact(IQueryable<DataProvider.Models.Request> source)
@@ -121,7 +150,7 @@ namespace Rollvolet.CRM.DataProviders
             return request;
         }
 
-        private IList<DataProvider.Models.Request> EmbedBuildingAndContact(IList<DataProvider.Models.Request.Triplet> triplets)
+        private IEnumerable<DataProvider.Models.Request> EmbedBuildingAndContact(IEnumerable<DataProvider.Models.Request.Triplet> triplets)
         {
             var requests = new List<DataProvider.Models.Request>();
 

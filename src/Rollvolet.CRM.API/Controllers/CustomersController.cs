@@ -24,17 +24,20 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IContactManager _contactManager;
         private readonly IBuildingManager _buildingManager;
         private readonly ITelephoneManager _telephoneManager;
+        private readonly IRequestManager _requestsManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
         public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager, 
-                                    ITelephoneManager telephoneManager, IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+                                    ITelephoneManager telephoneManager, IRequestManager requestManager, 
+                                    IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _customerManager = customerManager;
             _contactManager = contactManager;
             _buildingManager = buildingManager;
             _telephoneManager = telephoneManager;
+            _requestsManager = requestManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -131,5 +134,20 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = telephoneDtos, Included = included });
         }
 
+        [HttpGet("{customerId}/requests")]
+        [HttpGet("{customerId}/links/requests")]
+        public async Task<IActionResult> GetRelatedRequestsById(int customerId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedRequests = await _requestsManager.GetAllByCustomerIdAsync(customerId, querySet);
+
+            var requestDtos = _mapper.Map<IEnumerable<RequestDto>>(pagedRequests.Items);
+            var included = _includedCollector.CollectIncluded(pagedRequests.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedRequests);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedRequests);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = requestDtos, Included = included });
+        }
     }
 } 

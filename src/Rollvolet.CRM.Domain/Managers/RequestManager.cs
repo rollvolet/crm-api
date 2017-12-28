@@ -35,5 +35,15 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             return await _requestDataProvider.GetByIdAsync(id, query);
         }
+
+        public async Task<Paged<Request>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
+        {
+            if (query.Sort.Field == null) {
+                query.Sort.Order = SortQuery.ORDER_DESC;
+                query.Sort.Field = "request-date";
+            }
+
+            return await _requestDataProvider.GetAllByCustomerIdAsync(customerId, query);
+        }
     }
 }
