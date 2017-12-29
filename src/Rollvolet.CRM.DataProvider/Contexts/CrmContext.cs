@@ -151,6 +151,26 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             //     .HasPrincipalKey(e => new { e.Number, e.CustomerId });
                 
 
+            // Visit
+
+            modelBuilder.Entity<Visit>()
+                .ToTable("TblBezoek", schema: "dbo");
+
+            modelBuilder.Entity<Visit>()
+                .HasKey(e => e.Id)
+                .HasName("TblBezoek$PrimaryKey");
+
+            modelBuilder.Entity<Visit>()
+                .HasOne(e => e.Request)
+                .WithOne(e => e.Visit)
+                .HasForeignKey<Visit>(e => e.RequestId);
+
+            modelBuilder.Entity<Visit>()
+                .HasOne(e => e.Customer)
+                .WithMany()
+                .HasForeignKey(e => e.CustomerId);
+
+
             // Way of Entry
 
             modelBuilder.Entity<WayOfEntry>()

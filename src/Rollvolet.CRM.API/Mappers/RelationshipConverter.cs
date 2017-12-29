@@ -17,7 +17,8 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<PostalCode, EmptyRelationshipsDto>,
                                             ITypeConverter<TelephoneType, EmptyRelationshipsDto>,
                                             ITypeConverter<HonorificPrefix, EmptyRelationshipsDto>,
-                                            ITypeConverter<WayOfEntry, EmptyRelationshipsDto>
+                                            ITypeConverter<WayOfEntry, EmptyRelationshipsDto>,
+                                            ITypeConverter<Visit, EmptyRelationshipsDto>
     {
         CustomerDto.RelationshipsDto ITypeConverter<Customer, CustomerDto.RelationshipsDto>.Convert(Customer source, CustomerDto.RelationshipsDto destination, ResolutionContext context)
         {
@@ -66,7 +67,8 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Customer = GetOneRelationship<Customer>("requests", source.Id, "customer", source.Customer, context);
             relationships.Building = GetOneRelationship<Building>("requests", source.Id, "building", source.Building, context);
             relationships.Contact = GetOneRelationship<Contact>("requests", source.Id, "contact", source.Contact, context);
-            relationships.WayOfEntry = GetOneRelationship<WayOfEntry>("requests", source.Id, "way-of-entries", source.WayOfEntry, context);
+            relationships.WayOfEntry = GetOneRelationship<WayOfEntry>("requests", source.Id, "way-of-entry", source.WayOfEntry, context);
+            relationships.Visit = GetOneRelationship<Visit>("requests", source.Id, "visit", source.Visit, context);
             return relationships;
         }        
 
@@ -96,6 +98,11 @@ namespace Rollvolet.CRM.API.Mappers
         }
 
         EmptyRelationshipsDto ITypeConverter<WayOfEntry, EmptyRelationshipsDto>.Convert(WayOfEntry source, EmptyRelationshipsDto destination, ResolutionContext context)
+        {
+            return new EmptyRelationshipsDto();
+        }
+
+        EmptyRelationshipsDto ITypeConverter<Visit, EmptyRelationshipsDto>.Convert(Visit source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
         }

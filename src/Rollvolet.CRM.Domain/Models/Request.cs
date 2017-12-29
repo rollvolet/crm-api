@@ -9,6 +9,8 @@ namespace Rollvolet.CRM.Domain.Models
         public Customer Customer { get; set; }
         public Building Building { get; set; }
         public Contact Contact { get; set; }
+        public Visit Visit { get; set; }
+
         public bool RequiresVisit { get; set; }
         public WayOfEntry WayOfEntry { get; set; }
         public DateTime RequestDate { get; set; }

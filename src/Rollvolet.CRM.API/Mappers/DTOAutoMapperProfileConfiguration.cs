@@ -197,6 +197,22 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<WayOfEntry, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("way-of-entries"));
 
+
+            // Visit mappings
+
+            CreateMap<Visit, VisitDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("visits"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<Visit, VisitDto.AttributesDto>();
+
+            CreateMap<Visit, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<Visit, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("visits"));
+
         }
 
     }

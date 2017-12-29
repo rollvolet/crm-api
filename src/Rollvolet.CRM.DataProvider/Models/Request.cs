@@ -41,7 +41,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         // Include resources
         public Customer Customer { get; set; }
         public WayOfEntry WayOfEntry { get; set; }
-
+        public Visit Visit { get; set; }
 
         // Manually included resources
         [NotMapped]
