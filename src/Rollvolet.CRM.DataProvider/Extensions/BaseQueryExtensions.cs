@@ -57,6 +57,14 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             return value.Replace("*", "%") + "%";
         }
 
+        public static IQueryable<T> ForPage<T>(this IQueryable<T> source, QuerySet querySet)
+        {
+            if (querySet.Page.IsPaged)
+                return source.Skip(querySet.Page.Skip).Take(querySet.Page.Take);
+            else
+                return source;
+        }
+
         public static IQueryable<T> Include<T>(this IQueryable<T> source, QuerySet querySet, IDictionary<string, Expression<Func<T, object>>> selectors) where T : class
         {
             foreach(var field in querySet.Include.Fields)

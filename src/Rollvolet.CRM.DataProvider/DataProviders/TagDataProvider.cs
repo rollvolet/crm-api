@@ -44,7 +44,7 @@ namespace Rollvolet.CRM.DataProviders
                             .OrderBy(e => e.Tag.Name)
                             .Select(e => e.Tag);
 
-            var tags = source.Skip(query.Page.Skip).Take(query.Page.Take).AsEnumerable();                            
+            var tags = source.ForPage(query).AsEnumerable();                            
 
             var mappedTags = _mapper.Map<IEnumerable<Tag>>(tags);
 

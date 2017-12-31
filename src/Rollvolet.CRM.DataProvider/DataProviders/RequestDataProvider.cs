@@ -95,12 +95,12 @@ namespace Rollvolet.CRM.DataProviders
             if (query.Include.Fields.Contains("building")  || query.Include.Fields.Contains("contact"))
             {
                 var joinedSource = JoinBuildingAndContact(source);
-                var triplets = joinedSource.Skip(query.Page.Skip).Take(query.Page.Take).AsEnumerable();
+                var triplets = joinedSource.ForPage(query).AsEnumerable();
                 return EmbedBuildingAndContact(triplets);
             }
             else
             {
-                return source.Skip(query.Page.Skip).Take(query.Page.Take).AsEnumerable();
+                return source.ForPage(query).AsEnumerable();
             }
         }
         private async Task<DataProvider.Models.Request> QueryWithManualIncludeAsync(IQueryable<DataProvider.Models.Request> source, QuerySet query)

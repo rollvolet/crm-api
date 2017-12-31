@@ -40,7 +40,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query);
 
-            var customers = source.Skip(query.Page.Skip).Take(query.Page.Take).AsEnumerable();
+            var customers = source.ForPage(query).AsEnumerable();
 
             var mappedCustomers = _mapper.Map<IEnumerable<Customer>>(customers);
 
