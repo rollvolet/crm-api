@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Rollvolet.CRM.DataProvider.Models
 {
     public class Customer : CustomerRecord
@@ -17,5 +16,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public IEnumerable<Building> Buildings { get; set; }
         public IEnumerable<Request> Requests { get; set; }
         public Memo Memo { get; set; }
+        public IEnumerable<CustomerTag> CustomerTags { get; set; }
     }
 }

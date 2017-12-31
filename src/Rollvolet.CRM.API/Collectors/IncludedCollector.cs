@@ -38,6 +38,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.UnionWith(_mapper.Map<IEnumerable<TelephoneDto>>(customer.Telephones));
             if (includeQuery.Contains("requests") && customer.Requests.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<RequestDto>>(customer.Requests));
+            if (includeQuery.Contains("tags") && customer.Tags.Count() > 0)
+                included.UnionWith(_mapper.Map<IEnumerable<TagDto>>(customer.Tags));
 
             return included;
         }

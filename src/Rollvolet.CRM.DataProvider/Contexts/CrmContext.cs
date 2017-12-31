@@ -41,6 +41,11 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithOne()
                 .HasForeignKey((Customer e) => new { e.HonorificPrefixId, e.LanguageId });
 
+            modelBuilder.Entity<Customer>()
+                .HasOne(e => e.Memo)
+                .WithOne()
+                .HasForeignKey<Memo>(e => e.CustomerId);
+
             modelBuilder.Entity<Contact>()
                 .HasOne(e => e.Customer)
                 .WithMany(e => e.Contacts)
@@ -127,6 +132,35 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<Memo>()
                 .HasKey(e => e.CustomerId);
+
+
+            // Tag
+
+            modelBuilder.Entity<Tag>()
+                .ToTable("TblKeyWord", schema: "dbo");
+
+            modelBuilder.Entity<Tag>()
+                .HasKey(e => e.Id)
+                .HasName("TblKeyWord$PrimaryKey");
+
+
+            // CustomerTag
+
+            modelBuilder.Entity<CustomerTag>()
+                .ToTable("TblDataKeyWord", schema: "dbo");
+
+            modelBuilder.Entity<CustomerTag>()
+                .HasKey(e => new { e.CustomerId, e.TagId });
+
+            modelBuilder.Entity<CustomerTag>()
+                .HasOne(e => e.Customer)
+                .WithMany(e => e.CustomerTags)
+                .HasForeignKey(e => e.CustomerId);
+
+            modelBuilder.Entity<CustomerTag>()
+                .HasOne(e => e.Tag)
+                .WithMany(e => e.CustomerTags)
+                .HasForeignKey(e => e.TagId);            
 
 
             // Request

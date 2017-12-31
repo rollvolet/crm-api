@@ -50,6 +50,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public IRelationship HonorificPrefix { get; set; }
             public IRelationship Telephones { get; set; }
             public IRelationship Requests { get; set; }
+            public IRelationship Tags { get; set; }
         }
     }
 }

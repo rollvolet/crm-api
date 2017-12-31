@@ -16,6 +16,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Language, EmptyRelationshipsDto>,
                                             ITypeConverter<PostalCode, EmptyRelationshipsDto>,
                                             ITypeConverter<TelephoneType, EmptyRelationshipsDto>,
+                                            ITypeConverter<Tag, EmptyRelationshipsDto>,
                                             ITypeConverter<HonorificPrefix, EmptyRelationshipsDto>,
                                             ITypeConverter<WayOfEntry, EmptyRelationshipsDto>,
                                             ITypeConverter<Visit, EmptyRelationshipsDto>
@@ -30,6 +31,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.HonorificPrefix = GetOneRelationship<HonorificPrefix>("customers", source.Id, "honorific-prefix", source.HonorificPrefix, context);
             relationships.Telephones = GetManyRelationship<Telephone>("customers", source.Id, "telephones", source.Telephones, context);
             relationships.Requests = GetManyRelationship<Request>("customers", source.Id, "requests", source.Requests, context);
+            relationships.Tags = GetManyRelationship<Tag>("customers", source.Id, "tags", source.Tags, context);
             return relationships;
         }
 
@@ -96,6 +98,12 @@ namespace Rollvolet.CRM.API.Mappers
         {
             return new EmptyRelationshipsDto();
         }
+
+        EmptyRelationshipsDto ITypeConverter<Tag, EmptyRelationshipsDto>.Convert(Tag source, EmptyRelationshipsDto destination, ResolutionContext context)
+        {
+            return new EmptyRelationshipsDto();
+        }
+        
 
         EmptyRelationshipsDto ITypeConverter<WayOfEntry, EmptyRelationshipsDto>.Convert(WayOfEntry source, EmptyRelationshipsDto destination, ResolutionContext context)
         {

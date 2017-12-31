@@ -166,6 +166,22 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Type, opt => opt.UseValue("telephone-types"));
 
 
+            // Tag mappings
+
+            CreateMap<Tag, TagDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("tags"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<Tag, TagDto.AttributesDto>();
+
+            CreateMap<Tag, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<Tag, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("tags"));
+
+
             // Request mappings
 
             CreateMap<Request, RequestDto>()

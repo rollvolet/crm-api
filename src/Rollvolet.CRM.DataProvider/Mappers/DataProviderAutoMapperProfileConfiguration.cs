@@ -13,6 +13,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.EmbeddedPostalCode))
                 .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.EmbeddedCity))
                 .ForMember(dest => dest.Memo, opt => opt.MapFrom(src => src.Memo != null ? src.Memo.Text : null))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.CustomerTags.Select(e => e.Tag)))
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();
@@ -71,6 +72,11 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences();
                 
             CreateMap<Models.TelephoneType, Domain.Models.TelephoneType>()
+                .PreserveReferences()
+                .ReverseMap()
+                .PreserveReferences();
+
+            CreateMap<Models.Tag, Domain.Models.Tag>()
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();

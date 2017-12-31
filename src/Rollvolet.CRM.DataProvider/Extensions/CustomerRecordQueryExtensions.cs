@@ -51,7 +51,14 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("telephones", c => c.Telephones);
             selectors.Add("requests", c => c.Requests);
 
-            return source.Include<Customer>(querySet, selectors);              
+            source = source.Include<Customer>(querySet, selectors);
+
+            if (querySet.Include.Fields.Contains("tags"))
+            {
+                source = source.Include(c => c.CustomerTags).ThenInclude(ct => ct.Tag);
+            }
+
+            return source;
         }
 
         public static IQueryable<Customer> Sort(this IQueryable<Customer> source, QuerySet querySet)
