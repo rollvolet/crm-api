@@ -7,6 +7,7 @@ namespace Rollvolet.CRM.Domain.Models
         public int DataId { get; set; }
         public bool IsCompany { get; set; }
         public string VatNumber { get; set; }
+        public string Memo { get; set; }
 
         public IEnumerable<Contact> Contacts { get; set; }
         public IEnumerable<Building> Buildings { get; set; }

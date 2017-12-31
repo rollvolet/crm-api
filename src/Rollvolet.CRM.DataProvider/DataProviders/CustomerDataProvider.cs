@@ -35,7 +35,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Paged<Customer>> GetAllAsync(QuerySet query)
         {
-            var source = _context.Customers
+            var source = BaseQuery()
                             .Include(query)
                             .Sort(query)
                             .Filter(query);
@@ -56,7 +56,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Customer> GetByNumberAsync(int number, QuerySet query)
         {
-            var source = _context.Customers
+            var source = BaseQuery()
                             .Where(c => c.Number == number)
                             .Include(query);
 
@@ -95,6 +95,12 @@ namespace Rollvolet.CRM.DataProviders
             await _context.SaveChangesAsync();
 
             return _mapper.Map<Customer>(customerRecord); // dataId is filled in now
+        }
+
+        private IQueryable<DataProvider.Models.Customer> BaseQuery()
+        {
+            return _context.Customers
+                        .Include(e => e.Memo);
         }
     }
 }

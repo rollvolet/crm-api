@@ -35,6 +35,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
             [JsonProperty("print-in-front")]
             public bool PrintInFront { get; set; }
             public string Comment { get; set; }
+            public string Memo { get; set; }
             public DateTime Created { get; set; }
             public DateTime Updated { get; set; }
         }

@@ -120,6 +120,15 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasName("TblTelType$PrimaryKey");
 
 
+            // Memo
+
+            modelBuilder.Entity<Memo>()
+                .ToTable("TblDataMemo", schema: "dbo");
+
+            modelBuilder.Entity<Memo>()
+                .HasKey(e => e.CustomerId);
+
+
             // Request
 
             modelBuilder.Entity<Request>()
