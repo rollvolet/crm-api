@@ -16,6 +16,8 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<TelephoneType> TelephoneTypes { get; set; }
         public DbSet<Request> Requests { get; set; }
         public DbSet<WayOfEntry> WayOfEntries { get; set; }
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<CustomerTag> CustomerTags { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
         {

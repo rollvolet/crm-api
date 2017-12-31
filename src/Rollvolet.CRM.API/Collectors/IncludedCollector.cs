@@ -162,6 +162,23 @@ namespace Rollvolet.CRM.API.Collectors
 
             return included;
         }
+
+        public IEnumerable<IResource> CollectIncluded(Tag tag, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+            
+            return included;
+        }
+
+        public IEnumerable<IResource> CollectIncluded(IEnumerable<Tag> tags, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+            
+            foreach (var tag in tags)
+                included.UnionWith(CollectIncluded(tag, includeQuery));
+
+            return included;
+        }
     }
 
 }

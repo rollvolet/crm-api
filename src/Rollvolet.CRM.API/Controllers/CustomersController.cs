@@ -25,12 +25,13 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IBuildingManager _buildingManager;
         private readonly ITelephoneManager _telephoneManager;
         private readonly IRequestManager _requestsManager;
+        private readonly ITagManager _tagManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
         public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager, 
-                                    ITelephoneManager telephoneManager, IRequestManager requestManager, 
+                                    ITelephoneManager telephoneManager, IRequestManager requestManager, ITagManager tagManager,
                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _customerManager = customerManager;
@@ -38,6 +39,7 @@ namespace Rollvolet.CRM.API.Controllers
             _buildingManager = buildingManager;
             _telephoneManager = telephoneManager;
             _requestsManager = requestManager;
+            _tagManager = tagManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -148,6 +150,22 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedRequests);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = requestDtos, Included = included });
+        }
+
+        [HttpGet("{customerId}/tags")]
+        [HttpGet("{customerId}/links/tags")]
+        public async Task<IActionResult> GetRelatedTagsById(int customerId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedTags = await _tagManager.GetAllByCustomerIdAsync(customerId, querySet);
+
+            var tagDtos = _mapper.Map<IEnumerable<TagDto>>(pagedTags.Items);
+            var included = _includedCollector.CollectIncluded(pagedTags.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedTags);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedTags);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = tagDtos, Included = included });
         }
     }
 } 

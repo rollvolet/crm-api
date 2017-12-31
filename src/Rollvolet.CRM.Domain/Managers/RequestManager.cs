@@ -15,7 +15,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly ILogger _logger;
 
-        public RequestManager(IRequestDataProvider requestDataProvider, ILogger<CustomerManager> logger)
+        public RequestManager(IRequestDataProvider requestDataProvider, ILogger<RequestManager> logger)
         {
             _requestDataProvider = requestDataProvider;
             _logger = logger;
