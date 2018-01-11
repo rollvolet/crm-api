@@ -29,6 +29,9 @@ using Rollvolet.CRM.DataProvider.Models;
 using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Rollvolet.CRM.API.Configuration;
 
 namespace Rollvolet.CRM.API
 {
@@ -63,6 +66,23 @@ namespace Rollvolet.CRM.API
         {
             services.AddDbContextPool<CrmContext>(
                 options => options.UseSqlServer(Configuration["DatabaseConfiguration:ConnectionString"]));
+
+            services.Configure<AuthenticationConfiguration>(Configuration.GetSection("Authentication"));
+            services.AddAuthentication(
+                options => {
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                }).AddJwtBearer(
+                jwtOptions => {
+                    jwtOptions.Audience = Configuration["Authentication:ClientId"];
+                    jwtOptions.Authority = Configuration["Authentication:Authority"];
+                    jwtOptions.Events = new JwtBearerEvents
+                    {
+                        // OnAuthenticationFailed = AuthenticationFailed
+                    };
+                }
+            );
 
             services.AddMvc();
 
@@ -132,6 +152,8 @@ namespace Rollvolet.CRM.API
             app.AddNLogWeb();
             app.UseCorrelations();
             app.UseExecutionTiming();
+
+            app.UseAuthentication();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint
             app.UseSwagger();

@@ -1,5 +1,10 @@
 ﻿{
   "DatabaseConfiguration": {
     "ConnectionString": ""
+  },
+  "Authentication": {
+    "ClientId": "",
+    "ClientSecret": "",
+    "Authority": ""
   }
 }
