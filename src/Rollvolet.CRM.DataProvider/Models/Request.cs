@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using Rollvolet.CRM.DataProvider.Models.Interfaces;
 
 namespace Rollvolet.CRM.DataProvider.Models
 {
-    public class Request
+    public class Request : ICaseRelated
     {
         [Column("AanvraagID")]
         public int Id { get; set; }

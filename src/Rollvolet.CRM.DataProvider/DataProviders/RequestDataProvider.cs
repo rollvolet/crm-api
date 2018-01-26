@@ -14,17 +14,11 @@ using LinqKit;
 
 namespace Rollvolet.CRM.DataProviders
 {   
-    public class RequestDataProvider : IRequestDataProvider
+    public class RequestDataProvider : CaseRelatedDataProvider<DataProvider.Models.Request>, IRequestDataProvider
     {
-        private readonly CrmContext _context;
-        private readonly IMapper _mapper;
-        private readonly ILogger _logger;
-
-        public RequestDataProvider(CrmContext context, IMapper mapper, ILogger<RequestDataProvider> logger)
+        public RequestDataProvider(CrmContext context, IMapper mapper, ILogger<RequestDataProvider> logger) : base(context, mapper, logger)
         {
-            _context = context;
-            _mapper = mapper;
-            _logger = logger;
+
         }
 
         public async Task<Paged<Request>> GetAllAsync(QuerySet query)
@@ -89,80 +83,5 @@ namespace Rollvolet.CRM.DataProviders
                 PageSize = query.Page.Size
             };            
         }
-
-        private IEnumerable<DataProvider.Models.Request> QueryListWithManualInclude(IQueryable<DataProvider.Models.Request> source, QuerySet query)
-        {
-            if (query.Include.Fields.Contains("building")  || query.Include.Fields.Contains("contact"))
-            {
-                var joinedSource = JoinBuildingAndContact(source);
-                var triplets = joinedSource.ForPage(query).AsEnumerable();
-                return EmbedBuildingAndContact(triplets);
-            }
-            else
-            {
-                return source.ForPage(query).AsEnumerable();
-            }
-        }
-        private async Task<DataProvider.Models.Request> QueryWithManualIncludeAsync(IQueryable<DataProvider.Models.Request> source, QuerySet query)
-        {
-            if (query.Include.Fields.Contains("building")  || query.Include.Fields.Contains("contact"))
-            {
-                var joinedSource = JoinBuildingAndContact(source);
-                var triplet = await joinedSource.FirstOrDefaultAsync();
-                return EmbedBuildingAndContact(triplet);
-            }
-            else
-            {
-                return await source.FirstOrDefaultAsync();
-            }
-        }
-
-        private IQueryable<DataProvider.Models.Request.Triplet> JoinBuildingAndContact(IQueryable<DataProvider.Models.Request> source)
-        {
-            return source.GroupJoin(
-                    _context.Buildings,
-                    r => new { CustomerId = r.CustomerId, Number = r.RelativeBuildingId },
-                    b => new { CustomerId = (int?) b.CustomerId, Number = (int?) b.Number },
-                    (r, b) => new { Request = r, Buildings = b }
-                ).SelectMany(
-                    t => t.Buildings.DefaultIfEmpty(),
-                    (t, b) => new { Request = t.Request, Building = b }
-                ).GroupJoin(
-                    _context.Contacts,
-                    t => new { CustomerId = t.Request.CustomerId, Number = t.Request.RelativeContactId },
-                    c => new { CustomerId = (int?) c.CustomerId, Number = (int?) c.Number },
-                    (t, c) => new { Request = t.Request, Building = t.Building, Contacts = c }
-                ).SelectMany(
-                    u => u.Contacts.DefaultIfEmpty(),
-                    (u, c) => new DataProvider.Models.Request.Triplet { Request = u.Request, Building = u.Building, Contact = c}
-                );
-        }
-
-        private DataProvider.Models.Request EmbedBuildingAndContact(DataProvider.Models.Request.Triplet triplet)
-        {
-            var request = triplet.Request;
-
-            if (request != null) {
-                request.Building = triplet.Building;
-                request.Contact = triplet.Contact;
-            }
-
-            return request;
-        }
-
-        private IEnumerable<DataProvider.Models.Request> EmbedBuildingAndContact(IEnumerable<DataProvider.Models.Request.Triplet> triplets)
-        {
-            var requests = new List<DataProvider.Models.Request>();
-
-            foreach(var triplet in triplets)
-            {
-                var request = triplet.Request;
-                request.Building = triplet.Building;
-                request.Contact = triplet.Contact;
-                requests.Add(request);
-            }
-
-            return requests;
-        }       
     }
 }
