@@ -95,6 +95,26 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();
+
+            CreateMap<Models.Offer, Domain.Models.Offer>()
+                .PreserveReferences()
+                .ReverseMap()
+                .PreserveReferences();
+
+            CreateMap<Models.SubmissionType, Domain.Models.SubmissionType>()
+                .PreserveReferences()
+                .ReverseMap()
+                .PreserveReferences();
+
+            CreateMap<Models.VatRate, Domain.Models.VatRate>()
+                .PreserveReferences()
+                .ReverseMap()
+                .PreserveReferences();
+
+            CreateMap<Models.Product, Domain.Models.Product>()
+                .PreserveReferences()
+                .ReverseMap()
+                .PreserveReferences();
         }
     }
 }

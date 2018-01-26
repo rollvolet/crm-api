@@ -163,6 +163,39 @@ namespace Rollvolet.CRM.API.Collectors
             return included;
         }
 
+        public IEnumerable<IResource> CollectIncluded(Offer offer, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+            
+            // one-relations
+            if (includeQuery.Contains("request") && offer.Request != null)
+                included.Add(_mapper.Map<RequestDto>(offer.Request));
+            if (includeQuery.Contains("customer") && offer.Customer != null)
+                included.Add(_mapper.Map<CustomerDto>(offer.Customer));
+            if (includeQuery.Contains("contact") && offer.Contact != null)
+                included.Add(_mapper.Map<ContactDto>(offer.Contact));
+            if (includeQuery.Contains("building") && offer.Building != null)
+                included.Add(_mapper.Map<BuildingDto>(offer.Building));
+            if (includeQuery.Contains("vat-rate") && offer.VatRate != null)
+                included.Add(_mapper.Map<VatRateDto>(offer.VatRate));
+            if (includeQuery.Contains("submission-type") && offer.SubmissionType != null)
+                included.Add(_mapper.Map<SubmissionTypeDto>(offer.SubmissionType));
+            if (includeQuery.Contains("product") && offer.Product != null)
+                included.Add(_mapper.Map<ProductDto>(offer.Product));
+
+            return included;
+        }
+
+        public IEnumerable<IResource> CollectIncluded(IEnumerable<Offer> offers, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+            
+            foreach (var offer in offers)
+                included.UnionWith(CollectIncluded(offer, includeQuery));
+
+            return included;
+        }        
+
         public IEnumerable<IResource> CollectIncluded(Tag tag, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();

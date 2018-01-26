@@ -229,6 +229,69 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<Visit, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("visits"));
 
+
+            // Offer mappings
+
+            CreateMap<Offer, OfferDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("offers"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<Offer, OfferDto.AttributesDto>();
+
+            CreateMap<Offer, OfferDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<Offer, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("offers"));
+
+
+            // VAT Rate mappings
+
+            CreateMap<VatRate, VatRateDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("vat-rates"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<VatRate, VatRateDto.AttributesDto>();
+
+            CreateMap<VatRate, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<VatRate, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("vat-rates"));  
+
+
+            // Submission types mappings
+
+            CreateMap<SubmissionType, SubmissionTypeDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("submission-types"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<SubmissionType, SubmissionTypeDto.AttributesDto>();
+
+            CreateMap<SubmissionType, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<SubmissionType, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("submission-types"));       
+
+
+            // Product mappings
+
+            CreateMap<Product, ProductDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("products"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<Product, ProductDto.AttributesDto>();
+
+            CreateMap<Product, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<Product, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("products"));                                       
         }
 
     }

@@ -18,6 +18,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<WayOfEntry> WayOfEntries { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<CustomerTag> CustomerTags { get; set; }
+        public DbSet<Offer> Offers { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
         {
@@ -224,6 +225,71 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             modelBuilder.Entity<WayOfEntry>()
                 .HasKey(e => e.Id)
                 .HasName("TblAanmelding$PrimaryKey");
+
+
+            // Offer
+            modelBuilder.Entity<Offer>()
+                .ToTable("tblOfferte", schema: "dbo");
+
+            modelBuilder.Entity<Offer>()
+                .HasKey(e => e.Id)
+                .HasName("tblOfferte$PrimaryKey");            
+
+            modelBuilder.Entity<Offer>()
+                .HasOne(e => e.Request)
+                .WithMany()
+                .HasForeignKey(e => e.RequestId);
+
+            modelBuilder.Entity<Offer>()
+                .HasOne(e => e.Customer)
+                .WithMany(e => e.Offers)
+                .HasForeignKey(e => e.CustomerId)
+                .HasPrincipalKey(e => e.Number);                
+
+            modelBuilder.Entity<Offer>()
+                .HasOne(e => e.VatRate)
+                .WithMany()
+                .HasForeignKey(e => e.VatRateId);
+
+            modelBuilder.Entity<Offer>()
+                .HasOne(e => e.Product)
+                .WithMany()
+                .HasForeignKey(e => e.ProductId);
+
+            modelBuilder.Entity<Offer>()
+                .HasOne(e => e.SubmissionType)
+                .WithMany()
+                .HasForeignKey(e => e.SubmissionTypeId);
+
+
+            // VatRate
+
+            modelBuilder.Entity<VatRate>()
+                .ToTable("TblBtw", schema: "dbo");
+
+            modelBuilder.Entity<VatRate>()
+                .HasKey(e => e.Id)
+                .HasName("TblBtw$PrimaryKey");   
+
+
+            // Proudct
+
+            modelBuilder.Entity<Product>()
+                .ToTable("TblProdukt", schema: "dbo");
+
+            modelBuilder.Entity<Product>()
+                .HasKey(e => e.Id)
+                .HasName("TblProdukt$PrimaryKey");      
+
+
+            // Submission type
+
+            modelBuilder.Entity<SubmissionType>()
+                .ToTable("TblVerzendType", schema: "dbo");
+
+            modelBuilder.Entity<SubmissionType>()
+                .HasKey(e => e.Id)
+                .HasName("TblVerzendType$PrimaryKey");                                                
         }
     }
 }
