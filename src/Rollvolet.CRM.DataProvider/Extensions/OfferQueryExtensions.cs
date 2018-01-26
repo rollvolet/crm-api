@@ -40,7 +40,13 @@ namespace Rollvolet.CRM.DataProvider.Extensions
         {
             var selectors = new Dictionary<string, Expression<Func<Offer, object>>>();
 
-            // TODO implement
+            selectors.Add("number", x => x.Number);
+            selectors.Add("offer-date", x => x.OfferDate);
+            selectors.Add("customer.name", x => x.Customer.Name);
+            selectors.Add("customer.street", x => x.Customer.Address1);
+            selectors.Add("customer.postal-code", x => x.Customer.EmbeddedPostalCode);
+            selectors.Add("customer.city", x => x.Customer.EmbeddedCity);
+            selectors.Add("updated", x => x.Updated);
 
             return source.Sort<Offer>(querySet, selectors);
         }
