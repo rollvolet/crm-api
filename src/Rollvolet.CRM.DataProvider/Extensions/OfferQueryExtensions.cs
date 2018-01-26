@@ -15,7 +15,19 @@ namespace Rollvolet.CRM.DataProvider.Extensions
     {
         public static IQueryable<Offer> Filter(this IQueryable<Offer> source, QuerySet querySet, CrmContext context)  
         {
-            // TODO implement
+            if (querySet.Filter.Fields.ContainsKey("number"))
+            {
+                var filterValue = querySet.Filter.Fields["number"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.Number, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("reference"))
+            {
+                var filterValue = querySet.Filter.Fields["reference"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.Reference, filterValue));
+            }
+
+            source = source.FilterCase(querySet, context);
 
             return source;
         }      
