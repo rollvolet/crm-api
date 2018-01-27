@@ -19,7 +19,7 @@ using Rollvolet.CRM.Domain.Models.Query;
 namespace Rollvolet.CRM.API.Controllers
 {
     [Route("[controller]")]
-    //[Authorize]
+    [Authorize]
     public class OffersController : Controller
     {
         private readonly IOfferManager _offerManager;
