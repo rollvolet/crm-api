@@ -26,21 +26,23 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IContactManager _contactManager;
         private readonly IBuildingManager _buildingManager;
         private readonly ITelephoneManager _telephoneManager;
-        private readonly IRequestManager _requestsManager;
+        private readonly IRequestManager _requestManager;
+        private readonly IOfferManager _offerManager;
         private readonly ITagManager _tagManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
         public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager, 
-                                    ITelephoneManager telephoneManager, IRequestManager requestManager, ITagManager tagManager,
+                                    ITelephoneManager telephoneManager, IRequestManager requestManager, IOfferManager offerManager, ITagManager tagManager,
                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _customerManager = customerManager;
             _contactManager = contactManager;
             _buildingManager = buildingManager;
             _telephoneManager = telephoneManager;
-            _requestsManager = requestManager;
+            _requestManager = requestManager;
+            _offerManager = offerManager;
             _tagManager = tagManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
@@ -144,7 +146,7 @@ namespace Rollvolet.CRM.API.Controllers
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
-            var pagedRequests = await _requestsManager.GetAllByCustomerIdAsync(customerId, querySet);
+            var pagedRequests = await _requestManager.GetAllByCustomerIdAsync(customerId, querySet);
 
             var requestDtos = _mapper.Map<IEnumerable<RequestDto>>(pagedRequests.Items);
             var included = _includedCollector.CollectIncluded(pagedRequests.Items, querySet.Include);
@@ -152,6 +154,22 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedRequests);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = requestDtos, Included = included });
+        }
+
+        [HttpGet("{customerId}/offers")]
+        [HttpGet("{customerId}/links/offers")]
+        public async Task<IActionResult> GetRelatedOffersById(int customerId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedOffers = await _offerManager.GetAllByCustomerIdAsync(customerId, querySet);
+
+            var offerDtos = _mapper.Map<IEnumerable<OfferDto>>(pagedOffers.Items);
+            var included = _includedCollector.CollectIncluded(pagedOffers.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedOffers);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedOffers);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = offerDtos, Included = included });
         }
 
         [HttpGet("{customerId}/tags")]
