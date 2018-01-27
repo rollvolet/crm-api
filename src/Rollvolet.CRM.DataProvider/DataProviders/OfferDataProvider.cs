@@ -22,9 +22,15 @@ namespace Rollvolet.CRM.DataProviders
 
         }
 
+        private IQueryable<DataProvider.Models.Offer> BaseQuery()
+        {
+            return _context.Offers
+                        .Where(e => e.Currency == "EUR");
+        }        
+
         public async Task<Paged<Offer>> GetAllAsync(QuerySet query)
         {
-            var source = _context.Offers
+            var source = BaseQuery()
                             .Include(query)
                             .Sort(query)
                             .Filter(query, _context);
@@ -46,7 +52,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Offer> GetByIdAsync(int id, QuerySet query)
         {
-            var source = _context.Offers
+            var source = BaseQuery()
                             .Where(c => c.Id == id)
                             .Include(query);
 
@@ -65,7 +71,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Paged<Offer>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
-            var source = _context.Offers
+            var source = BaseQuery()
                             .Where(o => o.CustomerId == customerId)
                             .Include(query)
                             .Sort(query)
