@@ -33,9 +33,12 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 // TODO throw exception about invalid number
             }
 
-            source = source.FilterCase(querySet, context);
+            if (querySet.Filter.Fields.ContainsKey("offer") && querySet.Filter.Fields["offer"] == "false")
+            {
+                source = source.Where(e => e.Offer == null);
+            }
 
-            // TODO filter met / zonder offerte
+            source = source.FilterCase(querySet, context);
 
             return source;
         }      
