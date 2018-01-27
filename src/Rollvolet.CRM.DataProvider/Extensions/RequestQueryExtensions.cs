@@ -47,6 +47,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("customer", c => c.Customer);
             selectors.Add("way-of-entry", c => c.WayOfEntry);
             selectors.Add("visit", x => x.Visit);
+            selectors.Add("offer", x => x.Offer);
 
             // The selectors below won't work since we're not able to define the relationship in CrmContext
             // They are manually mapped in the DataProvider

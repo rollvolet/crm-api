@@ -237,8 +237,8 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<Offer>()
                 .HasOne(e => e.Request)
-                .WithMany()
-                .HasForeignKey(e => e.RequestId);
+                .WithOne(e => e.Offer)
+                .HasForeignKey<Offer>(e => e.RequestId);
 
             modelBuilder.Entity<Offer>()
                 .HasOne(e => e.Customer)

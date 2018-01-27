@@ -10,6 +10,7 @@ namespace Rollvolet.CRM.Domain.Models
         public Building Building { get; set; }
         public Contact Contact { get; set; }
         public Visit Visit { get; set; }
+        public Offer Offer { get; set; }
 
         public bool RequiresVisit { get; set; }
         public WayOfEntry WayOfEntry { get; set; }

@@ -149,6 +149,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<WayOfEntryDto>(request.WayOfEntry));
             if (includeQuery.Contains("visit") && request.Visit != null)
                 included.Add(_mapper.Map<VisitDto>(request.Visit));
+            if (includeQuery.Contains("offer") && request.Offer != null)
+                included.Add(_mapper.Map<OfferDto>(request.Offer));
 
             return included;
         }

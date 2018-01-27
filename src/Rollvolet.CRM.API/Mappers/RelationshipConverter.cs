@@ -75,6 +75,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Contact = GetOneRelationship<Contact>("requests", source.Id, "contact", source.Contact, context);
             relationships.WayOfEntry = GetOneRelationship<WayOfEntry>("requests", source.Id, "way-of-entry", source.WayOfEntry, context);
             relationships.Visit = GetOneRelationship<Visit>("requests", source.Id, "visit", source.Visit, context);
+            relationships.Offer = GetOneRelationship<Offer>("requests", source.Id, "offer", source.Offer, context);
             return relationships;
         }  
 

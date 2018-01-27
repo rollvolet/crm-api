@@ -26,6 +26,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
             [JsonProperty("way-of-entry")]
             public IRelationship WayOfEntry { get; set; }
             public IRelationship Visit { get; set; }
+            public IRelationship Offer { get; set; }
         }
     }
 }
