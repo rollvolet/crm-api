@@ -261,6 +261,9 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithMany()
                 .HasForeignKey(e => e.SubmissionTypeId);
 
+            modelBuilder.Entity<Offer>()
+                .HasQueryFilter(e => e.Currency == "EUR");
+                
 
             // VatRate
 
