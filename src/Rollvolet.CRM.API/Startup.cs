@@ -100,6 +100,8 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IRequestManager, RequestManager>();
             services.AddTransient<IOfferDataProvider, OfferDataProvider>();
             services.AddTransient<IOfferManager, OfferManager>();
+            services.AddTransient<ICaseDataProvider, CaseDataProvider>();
+            services.AddTransient<ICaseManager, CaseManager>();
             services.AddTransient<ITagDataProvider, TagDataProvider>();
             services.AddTransient<ITagManager, TagManager>();
             services.AddTransient<ICountryDataProvider, CountryDataProvider>();
