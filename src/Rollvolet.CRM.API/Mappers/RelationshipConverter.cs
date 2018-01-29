@@ -89,7 +89,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Contact = GetOneRelationship<Contact>("offers", source.Id, "contact", source.Contact, context);
             relationships.VatRate = GetOneRelationship<VatRate>("offers", source.Id, "vat-rate", source.VatRate, context);
             relationships.SubmissionType = GetOneRelationship<SubmissionType>("offers", source.Id, "submission-type", source.SubmissionType, context);
-            relationships.Product = GetOneRelationship<Product>("offers", source.Id, "products", source.Product, context);
+            relationships.Product = GetOneRelationship<Product>("offers", source.Id, "product", source.Product, context);
             return relationships;
         }            
 

@@ -19,7 +19,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public DateTime SubmissionDate { get; set; }        
             [JsonProperty("foreseen-hours")]         
             public double ForeseenHours { get; set; }        
-            [JsonProperty("foressen-nb-of-persons")]         
+            [JsonProperty("foreseen-nb-of-persons")]
             public double ForeseenNbOfPersons { get; set; }
             public string Comment { get; set; } 
             public string Reference { get; set; }
