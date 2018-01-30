@@ -29,7 +29,10 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             source = source.FilterCase(querySet, context);
 
-            // TODO filter met / zonder bestelling
+            if (querySet.Filter.Fields.ContainsKey("order") && querySet.Filter.Fields["order"] == "false")
+            {
+                source = source.Where(e => e.Order == null);
+            }
 
             return source;
         }      
