@@ -28,14 +28,16 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly ITelephoneManager _telephoneManager;
         private readonly IRequestManager _requestManager;
         private readonly IOfferManager _offerManager;
+        private readonly IOrderManager _orderManager;
         private readonly ITagManager _tagManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
         public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager, 
-                                    ITelephoneManager telephoneManager, IRequestManager requestManager, IOfferManager offerManager, ITagManager tagManager,
-                                    IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+                                    ITelephoneManager telephoneManager, IRequestManager requestManager, IOfferManager offerManager, 
+                                    IOrderManager orderManager, ITagManager tagManager, IIncludedCollector includedCollector, IMapper mapper, 
+                                    IJsonApiBuilder jsonApiBuilder)
         {
             _customerManager = customerManager;
             _contactManager = contactManager;
@@ -43,6 +45,7 @@ namespace Rollvolet.CRM.API.Controllers
             _telephoneManager = telephoneManager;
             _requestManager = requestManager;
             _offerManager = offerManager;
+            _orderManager = orderManager;
             _tagManager = tagManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
@@ -171,6 +174,22 @@ namespace Rollvolet.CRM.API.Controllers
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = offerDtos, Included = included });
         }
+
+        [HttpGet("{customerId}/orders")]
+        [HttpGet("{customerId}/links/orders")]
+        public async Task<IActionResult> GetRelatedOrdersById(int customerId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedOrders = await _orderManager.GetAllByCustomerIdAsync(customerId, querySet);
+
+            var orderDtos = _mapper.Map<IEnumerable<OrderDto>>(pagedOrders.Items);
+            var included = _includedCollector.CollectIncluded(pagedOrders.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedOrders);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedOrders);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = orderDtos, Included = included });
+        }        
 
         [HttpGet("{customerId}/tags")]
         [HttpGet("{customerId}/links/tags")]

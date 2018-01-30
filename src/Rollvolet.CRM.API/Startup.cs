@@ -65,7 +65,10 @@ namespace Rollvolet.CRM.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContextPool<CrmContext>(
-                options => options.UseSqlServer(Configuration["DatabaseConfiguration:ConnectionString"]));
+                options => {
+                    options.UseSqlServer(Configuration["DatabaseConfiguration:ConnectionString"]);
+                    options.EnableSensitiveDataLogging(); // TODO: Remove for production
+                });
 
             services.Configure<AuthenticationConfiguration>(Configuration.GetSection("Authentication"));
             services.AddAuthentication(

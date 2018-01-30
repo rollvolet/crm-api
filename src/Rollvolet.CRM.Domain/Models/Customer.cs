@@ -13,6 +13,7 @@ namespace Rollvolet.CRM.Domain.Models
         public IEnumerable<Building> Buildings { get; set; }
         public IEnumerable<Request> Requests { get; set; }
         public IEnumerable<Offer> Offers { get; set; }
+        public IEnumerable<Order> Orders { get; set; }
         public IEnumerable<Tag> Tags { get; set; }
     }
 }

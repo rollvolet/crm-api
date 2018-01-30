@@ -40,6 +40,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.UnionWith(_mapper.Map<IEnumerable<RequestDto>>(customer.Requests));
             if (includeQuery.Contains("offers") && customer.Offers.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<OfferDto>>(customer.Offers));
+            if (includeQuery.Contains("orders") && customer.Orders.Count() > 0)
+                included.UnionWith(_mapper.Map<IEnumerable<OrderDto>>(customer.Orders));
             if (includeQuery.Contains("tags") && customer.Tags.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<TagDto>>(customer.Tags));
 
@@ -174,6 +176,8 @@ namespace Rollvolet.CRM.API.Collectors
             // one-relations
             if (includeQuery.Contains("request") && offer.Request != null)
                 included.Add(_mapper.Map<RequestDto>(offer.Request));
+            if (includeQuery.Contains("order") && offer.Order != null)
+                included.Add(_mapper.Map<OrderDto>(offer.Order));
             if (includeQuery.Contains("customer") && offer.Customer != null)
                 included.Add(_mapper.Map<CustomerDto>(offer.Customer));
             if (includeQuery.Contains("contact") && offer.Contact != null)

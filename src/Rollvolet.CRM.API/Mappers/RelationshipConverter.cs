@@ -37,6 +37,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Telephones = GetManyRelationship<Telephone>("customers", source.Id, "telephones", source.Telephones, context);
             relationships.Requests = GetManyRelationship<Request>("customers", source.Id, "requests", source.Requests, context);
             relationships.Offers = GetManyRelationship<Offer>("customers", source.Id, "offers", source.Offers, context);
+            relationships.Orders = GetManyRelationship<Order>("customers", source.Id, "orders", source.Orders, context);
             relationships.Tags = GetManyRelationship<Tag>("customers", source.Id, "tags", source.Tags, context);
             return relationships;
         }
@@ -85,6 +86,7 @@ namespace Rollvolet.CRM.API.Mappers
         {
             var relationships = new OfferDto.RelationshipsDto();
             relationships.Request = GetOneRelationship<Request>("offers", source.Id, "request", source.Request, context);
+            relationships.Order = GetOneRelationship<Order>("offers", source.Id, "order", source.Order, context);
             relationships.Customer = GetOneRelationship<Customer>("offers", source.Id, "customer", source.Customer, context);
             relationships.Building = GetOneRelationship<Building>("offers", source.Id, "building", source.Building, context);
             relationships.Contact = GetOneRelationship<Contact>("offers", source.Id, "contact", source.Contact, context);
