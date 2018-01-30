@@ -115,6 +115,15 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();
+
+            CreateMap<Models.Order, Domain.Models.Order>()
+                .ForMember(dest => dest.ExpectedDate, opt => opt.MapFrom(src => src.ExpectedDate != null ? Convert.ToDateTime(src.ExpectedDate) : (DateTime?) null))
+                .ForMember(dest => dest.RequiredDate, opt => opt.MapFrom(src => src.RequiredDate != null ? Convert.ToDateTime(src.RequiredDate) : (DateTime?) null))
+                .PreserveReferences()
+                .ReverseMap()
+                .ForMember(dest => dest.ExpectedDate, opt => opt.MapFrom(src => src.ExpectedDate != null ? ((DateTime) src.ExpectedDate).ToString("dd/MM/yyyy") : null))
+                .ForMember(dest => dest.RequiredDate, opt => opt.MapFrom(src => src.RequiredDate != null ? ((DateTime) src.RequiredDate).ToString("dd/MM/yyyy") : null))
+                .PreserveReferences();
         }
     }
 }

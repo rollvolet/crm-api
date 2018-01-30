@@ -13,6 +13,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Telephone, TelephoneDto.RelationshipsDto>,
                                             ITypeConverter<Request, RequestDto.RelationshipsDto>,
                                             ITypeConverter<Offer, OfferDto.RelationshipsDto>,
+                                            ITypeConverter<Order, OrderDto.RelationshipsDto>,
                                             ITypeConverter<Country, EmptyRelationshipsDto>,
                                             ITypeConverter<Language, EmptyRelationshipsDto>,
                                             ITypeConverter<PostalCode, EmptyRelationshipsDto>,
@@ -78,7 +79,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Visit = GetOneRelationship<Visit>("requests", source.Id, "visit", source.Visit, context);
             relationships.Offer = GetOneRelationship<Offer>("requests", source.Id, "offer", source.Offer, context);
             return relationships;
-        }  
+        }
 
         OfferDto.RelationshipsDto ITypeConverter<Offer, OfferDto.RelationshipsDto>.Convert(Offer source, OfferDto.RelationshipsDto destination, ResolutionContext context)
         {
@@ -90,6 +91,16 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.VatRate = GetOneRelationship<VatRate>("offers", source.Id, "vat-rate", source.VatRate, context);
             relationships.SubmissionType = GetOneRelationship<SubmissionType>("offers", source.Id, "submission-type", source.SubmissionType, context);
             relationships.Product = GetOneRelationship<Product>("offers", source.Id, "product", source.Product, context);
+            return relationships;
+        }
+
+        OrderDto.RelationshipsDto ITypeConverter<Order, OrderDto.RelationshipsDto>.Convert(Order source, OrderDto.RelationshipsDto destination, ResolutionContext context)
+        {
+            var relationships = new OrderDto.RelationshipsDto();
+            relationships.Offer = GetOneRelationship<Offer>("orders", source.Id, "offer", source.Offer, context);
+            relationships.Customer = GetOneRelationship<Customer>("orders", source.Id, "customer", source.Customer, context);
+            relationships.Building = GetOneRelationship<Building>("orders", source.Id, "building", source.Building, context);
+            relationships.Contact = GetOneRelationship<Contact>("orders", source.Id, "contact", source.Contact, context);
             return relationships;
         }            
 

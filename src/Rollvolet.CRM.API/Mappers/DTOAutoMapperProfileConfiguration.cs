@@ -291,7 +291,23 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<Product, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<Product, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.UseValue("products"));                                       
+                .ForMember(dest => dest.Type, opt => opt.UseValue("products"));   
+
+
+            // Order mappings
+
+            CreateMap<Order, OrderDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("orders"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<Order, OrderDto.AttributesDto>();
+
+            CreateMap<Order, OrderDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<Order, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("orders"));                                                    
         }
 
     }

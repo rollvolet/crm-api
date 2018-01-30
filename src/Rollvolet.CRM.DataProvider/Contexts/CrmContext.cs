@@ -19,6 +19,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Tag> Tags { get; set; }
         public DbSet<CustomerTag> CustomerTags { get; set; }
         public DbSet<Offer> Offers { get; set; }
+        public DbSet<Order> Orders { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
         {
@@ -233,7 +234,10 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<Offer>()
                 .HasKey(e => e.Id)
-                .HasName("tblOfferte$PrimaryKey");            
+                .HasName("tblOfferte$PrimaryKey");   
+
+            modelBuilder.Entity<Offer>()
+                .HasQueryFilter(e => e.Currency == "EUR");         
 
             modelBuilder.Entity<Offer>()
                 .HasOne(e => e.Request)
@@ -260,9 +264,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasOne(e => e.SubmissionType)
                 .WithMany()
                 .HasForeignKey(e => e.SubmissionTypeId);
-
-            modelBuilder.Entity<Offer>()
-                .HasQueryFilter(e => e.Currency == "EUR");
                 
 
             // VatRate
@@ -292,7 +293,32 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<SubmissionType>()
                 .HasKey(e => e.Id)
-                .HasName("TblVerzendType$PrimaryKey");                                                
+                .HasName("TblVerzendType$PrimaryKey"); 
+
+
+            // Order
+
+            modelBuilder.Entity<Order>()
+                .ToTable("tblOfferte", schema: "dbo");
+            
+            modelBuilder.Entity<Order>()
+                .HasKey(e => e.Id)
+                .HasName("tblOfferte$PrimaryKey");
+
+            modelBuilder.Entity<Order>()
+                .HasQueryFilter(e => e.Currency == "EUR" && e.IsOrdered);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(e => e.Customer)
+                .WithMany(e => e.Orders)
+                .HasForeignKey(e => e.CustomerId)
+                .HasPrincipalKey(e => e.Number);    
+
+            modelBuilder.Entity<Order>()
+                .HasOne(e => e.Offer)
+                .WithOne(e => e.Order)
+                .HasForeignKey<Order>(e => e.Id)
+                .HasPrincipalKey<Offer>(e => e.Id);                                                                           
         }
     }
 }

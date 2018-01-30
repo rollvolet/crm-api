@@ -75,6 +75,8 @@ namespace Rollvolet.CRM.DataProvider.Models
         public VatRate VatRate { get; set; }
         public Product Product { get; set; }
         public SubmissionType SubmissionType { get; set; }
+        public Order Order { get; set; }
+        
         
 
         // Manually included resources

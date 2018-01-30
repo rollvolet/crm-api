@@ -198,6 +198,33 @@ namespace Rollvolet.CRM.API.Collectors
                 included.UnionWith(CollectIncluded(offer, includeQuery));
 
             return included;
+        } 
+
+        public IEnumerable<IResource> CollectIncluded(Order order, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+            
+            // one-relations
+            if (includeQuery.Contains("offer") && order.Offer != null)
+                included.Add(_mapper.Map<OfferDto>(order.Offer));
+            if (includeQuery.Contains("customer") && order.Customer != null)
+                included.Add(_mapper.Map<CustomerDto>(order.Customer));
+            if (includeQuery.Contains("contact") && order.Contact != null)
+                included.Add(_mapper.Map<ContactDto>(order.Contact));
+            if (includeQuery.Contains("building") && order.Building != null)
+                included.Add(_mapper.Map<BuildingDto>(order.Building));
+
+            return included;
+        }
+
+        public IEnumerable<IResource> CollectIncluded(IEnumerable<Order> orders, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+            
+            foreach (var order in orders)
+                included.UnionWith(CollectIncluded(order, includeQuery));
+
+            return included;
         }        
 
         public IEnumerable<IResource> CollectIncluded(Tag tag, IncludeQuery includeQuery)
