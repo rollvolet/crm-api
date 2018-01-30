@@ -8,7 +8,7 @@ namespace Rollvolet.CRM.DataProvider.Models
     public class Order : ICaseRelated
     {
         [Column("OfferteID")]
-        public int Id { get; set; }
+        public int Id { get; set; }  // Offer and Order have the same ID column
         
         [Column("KlantID")]
         public int? CustomerId { get; set; }
@@ -21,6 +21,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         
         [Column("BestelDatum")]
         public DateTime? OrderDate { get; set; }
+
+        [Column("OfferteNr")]
+        public string OfferNumber { get; set; }
 
         [Column("BestelTotaal")]
         public double? Amount { get; set; }

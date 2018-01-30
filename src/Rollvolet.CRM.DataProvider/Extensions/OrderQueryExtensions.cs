@@ -15,6 +15,12 @@ namespace Rollvolet.CRM.DataProvider.Extensions
     {
         public static IQueryable<Order> Filter(this IQueryable<Order> source, QuerySet querySet, CrmContext context)  
         {
+            if (querySet.Filter.Fields.ContainsKey("offer-number"))
+            {
+                var filterValue = querySet.Filter.Fields["offer-number"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.OfferNumber, filterValue));
+            }
+
             if (querySet.Filter.Fields.ContainsKey("reference"))
             {
                 var filterValue = querySet.Filter.Fields["reference"].FilterWildcard();
@@ -48,6 +54,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             var selectors = new Dictionary<string, Expression<Func<Order, object>>>();
 
             selectors.Add("order-date", x => x.OrderDate);
+            selectors.Add("offer-number", x => x.OfferNumber);
             selectors.Add("customer.name", x => x.Customer.Name);
             selectors.Add("customer.street", x => x.Customer.Address1);
             selectors.Add("customer.postal-code", x => x.Customer.EmbeddedPostalCode);

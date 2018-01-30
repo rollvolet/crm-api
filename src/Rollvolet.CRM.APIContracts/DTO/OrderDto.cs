@@ -11,6 +11,8 @@ namespace Rollvolet.CRM.APIContracts.DTO
         {      
             [JsonProperty("order-date")]
             public DateTime? OrderDate { get; set; }
+            [JsonProperty("offer-number")]
+            public string OfferNumber { get; set; }
             public double? Amount { get; set; }
             [JsonProperty("deposit-required")]
             public bool DepositRequired { get; set; }
