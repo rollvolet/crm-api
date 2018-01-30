@@ -23,6 +23,8 @@ namespace Rollvolet.CRM.Domain.Managers
               return await _caseDataProvider.GetCaseByRequestId((int) requestId);
             else if (offerId != null)
               return await _caseDataProvider.GetCaseByOfferId((int) offerId);
+            else if (orderId != null)
+              return await _caseDataProvider.GetCaseByOrderId((int) orderId);
             else
               throw new ArgumentException("Either requestId, offerId, orderId or invoiceId must be set");
         }
