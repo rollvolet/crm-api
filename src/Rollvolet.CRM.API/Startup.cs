@@ -67,7 +67,7 @@ namespace Rollvolet.CRM.API
             services.AddDbContextPool<CrmContext>(
                 options => {
                     options.UseSqlServer(Configuration["DatabaseConfiguration:ConnectionString"]);
-                    options.EnableSensitiveDataLogging(); // TODO: Remove for production
+                    // options.EnableSensitiveDataLogging(); // Remove for production
                 });
 
             services.Configure<AuthenticationConfiguration>(Configuration.GetSection("Authentication"));
