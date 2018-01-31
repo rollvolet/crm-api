@@ -217,6 +217,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<ContactDto>(order.Contact));
             if (includeQuery.Contains("building") && order.Building != null)
                 included.Add(_mapper.Map<BuildingDto>(order.Building));
+            if (includeQuery.Contains("vat-rate") && order.VatRate != null)
+                included.Add(_mapper.Map<VatRateDto>(order.VatRate));
 
             return included;
         }

@@ -28,6 +28,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("BestelTotaal")]
         public double? Amount { get; set; }
 
+        [Column("BtwId")]
+        public int? VatRateId { get; set; }
+
         [Column("VoorschotNodig")]
         public bool DepositRequired { get; set; }
 
@@ -84,6 +87,8 @@ namespace Rollvolet.CRM.DataProvider.Models
         // Include resources
         public Offer Offer { get; set; }
         public Customer Customer { get; set; }
+        public VatRate VatRate { get; set; }
+        
 
         // TODO add deposit
         // TODO add calendar event

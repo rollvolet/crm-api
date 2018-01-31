@@ -103,6 +103,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Customer = GetOneRelationship<Customer>("orders", source.Id, "customer", source.Customer, context);
             relationships.Building = GetOneRelationship<Building>("orders", source.Id, "building", source.Building, context);
             relationships.Contact = GetOneRelationship<Contact>("orders", source.Id, "contact", source.Contact, context);
+            relationships.VatRate = GetOneRelationship<VatRate>("orders", source.Id, "vat-rate", source.VatRate, context);
             return relationships;
         }            
 

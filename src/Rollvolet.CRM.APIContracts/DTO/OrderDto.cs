@@ -49,6 +49,9 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public IRelationship Customer { get; set; }
             public IRelationship Building { get; set; }
             public IRelationship Contact { get; set; }
+            [JsonProperty("vat-rate")]
+            public IRelationship VatRate { get; set; }
+            
         }
     }
 }

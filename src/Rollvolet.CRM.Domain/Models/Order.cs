@@ -10,6 +10,7 @@ namespace Rollvolet.CRM.Domain.Models
         public Customer Customer { get; set; }
         public Building Building { get; set; }
         public Contact Contact { get; set; }
+        public VatRate VatRate { get; set; }
         
         // TODO add deposit
         // TODO add calendar event
