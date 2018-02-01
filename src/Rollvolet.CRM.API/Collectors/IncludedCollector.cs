@@ -220,6 +220,10 @@ namespace Rollvolet.CRM.API.Collectors
             if (includeQuery.Contains("vat-rate") && order.VatRate != null)
                 included.Add(_mapper.Map<VatRateDto>(order.VatRate));
 
+            // many-relations
+            if (includeQuery.Contains("deposits") && order.Deposits.Count() > 0)
+                included.UnionWith(_mapper.Map<IEnumerable<DepositDto>>(order.Deposits));
+
             return included;
         }
 

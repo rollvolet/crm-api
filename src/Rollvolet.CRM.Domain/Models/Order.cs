@@ -11,8 +11,8 @@ namespace Rollvolet.CRM.Domain.Models
         public Building Building { get; set; }
         public Contact Contact { get; set; }
         public VatRate VatRate { get; set; }
+        public IEnumerable<Deposit> Deposits { get; set; }
         
-        // TODO add deposit
         // TODO add calendar event
         
         public DateTime? OrderDate { get; set; }

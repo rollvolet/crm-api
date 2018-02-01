@@ -88,9 +88,8 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Offer Offer { get; set; }
         public Customer Customer { get; set; }
         public VatRate VatRate { get; set; }
-        
+        public IEnumerable<Deposit> Deposits { get; set; }
 
-        // TODO add deposit
         // TODO add calendar event
         
 

@@ -320,10 +320,34 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasForeignKey<Order>(e => e.Id)
                 .HasPrincipalKey<Offer>(e => e.Id);    
 
-            modelBuilder.Entity<Offer>()
+            modelBuilder.Entity<Order>()
                 .HasOne(e => e.VatRate)
                 .WithMany()
-                .HasForeignKey(e => e.VatRateId);                                                                                       
+                .HasForeignKey(e => e.VatRateId);
+
+            modelBuilder.Entity<Order>()
+                .HasMany(e => e.Deposits)
+                .WithOne(e => e.Order)
+                .HasForeignKey(e => e.OrderId);   
+                
+
+            // Deposit
+
+            modelBuilder.Entity<Deposit>()
+                .ToTable("TblVoorschot", schema: "dbo");
+
+            modelBuilder.Entity<Deposit>()
+                .HasKey(e => e.Id)
+                .HasName("TblVoorschot$PrimaryKey");
+
+            modelBuilder.Entity<Deposit>()    
+                .HasQueryFilter(e => e.Currency == "EUR");
+
+            modelBuilder.Entity<Deposit>()
+                .HasOne(e => e.Customer)
+                .WithMany()
+                .HasForeignKey(e => e.CustomerId)
+                .HasPrincipalKey(e => e.Number);                                                            
         }
     }
 }
