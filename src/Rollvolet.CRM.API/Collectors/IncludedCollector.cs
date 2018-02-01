@@ -253,6 +253,31 @@ namespace Rollvolet.CRM.API.Collectors
 
             return included;
         }
+
+        public IEnumerable<IResource> CollectIncluded(Deposit deposit, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+            
+            // one-relations
+            if (includeQuery.Contains("customer") && deposit.Customer != null)
+                included.Add(_mapper.Map<CustomerDto>(deposit.Customer));
+            if (includeQuery.Contains("order") && deposit.Order != null)
+                included.Add(_mapper.Map<OrderDto>(deposit.Order));
+            if (includeQuery.Contains("payment") && deposit.Payment != null)
+                included.Add(_mapper.Map<PaymentDto>(deposit.Payment));
+
+            return included;
+        }
+
+        public IEnumerable<IResource> CollectIncluded(IEnumerable<Deposit> deposits, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+            
+            foreach (var deposit in deposits)
+                included.UnionWith(CollectIncluded(deposit, includeQuery));
+
+            return included;
+        }          
     }
 
 }

@@ -130,6 +130,12 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();
+
+            CreateMap<Models.Payment, Domain.Models.Payment>()
+                .PreserveReferences()
+                .ReverseMap()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("BETALING"))
+                .PreserveReferences();
         }
     }
 }

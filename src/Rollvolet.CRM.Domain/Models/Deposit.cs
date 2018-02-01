@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Rollvolet.CRM.Domain.Models
 {
@@ -11,5 +12,7 @@ namespace Rollvolet.CRM.Domain.Models
         public double? Amount { get; set; }
         public DateTime PaymentDate { get; set; }
         public bool IsDeposit { get; set; }
+        public Payment Payment { get; set; }
+        
     }
 }

@@ -109,6 +109,8 @@ namespace Rollvolet.CRM.API
             services.AddTransient<ICaseManager, CaseManager>();
             services.AddTransient<ITagDataProvider, TagDataProvider>();
             services.AddTransient<ITagManager, TagManager>();
+            services.AddTransient<IDepositDataProvider, DepositDataProvider>();
+            services.AddTransient<IDepositManager, DepositManager>();
             services.AddTransient<ICountryDataProvider, CountryDataProvider>();
             services.AddTransient<IHonorificPrefixDataProvider, HonorificPrefixDataProvider>();
             services.AddTransient<ILanguageDataProvider, LanguageDataProvider>();

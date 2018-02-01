@@ -23,5 +23,7 @@ namespace Rollvolet.CRM.API.Collectors
         IEnumerable<IResource> CollectIncluded(IEnumerable<Order> orders, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(Tag tag, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(IEnumerable<Tag> tags, IncludeQuery includeQuery);
+        IEnumerable<IResource> CollectIncluded(Deposit deposit, IncludeQuery includeQuery);
+        IEnumerable<IResource> CollectIncluded(IEnumerable<Deposit> deposits, IncludeQuery includeQuery);
     }
 }

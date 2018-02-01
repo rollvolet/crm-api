@@ -19,17 +19,19 @@ using Rollvolet.CRM.Domain.Models.Query;
 namespace Rollvolet.CRM.API.Controllers
 {
     [Route("[controller]")]
-    //[Authorize]
+    [Authorize]
     public class OrdersController : Controller
     {
         private readonly IOrderManager _orderManager;
+        private readonly IDepositManager _depositManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public OrdersController(IOrderManager orderManager, IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+        public OrdersController(IOrderManager orderManager, IDepositManager depositManager, IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _orderManager = orderManager;
+            _depositManager = depositManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -63,5 +65,22 @@ namespace Rollvolet.CRM.API.Controllers
 
             return Ok(new ResourceResponse() { Links = links, Data = orderDto, Included = included });
         }
+
+        [HttpGet("{orderId}/deposits")]
+        [HttpGet("{orderId}/links/deposits")]
+        public async Task<IActionResult> GetRelatedDepositsByCustomerId(int orderId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+            querySet.Include.Fields = querySet.Include.Fields.Concat(new string[] { "payment" }).ToArray();
+
+            var pagedDeposits = await _depositManager.GetAllByOrderIdAsync(orderId, querySet);
+
+            var depositDtos = _mapper.Map<IEnumerable<DepositDto>>(pagedDeposits.Items, opt => opt.Items["include"] = querySet.Include);
+            var included = _includedCollector.CollectIncluded(pagedDeposits.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedDeposits);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedDeposits);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = depositDtos, Included = included });
+        }        
     }
 } 

@@ -14,6 +14,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public double? Amount { get; set; }   
             [JsonProperty("payment-date")]     
             public DateTime PaymentDate { get; set; }
+            [JsonProperty("is-deposit")]     
             public bool IsDeposit { get; set; }
         }
 
@@ -21,6 +22,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
         {
             public IRelationship Customer { get; set; }
             public IRelationship Order { get; set; }
+            public IRelationship Payment { get; set; }
         }
     }
 }

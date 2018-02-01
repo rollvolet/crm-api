@@ -20,6 +20,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<CustomerTag> CustomerTags { get; set; }
         public DbSet<Offer> Offers { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Deposit> Deposits { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
         {
@@ -329,7 +330,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasMany(e => e.Deposits)
                 .WithOne(e => e.Order)
                 .HasForeignKey(e => e.OrderId);   
-                
+
 
             // Deposit
 
@@ -347,7 +348,22 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasOne(e => e.Customer)
                 .WithMany()
                 .HasForeignKey(e => e.CustomerId)
-                .HasPrincipalKey(e => e.Number);                                                            
+                .HasPrincipalKey(e => e.Number);
+
+            modelBuilder.Entity<Deposit>()
+                .HasOne(e => e.Payment)
+                .WithMany()
+                .HasForeignKey(e => e.PaymentId);
+
+
+            // Payment
+
+            modelBuilder.Entity<Payment>()
+                .ToTable("TblParameters", schema: "dbo")
+                .HasQueryFilter(e => e.Type == "BETALING");
+
+            modelBuilder.Entity<Payment>()
+                .HasKey(e => e.Id);                                                                       
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Request, RequestDto.RelationshipsDto>,
                                             ITypeConverter<Offer, OfferDto.RelationshipsDto>,
                                             ITypeConverter<Order, OrderDto.RelationshipsDto>,
+                                            ITypeConverter<Deposit, DepositDto.RelationshipsDto>,
                                             ITypeConverter<Country, EmptyRelationshipsDto>,
                                             ITypeConverter<Language, EmptyRelationshipsDto>,
                                             ITypeConverter<PostalCode, EmptyRelationshipsDto>,
@@ -25,7 +26,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<VatRate, EmptyRelationshipsDto>,
                                             ITypeConverter<SubmissionType, EmptyRelationshipsDto>,
                                             ITypeConverter<Product, EmptyRelationshipsDto>,
-                                            ITypeConverter<Deposit, EmptyRelationshipsDto>
+                                            ITypeConverter<Payment, EmptyRelationshipsDto>
     {
         CustomerDto.RelationshipsDto ITypeConverter<Customer, CustomerDto.RelationshipsDto>.Convert(Customer source, CustomerDto.RelationshipsDto destination, ResolutionContext context)
         {
@@ -107,7 +108,16 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.VatRate = GetOneRelationship<VatRate>("orders", source.Id, "vat-rate", source.VatRate, context);
             relationships.Deposits = GetManyRelationship<Deposit>("orders", source.Id, "deposits", source.Deposits, context);
             return relationships;
-        }            
+        } 
+
+        DepositDto.RelationshipsDto ITypeConverter<Deposit, DepositDto.RelationshipsDto>.Convert(Deposit source, DepositDto.RelationshipsDto destination, ResolutionContext context)
+        {
+            var relationships = new DepositDto.RelationshipsDto();
+            relationships.Order = GetOneRelationship<Order>("deposits", source.Id, "order", source.Order, context);
+            relationships.Customer = GetOneRelationship<Customer>("deposits", source.Id, "customer", source.Customer, context);
+            relationships.Payment = GetOneRelationship<Payment>("deposits", source.Id, "payment", source.Payment, context);
+            return relationships;
+        }                
 
         EmptyRelationshipsDto ITypeConverter<Country, EmptyRelationshipsDto>.Convert(Country source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
@@ -165,7 +175,7 @@ namespace Rollvolet.CRM.API.Mappers
             return new EmptyRelationshipsDto();
         }
 
-        EmptyRelationshipsDto ITypeConverter<Deposit, EmptyRelationshipsDto>.Convert(Deposit source, EmptyRelationshipsDto destination, ResolutionContext context)
+        EmptyRelationshipsDto ITypeConverter<Payment, EmptyRelationshipsDto>.Convert(Payment source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
         }

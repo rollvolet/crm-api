@@ -18,7 +18,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public short SequenceNumber { get; set; }        
         
         [Column("Betaalcode")]
-        public string PaymentMethodId { get; set; }
+        public string PaymentId { get; set; }
 
         [Column("Bedrag")]
         public double? Amount { get; set; }
@@ -35,6 +35,7 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         public Customer Customer { get; set; }
         public Order Order { get; set; }
+        public Payment Payment { get; set; }
     }
   
 }
