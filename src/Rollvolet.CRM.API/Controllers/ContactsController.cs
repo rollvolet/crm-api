@@ -44,7 +44,7 @@ namespace Rollvolet.CRM.API.Controllers
 
             var pagedTelephones = await _telephoneManager.GetAllByContactIdAsync(contactId, querySet);
 
-            var telephoneDtos = _mapper.Map<IEnumerable<TelephoneDto>>(pagedTelephones.Items);
+            var telephoneDtos = _mapper.Map<IEnumerable<TelephoneDto>>(pagedTelephones.Items, opt => opt.Items["include"] = querySet.Include);
             var included = _includedCollector.CollectIncluded(pagedTelephones.Items, querySet.Include);
             var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedTelephones);
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedTelephones);

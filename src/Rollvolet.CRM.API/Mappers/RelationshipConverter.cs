@@ -180,16 +180,16 @@ namespace Rollvolet.CRM.API.Mappers
 
         private IRelationship GetManyRelationship<T>(string resourceName, string id, string relatedResourceName, IEnumerable<T> relatedResources, ResolutionContext context)
         {
-            if (context.Items.Keys.Contains("include") && !((IncludeQuery) context.Items["include"]).Contains(relatedResourceName))
-            {
-                return new Relationship() { Links = GetRelationshipLinks(resourceName, id, relatedResourceName) };
-            }
-            else
+            if (context.Items.Keys.Contains("include") && ((IncludeQuery) context.Items["include"]).Contains(relatedResourceName))
             {
                 return new ManyRelationship() { 
                     Links = GetRelationshipLinks(resourceName, id, relatedResourceName),
                     Data = context.Mapper.Map<IEnumerable<RelatedResource>>(relatedResources)
                 };
+            }
+            else
+            {
+                return new Relationship() { Links = GetRelationshipLinks(resourceName, id, relatedResourceName) };
             }
         }
 
@@ -200,16 +200,16 @@ namespace Rollvolet.CRM.API.Mappers
 
         private IRelationship GetOneRelationship<T>(string resourceName, string id, string relatedResourceName, T relatedResource, ResolutionContext context)
         {
-            if (context.Items.Keys.Contains("include") && !((IncludeQuery) context.Items["include"]).Contains(relatedResourceName))
-            {
-                return new Relationship() { Links = GetRelationshipLinks(resourceName, id, relatedResourceName) };
-            }
-            else
+            if (context.Items.Keys.Contains("include") && ((IncludeQuery) context.Items["include"]).Contains(relatedResourceName))
             {
                 return new OneRelationship() { 
                     Links = GetRelationshipLinks(resourceName, id, relatedResourceName),
                     Data = context.Mapper.Map<RelatedResource>(relatedResource)
                 };
+            }
+            else
+            {
+                return new Relationship() { Links = GetRelationshipLinks(resourceName, id, relatedResourceName) };
             }         
         }
 
