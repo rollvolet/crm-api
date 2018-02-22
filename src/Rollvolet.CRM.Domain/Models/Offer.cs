@@ -13,7 +13,6 @@ namespace Rollvolet.CRM.Domain.Models
         public Contact Contact { get; set; }
         public VatRate VatRate { get; set; }
         public SubmissionType SubmissionType { get; set; }
-        public Product Product { get; set; }
         
 
         public string Number { get; set; }

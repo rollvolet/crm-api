@@ -37,9 +37,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("BtwId")]
         public int? VatRateId { get; set; }
 
-        [Column("ProduktId")]
-        public int? ProductId { get; set; }
-
         [Column("VerzondenVia")]
         public string SubmissionTypeId { get; set; }
 
@@ -70,7 +67,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Request Request { get; set; }
         public Customer Customer { get; set; }
         public VatRate VatRate { get; set; }
-        public Product Product { get; set; }
         public SubmissionType SubmissionType { get; set; }
         public Order Order { get; set; }
         

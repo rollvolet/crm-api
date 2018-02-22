@@ -257,11 +257,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasForeignKey(e => e.VatRateId);
 
             modelBuilder.Entity<Offer>()
-                .HasOne(e => e.Product)
-                .WithMany()
-                .HasForeignKey(e => e.ProductId);
-
-            modelBuilder.Entity<Offer>()
                 .HasOne(e => e.SubmissionType)
                 .WithMany()
                 .HasForeignKey(e => e.SubmissionTypeId);
@@ -274,17 +269,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<VatRate>()
                 .HasKey(e => e.Id)
-                .HasName("TblBtw$PrimaryKey");   
-
-
-            // Proudct
-
-            modelBuilder.Entity<Product>()
-                .ToTable("TblProdukt", schema: "dbo");
-
-            modelBuilder.Entity<Product>()
-                .HasKey(e => e.Id)
-                .HasName("TblProdukt$PrimaryKey");      
+                .HasName("TblBtw$PrimaryKey");  
 
 
             // Submission type

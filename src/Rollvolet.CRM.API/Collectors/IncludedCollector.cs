@@ -188,8 +188,6 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<VatRateDto>(offer.VatRate));
             if (includeQuery.Contains("submission-type") && offer.SubmissionType != null)
                 included.Add(_mapper.Map<SubmissionTypeDto>(offer.SubmissionType));
-            if (includeQuery.Contains("product") && offer.Product != null)
-                included.Add(_mapper.Map<ProductDto>(offer.Product));
 
             return included;
         }

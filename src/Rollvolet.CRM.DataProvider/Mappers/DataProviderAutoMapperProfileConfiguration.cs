@@ -112,11 +112,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ReverseMap()
                 .PreserveReferences();
 
-            CreateMap<Models.Product, Domain.Models.Product>()
-                .PreserveReferences()
-                .ReverseMap()
-                .PreserveReferences();
-
             CreateMap<Models.Order, Domain.Models.Order>()
                 .ForMember(dest => dest.ExpectedDate, opt => opt.MapFrom(src => src.ExpectedDate != null ? DateTime.ParseExact(src.ExpectedDate, "d/MM/yyyy", new CultureInfo("nl-BE")) : (DateTime?) null))
                 .ForMember(dest => dest.RequiredDate, opt => opt.MapFrom(src => src.RequiredDate != null ? DateTime.ParseExact(src.RequiredDate, "d/MM/yyyy", new CultureInfo("nl-BE")) : (DateTime?) null))

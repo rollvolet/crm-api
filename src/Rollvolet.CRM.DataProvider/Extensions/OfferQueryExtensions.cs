@@ -45,7 +45,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("request", c => c.Request);
             selectors.Add("vat-rate", c => c.VatRate);
             selectors.Add("submission-type", c => c.SubmissionType);
-            selectors.Add("product", x => x.Product);
 
             // The selectors below won't work since we're not able to define the relationship in CrmContext
             // They are manually mapped in the DataProvider
