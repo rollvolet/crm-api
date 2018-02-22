@@ -45,6 +45,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         public static IQueryable<Request> Include(this IQueryable<Request> source, QuerySet querySet)
         {
+            if (querySet.Include.Fields.Contains("customer.honorific-prefix"))
+                source = source.Include(x => x.Customer).ThenInclude(x => x.HonorificPrefix);
+
             var selectors = new Dictionary<string, Expression<Func<Request, object>>>();
 
             selectors.Add("customer", c => c.Customer);

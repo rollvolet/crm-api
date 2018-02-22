@@ -11,5 +11,13 @@ namespace Rollvolet.CRM.Domain.Models.Query
         {
             return Fields.ToList().Contains(field);
         }
+
+        public IncludeQuery NestedInclude(string resourceName) {
+            var fields = this.Fields.Where(x => x.StartsWith($"{resourceName}."))
+                                            .Select(x => x.Substring($"{resourceName}.".Length)).ToArray();
+            return new IncludeQuery {
+                Fields = fields
+            };
+        }
     }
 }

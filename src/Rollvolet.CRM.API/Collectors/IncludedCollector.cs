@@ -141,10 +141,14 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(Request request, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
+
+            var customerIncludeQuery = includeQuery.NestedInclude("customer");
             
             // one-relations
             if (includeQuery.Contains("customer") && request.Customer != null)
-                included.Add(_mapper.Map<CustomerDto>(request.Customer));
+                included.Add(_mapper.Map<CustomerDto>(request.Customer, opt => opt.Items["include"] = customerIncludeQuery));
+            if (includeQuery.Contains("customer.honorific-prefix") && request.Customer != null && request.Customer.HonorificPrefix != null)
+                included.Add(_mapper.Map<HonorificPrefixDto>(request.Customer.HonorificPrefix));
             if (includeQuery.Contains("contact") && request.Contact != null)
                 included.Add(_mapper.Map<ContactDto>(request.Contact));
             if (includeQuery.Contains("building") && request.Building != null)
@@ -173,13 +177,17 @@ namespace Rollvolet.CRM.API.Collectors
         {
             ISet<IResource> included = new HashSet<IResource>();
             
+            var customerIncludeQuery = includeQuery.NestedInclude("customer");
+
             // one-relations
             if (includeQuery.Contains("request") && offer.Request != null)
                 included.Add(_mapper.Map<RequestDto>(offer.Request));
             if (includeQuery.Contains("order") && offer.Order != null)
                 included.Add(_mapper.Map<OrderDto>(offer.Order));
             if (includeQuery.Contains("customer") && offer.Customer != null)
-                included.Add(_mapper.Map<CustomerDto>(offer.Customer));
+                included.Add(_mapper.Map<CustomerDto>(offer.Customer, opt => opt.Items["include"] = customerIncludeQuery));
+            if (includeQuery.Contains("customer.honorific-prefix") && offer.Customer != null && offer.Customer.HonorificPrefix != null)
+                included.Add(_mapper.Map<HonorificPrefixDto>(offer.Customer.HonorificPrefix));
             if (includeQuery.Contains("contact") && offer.Contact != null)
                 included.Add(_mapper.Map<ContactDto>(offer.Contact));
             if (includeQuery.Contains("building") && offer.Building != null)
@@ -205,12 +213,16 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(Order order, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
+
+            var customerIncludeQuery = includeQuery.NestedInclude("customer");            
             
             // one-relations
             if (includeQuery.Contains("offer") && order.Offer != null)
                 included.Add(_mapper.Map<OfferDto>(order.Offer));
             if (includeQuery.Contains("customer") && order.Customer != null)
-                included.Add(_mapper.Map<CustomerDto>(order.Customer));
+                included.Add(_mapper.Map<CustomerDto>(order.Customer, opt => opt.Items["include"] = customerIncludeQuery));
+            if (includeQuery.Contains("customer.honorific-prefix") && order.Customer != null && order.Customer.HonorificPrefix != null)
+                included.Add(_mapper.Map<HonorificPrefixDto>(order.Customer.HonorificPrefix));
             if (includeQuery.Contains("contact") && order.Contact != null)
                 included.Add(_mapper.Map<ContactDto>(order.Contact));
             if (includeQuery.Contains("building") && order.Building != null)
