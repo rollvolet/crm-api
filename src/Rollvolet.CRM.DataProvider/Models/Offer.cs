@@ -58,9 +58,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Referentie")]
         public string Reference { get; set; }
 
-        [Column("Afgesloten")]
-        public bool Canceled { get; set; }
-
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [Column("UpdTimestampOFF")]
         public DateTime Updated { get; set; }

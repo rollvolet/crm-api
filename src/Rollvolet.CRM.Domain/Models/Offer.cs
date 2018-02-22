@@ -25,7 +25,6 @@ namespace Rollvolet.CRM.Domain.Models
         public double ForeseenNbOfPersons { get; set; }
         public string Comment { get; set; } 
         public string Reference { get; set; }
-        public bool Canceled { get; set; }
         public DateTime Updated { get; set; }
     }
 }
