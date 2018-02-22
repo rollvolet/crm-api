@@ -21,9 +21,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 source = source.Where(c => EF.Functions.Like(c.OfferNumber, filterValue));
             }
 
-            if (querySet.Filter.Fields.ContainsKey("reference"))
+            if (querySet.Filter.Fields.ContainsKey("offer.reference"))
             {
-                var filterValue = querySet.Filter.Fields["reference"].FilterWildcard();
+                var filterValue = querySet.Filter.Fields["offer.reference"].FilterWildcard();
                 source = source.Where(c => EF.Functions.Like(c.Offer.Reference, filterValue));
             }
 
@@ -57,6 +57,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             selectors.Add("order-date", x => x.OrderDate);
             selectors.Add("offer-number", x => x.OfferNumber);
+            selectors.Add("offer.reference", x => x.Offer.Reference);
             selectors.Add("customer.name", x => x.Customer.Name);
             selectors.Add("customer.street", x => x.Customer.Address1);
             selectors.Add("customer.postal-code", x => x.Customer.EmbeddedPostalCode);
