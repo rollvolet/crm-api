@@ -43,8 +43,8 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<Customer>()
                 .HasOne(e => e.HonorificPrefix)
-                .WithOne()
-                .HasForeignKey((Customer e) => new { e.HonorificPrefixId, e.LanguageId });
+                .WithMany()
+                .HasForeignKey(e => new { e.HonorificPrefixId, e.LanguageId });
 
             modelBuilder.Entity<Customer>()
                 .HasOne(e => e.Memo)
@@ -57,11 +57,21 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.Number);
 
+            modelBuilder.Entity<Contact>()
+                .HasOne(e => e.HonorificPrefix)
+                .WithMany()
+                .HasForeignKey(e => new { e.HonorificPrefixId, e.LanguageId });                
+
             modelBuilder.Entity<Building>()
                 .HasOne(e => e.Customer)
                 .WithMany(e => e.Buildings)
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.Number);
+
+            modelBuilder.Entity<Building>()
+                .HasOne(e => e.HonorificPrefix)
+                .WithMany()
+                .HasForeignKey(e => new { e.HonorificPrefixId, e.LanguageId });  
 
 
             // Country
@@ -77,11 +87,11 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             // HonorificPrefix
 
             modelBuilder.Entity<HonorificPrefix>()
-                .ToTable("TblAanspreekTitel", schema: "dbo");
+                .ToTable("TblAanspreektitel", schema: "dbo");
 
             modelBuilder.Entity<HonorificPrefix>()
                 .HasKey(e => new { e.Id, e.LanguageId })
-                .HasName("TblAanspreekTitel$PrimaryKey");
+                .HasName("TblAanspreektitel$PrimaryKey");
 
 
             // Language
