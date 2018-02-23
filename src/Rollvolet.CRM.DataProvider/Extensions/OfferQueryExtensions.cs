@@ -27,6 +27,24 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 source = source.Where(c => EF.Functions.Like(c.Reference, filterValue));
             }
 
+            if (querySet.Filter.Fields.ContainsKey("request.number"))
+            {
+                var filterValue = querySet.Filter.Fields["request.number"];
+                int number;
+                if (Int32.TryParse(filterValue, out number)) {
+                    var predicate = PredicateBuilder.New<Offer>(x => x.Request.Id == number);
+                    var i = 10;
+                    while (i * number < 1000000) {
+                        var from = i * number;
+                        var to = i * (number + 1);
+                        predicate.Or(c => c.Request.Id >= from && c.Request.Id <= to);
+                        i = i * 10;
+                    }
+                    source = source.Where(predicate);
+                }
+                // TODO throw exception about invalid number
+            }
+
             source = source.FilterCase(querySet, context);
 
             if (querySet.Filter.Fields.ContainsKey("order") && querySet.Filter.Fields["order"] == "false")
