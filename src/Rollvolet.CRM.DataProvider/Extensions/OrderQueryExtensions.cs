@@ -29,7 +29,10 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             source = source.FilterCase(querySet, context);
 
-            // TODO filter met / zonder factuur
+            if (querySet.Filter.Fields.ContainsKey("invoice") && querySet.Filter.Fields["invoice"] == "false")
+            {
+                source = source.Where(e => e.Invoice == null);
+            }
 
             return source;
         }      
