@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using System.Text.RegularExpressions;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
@@ -50,6 +52,22 @@ namespace Rollvolet.CRM.DataProvider.Extensions
         public static string FilterWhitespace(this string value)
         {
             return Regex.Replace(value, @"\s+", "");
+        }
+
+        public static string FilterDiacritics(this string value)
+        {
+            var normalizedString = value.Normalize(NormalizationForm.FormD);
+            
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                    stringBuilder.Append(c);
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
 
         public static string FilterWildcard(this string value)
