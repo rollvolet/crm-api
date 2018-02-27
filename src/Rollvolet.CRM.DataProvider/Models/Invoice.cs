@@ -14,7 +14,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public short Year { get; set; }    
         
         [Column("Nummer")]
-        public int Number { get; set; }
+        public int? Number { get; set; }
 
         [Column("Datum")]
         public DateTime? InvoiceDate { get; set; }

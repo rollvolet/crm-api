@@ -25,7 +25,7 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             if (query.Sort.Field == null) {
                 query.Sort.Order = SortQuery.ORDER_DESC;
-                query.Sort.Field = "invoice-date";
+                query.Sort.Field = "number";
             }
 
             return await _invoiceDataProvider.GetAllAsync(query);
@@ -40,7 +40,7 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             if (query.Sort.Field == null) {
                 query.Sort.Order = SortQuery.ORDER_DESC;
-                query.Sort.Field = "invoice-date";
+                query.Sort.Field = "number";
             }
 
             return await _invoiceDataProvider.GetAllByCustomerIdAsync(customerId, query);

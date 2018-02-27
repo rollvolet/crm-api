@@ -9,6 +9,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     {
         Task<Case> GetCaseByRequestId(int requestId);
         Task<Case> GetCaseByOfferId(int offerId);
-        Task<Case> GetCaseByOrderId(int orderId);    
+        Task<Case> GetCaseByOrderId(int orderId);
+        Task<Case> GetCaseByInvoiceId(int invoice);      
     }
 }
