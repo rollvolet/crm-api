@@ -126,6 +126,11 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ReverseMap()
                 .PreserveReferences();
 
+            CreateMap<Models.InvoiceSupplement, Domain.Models.InvoiceSupplement>()
+                .PreserveReferences()
+                .ReverseMap()
+                .PreserveReferences();
+
             CreateMap<Models.Deposit, Domain.Models.Deposit>()
                 .PreserveReferences()
                 .ReverseMap()

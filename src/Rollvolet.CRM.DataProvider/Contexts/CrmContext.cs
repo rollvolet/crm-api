@@ -357,6 +357,23 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithMany()
                 .HasForeignKey(e => e.VatRateId);
 
+            
+            // Invoice supplement
+            modelBuilder.Entity<InvoiceSupplement>()
+                .ToTable("TblFactuurExtra", schema: "dbo");
+            
+            modelBuilder.Entity<InvoiceSupplement>()
+                .HasKey(e => e.Id)
+                .HasName("TblFactuurExtra$PrimaryKey");
+
+            // modelBuilder.Entity<InvoiceSupplement>()
+            //     .HasQueryFilter(e => e.Currency == "EUR");
+
+            modelBuilder.Entity<InvoiceSupplement>()
+                .HasOne(e => e.Invoice)
+                .WithMany(e => e.Supplements)
+                .HasForeignKey(e => e.InvoiceId);
+
 
             // Deposit
 

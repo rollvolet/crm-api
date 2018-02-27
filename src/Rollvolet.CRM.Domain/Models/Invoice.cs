@@ -17,6 +17,7 @@ namespace Rollvolet.CRM.Domain.Models
         public Building Building { get; set; }
         public Contact Contact { get; set; }
         public Order Order { get; set; }
+        public IEnumerable<InvoiceSupplement> Supplements { get; set; }
         public VatRate VatRate { get; set; }
         public double? BaseAmount { get; set; }     
         public double? Amount { get; set; } 

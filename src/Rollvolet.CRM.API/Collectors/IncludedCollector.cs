@@ -251,25 +251,29 @@ namespace Rollvolet.CRM.API.Collectors
             return included;
         }     
 
-        public IEnumerable<IResource> CollectIncluded(Invoice inovice, IncludeQuery includeQuery)
+        public IEnumerable<IResource> CollectIncluded(Invoice invoice, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
 
             var customerIncludeQuery = includeQuery.NestedInclude("customer");            
             
             // one-relations
-            if (includeQuery.Contains("order") && inovice.Order != null)
-                included.Add(_mapper.Map<OrderDto>(inovice.Order));
-            if (includeQuery.Contains("customer") && inovice.Customer != null)
-                included.Add(_mapper.Map<CustomerDto>(inovice.Customer, opt => opt.Items["include"] = customerIncludeQuery));
-            if (includeQuery.Contains("customer.honorific-prefix") && inovice.Customer != null && inovice.Customer.HonorificPrefix != null)
-                included.Add(_mapper.Map<HonorificPrefixDto>(inovice.Customer.HonorificPrefix));
-            if (includeQuery.Contains("contact") && inovice.Contact != null)
-                included.Add(_mapper.Map<ContactDto>(inovice.Contact));
-            if (includeQuery.Contains("building") && inovice.Building != null)
-                included.Add(_mapper.Map<BuildingDto>(inovice.Building));
-            if (includeQuery.Contains("vat-rate") && inovice.VatRate != null)
-                included.Add(_mapper.Map<VatRateDto>(inovice.VatRate));
+            if (includeQuery.Contains("order") && invoice.Order != null)
+                included.Add(_mapper.Map<OrderDto>(invoice.Order));
+            if (includeQuery.Contains("customer") && invoice.Customer != null)
+                included.Add(_mapper.Map<CustomerDto>(invoice.Customer, opt => opt.Items["include"] = customerIncludeQuery));
+            if (includeQuery.Contains("customer.honorific-prefix") && invoice.Customer != null && invoice.Customer.HonorificPrefix != null)
+                included.Add(_mapper.Map<HonorificPrefixDto>(invoice.Customer.HonorificPrefix));
+            if (includeQuery.Contains("contact") && invoice.Contact != null)
+                included.Add(_mapper.Map<ContactDto>(invoice.Contact));
+            if (includeQuery.Contains("building") && invoice.Building != null)
+                included.Add(_mapper.Map<BuildingDto>(invoice.Building));
+            if (includeQuery.Contains("vat-rate") && invoice.VatRate != null)
+                included.Add(_mapper.Map<VatRateDto>(invoice.VatRate));
+
+            // many-relations
+            if (includeQuery.Contains("supplements") && invoice.Supplements.Count() > 0)
+                included.UnionWith(_mapper.Map<IEnumerable<InvoiceSupplementDto>>(invoice.Supplements));
 
             return included;
         }

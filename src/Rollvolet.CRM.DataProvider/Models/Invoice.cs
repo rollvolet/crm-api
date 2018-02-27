@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Rollvolet.CRM.DataProvider.Models.Interfaces;
 
@@ -105,6 +106,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Customer Customer { get; set; }
         public Order Order { get; set; }
         public VatRate VatRate { get; set; }
+        public IEnumerable<InvoiceSupplement> Supplements { get; set; }
         
 
         // Manually included resources
