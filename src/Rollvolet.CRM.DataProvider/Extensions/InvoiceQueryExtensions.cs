@@ -15,78 +15,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
     {
         public static IQueryable<Invoice> Filter(this IQueryable<Invoice> source, QuerySet querySet, CrmContext context)  
         {
-            if (querySet.Filter.Fields.ContainsKey("customer.name"))
-            {
-                var filterValue = querySet.Filter.Fields["customer.name"].FilterWhitespace().FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.CustomerSearchName, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("customer.postal-code"))
-            {
-                var filterValue = querySet.Filter.Fields["customer.postal-code"];
-                source = source.Where(c => c.CustomerPostalCode == filterValue);
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("customer.city"))
-            {
-                var filterValue = querySet.Filter.Fields["customer.city"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.CustomerCity, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("customer.street"))
-            {
-                var filterValue = querySet.Filter.Fields["customer.street"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.CustomerAddress1, filterValue)
-                                        || EF.Functions.Like(c.CustomerAddress2, filterValue)
-                                        || EF.Functions.Like(c.CustomerAddress3, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("customer.telephone"))
-            {
-                var search = querySet.Filter.Fields["customer.telephone"];
-
-                if (search.StartsWith("+"))
-                    search = search.Replace("+", "00");
-
-                search = new Regex(@"[^\d]").Replace(search, ""); // only digits
-
-                var fullNumber = search + "%";
-                var paddedFullNumber = "0" + fullNumber;        
-
-                source = source.Where(x => EF.Functions.Like((x.CustomerPhoneNumber).Replace(".", "").Replace("/", ""), fullNumber)
-                                        || EF.Functions.Like(x.CustomerFaxNumber.Replace(".", "").Replace("/", ""), fullNumber)
-                                        || EF.Functions.Like(x.CustomerMobileNumber.Replace(".", "").Replace("/", ""), fullNumber)
-                                        || EF.Functions.Like((x.CustomerPhoneNumber).Replace(".", "").Replace("/", ""), paddedFullNumber)
-                                        || EF.Functions.Like(x.CustomerFaxNumber.Replace(".", "").Replace("/", ""), paddedFullNumber)
-                                        || EF.Functions.Like(x.CustomerMobileNumber.Replace(".", "").Replace("/", ""), paddedFullNumber));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("building.name"))
-            {
-                var filterValue = querySet.Filter.Fields["building.name"].FilterWhitespace().FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.BuildingSearchName, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("building.postal-code"))
-            {
-                var filterValue = querySet.Filter.Fields["building.postal-code"];
-                source = source.Where(c => c.BuildingPostalCode == filterValue);
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("building.city"))
-            {
-                var filterValue = querySet.Filter.Fields["building.city"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.BuildingCity, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("building.street"))
-            {
-                var filterValue = querySet.Filter.Fields["building.street"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.BuildingAddress1, filterValue)
-                                        || EF.Functions.Like(c.BuildingAddress2, filterValue)
-                                        || EF.Functions.Like(c.BuildingAddress3, filterValue));
-            }
-
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
                 var filterValue = querySet.Filter.Fields["number"];
@@ -116,6 +44,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 var filterValue = querySet.Filter.Fields["offer.number"].FilterWildcard();
                 source = source.Where(c => EF.Functions.Like(c.Order.OfferNumber, filterValue));
             }
+
+            source = source.FilterCase(querySet, context);
 
             return source; 
         }      
