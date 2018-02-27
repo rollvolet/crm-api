@@ -105,6 +105,8 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IOfferManager, OfferManager>();
             services.AddTransient<IOrderDataProvider, OrderDataProvider>();
             services.AddTransient<IOrderManager, OrderManager>();
+            services.AddTransient<IInvoiceDataProvider, InvoiceDataProvider>();
+            services.AddTransient<IInvoiceManager, InvoiceManager>();
             services.AddTransient<ICaseDataProvider, CaseDataProvider>();
             services.AddTransient<ICaseManager, CaseManager>();
             services.AddTransient<ITagDataProvider, TagDataProvider>();
@@ -125,7 +127,7 @@ namespace Rollvolet.CRM.API
             {
                 options.SingleApiVersion(new Info
                 {
-                    Contact = new Swashbuckle.Swagger.Model.Contact { Name = "MOOF bvba" },
+                    Contact = new Swashbuckle.Swagger.Model.Contact { Name = "redpencil bvba" },
                     Description = "Rollvolet CRM API",
                     Version = "v1",
                     Title = "Rollvolet.CRM.API"

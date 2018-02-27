@@ -43,6 +43,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             selectors.Add("customer", c => c.Customer);
             selectors.Add("offer", c => c.Offer);
+            selectors.Add("invoice", c => c.Invoice);
             selectors.Add("vat-rate", c => c.VatRate);
             selectors.Add("deposits", c => c.Deposits);
 

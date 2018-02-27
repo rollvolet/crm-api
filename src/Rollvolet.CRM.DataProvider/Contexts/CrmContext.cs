@@ -20,6 +20,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<CustomerTag> CustomerTags { get; set; }
         public DbSet<Offer> Offers { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
         public DbSet<Deposit> Deposits { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
@@ -313,7 +314,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             modelBuilder.Entity<Order>()
                 .HasOne(e => e.Offer)
                 .WithOne(e => e.Order)
-                .HasForeignKey<Order>(e => e.Id)
+                .HasForeignKey<Order>(e => e.Id) // offer and order are stored in the same table on the same row
                 .HasPrincipalKey<Offer>(e => e.Id);    
 
             modelBuilder.Entity<Order>()
@@ -325,6 +326,36 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasMany(e => e.Deposits)
                 .WithOne(e => e.Order)
                 .HasForeignKey(e => e.OrderId);   
+
+
+            // Invoice
+
+            modelBuilder.Entity<Invoice>()
+                .ToTable("TblFactuur", schema: "dbo");
+            
+            modelBuilder.Entity<Invoice>()
+                .HasKey(e => e.Id)
+                .HasName("TblFactuur$PrimaryKey");
+
+            modelBuilder.Entity<Invoice>()
+                .HasQueryFilter(e => e.Currency == "EUR");
+
+            modelBuilder.Entity<Invoice>()
+                .HasOne(e => e.Customer)
+                .WithMany(e => e.Invoices)
+                .HasForeignKey(e => e.CustomerId)
+                .HasPrincipalKey(e => e.Number);   
+
+            modelBuilder.Entity<Invoice>()
+                .HasOne(e => e.Order)
+                .WithOne(e => e.Invoice)
+                .HasForeignKey<Invoice>(e => e.OrderId)
+                .HasPrincipalKey<Order>(e => e.Id);    
+
+            modelBuilder.Entity<Invoice>()
+                .HasOne(e => e.VatRate)
+                .WithMany()
+                .HasForeignKey(e => e.VatRateId);
 
 
             // Deposit

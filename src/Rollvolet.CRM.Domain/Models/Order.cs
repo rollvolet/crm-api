@@ -7,6 +7,7 @@ namespace Rollvolet.CRM.Domain.Models
     {
         public int Id { get; set; }
         public Offer Offer { get; set; }
+        public Invoice Invoice { get; set; }
         public Customer Customer { get; set; }
         public Building Building { get; set; }
         public Contact Contact { get; set; }

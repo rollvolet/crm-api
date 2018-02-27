@@ -17,6 +17,8 @@ namespace Rollvolet.CRM.DataProvider.Models
         public IEnumerable<Request> Requests { get; set; }
         public IEnumerable<Offer> Offers { get; set; }
         public IEnumerable<Order> Orders { get; set; }
+        public IEnumerable<Invoice> Invoices { get; set; }
+        
         
         public Memo Memo { get; set; }
         public IEnumerable<CustomerTag> CustomerTags { get; set; }

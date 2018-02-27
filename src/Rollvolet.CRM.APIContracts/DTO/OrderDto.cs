@@ -46,6 +46,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
         public class RelationshipsDto
         {
             public IRelationship Offer { get; set; }
+            public IRelationship Invoice { get; set; }
             public IRelationship Customer { get; set; }
             public IRelationship Building { get; set; }
             public IRelationship Contact { get; set; }

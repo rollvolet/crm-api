@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Company>Narato</Company>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>Rollvolet.CRM.API</AssemblyName>
     <OutputType>Exe</OutputType>

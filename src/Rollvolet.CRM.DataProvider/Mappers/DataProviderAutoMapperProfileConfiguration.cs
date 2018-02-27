@@ -121,6 +121,11 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.RequiredDate, opt => opt.MapFrom(src => src.RequiredDate != null ? ((DateTime) src.RequiredDate).ToString("d/MM/yyyy") : null))
                 .PreserveReferences();
 
+            CreateMap<Models.Invoice, Domain.Models.Invoice>()
+                .PreserveReferences()
+                .ReverseMap()
+                .PreserveReferences();
+
             CreateMap<Models.Deposit, Domain.Models.Deposit>()
                 .PreserveReferences()
                 .ReverseMap()
