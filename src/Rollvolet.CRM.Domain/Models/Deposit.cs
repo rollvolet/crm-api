@@ -11,7 +11,6 @@ namespace Rollvolet.CRM.Domain.Models
         public int SequenceNumber { get; set; }
         public double? Amount { get; set; }
         public DateTime PaymentDate { get; set; }
-        public bool IsDeposit { get; set; }
         public Payment Payment { get; set; }
         
     }

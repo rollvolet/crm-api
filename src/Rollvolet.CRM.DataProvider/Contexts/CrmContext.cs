@@ -386,7 +386,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasName("TblVoorschot$PrimaryKey");
 
             modelBuilder.Entity<Deposit>()    
-                .HasQueryFilter(e => e.Currency == "EUR");
+                .HasQueryFilter(e => e.Currency == "EUR" && e.IsDeposit);
 
             modelBuilder.Entity<Deposit>()
                 .HasOne(e => e.Customer)
