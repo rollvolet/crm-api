@@ -276,6 +276,8 @@ namespace Rollvolet.CRM.API.Collectors
             // many-relations
             if (includeQuery.Contains("supplements") && invoice.Supplements.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<InvoiceSupplementDto>>(invoice.Supplements));
+            if (includeQuery.Contains("deposits") && invoice.Deposits.Count() > 0)
+                included.UnionWith(_mapper.Map<IEnumerable<DepositDto>>(invoice.Deposits));
             if (includeQuery.Contains("deposit-invoices") && invoice.DepositInvoices.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<DepositInvoiceDto>>(invoice.DepositInvoices));
 
@@ -318,6 +320,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<CustomerDto>(deposit.Customer));
             if (includeQuery.Contains("order") && deposit.Order != null)
                 included.Add(_mapper.Map<OrderDto>(deposit.Order));
+            if (includeQuery.Contains("invoice") && deposit.Invoice != null)
+                included.Add(_mapper.Map<InvoiceDto>(deposit.Invoice));
             if (includeQuery.Contains("payment") && deposit.Payment != null)
                 included.Add(_mapper.Map<PaymentDto>(deposit.Payment));
 

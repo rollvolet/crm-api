@@ -20,6 +20,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
         {
             public IRelationship Customer { get; set; }
             public IRelationship Order { get; set; }
+            public IRelationship Invoice { get; set; }
             public IRelationship Payment { get; set; }
         }
     }

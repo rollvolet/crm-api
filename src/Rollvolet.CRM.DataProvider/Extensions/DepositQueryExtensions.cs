@@ -25,6 +25,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("payment", c => c.Payment);
             selectors.Add("customer", c => c.Customer);
             selectors.Add("order", c => c.Order);
+            selectors.Add("invoice", c => c.Invoice);
 
             return source.Include<Deposit>(querySet, selectors);
         }

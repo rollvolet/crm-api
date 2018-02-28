@@ -64,6 +64,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("order", c => c.Order);
             selectors.Add("vat-rate", c => c.VatRate);
             selectors.Add("supplements", c => c.Supplements);
+            selectors.Add("deposits", c => c.Deposits);
 
             // The selectors below won't work since we're not able to define the relationship in CrmContext
             // They are manually mapped in the DataProvider

@@ -8,6 +8,7 @@ namespace Rollvolet.CRM.Domain.Models
         public string Id { get; set; }
         public Customer Customer { get; set; }
         public Order Order { get; set; }
+        public Invoice Invoice { get; set; }
         public int SequenceNumber { get; set; }
         public double? Amount { get; set; }
         public DateTime PaymentDate { get; set; }

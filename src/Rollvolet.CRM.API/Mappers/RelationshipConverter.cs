@@ -122,7 +122,8 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Building = GetOneRelationship<Building>("invoices", source.Id, "building", source.Building, context);
             relationships.Contact = GetOneRelationship<Contact>("invoices", source.Id, "contact", source.Contact, context);
             relationships.VatRate = GetOneRelationship<VatRate>("invoices", source.Id, "vat-rate", source.VatRate, context);
-            relationships.Supplements = GetManyRelationship<InvoiceSupplement>("invoices", source.Id, "supplements", source.Supplements, context);   
+            relationships.Supplements = GetManyRelationship<InvoiceSupplement>("invoices", source.Id, "supplements", source.Supplements, context); 
+            relationships.Deposits = GetManyRelationship<Deposit>("invoices", source.Id, "deposits", source.Deposits, context);  
             relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("invoices", source.Id, "deposit-invoices", source.DepositInvoices, context);          
             return relationships;
         } 
@@ -142,6 +143,7 @@ namespace Rollvolet.CRM.API.Mappers
         {
             var relationships = new DepositDto.RelationshipsDto();
             relationships.Order = GetOneRelationship<Order>("deposits", source.Id, "order", source.Order, context);
+            relationships.Invoice = GetOneRelationship<Invoice>("deposits", source.Id, "invoice", source.Invoice, context);
             relationships.Customer = GetOneRelationship<Customer>("deposits", source.Id, "customer", source.Customer, context);
             relationships.Payment = GetOneRelationship<Payment>("deposits", source.Id, "payment", source.Payment, context);
             return relationships;

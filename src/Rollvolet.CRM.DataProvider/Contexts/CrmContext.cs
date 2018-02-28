@@ -358,6 +358,11 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithMany()
                 .HasForeignKey(e => e.VatRateId);
 
+            modelBuilder.Entity<Invoice>()
+                .HasMany(e => e.Deposits)
+                .WithOne(e => e.Invoice)
+                .HasForeignKey(e => e.InvoiceId);   
+
             
             // Invoice supplement
             modelBuilder.Entity<InvoiceSupplement>()
