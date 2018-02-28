@@ -22,9 +22,14 @@ namespace Rollvolet.CRM.DataProviders
 
         }
 
+        private IQueryable<DataProvider.Models.Invoice> BaseQuery() {
+            return _context.Invoices
+                            .Where(i => i.MainInvoiceHub != null); // only deposit invoices
+        }
+
         public async Task<Paged<DepositInvoice>> GetAllByOrderIdAsync(int orderId, QuerySet query)
         {
-            var source = _context.Invoices
+            var source = BaseQuery()
                             .Where(i => i.MainInvoiceHub.OrderId == orderId)
                             .Include(query)
                             .Sort(query)

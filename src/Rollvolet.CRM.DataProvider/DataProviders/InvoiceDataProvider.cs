@@ -23,9 +23,14 @@ namespace Rollvolet.CRM.DataProviders
 
         }
 
+        private IQueryable<DataProvider.Models.Invoice> BaseQuery() {
+            return _context.Invoices
+                            .Where(i => i.MainInvoiceHub == null); // exclude deposit invoices
+        }
+
         public async Task<Paged<Invoice>> GetAllAsync(QuerySet query)
         {
-            var source = _context.Invoices
+            var source = BaseQuery()
                             .Include(query)
                             .Sort(query)
                             .Filter(query, _context);
@@ -47,7 +52,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Invoice> GetByIdAsync(int id, QuerySet query)
         {
-            var source = _context.Invoices
+            var source = BaseQuery()
                             .Where(c => c.Id == id)
                             .Include(query);
 
@@ -66,7 +71,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Paged<Invoice>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
-            var source = _context.Invoices
+            var source = BaseQuery()
                             .Where(o => o.CustomerId == customerId)
                             .Include(query)
                             .Sort(query)
