@@ -22,6 +22,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Order> Orders { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<Deposit> Deposits { get; set; }
+        public DbSet<DepositInvoiceHub> DepositInvoices { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
         {
@@ -397,6 +398,40 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasOne(e => e.Payment)
                 .WithMany()
                 .HasForeignKey(e => e.PaymentId);
+
+
+            // Deposit invoices
+
+            modelBuilder.Entity<DepositInvoiceHub>()
+                .ToTable("TblVoorschotFactuur", schema: "dbo");     
+
+            modelBuilder.Entity<DepositInvoiceHub>()
+                .HasKey(e => e.Id)
+                .HasName("TblVoorschotFactuur$PrimaryKey");
+
+            modelBuilder.Entity<DepositInvoiceHub>()
+                .HasOne(e => e.Customer)
+                .WithMany()
+                .HasForeignKey(e => e.CustomerId)
+                .HasPrincipalKey(e => e.Number);  
+
+            modelBuilder.Entity<DepositInvoiceHub>()
+                .HasOne(e => e.Order)
+                .WithMany(e => e.DepositInvoicesHubs)
+                .HasForeignKey(e => e.OrderId)
+                .HasPrincipalKey(e => e.Id);
+
+            modelBuilder.Entity<DepositInvoiceHub>()
+                .HasOne(e => e.Invoice)
+                .WithMany(e => e.DepositInvoiceHubs)
+                .HasForeignKey(e => e.InvoiceId)
+                .HasPrincipalKey(e => e.Id);
+
+            modelBuilder.Entity<DepositInvoiceHub>()
+                .HasOne(e => e.DepositInvoice)
+                .WithOne(e => e.MainInvoiceHub)
+                .HasForeignKey<DepositInvoiceHub>(e => e.DepositInvoiceId)
+                .HasPrincipalKey<Invoice>(e => e.Id);
 
 
             // Payment

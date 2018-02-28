@@ -42,8 +42,11 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Include.Fields.Contains("customer.honorific-prefix"))
                 source = source.Include(x => x.Customer).ThenInclude(x => x.HonorificPrefix);
 
-            var selectors = new Dictionary<string, Expression<Func<Order, object>>>();
+            if (querySet.Include.Fields.Contains("deposit-invoices"))                
+                source = source.Include(c => c.DepositInvoicesHubs).ThenInclude(d => d.DepositInvoice);
 
+            var selectors = new Dictionary<string, Expression<Func<Order, object>>>();
+            
             selectors.Add("customer", c => c.Customer);
             selectors.Add("offer", c => c.Offer);
             selectors.Add("invoice", c => c.Invoice);

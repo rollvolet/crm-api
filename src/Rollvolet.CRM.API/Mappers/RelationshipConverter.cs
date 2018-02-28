@@ -15,6 +15,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Offer, OfferDto.RelationshipsDto>,
                                             ITypeConverter<Order, OrderDto.RelationshipsDto>,
                                             ITypeConverter<Invoice, InvoiceDto.RelationshipsDto>,
+                                            ITypeConverter<DepositInvoice, DepositInvoiceDto.RelationshipsDto>,
                                             ITypeConverter<Deposit, DepositDto.RelationshipsDto>,
                                             ITypeConverter<Country, EmptyRelationshipsDto>,
                                             ITypeConverter<Language, EmptyRelationshipsDto>,
@@ -109,6 +110,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Contact = GetOneRelationship<Contact>("orders", source.Id, "contact", source.Contact, context);
             relationships.VatRate = GetOneRelationship<VatRate>("orders", source.Id, "vat-rate", source.VatRate, context);
             relationships.Deposits = GetManyRelationship<Deposit>("orders", source.Id, "deposits", source.Deposits, context);
+            relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("orders", source.Id, "deposit-invoices", source.DepositInvoices, context);   
             return relationships;
         } 
 
@@ -120,7 +122,19 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Building = GetOneRelationship<Building>("invoices", source.Id, "building", source.Building, context);
             relationships.Contact = GetOneRelationship<Contact>("invoices", source.Id, "contact", source.Contact, context);
             relationships.VatRate = GetOneRelationship<VatRate>("invoices", source.Id, "vat-rate", source.VatRate, context);
-            relationships.Supplements = GetManyRelationship<InvoiceSupplement>("invoices", source.Id, "supplements", source.Supplements, context);            
+            relationships.Supplements = GetManyRelationship<InvoiceSupplement>("invoices", source.Id, "supplements", source.Supplements, context);   
+            relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("invoices", source.Id, "deposit-invoices", source.DepositInvoices, context);          
+            return relationships;
+        } 
+
+        DepositInvoiceDto.RelationshipsDto ITypeConverter<DepositInvoice, DepositInvoiceDto.RelationshipsDto>.Convert(DepositInvoice source, DepositInvoiceDto.RelationshipsDto destination, ResolutionContext context)
+        {
+            var relationships = new DepositInvoiceDto.RelationshipsDto();
+            relationships.Order = GetOneRelationship<Order>("deposit-invoices", source.Id, "order", source.Order, context);
+            relationships.Customer = GetOneRelationship<Customer>("deposit-invoices", source.Id, "customer", source.Customer, context);
+            relationships.Building = GetOneRelationship<Building>("deposit-invoices", source.Id, "building", source.Building, context);
+            relationships.Contact = GetOneRelationship<Contact>("deposit-invoices", source.Id, "contact", source.Contact, context);
+            relationships.VatRate = GetOneRelationship<VatRate>("deposit-invoices", source.Id, "vat-rate", source.VatRate, context);           
             return relationships;
         } 
 

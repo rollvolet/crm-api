@@ -115,13 +115,22 @@ namespace Rollvolet.CRM.DataProvider.Mappers
             CreateMap<Models.Order, Domain.Models.Order>()
                 .ForMember(dest => dest.ExpectedDate, opt => opt.MapFrom(src => src.ExpectedDate != null ? DateTime.ParseExact(src.ExpectedDate, "d/MM/yyyy", new CultureInfo("nl-BE")) : (DateTime?) null))
                 .ForMember(dest => dest.RequiredDate, opt => opt.MapFrom(src => src.RequiredDate != null ? DateTime.ParseExact(src.RequiredDate, "d/MM/yyyy", new CultureInfo("nl-BE")) : (DateTime?) null))
+                .ForMember(dest => dest.DepositInvoices, opt => opt.MapFrom(src => src.DepositInvoicesHubs.Select(x => x.DepositInvoice)))
                 .PreserveReferences()
                 .ReverseMap()
                 .ForMember(dest => dest.ExpectedDate, opt => opt.MapFrom(src => src.ExpectedDate != null ? ((DateTime) src.ExpectedDate).ToString("d/MM/yyyy") : null))
                 .ForMember(dest => dest.RequiredDate, opt => opt.MapFrom(src => src.RequiredDate != null ? ((DateTime) src.RequiredDate).ToString("d/MM/yyyy") : null))
+                // TODO add reverse mapping for deposit invoices
                 .PreserveReferences();
 
             CreateMap<Models.Invoice, Domain.Models.Invoice>()
+                .ForMember(dest => dest.DepositInvoices, opt => opt.MapFrom(src => src.DepositInvoiceHubs.Select(x => x.DepositInvoice)))
+                .PreserveReferences()
+                .ReverseMap()
+                 // TODO add reverse mapping for deposit invoices
+                .PreserveReferences();
+
+            CreateMap<Models.Invoice, Domain.Models.DepositInvoice>()
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();

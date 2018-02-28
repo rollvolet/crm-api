@@ -237,6 +237,8 @@ namespace Rollvolet.CRM.API.Collectors
             // many-relations
             if (includeQuery.Contains("deposits") && order.Deposits.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<DepositDto>>(order.Deposits));
+            if (includeQuery.Contains("deposit-invoices") && order.DepositInvoices.Count() > 0)
+                included.UnionWith(_mapper.Map<IEnumerable<DepositInvoiceDto>>(order.DepositInvoices));
 
             return included;
         }
@@ -274,6 +276,8 @@ namespace Rollvolet.CRM.API.Collectors
             // many-relations
             if (includeQuery.Contains("supplements") && invoice.Supplements.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<InvoiceSupplementDto>>(invoice.Supplements));
+            if (includeQuery.Contains("deposit-invoices") && invoice.DepositInvoices.Count() > 0)
+                included.UnionWith(_mapper.Map<IEnumerable<DepositInvoiceDto>>(invoice.DepositInvoices));
 
             return included;
         }
@@ -328,7 +332,40 @@ namespace Rollvolet.CRM.API.Collectors
                 included.UnionWith(CollectIncluded(deposit, includeQuery));
 
             return included;
-        }          
+        }
+
+        public IEnumerable<IResource> CollectIncluded(DepositInvoice depositInvoice, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+
+            var customerIncludeQuery = includeQuery.NestedInclude("customer");            
+            
+            // one-relations
+            if (includeQuery.Contains("order") && depositInvoice.Order != null)
+                included.Add(_mapper.Map<OrderDto>(depositInvoice.Order));
+            if (includeQuery.Contains("customer") && depositInvoice.Customer != null)
+                included.Add(_mapper.Map<CustomerDto>(depositInvoice.Customer, opt => opt.Items["include"] = customerIncludeQuery));
+            if (includeQuery.Contains("customer.honorific-prefix") && depositInvoice.Customer != null && depositInvoice.Customer.HonorificPrefix != null)
+                included.Add(_mapper.Map<HonorificPrefixDto>(depositInvoice.Customer.HonorificPrefix));
+            if (includeQuery.Contains("contact") && depositInvoice.Contact != null)
+                included.Add(_mapper.Map<ContactDto>(depositInvoice.Contact));
+            if (includeQuery.Contains("building") && depositInvoice.Building != null)
+                included.Add(_mapper.Map<BuildingDto>(depositInvoice.Building));
+            if (includeQuery.Contains("vat-rate") && depositInvoice.VatRate != null)
+                included.Add(_mapper.Map<VatRateDto>(depositInvoice.VatRate));
+
+            return included;
+        }
+
+        public IEnumerable<IResource> CollectIncluded(IEnumerable<DepositInvoice> depositInvoices, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+            
+            foreach (var invoice in depositInvoices)
+                included.UnionWith(CollectIncluded(invoice, includeQuery));
+
+            return included;
+        }            
     }
 
 }

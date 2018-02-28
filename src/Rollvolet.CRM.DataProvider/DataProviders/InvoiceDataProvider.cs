@@ -11,6 +11,7 @@ using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.DataProvider.Extensions;
 using Microsoft.Extensions.Logging;
 using LinqKit;
+using System;
 
 namespace Rollvolet.CRM.DataProviders
 {   
@@ -83,6 +84,6 @@ namespace Rollvolet.CRM.DataProviders
                 PageNumber = query.Page.Number,
                 PageSize = query.Page.Size
             };            
-        }     
+        } 
     }
 }

@@ -5,7 +5,7 @@ using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.APIContracts.DTO
 {
-    public class InvoiceDto : Resource<InvoiceDto.AttributesDto, InvoiceDto.RelationshipsDto>
+    public class DepositInvoiceDto : Resource<DepositInvoiceDto.AttributesDto, DepositInvoiceDto.RelationshipsDto>
     {
         public class AttributesDto
         {  
@@ -60,9 +60,6 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public IRelationship Contact { get; set; }
             [JsonProperty("vat-rate")]
             public IRelationship VatRate { get; set; }
-            public IRelationship Supplements { get; set; }
-            [JsonProperty("deposit-invoices")]
-            public IRelationship DepositInvoices { get; set; }
         }
     }
 }

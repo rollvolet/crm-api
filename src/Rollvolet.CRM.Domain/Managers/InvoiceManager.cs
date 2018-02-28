@@ -15,7 +15,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IInvoiceDataProvider _invoiceDataProvider;
         private readonly ILogger _logger;
 
-        public InvoiceManager(IInvoiceDataProvider invoiceDataProvider, ILogger<OrderManager> logger)
+        public InvoiceManager(IInvoiceDataProvider invoiceDataProvider, ILogger<InvoiceManager> logger)
         {
             _invoiceDataProvider = invoiceDataProvider;
             _logger = logger;
