@@ -113,8 +113,8 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences();
 
             CreateMap<Models.Order, Domain.Models.Order>()
-                .ForMember(dest => dest.ExpectedDate, opt => opt.MapFrom(src => src.ExpectedDate != null ? DateTime.ParseExact(src.ExpectedDate, "d/MM/yyyy", new CultureInfo("nl-BE")) : (DateTime?) null))
-                .ForMember(dest => dest.RequiredDate, opt => opt.MapFrom(src => src.RequiredDate != null ? DateTime.ParseExact(src.RequiredDate, "d/MM/yyyy", new CultureInfo("nl-BE")) : (DateTime?) null))
+                .ForMember(dest => dest.ExpectedDate, opt => opt.MapFrom(src => ParseDate(src.ExpectedDate)))
+                .ForMember(dest => dest.RequiredDate, opt => opt.MapFrom(src => ParseDate(src.RequiredDate)))
                 .ForMember(dest => dest.DepositInvoices, opt => opt.MapFrom(src => src.DepositInvoicesHubs.Select(x => x.DepositInvoice)))
                 .PreserveReferences()
                 .ReverseMap()
@@ -150,6 +150,26 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ReverseMap()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("BETALING"))
                 .PreserveReferences();
+        }
+
+        private DateTime? ParseDate(string dateString) 
+        {
+            if (dateString == null) 
+            {
+                return null;
+            }
+            else
+            {
+                DateTime dateTime;
+                if (DateTime.TryParseExact(dateString, "d/MM/yyyy", new CultureInfo("nl-BE"), DateTimeStyles.None, out dateTime))
+                    return dateTime;
+                else if (DateTime.TryParseExact(dateString, "dd/MM/yyyy", new CultureInfo("nl-BE"), DateTimeStyles.None, out dateTime))
+                    return dateTime;
+                else if (DateTime.TryParseExact(dateString, "d/MM/yy", new CultureInfo("nl-BE"), DateTimeStyles.None, out dateTime))
+                    return dateTime;
+                else 
+                    return null;
+            }
         }
     }
 }
