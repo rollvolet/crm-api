@@ -30,7 +30,6 @@ namespace Rollvolet.CRM.APIContracts.DTO
             [JsonProperty("customer-id")]
             public int CustomerId { get; set; }
             public DateTime Created { get; set; }
-            public DateTime Updated { get; set; }
         }
 
         public class RelationshipsDto

@@ -49,7 +49,6 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public string Comment { get; set; } 
             public string Qualification { get; set; } 
             public string Reference { get; set; }
-            public DateTime Updated { get; set; }
         }
 
         public class RelationshipsDto

@@ -15,7 +15,6 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public bool RequiresVisit { get; set; }
             public string Comment { get; set; }
             public string Employee { get; set; }
-            public DateTime Updated { get; set; }
         }
 
         public class RelationshipsDto

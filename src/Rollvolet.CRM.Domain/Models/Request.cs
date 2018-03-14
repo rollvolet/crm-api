@@ -16,7 +16,6 @@ namespace Rollvolet.CRM.Domain.Models
         public WayOfEntry WayOfEntry { get; set; }
         public DateTime RequestDate { get; set; }
         public string Comment { get; set; }
-        public string Employee { get; set; }        
-        public DateTime Updated { get; set; }
+        public string Employee { get; set; }
     }
 }

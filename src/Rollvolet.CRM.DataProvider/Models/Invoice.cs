@@ -94,10 +94,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Referentie")]
         public string Reference { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        [Column("UpdTimestamp")]
-        public DateTime Updated { get; set; }
-
         [Column("MuntEenheid")]
         public string Currency { get; set; }
 

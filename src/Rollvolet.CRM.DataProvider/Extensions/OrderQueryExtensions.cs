@@ -72,7 +72,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("customer.street", x => x.Customer.Address1);
             selectors.Add("customer.postal-code", x => x.Customer.EmbeddedPostalCode);
             selectors.Add("customer.city", x => x.Customer.EmbeddedCity);
-            selectors.Add("updated", x => x.Updated);
 
             return source.Sort<Order>(querySet, selectors);
         }

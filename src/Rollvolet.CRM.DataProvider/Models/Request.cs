@@ -32,11 +32,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public string Comment { get; set; }    
 
         [Column("Bediende")]
-        public string Employee { get; set; }
-
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        [Column("UpdTimestamp")]
-        public DateTime Updated { get; set; }         
+        public string Employee { get; set; }    
 
 
         // Include resources

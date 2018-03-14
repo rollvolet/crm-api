@@ -34,6 +34,5 @@ namespace Rollvolet.CRM.Domain.Models
         public string Comment { get; set; }                 
         public bool Canceled { get; set; }
         public string CancellationReason { get; set; } 
-        public DateTime Updated { get; set; }        
     }
 }

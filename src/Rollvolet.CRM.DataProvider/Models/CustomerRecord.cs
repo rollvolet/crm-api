@@ -67,10 +67,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("RegistratieDatum")]
         public DateTime Created { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        [Column("UpdTimestamp")]
-        public DateTime Updated { get; set; }
-
 
         // Included resources
         public HonorificPrefix HonorificPrefix { get; set; }

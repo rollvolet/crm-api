@@ -73,10 +73,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("RedenAfsluiten")]
         public string CancellationReason { get; set; } 
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        [Column("UpdTimestampBST")]
-        public DateTime Updated { get; set; }
-
         [Column("MuntBestel")]
         public string Currency { get; set; }
 

@@ -73,7 +73,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("postal-code", x => x.EmbeddedPostalCode);
             selectors.Add("city", x => x.EmbeddedCity);
             selectors.Add("created", x => x.Created);
-            selectors.Add("updated", x => x.Updated);
 
             return source.Sort<Customer>(querySet, selectors);
         }
@@ -122,7 +121,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("postal-code", x => x.EmbeddedPostalCode);
             selectors.Add("city", x => x.EmbeddedCity);
             selectors.Add("created", x => x.Created);
-            selectors.Add("updated", x => x.Updated);
 
             return source.Sort<Contact>(querySet, selectors);
         }
@@ -171,7 +169,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("postal-code", x => x.EmbeddedPostalCode);
             selectors.Add("city", x => x.EmbeddedCity);
             selectors.Add("created", x => x.Created);
-            selectors.Add("updated", x => x.Updated);
 
             return source.Sort<Building>(querySet, selectors);
         }

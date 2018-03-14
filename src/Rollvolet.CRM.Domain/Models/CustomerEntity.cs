@@ -27,6 +27,5 @@ namespace Rollvolet.CRM.Domain.Models
         public bool PrintInFront { get; set; }
         public string Comment { get; set; }
         public DateTime Created { get; set; }
-        public DateTime Updated { get; set; }
     }
 }
