@@ -5,6 +5,7 @@
   "Authentication": {
     "ClientId": "",
     "ClientSecret": "",
-    "Authority": ""
+    "BaseUri": "",
+    "TenantId": ""
   }
 }

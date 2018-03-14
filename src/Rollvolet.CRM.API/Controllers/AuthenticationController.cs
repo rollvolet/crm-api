@@ -1,14 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Newtonsoft.Json;
 using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
@@ -24,6 +27,8 @@ namespace Rollvolet.CRM.API.Controllers
     public class AuthenticationController : Controller
     {
         public AuthenticationConfiguration _authenticationConfiguration { get; set; }
+
+        private static HttpClient HttpClient = new HttpClient();
         
         public AuthenticationController(IOptions<AuthenticationConfiguration> authenticationConfiguration)
         {
@@ -32,19 +37,58 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpPost("authentication/token")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetToken([FromBody] AuthenticationRequestDto authentication)
+        public async Task<IActionResult> GetToken([FromBody] AuthenticationTokenRequestDto requestDto)
         {
-            var authority = _authenticationConfiguration.Authority;
-            var authenticationContext = new AuthenticationContext(authority);
+            var path = $"{_authenticationConfiguration.BaseUri}/{_authenticationConfiguration.TenantId}/oauth2/token";
+            var form = new Dictionary<string, string>();
+            form.Add("grant_type", "authorization_code");
+            form.Add("client_id", _authenticationConfiguration.ClientId);
+            form.Add("code", requestDto.AuthorizationCode);
+            form.Add("redirect_uri", requestDto.RedirectUri);
+            form.Add("client_secret", _authenticationConfiguration.ClientSecret);
+            form.Add("resource", _authenticationConfiguration.ClientId);
 
-            var clientId = _authenticationConfiguration.ClientId;
-            var clientSecret = _authenticationConfiguration.ClientSecret;
-            var credential = new ClientCredential(clientId, clientSecret);
+            var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
 
-            var authenticationResult = await authenticationContext.AcquireTokenByAuthorizationCodeAsync(
-                                        authentication.AuthorizationCode, new Uri(authentication.RedirectUri), credential, clientId);
+            var response = await HttpClient.SendAsync(request);
+            var responseString = await response.Content.ReadAsStringAsync();
 
-            return Ok(authenticationResult);
+            if (string.IsNullOrEmpty(responseString))
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+            else
+            {
+                return Ok(JsonConvert.DeserializeObject<AuthenticationTokenResponseDto>(responseString));
+            } 
+            
+        }
+
+        [HttpPost("authentication/refresh-token")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RefreshToken([FromBody] AuthenticationTokenRefreshRequestDto requestDto)
+        {
+            var path = $"{_authenticationConfiguration.BaseUri}/{_authenticationConfiguration.TenantId}/oauth2/token";
+            var form = new Dictionary<string, string>();
+            form.Add("grant_type", "refresh_token");
+            form.Add("client_id", _authenticationConfiguration.ClientId);
+            form.Add("refresh_token", requestDto.RefreshToken);
+            form.Add("client_secret", _authenticationConfiguration.ClientSecret);
+            form.Add("resource", _authenticationConfiguration.ClientId);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
+
+            var response = await HttpClient.SendAsync(request);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            if (string.IsNullOrEmpty(responseString))
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+            else
+            {
+                return Ok(JsonConvert.DeserializeObject<AuthenticationTokenResponseDto>(responseString));
+            }
         }
 
     }

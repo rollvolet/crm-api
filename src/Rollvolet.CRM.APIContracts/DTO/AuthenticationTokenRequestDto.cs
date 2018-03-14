@@ -1,6 +1,6 @@
 namespace Rollvolet.CRM.APIContracts.DTO
 {
-    public class AuthenticationRequestDto
+    public class AuthenticationTokenRequestDto
     {   
         public string AuthorizationCode { get; set; }
         public string RedirectUri { get; set; }
