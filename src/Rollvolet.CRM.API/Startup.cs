@@ -79,7 +79,7 @@ namespace Rollvolet.CRM.API
                 }).AddJwtBearer(
                 jwtOptions => {
                     jwtOptions.Audience = Configuration["Authentication:ClientId"];
-                    jwtOptions.Authority = Configuration["Authentication:Authority"];
+                    jwtOptions.Authority = Configuration["Authentication:BaseUri"] + "/" + Configuration["Authentication:TenantId"];
                     jwtOptions.Events = new JwtBearerEvents
                     {
                         // OnAuthenticationFailed = AuthenticationFailed

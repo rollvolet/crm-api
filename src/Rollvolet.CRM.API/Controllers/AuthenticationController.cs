@@ -24,6 +24,7 @@ using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.API.Controllers
 {    
+    // See https://docs.microsoft.com/en-gb/azure/active-directory/develop/active-directory-protocols-oauth-code
     public class AuthenticationController : Controller
     {
         public AuthenticationConfiguration _authenticationConfiguration { get; set; }
@@ -51,6 +52,8 @@ namespace Rollvolet.CRM.API.Controllers
             var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
 
             var response = await HttpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (string.IsNullOrEmpty(responseString))
@@ -79,6 +82,8 @@ namespace Rollvolet.CRM.API.Controllers
             var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
 
             var response = await HttpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (string.IsNullOrEmpty(responseString))
