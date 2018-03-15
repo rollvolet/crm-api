@@ -10,8 +10,6 @@ namespace Rollvolet.CRM.APIContracts.DTO
         public string TokenType { get; set; }
         [JsonProperty("expires_in")]
         public string ExpiresIn { get; set; }
-        [JsonProperty("expires_on")]
-        public string ExpiresOn { get; set; }
         [JsonProperty("refresh_token")]
         public string RefreshToken { get; set; }
         public string Scope { get; set; }

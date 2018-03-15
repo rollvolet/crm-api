@@ -40,14 +40,14 @@ namespace Rollvolet.CRM.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetToken([FromBody] AuthenticationTokenRequestDto requestDto)
         {
-            var path = $"{_authenticationConfiguration.BaseUri}/{_authenticationConfiguration.TenantId}/oauth2/token";
+            var path = $"{_authenticationConfiguration.BaseUri}/{_authenticationConfiguration.TenantId}/oauth2/v2.0/token";
             var form = new Dictionary<string, string>();
             form.Add("grant_type", "authorization_code");
             form.Add("client_id", _authenticationConfiguration.ClientId);
             form.Add("code", requestDto.AuthorizationCode);
             form.Add("redirect_uri", requestDto.RedirectUri);
             form.Add("client_secret", _authenticationConfiguration.ClientSecret);
-            form.Add("resource", _authenticationConfiguration.ClientId);
+            form.Add("scope", requestDto.Scope);
 
             var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
 
@@ -71,13 +71,14 @@ namespace Rollvolet.CRM.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> RefreshToken([FromBody] AuthenticationTokenRefreshRequestDto requestDto)
         {
-            var path = $"{_authenticationConfiguration.BaseUri}/{_authenticationConfiguration.TenantId}/oauth2/token";
+            var path = $"{_authenticationConfiguration.BaseUri}/{_authenticationConfiguration.TenantId}/oauth2/v2.0/token";
             var form = new Dictionary<string, string>();
             form.Add("grant_type", "refresh_token");
             form.Add("client_id", _authenticationConfiguration.ClientId);
             form.Add("refresh_token", requestDto.RefreshToken);
+            form.Add("redirect_uri", requestDto.RedirectUri);
             form.Add("client_secret", _authenticationConfiguration.ClientSecret);
-            form.Add("resource", _authenticationConfiguration.ClientId);
+            form.Add("scope", requestDto.Scope);
 
             var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
 
