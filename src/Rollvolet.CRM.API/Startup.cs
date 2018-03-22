@@ -12,7 +12,6 @@ using Newtonsoft.Json.Serialization;
 using NLog.Extensions.Logging;
 using NLog.Web;
 using Rollvolet.CRM.DataProvider.Mappers;
-using Swashbuckle.Swagger.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -125,30 +124,6 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
             services.AddTransient<IIncludedCollector, IncludedCollector>();
 
-            services.AddSwaggerGen();
-            services.ConfigureSwaggerGen(options =>
-            {
-                options.SingleApiVersion(new Info
-                {
-                    Contact = new Swashbuckle.Swagger.Model.Contact { Name = "redpencil bvba" },
-                    Description = "Rollvolet CRM API",
-                    Version = "v1",
-                    Title = "Rollvolet.CRM.API"
-                });
-
-                var xmlPaths = GetXmlCommentsPaths();
-                foreach (var entry in xmlPaths)
-                {
-                    try
-                    {
-                        options.IncludeXmlComments(entry);
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
-            });
-
             services.AddCorrelations();
             services.AddResponseMiddleware();
         }
@@ -170,12 +145,6 @@ namespace Rollvolet.CRM.API
             app.UseExecutionTiming();
 
             app.UseAuthentication();
-
-            // Enable middleware to serve generated Swagger as a JSON endpoint
-            app.UseSwagger();
-
-            // Enable middleware to serve swagger-ui assets (HTML, JS, CSS etc.)
-            app.UseSwaggerUi();
 
             app.UseMvc();
         }
