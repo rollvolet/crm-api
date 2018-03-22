@@ -30,10 +30,12 @@ namespace Rollvolet.CRM.API.Controllers
         public AuthenticationConfiguration _authenticationConfiguration { get; set; }
 
         private static HttpClient HttpClient = new HttpClient();
+        private readonly ILogger _logger;
         
-        public AuthenticationController(IOptions<AuthenticationConfiguration> authenticationConfiguration)
+        public AuthenticationController(IOptions<AuthenticationConfiguration> authenticationConfiguration, ILogger<AuthenticationController> logger)
         {
             _authenticationConfiguration = authenticationConfiguration.Value;
+            _logger = logger;
         }
 
         [HttpPost("authentication/token")]
@@ -52,9 +54,11 @@ namespace Rollvolet.CRM.API.Controllers
             var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
 
             var response = await HttpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-
             var responseString = await response.Content.ReadAsStringAsync();
+
+            _logger.LogDebug("Token response received: [{statusCode}] {message}", response.StatusCode, responseString);            
+
+            response.EnsureSuccessStatusCode();
 
             if (string.IsNullOrEmpty(responseString))
             {
@@ -83,9 +87,11 @@ namespace Rollvolet.CRM.API.Controllers
             var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
 
             var response = await HttpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-
             var responseString = await response.Content.ReadAsStringAsync();
+
+            _logger.LogDebug("Refresh token response received: [{statusCode}] {message}", response.StatusCode, responseString);
+            
+            response.EnsureSuccessStatusCode();
 
             if (string.IsNullOrEmpty(responseString))
             {

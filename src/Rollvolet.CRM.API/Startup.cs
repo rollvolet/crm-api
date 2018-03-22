@@ -77,8 +77,8 @@ namespace Rollvolet.CRM.API
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 }).AddJwtBearer(
                 jwtOptions => {
-                    jwtOptions.Audience = Configuration["Authentication:ClientId"];
-                    jwtOptions.Authority = Configuration["Authentication:BaseUri"] + "/" + Configuration["Authentication:TenantId"] + "/v2.0";
+                    jwtOptions.Audience = Configuration["Authentication:ClientId"]; // aud value in JWT token
+                    jwtOptions.Authority = $"{Configuration["Authentication:BaseUri"]}/{Configuration["Authentication:TenantId"]}/v2.0"; // iss value in JWT token
                     jwtOptions.Events = new JwtBearerEvents
                     {
                         // OnAuthenticationFailed = AuthenticationFailed
@@ -137,10 +137,14 @@ namespace Rollvolet.CRM.API
                 scope.ServiceProvider.GetRequiredService<CrmContext>().Database.Migrate();
             }
 
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
+            if (env.IsDevelopment())
+            {
+                loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            }
+
             loggerFactory.AddNLog();
             app.AddNLogWeb();
+
             app.UseCorrelations();
             app.UseExecutionTiming();
 
