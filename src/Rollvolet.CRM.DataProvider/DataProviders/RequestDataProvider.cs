@@ -10,7 +10,7 @@ using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.DataProvider.Extensions;
 using Microsoft.Extensions.Logging;
 using LinqKit;
-using Narato.ResponseMiddleware.Models.Exceptions;
+using Rollvolet.CRM.Domain.Exceptions;
 
 namespace Rollvolet.CRM.DataProviders
 {   

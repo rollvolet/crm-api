@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Narato.ResponseMiddleware.Models.Exceptions;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Models;
@@ -13,6 +12,7 @@ using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.DataProvider.Extensions;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using Rollvolet.CRM.Domain.Exceptions;
 
 namespace Rollvolet.CRM.DataProviders
 {   
