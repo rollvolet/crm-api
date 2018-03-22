@@ -29,12 +29,19 @@ using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Rollvolet.CRM.API.Configuration;
 using Rollvolet.CRM.API.Middleware.ExceptionHandling.Interfaces;
 using Rollvolet.CRM.API.Middleware.ExceptionHandling;
 using Rollvolet.CRM.Domain.Logging;
 using Rollvolet.CRM.API.Middleware.UrlRewrite;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Rollvolet.CRM.API.Configuration;
+using Microsoft.Graph;
+using Rollvolet.CRM.DataProvider.MsGraph.Authentication;
+using Rollvolet.CRM.Domain.Contracts.MsGraph;
+using Rollvolet.CRM.DataProvider.MsGraph;
+using Microsoft.Identity.Client;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Rollvolet.CRM.API
 {
@@ -74,27 +81,37 @@ namespace Rollvolet.CRM.API
                 });
 
             services.Configure<AuthenticationConfiguration>(Configuration.GetSection("Authentication"));
-            services.AddAuthentication(
-                options => {
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                }).AddJwtBearer(
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
                 jwtOptions => {
-                    jwtOptions.Audience = Configuration["Authentication:ClientId"]; // aud value in JWT token
-                    jwtOptions.Authority = $"{Configuration["Authentication:BaseUri"]}/{Configuration["Authentication:TenantId"]}/v2.0"; // iss value in JWT token
-                    jwtOptions.Events = new JwtBearerEvents
-                    {
-                        // OnAuthenticationFailed = AuthenticationFailed
-                    };
+                    AuthenticationConfiguration authConfig = Configuration.GetSection("Authentication").Get<AuthenticationConfiguration>();
+                    jwtOptions.Audience = authConfig.ClientId; // aud value in JWT token
+                    jwtOptions.Authority = authConfig.Authority; // iss value in JWT token
+                    jwtOptions.Events = new JwtBearerEvents {};
+                    jwtOptions.SaveToken = true; // token gets saved in AuthenticationProperties on the request
                 }
             );
+
+            services.AddSession();
 
             services.AddCorrelations();
 
             services.AddSingleton(sp => _mapperConfiguration.CreateMapper());
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddTransient<IExceptionToActionResultMapper, ExceptionToActionResultMapper>();
+            services.AddSingleton<IExceptionToActionResultMapper, ExceptionToActionResultMapper>();
+
+            services.AddSingleton<IConfidentialClientApplication, ConfidentialClientApplication>(c =>
+            {
+                AuthenticationConfiguration authConfig = Configuration.GetSection("Authentication").Get<AuthenticationConfiguration>();
+
+                var clientCredential = new ClientCredential(authConfig.ClientSecret);
+                var httpContext = c.GetService<IHttpContextAccessor>().HttpContext;
+                var tokenCache =  new TokenCache();
+
+                return new ConfidentialClientApplication(authConfig.ClientId, authConfig.Authority, authConfig.RedirectUri,
+                                                            clientCredential, tokenCache, null);
+            });
+            services.AddSingleton<IAuthenticationProvider, OnBehalfOfMsGraphAuthenticationProvider>();
 
             services.AddTransient<ICustomerDataProvider, CustomerDataProvider>();
             services.AddTransient<ICustomerManager, CustomerManager>();
@@ -143,6 +160,7 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IWayOfEntryDataProvider, WayOfEntryDataProvider>();
             services.AddTransient<IVisitManager, VisitManager>();
             services.AddTransient<IVisitDataProvider, VisitDataProvider>();
+            services.AddTransient<IGraphApiService, GraphApiService>();
             services.AddTransient<ISequenceDataProvider, SequenceDataProvider>();
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
             services.AddTransient<IIncludedCollector, IncludedCollector>();
@@ -174,6 +192,7 @@ namespace Rollvolet.CRM.API
             app.UseCorrelations();
 
             app.UseAuthentication();
+            app.UseSession();
 
             app.UseMvc();
         }

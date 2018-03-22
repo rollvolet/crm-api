@@ -16,16 +16,15 @@ using Newtonsoft.Json;
 using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
-using Rollvolet.CRM.API.Configuration;
 using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.JsonApi;
+using Rollvolet.CRM.API.Configuration;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.API.Controllers
-{    
-    // See https://docs.microsoft.com/en-gb/azure/active-directory/develop/active-directory-protocols-oauth-code
+{
     public class AuthenticationController : Controller
     {
         private AuthenticationConfiguration _authenticationConfiguration;
@@ -49,7 +48,7 @@ namespace Rollvolet.CRM.API.Controllers
             form.Add("grant_type", "authorization_code");
             form.Add("client_id", _authenticationConfiguration.ClientId);
             form.Add("code", requestDto.AuthorizationCode);
-            form.Add("redirect_uri", requestDto.RedirectUri);
+            form.Add("redirect_uri", _authenticationConfiguration.RedirectUri);
             form.Add("client_secret", _authenticationConfiguration.ClientSecret);
             form.Add("scope", requestDto.Scope);
 

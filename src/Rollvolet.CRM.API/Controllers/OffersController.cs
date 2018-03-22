@@ -35,10 +35,12 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
+        private readonly ILogger _logger;
 
         public OffersController(IOfferManager offerManager, IRequestManager requestManager,
                                     ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
-                                    IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+                                    IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder,
+                                    ILogger<OffersController> logger)
         {
             _offerManager = offerManager;
             _customerManager = customerManager;
@@ -48,6 +50,7 @@ namespace Rollvolet.CRM.API.Controllers
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
+            _logger = logger;
         }
 
         [HttpGet]

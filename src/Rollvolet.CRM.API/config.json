@@ -6,6 +6,7 @@
     "ClientId": "",
     "ClientSecret": "",
     "BaseUri": "",
-    "TenantId": ""
+    "TenantId": "",
+    "RedirectUri": ""
   }
 }

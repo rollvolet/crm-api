@@ -6,5 +6,12 @@ namespace Rollvolet.CRM.API.Configuration
         public string ClientSecret { get; set; }
         public string BaseUri { get; set; }
         public string TenantId { get; set; }
+        public string RedirectUri { get; set; }
+
+        public string Authority {
+            get {
+                return $"{BaseUri}/{TenantId}/v2.0";
+            }
+        }
     }
 }

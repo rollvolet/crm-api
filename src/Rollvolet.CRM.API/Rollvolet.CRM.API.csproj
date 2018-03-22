@@ -31,6 +31,7 @@
     <PackageReference Include="Narato.Correlations" Version="1.0.1" />
     <PackageReference Include="Narato.ExecutionTimingMiddleware" Version="1.0.1" />
     <PackageReference Include="Narato.Correlations.NlogExtensions" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="1.1.2-preview0008" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controllers\" />
