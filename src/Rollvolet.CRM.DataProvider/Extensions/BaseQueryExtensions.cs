@@ -7,7 +7,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.DataProvider.Models;
+using Rollvolet.CRM.Domain.Logging;
 using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.DataProvider.Extensions
@@ -89,11 +91,17 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             {
                 Expression<Func<T, object>> selector;
             
-                if (selectors.TryGetValue(field, out selector))
+                var includesSelector = selectors.TryGetValue(field, out selector);
+                if (includesSelector)
                 {
-                    source = source.Include(selector);
+                    if (selector != null)
+                        source = source.Include(selector);
                 }
-                // TODO: add else-clause to log invalid include field
+                else
+                {
+                    ApplicationLogging.CreateLogger(typeof(BaseQueryExtensions).AssemblyQualifiedName).
+                        LogWarning("'{Value}' is not supported as include value on type {Type}", field, typeof(T).AssemblyQualifiedName);
+                }
             }
 
             return source;
@@ -103,12 +111,17 @@ namespace Rollvolet.CRM.DataProvider.Extensions
         {
             Expression<Func<T, object>> selector;
 
-            if (querySet.Sort.Field != null && selectors.TryGetValue(querySet.Sort.Field, out selector))
+            var field = querySet.Sort.Field;
+            if (field != null && selectors.TryGetValue(field, out selector))
             {
                 source = querySet.Sort.Order == SortQuery.ORDER_ASC ? source.OrderBy(selector) : source.OrderByDescending(selector);
+            } 
+            else if (field != null)
+            {
+                ApplicationLogging.CreateLogger(typeof(BaseQueryExtensions).AssemblyQualifiedName)
+                    .LogWarning("'{Value}' is not supported as sort value on type {Type}", field, typeof(T).AssemblyQualifiedName);
             }
-            // TODO: add else-clause to log invalid sort field
-
+            
             return source;
         }
     }

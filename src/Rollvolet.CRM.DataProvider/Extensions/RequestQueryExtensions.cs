@@ -63,6 +63,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             // They are manually mapped in the DataProvider
             // selectors.Add("building", c => c.Building);
             // selectors.Add("contact", c => c.Contact);
+            selectors.Add("building", null);
+            selectors.Add("contact", null);
 
             return source.Include<Request>(querySet, selectors);
         }
