@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.DataProviders
@@ -24,7 +25,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Case> GetCaseByRequestId(int requestId)
         {
-            return await _context.Requests
+            var result = await _context.Requests
                 .Where(r => r.Id == requestId)
                 .Include(r => r.Offer)
                     .ThenInclude(o => o.Order)
@@ -37,12 +38,18 @@ namespace Rollvolet.CRM.DataProviders
                     InvoiceId = x.Offer != null && x.Offer.Order != null && x.Offer.Order.Invoice != null ? x.Offer.Order.Invoice.Id : (int?) null  
                 })
                 .FirstOrDefaultAsync();
-            // TODO: throw entitynotfound exception if case == null
+            
+            if (result == null) {
+                _logger.LogError($"No case found with requestId {requestId}"); 
+                throw new EntityNotFoundException();
+            }
+
+            return result;
         }
 
         public async Task<Case> GetCaseByOfferId(int offerId)
         {
-            return await _context.Offers
+            var result = await _context.Offers
                 .Where(o => o.Id == offerId)
                 .Include(o => o.Request)
                 .Include(o => o.Order)
@@ -55,11 +62,18 @@ namespace Rollvolet.CRM.DataProviders
                     InvoiceId = x.Order != null && x.Order.Invoice != null ? x.Order.Invoice.Id : (int?) null    
                 })
                 .FirstOrDefaultAsync();
+            
+            if (result == null) {
+                _logger.LogError($"No case found with offerId {offerId}"); 
+                throw new EntityNotFoundException();
+            }
+
+            return result;
         }
 
         public async Task<Case> GetCaseByOrderId(int orderId)
         {
-            return await _context.Orders
+            var result = await _context.Orders
                 .Where(o => o.Id == orderId)
                 .Include(o => o.Offer)
                     .ThenInclude(o => o.Request)
@@ -72,11 +86,18 @@ namespace Rollvolet.CRM.DataProviders
                     InvoiceId = x.Invoice != null ? x.Invoice.Id : (int?) null                   
                 })
                 .FirstOrDefaultAsync();
+            
+            if (result == null) {
+                _logger.LogError($"No case found with orderId {orderId}"); 
+                throw new EntityNotFoundException();
+            }
+                
+            return result;
         }
 
         public async Task<Case> GetCaseByInvoiceId(int invoiceId)
         {
-            return await _context.Invoices
+            var result = await _context.Invoices
                 .Where(x => x.Id == invoiceId)
                 .Include(x => x.Order)
                     .ThenInclude(o => o.Offer)
@@ -89,6 +110,13 @@ namespace Rollvolet.CRM.DataProviders
                     InvoiceId = x.Id               
                 })
                 .FirstOrDefaultAsync();
+            
+            if (result == null) {
+                _logger.LogError($"No case found with invoiceId {invoiceId}"); 
+                throw new EntityNotFoundException();
+            }
+                
+            return result;
         }
     }
 }

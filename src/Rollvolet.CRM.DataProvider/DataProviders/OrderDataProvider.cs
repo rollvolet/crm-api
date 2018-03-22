@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Narato.ResponseMiddleware.Models.Exceptions;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Models;
@@ -11,6 +10,7 @@ using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.DataProvider.Extensions;
 using Microsoft.Extensions.Logging;
 using LinqKit;
+using Rollvolet.CRM.Domain.Exceptions;
 
 namespace Rollvolet.CRM.DataProviders
 {   
@@ -55,9 +55,8 @@ namespace Rollvolet.CRM.DataProviders
 
             if (order == null)
             {
-                // TODO implement and handle exceptions according to jsonapi
                 _logger.LogError($"No order found with id {id}");
-                throw new EntityNotFoundException("ENF", $"Order with id {id} not found");
+                throw new EntityNotFoundException();
             }
 
             return _mapper.Map<Order>(order);

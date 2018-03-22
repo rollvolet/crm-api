@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using System.Text.RegularExpressions;
+using Rollvolet.CRM.Domain.Exceptions;
 
 namespace Rollvolet.CRM.API.Builders
 {
@@ -21,13 +22,19 @@ namespace Rollvolet.CRM.API.Builders
             {
                 if (pair.Key.StartsWith("page"))
                 {
-                    // TODO throw exception if System.IndexOutOfRangeException
-                    var propertyName = pair.Key.Split('[', ']')[1];
+                    try
+                    {
+                        var propertyName = pair.Key.Split('[', ']')[1];
 
-                    if (propertyName == "size")
-                        querySet.Page.Size = Convert.ToInt32(pair.Value);
-                    else if (propertyName == "number")
-                        querySet.Page.Number = Convert.ToInt32(pair.Value);
+                        if (propertyName == "size")
+                            querySet.Page.Size = Convert.ToInt32(pair.Value);
+                        else if (propertyName == "number")
+                            querySet.Page.Number = Convert.ToInt32(pair.Value);
+                    }
+                    catch (System.IndexOutOfRangeException)
+                    {
+                        throw new IllegalArgumentException("IllegalPage", "Page query parameter must have key 'page[size]' or 'page[number]'.");
+                    }
                 }
 
                 if (pair.Key.StartsWith("include"))

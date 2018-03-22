@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Narato.ResponseMiddleware.Models.Exceptions;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.DataProvider.Extensions;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 
@@ -64,9 +64,8 @@ namespace Rollvolet.CRM.DataProviders
             
             if (customer == null)
             {
-                // TODO implement and handle exceptions according to jsonapi
                 _logger.LogError($"No customer found with number {number}");
-                throw new EntityNotFoundException("ENF", $"Customer with number {number} not found");
+                throw new EntityNotFoundException();
             }
 
             return _mapper.Map<Customer>(customer);

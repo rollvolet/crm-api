@@ -7,6 +7,7 @@ using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.DataProvider.Models;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.DataProvider.Extensions
@@ -30,7 +31,10 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                     }
                     source = source.Where(predicate);
                 }
-                // TODO throw exception about invalid number
+                else
+                {
+                    throw new IllegalArgumentException("IllegalFilter", "Number filter must be a integer.");
+                }
             }
 
             if (querySet.Filter.Fields.ContainsKey("reference"))

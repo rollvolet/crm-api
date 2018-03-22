@@ -19,7 +19,7 @@ using Rollvolet.CRM.Domain.Models.Query;
 namespace Rollvolet.CRM.API.Controllers
 {
     [Route("[controller]")]
-    [Authorize]
+    //[Authorize]
     public class CustomersController : Controller
     {
         private readonly ICustomerManager _customerManager;

@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 using Narato.Correlations;
 using Narato.ExecutionTimingMiddleware;
-using Narato.ResponseMiddleware;
 using Newtonsoft.Json.Serialization;
 using NLog.Extensions.Logging;
 using NLog.Web;
@@ -31,6 +30,8 @@ using Rollvolet.CRM.API.Collectors;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Rollvolet.CRM.API.Configuration;
+using Rollvolet.CRM.API.Middleware.ExceptionHandling.Interfaces;
+using Rollvolet.CRM.API.Middleware.ExceptionHandling;
 
 namespace Rollvolet.CRM.API
 {
@@ -86,9 +87,11 @@ namespace Rollvolet.CRM.API
                 }
             );
 
-            services.AddMvc();
+            services.AddCorrelations();
 
             services.AddSingleton(sp => _mapperConfiguration.CreateMapper());
+
+            services.AddTransient<IExceptionToActionResultMapper, ExceptionToActionResultMapper>();
 
             services.AddTransient<ICustomerDataProvider, CustomerDataProvider>();
             services.AddTransient<ICustomerManager, CustomerManager>();
@@ -120,12 +123,12 @@ namespace Rollvolet.CRM.API
             services.AddTransient<ILanguageDataProvider, LanguageDataProvider>();
             services.AddTransient<IPostalCodeDataProvider, PostalCodeDataProvider>();
             services.AddTransient<ISequenceDataProvider, SequenceDataProvider>();
-            
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
             services.AddTransient<IIncludedCollector, IncludedCollector>();
 
-            services.AddCorrelations();
-            services.AddResponseMiddleware();
+            services.AddMvc((config) => {
+                config.Filters.Add(typeof(ExceptionHandlerFilter));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
