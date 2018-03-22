@@ -32,6 +32,7 @@ using Microsoft.IdentityModel.Tokens;
 using Rollvolet.CRM.API.Configuration;
 using Rollvolet.CRM.API.Middleware.ExceptionHandling.Interfaces;
 using Rollvolet.CRM.API.Middleware.ExceptionHandling;
+using Rollvolet.CRM.Domain.Logging;
 
 namespace Rollvolet.CRM.API
 {
@@ -145,9 +146,9 @@ namespace Rollvolet.CRM.API
                 loggerFactory.AddConsole(Configuration.GetSection("Logging"));
                 app.UseExecutionTiming();
             }
-
             loggerFactory.AddNLog();
             app.AddNLogWeb();
+            ApplicationLogging.LoggerFactory = loggerFactory;
 
             app.UseCorrelations();
 
