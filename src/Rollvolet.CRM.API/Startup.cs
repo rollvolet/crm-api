@@ -140,13 +140,13 @@ namespace Rollvolet.CRM.API
             if (env.IsDevelopment())
             {
                 loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+                app.UseExecutionTiming();
             }
 
             loggerFactory.AddNLog();
             app.AddNLogWeb();
 
             app.UseCorrelations();
-            app.UseExecutionTiming();
 
             app.UseAuthentication();
 

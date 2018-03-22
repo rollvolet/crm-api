@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Narato.Correlations.Http.Interfaces;
 using Newtonsoft.Json;
 using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
@@ -27,14 +28,15 @@ namespace Rollvolet.CRM.API.Controllers
     // See https://docs.microsoft.com/en-gb/azure/active-directory/develop/active-directory-protocols-oauth-code
     public class AuthenticationController : Controller
     {
-        public AuthenticationConfiguration _authenticationConfiguration { get; set; }
-
-        private static HttpClient HttpClient = new HttpClient();
+        private AuthenticationConfiguration _authenticationConfiguration;
         private readonly ILogger _logger;
+        private HttpClient _httpClient;
         
-        public AuthenticationController(IOptions<AuthenticationConfiguration> authenticationConfiguration, ILogger<AuthenticationController> logger)
+        public AuthenticationController(IOptions<AuthenticationConfiguration> authenticationConfiguration, 
+            IHttpClientFactory httpClientFactory, ILogger<AuthenticationController> logger)
         {
             _authenticationConfiguration = authenticationConfiguration.Value;
+            _httpClient = httpClientFactory.Create();
             _logger = logger;
         }
 
@@ -53,7 +55,7 @@ namespace Rollvolet.CRM.API.Controllers
 
             var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
 
-            var response = await HttpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
             var responseString = await response.Content.ReadAsStringAsync();
 
             _logger.LogDebug("Token response received: [{statusCode}] {message}", response.StatusCode, responseString);            
@@ -86,7 +88,7 @@ namespace Rollvolet.CRM.API.Controllers
 
             var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
 
-            var response = await HttpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
             var responseString = await response.Content.ReadAsStringAsync();
 
             _logger.LogDebug("Refresh token response received: [{statusCode}] {message}", response.StatusCode, responseString);
