@@ -9,8 +9,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
     {
         public class AttributesDto
         {  
-            public int Id { get; set; }
-            public int Year { get; set; }    
+            public int Id { get; set; }  
             public int Number { get; set; }
             [JsonProperty("invoice-date")]
             public DateTime? InvoiceDate { get; set; }

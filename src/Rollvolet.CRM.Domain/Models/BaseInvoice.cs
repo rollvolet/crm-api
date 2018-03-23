@@ -6,7 +6,6 @@ namespace Rollvolet.CRM.Domain.Models
     public class BaseInvoice
     {
         public int Id { get; set; }
-        public int Year { get; set; }    
         public int Number { get; set; }
         public DateTime? InvoiceDate { get; set; }
         public DateTime? DueDate { get; set; }
