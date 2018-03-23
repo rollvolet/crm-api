@@ -58,6 +58,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("way-of-entry", c => c.WayOfEntry);
             selectors.Add("visit", x => x.Visit);
             selectors.Add("offer", x => x.Offer);
+            
+            // dummy entries for resources that are already included
+            selectors.Add("customer.honorific-prefix", null);
 
             // The selectors below won't work since we're not able to define the relationship in CrmContext
             // They are manually mapped in the DataProvider

@@ -52,6 +52,10 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("invoice", c => c.Invoice);
             selectors.Add("vat-rate", c => c.VatRate);
             selectors.Add("deposits", c => c.Deposits);
+            
+            // dummy entries for resources that are already included
+            selectors.Add("customer.honorific-prefix", null);
+            selectors.Add("deposit-invoices", null);
 
             // The selectors below won't work since we're not able to define the relationship in CrmContext
             // They are manually mapped in the DataProvider
