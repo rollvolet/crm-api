@@ -20,6 +20,33 @@ namespace Rollvolet.CRM.Domain.Managers
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _logger = logger;
         }
+        
+        public async Task<Paged<DepositInvoice>> GetAllAsync(QuerySet query)
+        {
+            if (query.Sort.Field == null)
+            {
+                query.Sort.Order = SortQuery.ORDER_DESC;
+                query.Sort.Field = "number";
+            }
+
+            return await _depositInvoiceDataProvider.GetAllAsync(query);
+        }
+
+        public async Task<DepositInvoice> GetByIdAsync(int id, QuerySet query)
+        {
+            return await _depositInvoiceDataProvider.GetByIdAsync(id, query);
+        }
+
+        public async Task<Paged<DepositInvoice>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
+        {
+            if (query.Sort.Field == null)
+            {
+                query.Sort.Order = SortQuery.ORDER_DESC;
+                query.Sort.Field = "number";
+            }
+
+            return await _depositInvoiceDataProvider.GetAllByCustomerIdAsync(customerId, query);
+        }
 
         public async Task<Paged<DepositInvoice>> GetAllByOrderIdAsync(int orderId, QuerySet query)
         {

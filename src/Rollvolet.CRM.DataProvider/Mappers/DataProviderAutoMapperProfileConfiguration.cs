@@ -131,8 +131,10 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences();
 
             CreateMap<Models.Invoice, Domain.Models.DepositInvoice>()
+                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.MainInvoiceHub != null ? src.MainInvoiceHub.Order : null))
                 .PreserveReferences()
                 .ReverseMap()
+                // TODO add reverse mapping for order
                 .PreserveReferences();
 
             CreateMap<Models.InvoiceSupplement, Domain.Models.InvoiceSupplement>()

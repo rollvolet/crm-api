@@ -14,11 +14,11 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 {
     public static class InvoiceQueryExtensions
     {
-        public static IQueryable<Invoice> Filter(this IQueryable<Invoice> source, QuerySet querySet, CrmContext context)  
+        public static IQueryable<Invoice> Filter(this IQueryable<Invoice> source, QuerySet querySet, CrmContext context, bool isDepositInvoice = false)  
         {
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
-                var filterValue = querySet.Filter.Fields["number"];
+                var filterValue = querySet.Filter.Fields["number"].Replace("/", "");
                 int number;
                 if (Int32.TryParse(filterValue, out number)) {
                     var predicate = PredicateBuilder.New<Invoice>(x => x.Number == number);
@@ -46,7 +46,11 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("offer.number"))
             {
                 var filterValue = querySet.Filter.Fields["offer.number"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Order.OfferNumber, filterValue));
+
+                if (isDepositInvoice)
+                    source = source.Where(c => EF.Functions.Like(c.Order.OfferNumber, filterValue));
+                else
+                    source = source.Where(c => EF.Functions.Like(c.MainInvoiceHub.Order.OfferNumber, filterValue));
             }
 
             source = source.FilterCase(querySet, context);
@@ -54,26 +58,36 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             return source; 
         }      
 
-        public static IQueryable<Invoice> Include(this IQueryable<Invoice> source, QuerySet querySet)
+        public static IQueryable<Invoice> Include(this IQueryable<Invoice> source, QuerySet querySet, bool isDepositInvoice = false)
         {
             if (querySet.Include.Fields.Contains("customer.honorific-prefix"))
                 source = source.Include(x => x.Customer).ThenInclude(x => x.HonorificPrefix);
 
-            if (querySet.Include.Fields.Contains("deposit-invoices"))                
-                source = source.Include(c => c.DepositInvoiceHubs).ThenInclude(d => d.DepositInvoice);
-
             var selectors = new Dictionary<string, Expression<Func<Invoice, object>>>();
 
             selectors.Add("customer", c => c.Customer);
-            selectors.Add("order", c => c.Order);
             selectors.Add("vat-rate", c => c.VatRate);
-            selectors.Add("supplements", c => c.Supplements);
-            selectors.Add("deposits", c => c.Deposits);
-            
+
             // dummy entries for resources that are already included
             selectors.Add("customer.honorific-prefix", null);
-            selectors.Add("deposit-invoices", null);
 
+            if (!isDepositInvoice) // only available on normal invoices
+            {
+                if (querySet.Include.Fields.Contains("deposit-invoices"))                
+                    source = source.Include(c => c.DepositInvoiceHubs).ThenInclude(d => d.DepositInvoice);
+    
+                selectors.Add("order", c => c.Order);
+                selectors.Add("supplements", c => c.Supplements);
+                selectors.Add("deposits", c => c.Deposits);
+
+                selectors.Add("deposit-invoices", null);            
+            }
+            else 
+            {
+                if (querySet.Include.Fields.Contains("order"))                
+                    source = source.Include(c => c.MainInvoiceHub).ThenInclude(d => d.Order);
+            }
+            
             // The selectors below won't work since we're not able to define the relationship in CrmContext
             // They are manually mapped in the DataProvider
             // selectors.Add("building", c => c.Building);
@@ -84,7 +98,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             return source.Include<Invoice>(querySet, selectors);
         }
 
-        public static IQueryable<Invoice> Sort(this IQueryable<Invoice> source, QuerySet querySet)
+        public static IQueryable<Invoice> Sort(this IQueryable<Invoice> source, QuerySet querySet, bool isDepositInvoice = false)
         {
             var selectors = new Dictionary<string, Expression<Func<Invoice, object>>>();
 
@@ -92,7 +106,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("year", x => x.Year);
             selectors.Add("number", x => x.Number);
             selectors.Add("reference", x => x.Reference);
-            selectors.Add("offer.number", x => x.Order.OfferNumber);
+            selectors.Add("offer.number", x => isDepositInvoice ? x.MainInvoiceHub.Order.OfferNumber : x.Order.OfferNumber);
             selectors.Add("customer.name", x => x.CustomerName);
             selectors.Add("customer.street", x => x.CustomerAddress1);
             selectors.Add("customer.postal-code", x => x.CustomerPostalCode);
