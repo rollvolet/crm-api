@@ -35,6 +35,10 @@ namespace Rollvolet.CRM.API.Builders
                     {
                         throw new IllegalArgumentException("IllegalPage", "Page query parameter must have key 'page[size]' or 'page[number]'.");
                     }
+                    catch (System.FormatException)
+                    {
+                        throw new IllegalArgumentException("IllegalPage", "Page query parameter value must be an integer.");
+                    }
                 }
 
                 if (pair.Key.StartsWith("include"))
