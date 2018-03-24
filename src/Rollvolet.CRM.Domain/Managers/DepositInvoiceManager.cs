@@ -23,7 +23,8 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<Paged<DepositInvoice>> GetAllByOrderIdAsync(int orderId, QuerySet query)
         {
-            if (query.Sort.Field == null) {
+            if (query.Sort.Field == null)
+            {
                 query.Sort.Order = SortQuery.ORDER_DESC;
                 query.Sort.Field = "number";
             }

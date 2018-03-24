@@ -23,7 +23,8 @@ namespace Rollvolet.CRM.Domain.Managers
         
         public async Task<Paged<Offer>> GetAllAsync(QuerySet query)
         {
-            if (query.Sort.Field == null) {
+            if (query.Sort.Field == null)
+            {
                 query.Sort.Order = SortQuery.ORDER_DESC;
                 query.Sort.Field = "offer-date";
             }
@@ -38,7 +39,8 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<Paged<Offer>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
-            if (query.Sort.Field == null) {
+            if (query.Sort.Field == null)
+            {
                 query.Sort.Order = SortQuery.ORDER_DESC;
                 query.Sort.Field = "offer-date";
             }
