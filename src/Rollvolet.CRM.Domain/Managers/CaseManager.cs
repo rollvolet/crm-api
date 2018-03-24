@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -28,7 +29,7 @@ namespace Rollvolet.CRM.Domain.Managers
             else if (invoiceId != null)
               return await _caseDataProvider.GetCaseByInvoiceId((int) invoiceId);
             else
-              throw new ArgumentException("Either requestId, offerId, orderId or invoiceId must be set");
+              throw new IllegalArgumentException("CaseParamMissing", "Either requestId, offerId, orderId or invoiceId must be set");
         }
     }
 }
