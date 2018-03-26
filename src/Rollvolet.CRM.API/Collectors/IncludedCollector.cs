@@ -42,6 +42,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.UnionWith(_mapper.Map<IEnumerable<OfferDto>>(customer.Offers));
             if (includeQuery.Contains("orders") && customer.Orders.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<OrderDto>>(customer.Orders));
+            if (includeQuery.Contains("deposit-invoices") && customer.DepositInvoices.Count() > 0)
+                included.UnionWith(_mapper.Map<IEnumerable<DepositInvoiceDto>>(customer.DepositInvoices));
             if (includeQuery.Contains("invoices") && customer.Invoices.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<InvoiceDto>>(customer.Invoices));
             if (includeQuery.Contains("tags") && customer.Tags.Count() > 0)

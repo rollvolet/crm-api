@@ -42,6 +42,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Requests = GetManyRelationship<Request>("customers", source.Id, "requests", source.Requests, context);
             relationships.Offers = GetManyRelationship<Offer>("customers", source.Id, "offers", source.Offers, context);
             relationships.Orders = GetManyRelationship<Order>("customers", source.Id, "orders", source.Orders, context);
+            relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("customers", source.Id, "deposit-invoices", source.DepositInvoices, context);
             relationships.Invoices = GetManyRelationship<Invoice>("customers", source.Id, "invoices", source.Invoices, context);
             relationships.Tags = GetManyRelationship<Tag>("customers", source.Id, "tags", source.Tags, context);
             return relationships;

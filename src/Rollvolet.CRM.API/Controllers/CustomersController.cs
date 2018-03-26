@@ -29,6 +29,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IRequestManager _requestManager;
         private readonly IOfferManager _offerManager;
         private readonly IOrderManager _orderManager;
+        private readonly IDepositInvoiceManager _depositInvoiceManager;
         private readonly IInvoiceManager _invoiceManager;
         private readonly ITagManager _tagManager;
         private readonly IIncludedCollector _includedCollector;
@@ -37,8 +38,8 @@ namespace Rollvolet.CRM.API.Controllers
 
         public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager, 
                                     ITelephoneManager telephoneManager, IRequestManager requestManager, IOfferManager offerManager, 
-                                    IOrderManager orderManager, IInvoiceManager invoiceManager, ITagManager tagManager, 
-                                    IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+                                    IOrderManager orderManager, IDepositInvoiceManager depositInvoiceManager, IInvoiceManager invoiceManager, 
+                                    ITagManager tagManager, IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _customerManager = customerManager;
             _contactManager = contactManager;
@@ -47,6 +48,7 @@ namespace Rollvolet.CRM.API.Controllers
             _requestManager = requestManager;
             _offerManager = offerManager;
             _orderManager = orderManager;
+            _depositInvoiceManager = depositInvoiceManager;
             _invoiceManager = invoiceManager;
             _tagManager = tagManager;
             _includedCollector = includedCollector;
@@ -191,7 +193,23 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedOrders);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = orderDtos, Included = included });
-        }    
+        }
+
+        [HttpGet("{customerId}/deposit-invoices")]
+        [HttpGet("{customerId}/links/deposit-invoices")]
+        public async Task<IActionResult> GetRelatedDepositInvoicesById(int customerId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedInvoices = await _depositInvoiceManager.GetAllByCustomerIdAsync(customerId, querySet);
+
+            var invoiceDtos = _mapper.Map<IEnumerable<DepositInvoiceDto>>(pagedInvoices.Items, opt => opt.Items["include"] = querySet.Include);
+            var included = _includedCollector.CollectIncluded(pagedInvoices.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedInvoices);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedInvoices);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = invoiceDtos, Included = included });
+        }  
 
         [HttpGet("{customerId}/invoices")]
         [HttpGet("{customerId}/links/invoices")]

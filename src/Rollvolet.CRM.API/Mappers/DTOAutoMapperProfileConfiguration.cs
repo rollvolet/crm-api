@@ -322,6 +322,7 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<DepositInvoice, DepositInvoiceDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
+
             CreateMap<DepositInvoice, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("deposit-invoices"));   
 

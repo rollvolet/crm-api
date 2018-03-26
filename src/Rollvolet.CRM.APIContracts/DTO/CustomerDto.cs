@@ -51,6 +51,8 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public IRelationship Requests { get; set; }
             public IRelationship Offers { get; set; }
             public IRelationship Orders { get; set; }
+            [JsonProperty("deposit-invoices")]
+            public IRelationship DepositInvoices { get; set; }
             public IRelationship Invoices { get; set; }            
             public IRelationship Tags { get; set; }
         }

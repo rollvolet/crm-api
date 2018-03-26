@@ -15,6 +15,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.EmbeddedCity))
                 .ForMember(dest => dest.Memo, opt => opt.MapFrom(src => src.Memo != null ? src.Memo.Text : null))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.CustomerTags.Select(e => e.Tag)))
+                .ForMember(dest => dest.DepositInvoices, opt => opt.Ignore())
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();
