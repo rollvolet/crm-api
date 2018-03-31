@@ -23,6 +23,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<Deposit> Deposits { get; set; }
         public DbSet<DepositInvoiceHub> DepositInvoices { get; set; }
+        public DbSet<WorkingHour> WorkingHours { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
         {
@@ -439,6 +440,36 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasPrincipalKey<Invoice>(e => e.Id);
 
 
+            // Employee    
+
+            modelBuilder.Entity<Employee>()
+                .ToTable("TblPersoneel", schema: "dbo");
+
+            modelBuilder.Entity<Employee>()
+                .HasKey(e => e.Id);  
+
+
+            // WorkingHour    
+
+            modelBuilder.Entity<WorkingHour>()
+                .ToTable("tblWerkUren", schema: "dbo");
+
+            modelBuilder.Entity<WorkingHour>()
+                .HasKey(e => e.Id);   
+
+            modelBuilder.Entity<WorkingHour>()
+                .HasOne(e => e.Employee)
+                .WithMany(e => e.WorkingHours)
+                .HasForeignKey(e => e.EmployeeName)
+                .HasPrincipalKey(e => e.FirstName);  
+
+            modelBuilder.Entity<WorkingHour>()
+                .HasOne(e => e.Invoice)
+                .WithMany(e => e.WorkingHours)
+                .HasForeignKey(e => e.InvoiceId)
+                .HasPrincipalKey(e => e.Id);          
+
+
             // Payment
 
             modelBuilder.Entity<Payment>()
@@ -446,7 +477,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasQueryFilter(e => e.Type == "BETALING");
 
             modelBuilder.Entity<Payment>()
-                .HasKey(e => e.Id);                                                                       
+                .HasKey(e => e.Id);                                                                 
         }
     }
 }

@@ -23,13 +23,16 @@ namespace Rollvolet.CRM.API.Controllers
     public class InvoicesController : Controller
     {
         private readonly IInvoiceManager _invoiceManager;
+        private readonly IWorkingHourManager _workingHourManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public InvoicesController(IInvoiceManager invoiceManager, IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+        public InvoicesController(IInvoiceManager invoiceManager, IWorkingHourManager workingHourManager, IIncludedCollector includedCollector, 
+                                    IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _invoiceManager = invoiceManager;
+            _workingHourManager = workingHourManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -63,5 +66,21 @@ namespace Rollvolet.CRM.API.Controllers
 
             return Ok(new ResourceResponse() { Links = links, Data = orderDto, Included = included });
         }   
+
+        [HttpGet("{invoiceId}/working-hours")]
+        [HttpGet("{invoiceId}/links/working-hours")]
+        public async Task<IActionResult> GetRelatedWorkingHoursByInvoiceId(int invoiceId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedWorkingHours = await _workingHourManager.GetAllByInvoiceIdAsync(invoiceId, querySet);
+
+            var workingHourDtos = _mapper.Map<IEnumerable<WorkingHourDto>>(pagedWorkingHours.Items, opt => opt.Items["include"] = querySet.Include);
+            var included = _includedCollector.CollectIncluded(pagedWorkingHours.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedWorkingHours);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedWorkingHours);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = workingHourDtos, Included = included });
+        }  
     }
 } 

@@ -359,6 +359,39 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Type, opt => opt.UseValue("deposits"));   
 
 
+            // Employee mappings
+
+            CreateMap<Employee, EmployeeDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("employees"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<Employee, EmployeeDto.AttributesDto>();
+
+            CreateMap<Employee, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<Employee, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("employees"));  
+
+
+
+            // Working hour mappings
+
+            CreateMap<WorkingHour, WorkingHourDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("working-hours"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<WorkingHour, WorkingHourDto.AttributesDto>();
+
+            CreateMap<WorkingHour, WorkingHourDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<WorkingHour, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("working-hours"));  
+
+
             // Payment mappings
 
             CreateMap<Payment, PaymentDto>()

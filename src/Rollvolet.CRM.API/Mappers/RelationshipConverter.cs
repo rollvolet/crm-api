@@ -17,6 +17,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Invoice, InvoiceDto.RelationshipsDto>,
                                             ITypeConverter<DepositInvoice, DepositInvoiceDto.RelationshipsDto>,
                                             ITypeConverter<Deposit, DepositDto.RelationshipsDto>,
+                                            ITypeConverter<WorkingHour, WorkingHourDto.RelationshipsDto>,
                                             ITypeConverter<Country, EmptyRelationshipsDto>,
                                             ITypeConverter<Language, EmptyRelationshipsDto>,
                                             ITypeConverter<PostalCode, EmptyRelationshipsDto>,
@@ -28,7 +29,8 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<VatRate, EmptyRelationshipsDto>,
                                             ITypeConverter<SubmissionType, EmptyRelationshipsDto>,
                                             ITypeConverter<Payment, EmptyRelationshipsDto>,
-                                            ITypeConverter<InvoiceSupplement, EmptyRelationshipsDto>
+                                            ITypeConverter<InvoiceSupplement, EmptyRelationshipsDto>,
+                                            ITypeConverter<Employee, EmptyRelationshipsDto>
     {
         CustomerDto.RelationshipsDto ITypeConverter<Customer, CustomerDto.RelationshipsDto>.Convert(Customer source, CustomerDto.RelationshipsDto destination, ResolutionContext context)
         {
@@ -125,7 +127,8 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.VatRate = GetOneRelationship<VatRate>("invoices", source.Id, "vat-rate", source.VatRate, context);
             relationships.Supplements = GetManyRelationship<InvoiceSupplement>("invoices", source.Id, "supplements", source.Supplements, context); 
             relationships.Deposits = GetManyRelationship<Deposit>("invoices", source.Id, "deposits", source.Deposits, context);  
-            relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("invoices", source.Id, "deposit-invoices", source.DepositInvoices, context);          
+            relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("invoices", source.Id, "deposit-invoices", source.DepositInvoices, context);    
+            relationships.WorkingHours = GetManyRelationship<WorkingHour>("invoices", source.Id, "working-hours", source.WorkingHours, context);          
             return relationships;
         } 
 
@@ -147,6 +150,14 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Invoice = GetOneRelationship<Invoice>("deposits", source.Id, "invoice", source.Invoice, context);
             relationships.Customer = GetOneRelationship<Customer>("deposits", source.Id, "customer", source.Customer, context);
             relationships.Payment = GetOneRelationship<Payment>("deposits", source.Id, "payment", source.Payment, context);
+            return relationships;
+        }    
+
+        WorkingHourDto.RelationshipsDto ITypeConverter<WorkingHour, WorkingHourDto.RelationshipsDto>.Convert(WorkingHour source, WorkingHourDto.RelationshipsDto destination, ResolutionContext context)
+        {
+            var relationships = new WorkingHourDto.RelationshipsDto();
+            relationships.Employee = GetOneRelationship<Employee>("working-hours", source.Id, "employee", source.Employee, context);
+            relationships.Invoice = GetOneRelationship<Invoice>("working-hours", source.Id, "invoice", source.Invoice, context);
             return relationships;
         }                
 
@@ -207,6 +218,11 @@ namespace Rollvolet.CRM.API.Mappers
         }
 
         EmptyRelationshipsDto ITypeConverter<InvoiceSupplement, EmptyRelationshipsDto>.Convert(InvoiceSupplement source, EmptyRelationshipsDto destination, ResolutionContext context)
+        {
+            return new EmptyRelationshipsDto();
+        }
+
+        EmptyRelationshipsDto ITypeConverter<Employee, EmptyRelationshipsDto>.Convert(Employee source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
         }

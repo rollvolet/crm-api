@@ -5,8 +5,8 @@ using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.Domain.Contracts.DataProviders
 {
-    public interface IDepositDataProvider
+    public interface IWorkingHourDataProvider
     {
-        Task<Paged<Deposit>> GetAllByOrderIdAsync(int orderId, QuerySet query);
+        Task<Paged<WorkingHour>> GetAllByInvoiceIdAsync(int invoiceId, QuerySet query);
     }
 }

@@ -148,6 +148,16 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ReverseMap()
                 .PreserveReferences();
 
+            CreateMap<Models.Employee, Domain.Models.Employee>()
+                .PreserveReferences()
+                .ReverseMap()
+                .PreserveReferences();
+
+            CreateMap<Models.WorkingHour, Domain.Models.WorkingHour>()
+                .PreserveReferences()
+                .ReverseMap()
+                .PreserveReferences();
+
             CreateMap<Models.Payment, Domain.Models.Payment>()
                 .PreserveReferences()
                 .ReverseMap()

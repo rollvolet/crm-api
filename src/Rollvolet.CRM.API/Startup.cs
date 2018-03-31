@@ -123,6 +123,8 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IHonorificPrefixDataProvider, HonorificPrefixDataProvider>();
             services.AddTransient<ILanguageDataProvider, LanguageDataProvider>();
             services.AddTransient<IPostalCodeDataProvider, PostalCodeDataProvider>();
+            services.AddTransient<IWorkingHourManager, WorkingHourManager>();
+            services.AddTransient<IWorkingHourDataProvider, WorkingHourDataProvider>();
             services.AddTransient<ISequenceDataProvider, SequenceDataProvider>();
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
             services.AddTransient<IIncludedCollector, IncludedCollector>();
