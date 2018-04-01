@@ -39,10 +39,6 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public bool IsCreditNote { get; set; }  
             [JsonProperty("has-production-ticket")]
             public bool HasProductionTicket { get; set; }
-            [JsonProperty("performed-hours")]
-            public float? PerformedHours { get; set; }
-            [JsonProperty("performed-nb-of-persons")]
-            public float? PerformedNbOfPersons { get; set; }
             [JsonProperty("certificate-url")]
             public string CertificateUrl { get; set; } 
             public string Comment { get; set; } 

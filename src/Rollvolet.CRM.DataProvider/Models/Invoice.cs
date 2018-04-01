@@ -76,12 +76,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Produktiebon")]
         public bool? HasProductionTicket { get; set; }
 
-        [Column("UrenGewerkt")]
-        public float? PerformedHours { get; set; }
-
-        [Column("ManGewerkt")]
-        public float? PerformedNbOfPersons { get; set; }
-
         [Column("AttestLink")]
         public string CertificateUrl { get; set; } 
 
