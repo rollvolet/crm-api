@@ -269,8 +269,9 @@ namespace Rollvolet.CRM.API.Mappers
 
         private Links GetRelationshipLinks(string resourceName, string id, string relationName) {
             return new Links { 
-                Self = $"/{resourceName}/{id}/links/{relationName}",
-                Related = $"/{resourceName}/{id}/{relationName}"
+                // TODO api prefix must be configurable
+                Self = $"/api/{resourceName}/{id}/links/{relationName}",
+                Related = $"/api/{resourceName}/{id}/{relationName}"
             };
         }
   }

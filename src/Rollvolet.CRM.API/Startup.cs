@@ -33,6 +33,8 @@ using Rollvolet.CRM.API.Configuration;
 using Rollvolet.CRM.API.Middleware.ExceptionHandling.Interfaces;
 using Rollvolet.CRM.API.Middleware.ExceptionHandling;
 using Rollvolet.CRM.Domain.Logging;
+using Rollvolet.CRM.API.Middleware.UrlRewrite;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Rollvolet.CRM.API
 {
@@ -129,8 +131,9 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
             services.AddTransient<IIncludedCollector, IncludedCollector>();
 
-            services.AddMvc((config) => {
-                config.Filters.Add(typeof(ExceptionHandlerFilter));
+            services.AddMvc((opt) => {
+                opt.Filters.Add(typeof(ExceptionHandlerFilter));
+                opt.UseCentralRoutePrefix(new RouteAttribute("api"));
             });
         }
 
