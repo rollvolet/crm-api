@@ -138,10 +138,10 @@ namespace Rollvolet.CRM.API
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             // auto migrations
-            using (var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                scope.ServiceProvider.GetRequiredService<CrmContext>().Database.Migrate();
-            }
+            // using (var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            // {
+            //     scope.ServiceProvider.GetRequiredService<CrmContext>().Database.Migrate();
+            // }
 
             if (env.IsDevelopment())
             {
