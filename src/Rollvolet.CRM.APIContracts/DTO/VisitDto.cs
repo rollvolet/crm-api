@@ -13,7 +13,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
             public bool OfferExpected { get; set; }
             public string Visitor { get; set; }
             [JsonProperty("visit-date")]
-            public DateTime VisitDate { get; set; }
+            public DateTime? VisitDate { get; set; }
             public string Comment { get; set; }
             [JsonProperty("calendar-subject")]            
             public string CalendarSubject { get; set; }

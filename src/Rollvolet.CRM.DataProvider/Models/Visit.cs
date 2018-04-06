@@ -15,7 +15,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public string Visitor { get; set; }
         
         [Column("Bezoekdatum")]
-        public DateTime VisitDate { get; set; }
+        public DateTime? VisitDate { get; set; }
      
         [Column("OfferteVerwacht")]
         public bool OfferExpected { get; set; }
