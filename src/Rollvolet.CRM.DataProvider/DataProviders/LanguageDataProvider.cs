@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -16,6 +17,13 @@ namespace Rollvolet.CRM.DataProviders
         {
             _context = context;
             _mapper = mapper;
+        }
+
+        public async Task<IEnumerable<Language>> GetAll()
+        {
+            var languages = _context.Languages.OrderBy(c => c.Name).AsEnumerable();
+
+            return _mapper.Map<IEnumerable<Language>>(languages);
         }
 
         public async Task<Language> GetByIdAsync(int id)

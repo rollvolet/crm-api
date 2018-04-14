@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -16,6 +17,13 @@ namespace Rollvolet.CRM.DataProviders
         {
             _context = context;
             _mapper = mapper;
+        }
+
+        public async Task<IEnumerable<HonorificPrefix>> GetAll()
+        {
+            var honorificPrefixes = _context.HonorificPrefixes.OrderBy(c => c.Id).AsEnumerable();
+
+            return _mapper.Map<IEnumerable<HonorificPrefix>>(honorificPrefixes);
         }
 
         public async Task<HonorificPrefix> GetByIdAsync(int id)

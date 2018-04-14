@@ -5,9 +5,9 @@ using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.Domain.Contracts.DataProviders
 {
-    public interface ICountryDataProvider
+    public interface ITelephoneTypeDataProvider
     {
-        Task<IEnumerable<Country>> GetAll();
-        Task<Country> GetByIdAsync(int id);
+        Task<IEnumerable<TelephoneType>> GetAll();
+        Task<TelephoneType> GetByIdAsync(int id);
     }
 }

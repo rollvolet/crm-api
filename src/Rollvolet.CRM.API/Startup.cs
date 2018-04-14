@@ -104,6 +104,8 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IBuildingManager, BuildingManager>();
             services.AddTransient<ITelephoneDataProvider, TelephoneDataProvider>();
             services.AddTransient<ITelephoneManager, TelephoneManager>();
+            services.AddTransient<ITelephoneTypeDataProvider, TelephoneTypeDataProvider>();
+            services.AddTransient<ITelephoneTypeManager, TelephoneTypeManager>();
             services.AddTransient<IRequestDataProvider, RequestDataProvider>();
             services.AddTransient<IRequestManager, RequestManager>();
             services.AddTransient<IOfferDataProvider, OfferDataProvider>();
@@ -122,8 +124,11 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IDepositDataProvider, DepositDataProvider>();
             services.AddTransient<IDepositManager, DepositManager>();
             services.AddTransient<ICountryDataProvider, CountryDataProvider>();
+            services.AddTransient<ICountryManager, CountryManager>();
             services.AddTransient<IHonorificPrefixDataProvider, HonorificPrefixDataProvider>();
+            services.AddTransient<IHonorificPrefixManager, HonorificPrefixManager>();
             services.AddTransient<ILanguageDataProvider, LanguageDataProvider>();
+            services.AddTransient<ILanguageManager, LanguageManager>();
             services.AddTransient<IPostalCodeDataProvider, PostalCodeDataProvider>();
             services.AddTransient<IWorkingHourManager, WorkingHourManager>();
             services.AddTransient<IWorkingHourDataProvider, WorkingHourDataProvider>();
