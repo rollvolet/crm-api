@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -16,6 +17,13 @@ namespace Rollvolet.CRM.DataProviders
         {
             _context = context;
             _mapper = mapper;
+        }
+
+        public async Task<IEnumerable<PostalCode>> GetAll()
+        {
+            var postalCodes = _context.PostalCodes.OrderBy(c => c.Code).AsEnumerable();
+
+            return _mapper.Map<IEnumerable<PostalCode>>(postalCodes);
         }
 
         public async Task<PostalCode> GetByIdAsync(int id)

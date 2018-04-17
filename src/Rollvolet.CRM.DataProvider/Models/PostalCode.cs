@@ -12,9 +12,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         
         [Column("Gemeente")]
         public string Name { get; set; }
-
-        [Column("AfstandRollvolet")]
-        public int Distance { get; set; }
     }
   
 }

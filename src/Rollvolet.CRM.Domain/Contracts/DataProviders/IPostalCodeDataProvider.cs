@@ -7,6 +7,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
 {
     public interface IPostalCodeDataProvider
     {
+        Task<IEnumerable<PostalCode>> GetAll();
         Task<PostalCode> GetByIdAsync(int id);
     }
 }
