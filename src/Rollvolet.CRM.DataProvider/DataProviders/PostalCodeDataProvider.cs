@@ -2,8 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.DataProviders
@@ -12,11 +15,13 @@ namespace Rollvolet.CRM.DataProviders
     {
         private readonly CrmContext _context;
         private readonly IMapper _mapper;
+        private readonly ILogger _logger;
 
-        public PostalCodeDataProvider(CrmContext context, IMapper mapper)
+        public PostalCodeDataProvider(CrmContext context, IMapper mapper, ILogger<PostalCodeDataProvider> logger)
         {
             _context = context;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<PostalCode>> GetAll()
@@ -28,7 +33,13 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<PostalCode> GetByIdAsync(int id)
         {
-            var postalCode = _context.PostalCodes.Single(x => x.Id == id);
+            var postalCode = await _context.PostalCodes.Where(x => x.Id == id).FirstOrDefaultAsync();
+            
+            if (postalCode == null)
+            {
+                _logger.LogError($"No postal code found with id {id}");
+                throw new EntityNotFoundException();
+            }
 
             return _mapper.Map<PostalCode>(postalCode);
         }

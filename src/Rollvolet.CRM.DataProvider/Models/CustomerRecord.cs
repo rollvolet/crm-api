@@ -63,7 +63,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Opmerking")]
         public string Comment { get; set; }        
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("RegistratieDatum")]
         public DateTime Created { get; set; }
 

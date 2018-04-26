@@ -11,6 +11,7 @@ using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
 using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
@@ -86,7 +87,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ResourceRequest<CustomerDto> resource)
+        public async Task<IActionResult> Create([FromBody] ResourceRequest<CustomerRequestDto> resource)
         {
             var customer = _mapper.Map<Customer>(resource.Data);
 

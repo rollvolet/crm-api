@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using AutoMapper;
 using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.API.Mappers
 {
-    public class RelationshipsConverter : ITypeConverter<Customer, CustomerDto.RelationshipsDto>,
+    public class RelationshipsConverter : ITypeConverter<Customer, CustomerRelationshipsDto>,
                                             ITypeConverter<Contact, ContactDto.RelationshipsDto>,
                                             ITypeConverter<Building, BuildingDto.RelationshipsDto>,
                                             ITypeConverter<Telephone, TelephoneDto.RelationshipsDto>,
@@ -32,9 +33,9 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<InvoiceSupplement, EmptyRelationshipsDto>,
                                             ITypeConverter<Employee, EmptyRelationshipsDto>
     {
-        CustomerDto.RelationshipsDto ITypeConverter<Customer, CustomerDto.RelationshipsDto>.Convert(Customer source, CustomerDto.RelationshipsDto destination, ResolutionContext context)
+        CustomerRelationshipsDto ITypeConverter<Customer, CustomerRelationshipsDto>.Convert(Customer source, CustomerRelationshipsDto destination, ResolutionContext context)
         {
-            var relationships = new CustomerDto.RelationshipsDto();
+            var relationships = new CustomerRelationshipsDto();
             relationships.Contacts = GetManyRelationship<Contact>("customers", source.Id, "contacts", source.Contacts, context);
             relationships.Buildings = GetManyRelationship<Building>("customers", source.Id, "buildings", source.Buildings, context);
             relationships.Country = GetOneRelationship<Country>("customers", source.Id, "country", source.Country, context);

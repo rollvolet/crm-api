@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -16,20 +17,20 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly ICountryDataProvider _countryDataProvider;
         private readonly IHonorificPrefixDataProvider _honorificPrefixDataProvider;
         private readonly ILanguageDataProvider _langugageDataProvider;
-        private readonly IPostalCodeDataProvider _postalCodeDataProvider;
+        private readonly ITagDataProvider _tagDataProvider;
         private readonly IContactDataProvider _contactDataProvider;
         private readonly ILogger _logger;
 
         public CustomerManager(ICustomerDataProvider customerDataProvider, ICountryDataProvider countryDataProvider,
                                 IHonorificPrefixDataProvider honorificPrefixDataProvider, ILanguageDataProvider languageDataProvider,
-                                IPostalCodeDataProvider postalCodeDataProvider, IContactDataProvider contactDataProvider,
+                                ITagDataProvider tagDataProvider, IContactDataProvider contactDataProvider,
                                 ILogger<CustomerManager> logger)
         {
             _customerDataProvider = customerDataProvider;
             _countryDataProvider = countryDataProvider;
             _honorificPrefixDataProvider = honorificPrefixDataProvider;
             _langugageDataProvider = languageDataProvider;
-            _postalCodeDataProvider = postalCodeDataProvider;
+            _tagDataProvider = tagDataProvider;
             _contactDataProvider = contactDataProvider;
             _logger = logger;
         }
@@ -49,16 +50,59 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<Customer> Create(Customer customer)
         {
-            // TODO: replace related resources with the real objects
-            if (customer.Country != null)
-                customer.Country = await _countryDataProvider.GetByIdAsync(int.Parse(customer.Country.Id));
-            if (customer.HonorificPrefix != null)
-                customer.HonorificPrefix = await _honorificPrefixDataProvider.GetByIdAsync(int.Parse(customer.HonorificPrefix.Id));
-            if (customer.Language != null)
-                customer.Language = await _langugageDataProvider.GetByIdAsync(int.Parse(customer.Language.Id));
+            // Validations
 
-            if (customer.Contacts != null)
-                customer.Contacts = customer.Contacts.Select(x => _contactDataProvider.GetByIdAsync(x.Id).Result);
+            if (customer.DataId != 0)
+                throw new IllegalArgumentException("IllegalAttribute", "Customer cannot have a data-id on create.");
+            if (customer.Id != 0 || customer.Number != 0)
+                throw new IllegalArgumentException("IllegalAttribute", "Customer cannot have an id/number on create.");
+            if ((customer.PostalCode != null && customer.City == null) || (customer.PostalCode == null && customer.City != null))
+                throw new IllegalArgumentException("IllegalAttribute", "Customer's postal-code and city must be both filled in or not filled.");
+            if (customer.Telephones != null || customer.Contacts != null || customer.Buildings != null || customer.Requests != null
+                  || customer.Offers != null || customer.Orders != null || customer.DepositInvoices != null || customer.Invoices != null)
+            {
+                var message = "Telephones, contacts, buildings, requests, offers, orders, deposit-invoices or invoices cannot be added to a customer on creation.";
+                _logger.LogDebug(message);
+                throw new IllegalArgumentException("IllegalAttribute", message);
+            }
+            if (customer.Country == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Country is required on customer creation.");
+
+            // TODO add validations for required attributes / relations
+
+
+            // Embed existing records
+
+            try {
+                if (customer.HonorificPrefix != null)
+                {
+                    var id = customer.HonorificPrefix.Id;
+                    customer.HonorificPrefix = await _honorificPrefixDataProvider.GetByIdAsync(id);
+                }
+                if (customer.Language != null)
+                {
+                    var id = int.Parse(customer.Language.Id);
+                    customer.Language = await _langugageDataProvider.GetByIdAsync(id);
+                }
+                if (customer.Country != null)
+                {
+                    var id = int.Parse(customer.Country.Id);
+                    customer.Country = await _countryDataProvider.GetByIdAsync(id);
+                }
+                if (customer.Tags != null)
+                {
+                    customer.Tags = await Task.WhenAll(customer.Tags.Select(t => {
+                        var id = int.Parse(t.Id);
+                        return _tagDataProvider.GetByIdAsync(id);
+                    }));
+                }
+            }
+            catch (EntityNotFoundException) 
+            {
+                _logger.LogDebug($"Failed to find a related entity");
+                throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
+            }
+
 
             return await _customerDataProvider.Create(customer);
         }

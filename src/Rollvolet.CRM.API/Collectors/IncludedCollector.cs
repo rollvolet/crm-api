@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;

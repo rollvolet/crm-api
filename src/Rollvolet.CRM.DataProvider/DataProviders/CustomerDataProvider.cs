@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -75,31 +78,71 @@ namespace Rollvolet.CRM.DataProviders
         {
             var customerRecord = _mapper.Map<DataProvider.Models.Customer>(customer);
 
+            customerRecord.Number = await _sequenceDataProvider.GetNextCustomerNumber();
+            customerRecord.Created = DateTime.Now;
+            customerRecord.SearchName = CalculateSearchName(customer.Name);
+
+            // The domain's customer.postalCode maps to the dataprovider's embeddedPostalCode property. 
+            // We need to set the related postal code record manually here.
             if (customer.PostalCode != null)
             {
-                // customerRecord.EmbeddedPostalCode = customer.PostalCode.Code;
-                // customerRecord.EmbeddedCity = customer.PostalCode.Name;
+                var postalCodeRecord = await _context.PostalCodes.Where(p => p.Code == customer.PostalCode).FirstOrDefaultAsync();
+                if (postalCodeRecord == null) {
+                    _logger.LogDebug($"No PostalCode found with code '{customer.PostalCode}'");
+                    throw new IllegalArgumentException("IllegalAttribute", $"Invalid postal code '{customer.PostalCode}'.");
+                } else {
+                    customerRecord.PostalCodeId = postalCodeRecord.Id;
+                }
             }
 
-            customerRecord.Number = await _sequenceDataProvider.GetNextCustomerNumber();
-
-            foreach (var contact in customerRecord.Contacts)
+            if (customer.Memo != null)
             {
-                contact.CustomerId = customerRecord.Number;
+                var memo = new DataProvider.Models.Memo() { Text = customer.Memo };
+                customerRecord.Memo = memo;
+                _context.Memos.Add(memo);
             }
-
-            // TODO auto-fill properties: searchName
 
             _context.Customers.Add(customerRecord);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<Customer>(customerRecord); // dataId is filled in now
+            return _mapper.Map<Customer>(customerRecord); // DataId is automatically filled in now
         }
 
         private IQueryable<DataProvider.Models.Customer> BaseQuery()
         {
             return _context.Customers
                         .Include(e => e.Memo);
+        }
+
+        private string CalculateSearchName(string name)
+        {
+            if (name != null)
+            {
+                var searchName = name.ToUpper();
+                searchName = Regex.Replace(searchName, @"\s+", "");
+                searchName = RemoveDiacritics(searchName);
+                return searchName;                
+            }
+            
+            return null;
+        }
+
+        // see https://stackoverflow.com/questions/249087/how-do-i-remove-diacritics-accents-from-a-string-in-net
+        private string RemoveDiacritics(string text) 
+        {
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
     }
 }

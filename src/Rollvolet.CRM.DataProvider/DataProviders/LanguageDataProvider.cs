@@ -2,8 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.DataProviders
@@ -12,11 +15,13 @@ namespace Rollvolet.CRM.DataProviders
     {
         private readonly CrmContext _context;
         private readonly IMapper _mapper;
+        private readonly ILogger _logger;
 
-        public LanguageDataProvider(CrmContext context, IMapper mapper)
+        public LanguageDataProvider(CrmContext context, IMapper mapper, ILogger<LanguageDataProvider> logger)
         {
             _context = context;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<Language>> GetAll()
@@ -28,7 +33,13 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Language> GetByIdAsync(int id)
         {
-            var language = _context.Languages.Single(x => x.Id == id);
+            var language = await _context.Languages.Where(x => x.Id == id).FirstOrDefaultAsync();
+            
+            if (language == null)
+            {
+                _logger.LogError($"No language found with id {id}");
+                throw new EntityNotFoundException();
+            }
 
             return _mapper.Map<Language>(language);
         }

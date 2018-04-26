@@ -18,6 +18,11 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.DepositInvoices, opt => opt.Ignore())
                 .PreserveReferences()
                 .ReverseMap()
+                .ForMember(dest => dest.Memo, opt => opt.Ignore())
+                .ForMember(dest => dest.HonorificPrefixId, opt => opt.Ignore())
+                .ForMember(dest => dest.LanguageId, opt => opt.Ignore())
+                .ForMember(dest => dest.CountryId, opt => opt.Ignore())
+                .ForMember(dest => dest.PostalCodeId, opt => opt.Ignore())
                 .PreserveReferences();
             
             CreateMap<Models.Contact, Domain.Models.Contact>()
@@ -42,11 +47,11 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences();
 
             CreateMap<Models.HonorificPrefix, Domain.Models.HonorificPrefix>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => $"{src.Id}-{src.LanguageId}"))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ComposedId))
                 .PreserveReferences()
                 .ReverseMap()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None).FirstOrDefault()))
-                .ForMember(dest => dest.LanguageId, opt => opt.MapFrom(src => src.Id.Split('-', StringSplitOptions.None).LastOrDefault()))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Models.HonorificPrefix.DecomposeEntityId(src.Id)))
+                .ForMember(dest => dest.LanguageId, opt => opt.MapFrom(src => Models.HonorificPrefix.DecomposeLanguageId(src.Id)))
                 .PreserveReferences();
                 
             CreateMap<Models.Language, Domain.Models.Language>()

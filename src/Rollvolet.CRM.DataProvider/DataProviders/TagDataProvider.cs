@@ -55,6 +55,19 @@ namespace Rollvolet.CRM.DataProviders
                 PageNumber = query.Page.Number,
                 PageSize = query.Page.Size
             };            
-        }    
+        }  
+
+        public async Task<Tag> GetByIdAsync(int id)
+        {
+            var tag = await _context.Tags.Where(x => x.Id == id).FirstOrDefaultAsync();
+            
+            if (tag == null)
+            {
+                _logger.LogError($"No tag found with id {id}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Tag>(tag);
+        }  
     }
 }
