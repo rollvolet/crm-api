@@ -74,6 +74,19 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Customer>(customer);
         }
 
+        public async Task<Customer> GetByNumberAsync(int number)
+        {
+            var customer = await _context.Customers.Where(x => x.Number == number).FirstOrDefaultAsync();
+            
+            if (customer == null)
+            {
+                _logger.LogError($"No customer found with number {number}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Customer>(customer);
+        }        
+
         public async Task<Customer> Create(Customer customer)
         {
             var customerRecord = _mapper.Map<DataProvider.Models.Customer>(customer);

@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rollvolet.CRM.DataProvider.Models
@@ -30,6 +31,50 @@ namespace Rollvolet.CRM.DataProvider.Models
         public CustomerRecord CustomerRecord { get; set; }
         public Country Country { get; set; }
         public TelephoneType TelephoneType { get; set; }
+
+
+        public string ComposedId 
+        {
+            get
+            {
+                return $"{CustomerRecordId}-{TelephoneTypeId}-{CountryId}-{Area}-{Number}";
+            }
+        }
+
+        public static string[] DecomposeId(string composedId)
+        {
+           return composedId.Split('-', StringSplitOptions.None);
+        }
+
+        public static int DecomposeCustomerId(string composedId)
+        {
+            var idParts = DecomposeId(composedId);
+            return int.Parse(idParts[0]);
+        }
+
+        public static int DecomposeTelephoneTypeId(string composedId)
+        {
+            var idParts = DecomposeId(composedId);
+            return int.Parse(idParts[1]);
+        }  
+
+        public static int DecomposeCountryId(string composedId)
+        {
+            var idParts = DecomposeId(composedId);
+            return int.Parse(idParts[2]);
+        }  
+
+        public static string DecomposeArea(string composedId)
+        {
+            var idParts = DecomposeId(composedId);
+            return idParts[3];
+        }  
+
+        public static string DecomposeNumber(string composedId)
+        {
+            var idParts = DecomposeId(composedId);
+            return idParts[4];
+        }        
     }
   
 }

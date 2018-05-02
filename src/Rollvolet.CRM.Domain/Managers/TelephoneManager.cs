@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -10,10 +12,20 @@ namespace Rollvolet.CRM.Domain.Managers
     public class TelephoneManager : ITelephoneManager
     {
         private readonly ITelephoneDataProvider _telephoneDataProvider;
+        private readonly ICountryDataProvider _countryDataProvider;
+        private readonly ITelephoneTypeDataProvider _telephoneTypeDataProvider;
+        private readonly ICustomerDataProvider _customerDataProvider;
+        private readonly ILogger _logger;
 
-        public TelephoneManager(ITelephoneDataProvider telephoneDataProvider)
+        public TelephoneManager(ITelephoneDataProvider telephoneDataProvider, ICountryDataProvider countryDataProvider,
+                                ITelephoneTypeDataProvider telephoneTypeDataProvider, ICustomerDataProvider customerDataProvider,
+                                ILogger<TelephoneManager> logger)
         {
             _telephoneDataProvider = telephoneDataProvider;
+            _countryDataProvider = countryDataProvider;
+            _telephoneTypeDataProvider = telephoneTypeDataProvider;
+            _customerDataProvider = customerDataProvider;
+            _logger = logger;
         }
         
         public async Task<Paged<Telephone>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
@@ -38,6 +50,43 @@ namespace Rollvolet.CRM.Domain.Managers
                 query.Sort.Field = "order";
 
             return await _telephoneDataProvider.GetAllByBuildingIdAsync(buildingId, query);
+        }
+
+        public async Task<Telephone> Create(Telephone telephone)
+        {
+            // Validations
+
+            if (telephone.Id != null)
+                throw new IllegalArgumentException("IllegalAttribute", "Telephone cannot have an id on create.");
+            if (telephone.Area == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Area is required on telephone creation.");
+            if (telephone.Number == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Number is required on telephone creation.");
+            if (telephone.Customer == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Customer is required on telephone creation.");
+            if (telephone.Country == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Country is required on telephone creation.");
+            if (telephone.TelephoneType == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Telephone-type is required on telephone creation.");
+
+            // Embed existing records
+            try {
+                var id = int.Parse(telephone.Country.Id);
+                telephone.Country = await _countryDataProvider.GetByIdAsync(id);
+
+                id = telephone.Customer.Id;
+                telephone.Customer = await _customerDataProvider.GetByNumberAsync(id);
+
+                id = int.Parse(telephone.TelephoneType.Id);
+                telephone.TelephoneType = await _telephoneTypeDataProvider.GetByIdAsync(id);
+            }
+            catch (EntityNotFoundException) 
+            {
+                _logger.LogDebug($"Failed to find a related entity");
+                throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
+            }
+
+            return await _telephoneDataProvider.Create(telephone);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using AutoMapper;
 using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
+using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -129,6 +130,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<CountryDto>(telephone.Country));
             if (includeQuery.Contains("telephone-type") && telephone.TelephoneType != null)
                 included.Add(_mapper.Map<TelephoneTypeDto>(telephone.TelephoneType));
+            if (includeQuery.Contains("customer") && telephone.Customer != null)
+                included.Add(_mapper.Map<CustomerDto>(telephone.Customer));
 
             return included;
         }

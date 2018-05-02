@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AutoMapper;
 using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
+using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -11,7 +12,7 @@ namespace Rollvolet.CRM.API.Mappers
     public class RelationshipsConverter : ITypeConverter<Customer, CustomerRelationshipsDto>,
                                             ITypeConverter<Contact, ContactDto.RelationshipsDto>,
                                             ITypeConverter<Building, BuildingDto.RelationshipsDto>,
-                                            ITypeConverter<Telephone, TelephoneDto.RelationshipsDto>,
+                                            ITypeConverter<Telephone, TelephoneRelationshipsDto>,
                                             ITypeConverter<Request, RequestDto.RelationshipsDto>,
                                             ITypeConverter<Offer, OfferDto.RelationshipsDto>,
                                             ITypeConverter<Order, OrderDto.RelationshipsDto>,
@@ -71,11 +72,12 @@ namespace Rollvolet.CRM.API.Mappers
             return relationships;
         }
 
-        TelephoneDto.RelationshipsDto ITypeConverter<Telephone, TelephoneDto.RelationshipsDto>.Convert(Telephone source, TelephoneDto.RelationshipsDto destination, ResolutionContext context)
+        TelephoneRelationshipsDto ITypeConverter<Telephone, TelephoneRelationshipsDto>.Convert(Telephone source, TelephoneRelationshipsDto destination, ResolutionContext context)
         {
-            var relationships = new TelephoneDto.RelationshipsDto();
+            var relationships = new TelephoneRelationshipsDto();
             relationships.Country = GetOneRelationship<Country>("telephones", source.Id, "country", source.Country, context);
             relationships.TelephoneType = GetOneRelationship<TelephoneType>("telephones", source.Id, "telephone-type", source.TelephoneType, context);
+            relationships.Customer = GetOneRelationship<Customer>("telephones", source.Id, "customers", source.Customer, context);
             return relationships;
         }
 

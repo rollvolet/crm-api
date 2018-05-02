@@ -53,6 +53,16 @@ namespace Rollvolet.CRM.DataProviders
             return await this.GetAllByCustomerDataIdAsync(contactId, query);
         }
 
+        public async Task<Telephone> Create(Telephone telephone)
+        {
+            var telephoneRecord = _mapper.Map<DataProvider.Models.Telephone>(telephone);
+
+            _context.Telephones.Add(telephoneRecord);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Telephone>(telephoneRecord);
+        }
+
         private async Task<Paged<Telephone>> GetAllByCustomerDataIdAsync(int dataId, QuerySet query)
         {
             var source = _context.Telephones

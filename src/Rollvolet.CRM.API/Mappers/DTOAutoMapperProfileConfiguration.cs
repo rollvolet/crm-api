@@ -4,6 +4,7 @@ using AutoMapper;
 using Newtonsoft.Json.Linq;
 using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
+using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 
@@ -234,9 +235,17 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
-            CreateMap<Telephone, TelephoneDto.AttributesDto>();
+            CreateMap<Telephone, TelephoneAttributesDto>().ReverseMap();
 
-            CreateMap<Telephone, TelephoneDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+            CreateMap<Telephone, TelephoneRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<TelephoneRequestDto, Telephone>()
+                .ConstructUsing((src, context) => context.Mapper.Map<Telephone>(src.Attributes))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Country : null))
+                .ForMember(dest => dest.TelephoneType, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.TelephoneType : null))
+                .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Customer : null))
+                .ForAllOtherMembers(opt => opt.Ignore());            
 
             CreateMap<Telephone, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("telephones"));
