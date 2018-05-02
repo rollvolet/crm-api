@@ -51,7 +51,6 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Customer> Create(Customer customer)
         {
             // Validations
-
             if (customer.DataId != 0)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer cannot have a data-id on create.");
             if (customer.Id != 0 || customer.Number != 0)
@@ -67,32 +66,27 @@ namespace Rollvolet.CRM.Domain.Managers
             }
             if (customer.Country == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Country is required on customer creation.");
-
-            // TODO add validations for required attributes / relations
+            if (customer.Language == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Language is required on customer creation.");
 
 
             // Embed existing records
-
             try {
+                var id = int.Parse(customer.Country.Id);
+                customer.Country = await _countryDataProvider.GetByIdAsync(id);
+
+                id = int.Parse(customer.Language.Id);
+                customer.Language = await _langugageDataProvider.GetByIdAsync(id);
+
                 if (customer.HonorificPrefix != null)
                 {
-                    var id = customer.HonorificPrefix.Id;
-                    customer.HonorificPrefix = await _honorificPrefixDataProvider.GetByIdAsync(id);
-                }
-                if (customer.Language != null)
-                {
-                    var id = int.Parse(customer.Language.Id);
-                    customer.Language = await _langugageDataProvider.GetByIdAsync(id);
-                }
-                if (customer.Country != null)
-                {
-                    var id = int.Parse(customer.Country.Id);
-                    customer.Country = await _countryDataProvider.GetByIdAsync(id);
+                    var composedId = customer.HonorificPrefix.Id;
+                    customer.HonorificPrefix = await _honorificPrefixDataProvider.GetByIdAsync(composedId);
                 }
                 if (customer.Tags != null)
                 {
                     customer.Tags = await Task.WhenAll(customer.Tags.Select(t => {
-                        var id = int.Parse(t.Id);
+                        id = int.Parse(t.Id);
                         return _tagDataProvider.GetByIdAsync(id);
                     }));
                 }
@@ -105,6 +99,11 @@ namespace Rollvolet.CRM.Domain.Managers
 
 
             return await _customerDataProvider.Create(customer);
+        }
+
+        public async Task Delete(int id)
+        {
+            await _customerDataProvider.DeleteByNumber(id);
         }
     }
 }

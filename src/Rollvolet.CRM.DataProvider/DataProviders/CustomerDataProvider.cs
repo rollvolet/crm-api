@@ -57,13 +57,9 @@ namespace Rollvolet.CRM.DataProviders
             };
         }
 
-        public async Task<Customer> GetByNumberAsync(int number, QuerySet query)
+        public async Task<Customer> GetByNumberAsync(int number, QuerySet query = null)
         {
-            var source = BaseQuery()
-                            .Where(c => c.Number == number)
-                            .Include(query);
-
-            var customer = await source.FirstOrDefaultAsync();
+            var customer = await FindByNumberAsync(number, query);
             
             if (customer == null)
             {
@@ -72,20 +68,7 @@ namespace Rollvolet.CRM.DataProviders
             }
 
             return _mapper.Map<Customer>(customer);
-        }
-
-        public async Task<Customer> GetByNumberAsync(int number)
-        {
-            var customer = await _context.Customers.Where(x => x.Number == number).FirstOrDefaultAsync();
-            
-            if (customer == null)
-            {
-                _logger.LogError($"No customer found with number {number}");
-                throw new EntityNotFoundException();
-            }
-
-            return _mapper.Map<Customer>(customer);
-        }        
+        }      
 
         public async Task<Customer> Create(Customer customer)
         {
@@ -118,7 +101,23 @@ namespace Rollvolet.CRM.DataProviders
             _context.Customers.Add(customerRecord);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<Customer>(customerRecord); // DataId is automatically filled in now
+            return _mapper.Map<Customer>(customerRecord);
+        }
+
+        public async Task DeleteByNumber(int number)
+        {
+            var customer = await FindByNumberAsync(number);
+
+            if (customer != null)
+            {
+                if (customer.Memo != null)
+                {
+                    _context.Memos.Remove(customer.Memo);
+                }
+
+                _context.Customers.Remove(customer);
+                await _context.SaveChangesAsync();
+           }
         }
 
         private IQueryable<DataProvider.Models.Customer> BaseQuery()
@@ -126,6 +125,17 @@ namespace Rollvolet.CRM.DataProviders
             return _context.Customers
                         .Include(e => e.Memo);
         }
+
+        public async Task<DataProvider.Models.Customer> FindByNumberAsync(int number, QuerySet query = null)
+        {
+            var source = BaseQuery()
+                            .Where(c => c.Number == number);
+
+            if (query != null)
+                source = source.Include(query);
+
+            return await source.FirstOrDefaultAsync();
+        }   
 
         private string CalculateSearchName(string name)
         {

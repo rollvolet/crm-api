@@ -8,8 +8,8 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     public interface ICustomerDataProvider
     {
         Task<Paged<Customer>> GetAllAsync(QuerySet query);
-        Task<Customer> GetByNumberAsync(int number, QuerySet query);
-        Task<Customer> GetByNumberAsync(int number);
+        Task<Customer> GetByNumberAsync(int number, QuerySet query = null);
         Task<Customer> Create(Customer customer);
+        Task DeleteByNumber(int number);
     }
 }

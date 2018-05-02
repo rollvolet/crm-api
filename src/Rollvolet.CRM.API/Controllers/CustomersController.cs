@@ -100,6 +100,14 @@ namespace Rollvolet.CRM.API.Controllers
             return Created(links.Self, new ResourceResponse() { Links = links, Data = customerDto });
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _customerManager.Delete(id);
+
+            return NoContent();
+        }
+
         [HttpGet("{customerId}/contacts")]
         [HttpGet("{customerId}/links/contacts")]
         public async Task<IActionResult> GetRelatedContactsByCustomerId(int customerId)
