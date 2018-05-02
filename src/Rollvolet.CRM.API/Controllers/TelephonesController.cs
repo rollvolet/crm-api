@@ -36,12 +36,20 @@ namespace Rollvolet.CRM.API.Controllers
         {
             var telephone = _mapper.Map<Telephone>(resource.Data);
 
-            telephone = await _telephoneManager.Create(telephone);
+            telephone = await _telephoneManager.CreateAsync(telephone);
             var telephoneDto = _mapper.Map<TelephoneDto>(telephone);
 
             var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, telephoneDto.Id);
 
             return Created(links.Self, new ResourceResponse() { Links = links, Data = telephoneDto });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            await _telephoneManager.DeleteAsync(id);
+
+            return NoContent();
         }
     }
 }

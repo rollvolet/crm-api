@@ -92,7 +92,7 @@ namespace Rollvolet.CRM.API.Controllers
         {
             var customer = _mapper.Map<Customer>(resource.Data);
 
-            customer = await _customerManager.Create(customer);
+            customer = await _customerManager.CreateAsync(customer);
             var customerDto = _mapper.Map<CustomerDto>(customer);
 
             var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, customerDto.Id);
@@ -103,7 +103,7 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _customerManager.Delete(id);
+            await _customerManager.DeleteAsync(id);
 
             return NoContent();
         }

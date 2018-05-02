@@ -52,7 +52,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _telephoneDataProvider.GetAllByBuildingIdAsync(buildingId, query);
         }
 
-        public async Task<Telephone> Create(Telephone telephone)
+        public async Task<Telephone> CreateAsync(Telephone telephone)
         {
             // Validations
 
@@ -86,7 +86,12 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
             }
 
-            return await _telephoneDataProvider.Create(telephone);
+            return await _telephoneDataProvider.CreateAsync(telephone);
+        }
+
+        public async Task DeleteAsync(string composedId)
+        {
+            await _telephoneDataProvider.DeleteByIdAsync(composedId);
         }
     }
 }

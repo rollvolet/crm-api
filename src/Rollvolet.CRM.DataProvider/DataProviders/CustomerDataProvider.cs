@@ -70,7 +70,7 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Customer>(customer);
         }      
 
-        public async Task<Customer> Create(Customer customer)
+        public async Task<Customer> CreateAsync(Customer customer)
         {
             var customerRecord = _mapper.Map<DataProvider.Models.Customer>(customer);
 
@@ -104,7 +104,7 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Customer>(customerRecord);
         }
 
-        public async Task DeleteByNumber(int number)
+        public async Task DeleteByNumberAsync(int number)
         {
             var customer = await FindByNumberAsync(number);
 
@@ -126,7 +126,7 @@ namespace Rollvolet.CRM.DataProviders
                         .Include(e => e.Memo);
         }
 
-        public async Task<DataProvider.Models.Customer> FindByNumberAsync(int number, QuerySet query = null)
+        private async Task<DataProvider.Models.Customer> FindByNumberAsync(int number, QuerySet query = null)
         {
             var source = BaseQuery()
                             .Where(c => c.Number == number);

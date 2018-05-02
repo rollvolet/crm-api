@@ -33,12 +33,13 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<HonorificPrefix> GetByIdAsync(string composedId)
         {
-            var id = int.Parse(DataProvider.Models.HonorificPrefix.DecomposeId(composedId)[0]);
-            var prefix = await _context.HonorificPrefixes.Where(x => x.Id == id).FirstOrDefaultAsync();
+            var entityId = DataProvider.Models.HonorificPrefix.DecomposeEntityId(composedId);
+            var languageId = DataProvider.Models.HonorificPrefix.DecomposeLanguageId(composedId);
+            var prefix = await _context.HonorificPrefixes.Where(x => x.Id == entityId && x.LanguageId == languageId).FirstOrDefaultAsync();
             
             if (prefix == null)
             {
-                _logger.LogError($"No honorific prefix found with id {id} retrieved from composed id {composedId}");
+                _logger.LogError($"No honorific prefix found with composed id {composedId}");
                 throw new EntityNotFoundException();
             }
 

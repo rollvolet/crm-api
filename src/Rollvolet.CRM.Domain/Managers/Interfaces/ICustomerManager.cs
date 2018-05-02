@@ -9,7 +9,7 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
     {
         Task<Paged<Customer>> GetAllAsync(QuerySet query);
         Task<Customer> GetByIdAsync(int id, QuerySet query);
-        Task<Customer> Create(Customer customer);
-        Task Delete(int id);
+        Task<Customer> CreateAsync(Customer customer);
+        Task DeleteAsync(int id);
     }  
 }

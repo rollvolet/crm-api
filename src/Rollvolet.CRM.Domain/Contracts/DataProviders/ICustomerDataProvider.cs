@@ -9,7 +9,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     {
         Task<Paged<Customer>> GetAllAsync(QuerySet query);
         Task<Customer> GetByNumberAsync(int number, QuerySet query = null);
-        Task<Customer> Create(Customer customer);
-        Task DeleteByNumber(int number);
+        Task<Customer> CreateAsync(Customer customer);
+        Task DeleteByNumberAsync(int number);
     }
 }

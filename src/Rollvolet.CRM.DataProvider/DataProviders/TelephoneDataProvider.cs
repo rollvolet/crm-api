@@ -30,6 +30,19 @@ namespace Rollvolet.CRM.DataProviders
             _logger = logger;
         }
 
+        public async Task<Telephone> GetByIdAsync(string composedId)
+        {
+            var telephone = await FindByIdAsync(composedId);
+            
+            if (telephone == null)
+            {
+                _logger.LogError($"No telephone found with composed id {composedId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Telephone>(telephone);
+        }
+
         public async Task<Paged<Telephone>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
             var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Number == customerId);
@@ -53,7 +66,7 @@ namespace Rollvolet.CRM.DataProviders
             return await this.GetAllByCustomerDataIdAsync(contactId, query);
         }
 
-        public async Task<Telephone> Create(Telephone telephone)
+        public async Task<Telephone> CreateAsync(Telephone telephone)
         {
             var telephoneRecord = _mapper.Map<DataProvider.Models.Telephone>(telephone);
 
@@ -62,6 +75,31 @@ namespace Rollvolet.CRM.DataProviders
 
             return _mapper.Map<Telephone>(telephoneRecord);
         }
+
+        public async Task DeleteByIdAsync(string composedId)
+        {
+            var telephone = await FindByIdAsync(composedId);
+
+            if (telephone != null)
+            {
+                _context.Telephones.Remove(telephone);
+                await _context.SaveChangesAsync();
+           }
+        }        
+
+        private async Task<DataProvider.Models.Telephone> FindByIdAsync(string composedId)
+        {
+            var customerId = DataProvider.Models.Telephone.DecomposeCustomerId(composedId);
+            var telephoneTypeId = DataProvider.Models.Telephone.DecomposeTelephoneTypeId(composedId);
+            var countryId = DataProvider.Models.Telephone.DecomposeCountryId(composedId);
+            var area = DataProvider.Models.Telephone.DecomposeArea(composedId);
+            var number = DataProvider.Models.Telephone.DecomposeNumber(composedId);
+            
+            return await _context.Telephones.Where(x => x.CustomerRecordId == customerId
+                            && x.TelephoneTypeId == telephoneTypeId && x.CountryId == countryId
+                            && x.Area == area && x.Number == number)
+                            .FirstOrDefaultAsync();
+        }  
 
         private async Task<Paged<Telephone>> GetAllByCustomerDataIdAsync(int dataId, QuerySet query)
         {

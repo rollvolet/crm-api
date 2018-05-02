@@ -48,7 +48,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _customerDataProvider.GetByNumberAsync(id, query);
         }
 
-        public async Task<Customer> Create(Customer customer)
+        public async Task<Customer> CreateAsync(Customer customer)
         {
             // Validations
             if (customer.DataId != 0)
@@ -98,12 +98,12 @@ namespace Rollvolet.CRM.Domain.Managers
             }
 
 
-            return await _customerDataProvider.Create(customer);
+            return await _customerDataProvider.CreateAsync(customer);
         }
 
-        public async Task Delete(int id)
+        public async Task DeleteAsync(int id)
         {
-            await _customerDataProvider.DeleteByNumber(id);
+            await _customerDataProvider.DeleteByNumberAsync(id);
         }
     }
 }
