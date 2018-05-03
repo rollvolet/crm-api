@@ -70,6 +70,8 @@ namespace Rollvolet.CRM.DataProviders
         {
             var telephoneRecord = _mapper.Map<DataProvider.Models.Telephone>(telephone);
 
+            // TODO format numbers with '.' before saving
+
             _context.Telephones.Add(telephoneRecord);
             await _context.SaveChangesAsync();
 

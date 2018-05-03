@@ -81,7 +81,9 @@ namespace Rollvolet.CRM.API.Mappers
             var relationships = new TelephoneRelationshipsDto();
             relationships.Country = GetOneRelationship<Country>("telephones", source.Id, "country", source.Country, context);
             relationships.TelephoneType = GetOneRelationship<TelephoneType>("telephones", source.Id, "telephone-type", source.TelephoneType, context);
-            relationships.Customer = GetOneRelationship<Customer>("telephones", source.Id, "customers", source.Customer, context);
+            relationships.Customer = GetOneRelationship<Customer>("telephones", source.Id, "customer", source.Customer, context);
+            relationships.Contact = GetOneRelationship<Contact>("telephones", source.Id, "contact", source.Contact, context);
+            relationships.Building = GetOneRelationship<Building>("telephones", source.Id, "building", source.Building, context);
             return relationships;
         }
 

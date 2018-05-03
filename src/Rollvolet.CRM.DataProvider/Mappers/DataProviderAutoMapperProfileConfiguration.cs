@@ -20,9 +20,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ReverseMap()
                 .ForMember(dest => dest.Memo, opt => opt.Ignore())
                 .ForMember(dest => dest.HonorificPrefixId, opt => opt.Ignore())
-                .ForMember(dest => dest.LanguageId, opt => opt.Ignore())
-                .ForMember(dest => dest.CountryId, opt => opt.Ignore())
-                .ForMember(dest => dest.PostalCodeId, opt => opt.Ignore())
                 .PreserveReferences();
             
             CreateMap<Models.Contact, Domain.Models.Contact>()
@@ -73,9 +70,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Contact, opt => opt.Ignore())
                 .PreserveReferences()
                 .ReverseMap()
-                .ForMember(dest => dest.CustomerRecordId, opt => opt.MapFrom(src => src.Customer.Id))
-                .ForMember(dest => dest.TelephoneTypeId, opt => opt.MapFrom(src => src.TelephoneType.Id))
-                .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src =>  src.Country.Id))
+                .ForMember(dest => dest.CustomerRecordId, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.DataId : (src.Contact != null ? src.Contact.Id : src.Building.Id)))
                 .PreserveReferences();
                 
             CreateMap<Models.TelephoneType, Domain.Models.TelephoneType>()

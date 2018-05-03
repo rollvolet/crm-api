@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
@@ -15,16 +16,21 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly ICountryDataProvider _countryDataProvider;
         private readonly ITelephoneTypeDataProvider _telephoneTypeDataProvider;
         private readonly ICustomerDataProvider _customerDataProvider;
+        private readonly IContactDataProvider _contactDataProvider;
+        private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly ILogger _logger;
 
         public TelephoneManager(ITelephoneDataProvider telephoneDataProvider, ICountryDataProvider countryDataProvider,
                                 ITelephoneTypeDataProvider telephoneTypeDataProvider, ICustomerDataProvider customerDataProvider,
+                                IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                                 ILogger<TelephoneManager> logger)
         {
             _telephoneDataProvider = telephoneDataProvider;
             _countryDataProvider = countryDataProvider;
             _telephoneTypeDataProvider = telephoneTypeDataProvider;
             _customerDataProvider = customerDataProvider;
+            _contactDataProvider = contactDataProvider;
+            _buildingDataProvider = buildingDataProvider;
             _logger = logger;
         }
         
@@ -55,30 +61,35 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Telephone> CreateAsync(Telephone telephone)
         {
             // Validations
-
             if (telephone.Id != null)
                 throw new IllegalArgumentException("IllegalAttribute", "Telephone cannot have an id on create.");
             if (telephone.Area == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Area is required on telephone creation.");
             if (telephone.Number == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Number is required on telephone creation.");
-            if (telephone.Customer == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Customer is required on telephone creation.");
             if (telephone.Country == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Country is required on telephone creation.");
             if (telephone.TelephoneType == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Telephone-type is required on telephone creation.");
+            if (new CustomerEntity[3] { telephone.Customer, telephone.Contact, telephone.Building }.Where(x => x != null).Count() != 1)
+                throw new IllegalArgumentException("IllegalAttribute", "Just one of customer, contact or building is required on telephone creation.");
+
+            // TODO add validation on area and number (only digits + length)
 
             // Embed existing records
             try {
                 var id = int.Parse(telephone.Country.Id);
                 telephone.Country = await _countryDataProvider.GetByIdAsync(id);
 
-                id = telephone.Customer.Id;
-                telephone.Customer = await _customerDataProvider.GetByNumberAsync(id);
-
                 id = int.Parse(telephone.TelephoneType.Id);
                 telephone.TelephoneType = await _telephoneTypeDataProvider.GetByIdAsync(id);
+
+                if (telephone.Customer != null)
+                    telephone.Customer = await _customerDataProvider.GetByNumberAsync(telephone.Customer.Id);
+                else if (telephone.Contact != null)
+                    telephone.Contact = await _contactDataProvider.GetByIdAsync(telephone.Contact.Id);
+                else if (telephone.Building != null)
+                    telephone.Building = await _buildingDataProvider.GetByIdAsync(telephone.Building.Id);
             }
             catch (EntityNotFoundException) 
             {

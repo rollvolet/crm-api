@@ -138,6 +138,10 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<TelephoneTypeDto>(telephone.TelephoneType));
             if (includeQuery.Contains("customer") && telephone.Customer != null)
                 included.Add(_mapper.Map<CustomerDto>(telephone.Customer));
+            if (includeQuery.Contains("contact") && telephone.Contact != null)
+                included.Add(_mapper.Map<ContactDto>(telephone.Contact));
+            if (includeQuery.Contains("builidng") && telephone.Building != null)
+                included.Add(_mapper.Map<BuildingDto>(telephone.Building));
 
             return included;
         }
