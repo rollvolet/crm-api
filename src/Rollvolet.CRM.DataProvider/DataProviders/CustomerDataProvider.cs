@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -18,22 +14,11 @@ using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.DataProviders
 {   
-    public class CustomerDataProvider : ICustomerDataProvider
+    public class CustomerDataProvider : CustomerRecordDataProvider, ICustomerDataProvider
     {
-        private readonly CrmContext _context;
-        private readonly IMapper _mapper;
-        private readonly ISequenceDataProvider _sequenceDataProvider;
-        private readonly ITelephoneDataProvider _telephoneDataProvider;
-        private readonly ILogger _logger;
-
         public CustomerDataProvider(CrmContext context, IMapper mapper, ISequenceDataProvider sequenceDataProvider, 
-                                    ITelephoneDataProvider telephoneDataProvider, ILogger<CustomerDataProvider> logger)
+                                    ILogger<CustomerDataProvider> logger) : base(context, mapper, sequenceDataProvider, logger)
         {
-            _context = context;
-            _mapper = mapper;
-            _sequenceDataProvider = sequenceDataProvider;
-            _telephoneDataProvider = telephoneDataProvider;
-            _logger = logger;
         }
 
         public async Task<Paged<Customer>> GetAllAsync(QuerySet query)
@@ -78,18 +63,7 @@ namespace Rollvolet.CRM.DataProviders
             customerRecord.Created = DateTime.Now;
             customerRecord.SearchName = CalculateSearchName(customer.Name);
 
-            // The domain's customer.postalCode maps to the dataprovider's embeddedPostalCode property. 
-            // We need to set the related postal code record manually here.
-            if (customer.PostalCode != null)
-            {
-                var postalCodeRecord = await _context.PostalCodes.Where(p => p.Code == customer.PostalCode).FirstOrDefaultAsync();
-                if (postalCodeRecord == null) {
-                    _logger.LogDebug($"No PostalCode found with code '{customer.PostalCode}'");
-                    throw new IllegalArgumentException("IllegalAttribute", $"Invalid postal code '{customer.PostalCode}'.");
-                } else {
-                    customerRecord.PostalCodeId = postalCodeRecord.Id;
-                }
-            }
+            await HydratePostalCode(customer, customerRecord);
 
             if (customer.Memo != null)
             {
@@ -135,37 +109,6 @@ namespace Rollvolet.CRM.DataProviders
                 source = source.Include(query);
 
             return await source.FirstOrDefaultAsync();
-        }   
-
-        private string CalculateSearchName(string name)
-        {
-            if (name != null)
-            {
-                var searchName = name.ToUpper();
-                searchName = Regex.Replace(searchName, @"\s+", "");
-                searchName = RemoveDiacritics(searchName);
-                return searchName;                
-            }
-            
-            return null;
-        }
-
-        // see https://stackoverflow.com/questions/249087/how-do-i-remove-diacritics-accents-from-a-string-in-net
-        private string RemoveDiacritics(string text) 
-        {
-            var normalizedString = text.Normalize(NormalizationForm.FormD);
-            var stringBuilder = new StringBuilder();
-
-            foreach (var c in normalizedString)
-            {
-                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
-                {
-                    stringBuilder.Append(c);
-                }
-            }
-
-            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
     }
 }

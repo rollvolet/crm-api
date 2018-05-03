@@ -8,20 +8,30 @@ using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.DataProvider.Extensions;
+using Microsoft.Extensions.Logging;
+using Rollvolet.CRM.Domain.Exceptions;
+using System;
 
 namespace Rollvolet.CRM.DataProviders
 {   
-    public class BuildingDataProvider : IBuildingDataProvider
+    public class BuildingDataProvider : CustomerRecordDataProvider, IBuildingDataProvider
     {
-        private readonly CrmContext _context;
-        private readonly IMapper _mapper;
-        private readonly ITelephoneDataProvider _telephoneDataProvider;
-
-        public BuildingDataProvider(CrmContext context, IMapper mapper, ITelephoneDataProvider telephoneDataProvider)
+        public BuildingDataProvider(CrmContext context, IMapper mapper, ISequenceDataProvider sequenceDataProvider, 
+                                    ILogger<BuildingDataProvider> logger) : base(context, mapper, sequenceDataProvider, logger)
         {
-            _context = context;
-            _mapper = mapper;
-            _telephoneDataProvider = telephoneDataProvider;
+        }
+
+        public async Task<Building> GetByIdAsync(int id, QuerySet query = null)
+        {
+            var building = await FindByIdAsync(id, query);
+            
+            if (building == null)
+            {
+                _logger.LogError($"No building found with data id {id}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Building>(building);
         }
 
         public async Task<Paged<Building>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
@@ -45,5 +55,44 @@ namespace Rollvolet.CRM.DataProviders
                 PageSize = query.Page.Size
             };
         }
+
+        public async Task<Building> CreateAsync(Building building)
+        {
+            var buildingRecord = _mapper.Map<DataProvider.Models.Building>(building);
+
+            var customerId = building.Customer.Id;
+            buildingRecord.Number = await _sequenceDataProvider.GetNextRelativeCustomerNumber(customerId);
+            buildingRecord.CustomerId = customerId;
+            buildingRecord.Created = DateTime.Now;
+            buildingRecord.SearchName = CalculateSearchName(building.Name);
+
+            await HydratePostalCode(building, buildingRecord);
+
+            _context.Buildings.Add(buildingRecord);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Building>(buildingRecord);
+        }
+
+        public async Task DeleteByIdAsync(int id)
+        {
+            var building = await FindByIdAsync(id);
+
+            if (building != null)
+            {
+                _context.Buildings.Remove(building);
+                await _context.SaveChangesAsync();
+           }
+        }
+
+        private async Task<DataProvider.Models.Building> FindByIdAsync(int id, QuerySet query = null)
+        {
+            var source = _context.Buildings.Where(c => c.DataId == id);
+
+            if (query != null)
+                source = source.Include(query);
+
+            return await source.FirstOrDefaultAsync();
+        } 
     }
 }

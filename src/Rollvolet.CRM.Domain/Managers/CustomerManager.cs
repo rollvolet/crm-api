@@ -18,20 +18,17 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IHonorificPrefixDataProvider _honorificPrefixDataProvider;
         private readonly ILanguageDataProvider _langugageDataProvider;
         private readonly ITagDataProvider _tagDataProvider;
-        private readonly IContactDataProvider _contactDataProvider;
         private readonly ILogger _logger;
 
         public CustomerManager(ICustomerDataProvider customerDataProvider, ICountryDataProvider countryDataProvider,
                                 IHonorificPrefixDataProvider honorificPrefixDataProvider, ILanguageDataProvider languageDataProvider,
-                                ITagDataProvider tagDataProvider, IContactDataProvider contactDataProvider,
-                                ILogger<CustomerManager> logger)
+                                ITagDataProvider tagDataProvider, ILogger<CustomerManager> logger)
         {
             _customerDataProvider = customerDataProvider;
             _countryDataProvider = countryDataProvider;
             _honorificPrefixDataProvider = honorificPrefixDataProvider;
             _langugageDataProvider = languageDataProvider;
             _tagDataProvider = tagDataProvider;
-            _contactDataProvider = contactDataProvider;
             _logger = logger;
         }
         

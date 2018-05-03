@@ -1,9 +1,8 @@
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
-using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.DataProviders
 {   
@@ -21,12 +20,18 @@ namespace Rollvolet.CRM.DataProviders
         {
             if (_customerNumber == 0)
             {
-               _customerNumber =  _context.Customers.Max(c => c.Number);
+               _customerNumber =  await _context.Customers.MaxAsync(c => c.Number);
             }
 
             _customerNumber++;
 
             return _customerNumber;
+        }
+
+        public async Task<int> GetNextRelativeCustomerNumber(int customerId)
+        {
+            var count = await _context.Contacts.Where(x => x.CustomerId == customerId).CountAsync();
+            return count + 1;
         }
     }
 }

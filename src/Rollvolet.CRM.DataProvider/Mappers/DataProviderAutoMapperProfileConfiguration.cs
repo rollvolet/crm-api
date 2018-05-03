@@ -31,6 +31,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.EmbeddedCity))
                 .PreserveReferences()
                 .ReverseMap()
+                .ForMember(dest => dest.HonorificPrefixId, opt => opt.Ignore())
                 .PreserveReferences();
                 
             CreateMap<Models.Building, Domain.Models.Building>()
@@ -39,6 +40,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.EmbeddedCity))
                 .PreserveReferences()
                 .ReverseMap()
+                .ForMember(dest => dest.HonorificPrefixId, opt => opt.Ignore())
                 .PreserveReferences();
                 
             CreateMap<Models.Country, Domain.Models.Country>()

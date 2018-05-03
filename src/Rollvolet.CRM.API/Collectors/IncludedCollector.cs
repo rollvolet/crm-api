@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.Buildings;
+using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
@@ -75,6 +77,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<LanguageDto>(contact.Language));
             if (includeQuery.Contains("honorific-prefix") && contact.HonorificPrefix != null)
                 included.Add(_mapper.Map<HonorificPrefixDto>(contact.HonorificPrefix));
+            if (includeQuery.Contains("customer") && contact.Customer != null)
+                included.Add(_mapper.Map<CustomerDto>(contact.Customer));
                 
             // many-relations
             if (includeQuery.Contains("telephones") && contact.Telephones.Count() > 0)
@@ -104,6 +108,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<LanguageDto>(building.Language));
             if (includeQuery.Contains("honorific-prefix") && building.HonorificPrefix != null)
                 included.Add(_mapper.Map<HonorificPrefixDto>(building.HonorificPrefix));
+            if (includeQuery.Contains("customer") && building.Customer != null)
+                included.Add(_mapper.Map<CustomerDto>(building.Customer));
                 
             // many-relations
             if (includeQuery.Contains("telephones") && building.Telephones.Count() > 0)

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using AutoMapper;
 using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.Buildings;
+using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
@@ -10,8 +12,8 @@ using Rollvolet.CRM.Domain.Models.Query;
 namespace Rollvolet.CRM.API.Mappers
 {
     public class RelationshipsConverter : ITypeConverter<Customer, CustomerRelationshipsDto>,
-                                            ITypeConverter<Contact, ContactDto.RelationshipsDto>,
-                                            ITypeConverter<Building, BuildingDto.RelationshipsDto>,
+                                            ITypeConverter<Contact, ContactRelationshipsDto>,
+                                            ITypeConverter<Building, BuildingRelationshipsDto>,
                                             ITypeConverter<Telephone, TelephoneRelationshipsDto>,
                                             ITypeConverter<Request, RequestDto.RelationshipsDto>,
                                             ITypeConverter<Offer, OfferDto.RelationshipsDto>,
@@ -52,22 +54,24 @@ namespace Rollvolet.CRM.API.Mappers
             return relationships;
         }
 
-        ContactDto.RelationshipsDto ITypeConverter<Contact, ContactDto.RelationshipsDto>.Convert(Contact source, ContactDto.RelationshipsDto destination, ResolutionContext context)
+        ContactRelationshipsDto ITypeConverter<Contact, ContactRelationshipsDto>.Convert(Contact source, ContactRelationshipsDto destination, ResolutionContext context)
         {
-            var relationships = new ContactDto.RelationshipsDto();
+            var relationships = new ContactRelationshipsDto();
             relationships.Country = GetOneRelationship<Country>("contacts", source.Id, "country", source.Country, context);
             relationships.Language = GetOneRelationship<Language>("contacts", source.Id, "language", source.Language, context);
             relationships.HonorificPrefix = GetOneRelationship<HonorificPrefix>("contacts", source.Id, "honorific-prefix", source.HonorificPrefix, context);
+            relationships.Customer = GetOneRelationship<Customer>("contacts", source.Id, "customer", source.Customer, context);
             relationships.Telephones = GetManyRelationship<Telephone>("contacts", source.Id, "telephones", source.Telephones, context);
             return relationships;
         }
 
-        BuildingDto.RelationshipsDto ITypeConverter<Building, BuildingDto.RelationshipsDto>.Convert(Building source, BuildingDto.RelationshipsDto destination, ResolutionContext context)
+        BuildingRelationshipsDto ITypeConverter<Building, BuildingRelationshipsDto>.Convert(Building source, BuildingRelationshipsDto destination, ResolutionContext context)
         {
-            var relationships = new BuildingDto.RelationshipsDto();
+            var relationships = new BuildingRelationshipsDto();
             relationships.Country = GetOneRelationship<Country>("buildings", source.Id, "country", source.Country, context);
             relationships.Language = GetOneRelationship<Language>("buildings", source.Id, "language", source.Language, context);
             relationships.HonorificPrefix = GetOneRelationship<HonorificPrefix>("buildings", source.Id, "honorific-prefix", source.HonorificPrefix, context);
+            relationships.Customer = GetOneRelationship<Customer>("buildings", source.Id, "customer", source.Customer, context);            
             relationships.Telephones = GetManyRelationship<Telephone>("buildings", source.Id, "telephones", source.Telephones, context);
             return relationships;
         }
