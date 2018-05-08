@@ -29,7 +29,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public ContactsController(IContactManager contactManager, ITelephoneManager telephoneManager, IIncludedCollector includedCollector, 
+        public ContactsController(IContactManager contactManager, ITelephoneManager telephoneManager, IIncludedCollector includedCollector,
                                     IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _contactManager = contactManager;
@@ -38,7 +38,7 @@ namespace Rollvolet.CRM.API.Controllers
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
         }
-        
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -56,6 +56,7 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ResourceRequest<ContactRequestDto> resource)
         {
+            // TODO return 409 if type is not correct
             var contact = _mapper.Map<Contact>(resource.Data);
 
             contact = await _contactManager.CreateAsync(contact);
@@ -64,6 +65,20 @@ namespace Rollvolet.CRM.API.Controllers
             var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, contactDto.Id);
 
             return Created(links.Self, new ResourceResponse() { Links = links, Data = contactDto });
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Update([FromBody] ResourceRequest<ContactRequestDto> resource)
+        {
+            // TODO return 409 if id and type are not correct
+            var contact = _mapper.Map<Contact>(resource.Data);
+
+            contact = await _contactManager.UpdateAsync(contact);
+
+            var contactDto = _mapper.Map<ContactDto>(contact);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = contactDto });
         }
 
         [HttpDelete("{id}")]
@@ -92,4 +107,4 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
     }
-} 
+}

@@ -14,10 +14,10 @@ using Rollvolet.CRM.Domain.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class ContactDataProvider : CustomerRecordDataProvider, IContactDataProvider
     {
-        public ContactDataProvider(CrmContext context, IMapper mapper, ISequenceDataProvider sequenceDataProvider, 
+        public ContactDataProvider(CrmContext context, IMapper mapper, ISequenceDataProvider sequenceDataProvider,
                                     ILogger<ContactDataProvider> logger) : base(context, mapper, sequenceDataProvider, logger)
         {
         }
@@ -25,7 +25,7 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<Contact> GetByIdAsync(int id, QuerySet query = null)
         {
             var contact = await FindByIdAsync(id, query);
-            
+
             if (contact == null)
             {
                 _logger.LogError($"No contact found with data id {id}");
@@ -55,7 +55,7 @@ namespace Rollvolet.CRM.DataProviders
                 PageNumber = query.Page.Number,
                 PageSize = query.Page.Size
             };
-        } 
+        }
 
         public async Task<Contact> CreateAsync(Contact contact)
         {
@@ -73,6 +73,21 @@ namespace Rollvolet.CRM.DataProviders
             await _context.SaveChangesAsync();
 
             return _mapper.Map<Contact>(contactRecord);
+        }
+
+        public async Task<Contact> UpdateAsync(Contact contact)
+        {
+            var contactRecord = await FindByIdAsync(contact.Id);
+            _mapper.Map(contact, contactRecord);
+            contactRecord.SearchName = CalculateSearchName(contact.Name);
+
+            await HydratePostalCode(contact, contactRecord);
+
+            _context.Contacts.Update(contactRecord);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Contact>(contactRecord);
+
         }
 
         public async Task DeleteByIdAsync(int id)
@@ -94,6 +109,6 @@ namespace Rollvolet.CRM.DataProviders
                 source = source.Include(query);
 
             return await source.FirstOrDefaultAsync();
-        }   
+        }
     }
 }

@@ -9,7 +9,8 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     {
         Task<Contact> GetByIdAsync(int id, QuerySet query = null);
         Task<Paged<Contact>> GetAllByCustomerIdAsync(int customerId, QuerySet query);
-        Task<Contact> CreateAsync(Contact building);
+        Task<Contact> CreateAsync(Contact contact);
+        Task<Contact> UpdateAsync(Contact contact);
         Task DeleteByIdAsync(int id);
     }
 }

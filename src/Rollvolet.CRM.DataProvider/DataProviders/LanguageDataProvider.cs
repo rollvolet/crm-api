@@ -10,7 +10,7 @@ using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class LanguageDataProvider : ILanguageDataProvider
     {
         private readonly CrmContext _context;
@@ -34,7 +34,7 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<Language> GetByIdAsync(int id)
         {
             var language = await _context.Languages.Where(x => x.Id == id).FirstOrDefaultAsync();
-            
+
             if (language == null)
             {
                 _logger.LogError($"No language found with id {id}");

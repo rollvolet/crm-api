@@ -81,14 +81,14 @@ namespace Rollvolet.CRM.API.Builders
             return String.Join(".", propertySegments);
         }
 
-        public Links BuildSingleResourceLinks(string path, QuerySet query)
+        public Links BuildSingleResourceLinks(string path, QuerySet query = null)
         {
             var links = new Links();
-            
-            var includeQuery = BuildIncludeQuery(query.Include.Fields);
+
+            var includeQuery = query != null ? BuildIncludeQuery(query.Include.Fields) : null;
 
             links.Self = String.IsNullOrEmpty(includeQuery) ? path : $"{path}?{includeQuery}";
-            
+
             return links;
         }
 
@@ -111,7 +111,7 @@ namespace Rollvolet.CRM.API.Builders
             links.Self = $"{path}?{String.Join("&", new List<string>() { BuildPaginationQuery(paged.PageSize, paged.PageNumber), includeQuery, sortQuery }.FindAll(q => q != null))}";
             links.First = $"{path}?{String.Join("&", new List<string>() { BuildPaginationQuery(paged.PageSize, paged.First), includeQuery, sortQuery }.FindAll(q => q != null))}";
             links.Last = $"{path}?{String.Join("&", new List<string>() { BuildPaginationQuery(paged.PageSize, paged.Last), includeQuery, sortQuery }.FindAll(q => q != null))}";
-            
+
             if (paged.HasPrev)
                 links.Prev = $"{path}?{String.Join("&", new List<string>() { BuildPaginationQuery(paged.PageSize, paged.Prev), includeQuery, sortQuery }.FindAll(q => q != null))}";
             if (paged.HasNext)

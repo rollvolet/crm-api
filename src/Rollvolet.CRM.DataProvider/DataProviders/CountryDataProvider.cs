@@ -10,7 +10,7 @@ using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class CountryDataProvider : ICountryDataProvider
     {
         private readonly CrmContext _context;
@@ -34,7 +34,7 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<Country> GetByIdAsync(int id)
         {
             var country = await _context.Countries.Where(x => x.Id == id).FirstOrDefaultAsync();
-            
+
             if (country == null)
             {
                 _logger.LogError($"No country found with id {id}");

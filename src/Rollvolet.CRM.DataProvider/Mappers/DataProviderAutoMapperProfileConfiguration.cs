@@ -21,16 +21,23 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Memo, opt => opt.Ignore())
                 .ForMember(dest => dest.HonorificPrefixId, opt => opt.Ignore())
                 .PreserveReferences();
-            
+
             CreateMap<Models.Contact, Domain.Models.Contact>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.DataId))
                 .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.EmbeddedPostalCode))
                 .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.EmbeddedCity))
                 .PreserveReferences()
                 .ReverseMap()
-                .ForMember(dest => dest.HonorificPrefixId, opt => opt.Ignore())
+                .ForMember(dest => dest.Country, opt => opt.Ignore())
+                .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.Country != null ? src.Country.Id : null))
+                .ForMember(dest => dest.Language, opt => opt.Ignore())
+                .ForMember(dest => dest.LanguageId, opt => opt.MapFrom(src => src.Language != null ? src.Language.Id : null))
+                .ForMember(dest => dest.Customer, opt => opt.Ignore())
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
+                .ForMember(dest => dest.HonorificPrefix, opt => opt.Ignore())
+                .ForMember(dest => dest.HonorificPrefixId, opt =>opt.MapFrom(src => Models.HonorificPrefix.DecomposeEntityId(src.HonorificPrefix.Id)))
                 .PreserveReferences();
-                
+
             CreateMap<Models.Building, Domain.Models.Building>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.DataId))
                 .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.EmbeddedPostalCode))
@@ -39,7 +46,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ReverseMap()
                 .ForMember(dest => dest.HonorificPrefixId, opt => opt.Ignore())
                 .PreserveReferences();
-                
+
             CreateMap<Models.Country, Domain.Models.Country>()
                 .PreserveReferences()
                 .ReverseMap()
@@ -52,12 +59,12 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Models.HonorificPrefix.DecomposeEntityId(src.Id)))
                 .ForMember(dest => dest.LanguageId, opt => opt.MapFrom(src => Models.HonorificPrefix.DecomposeLanguageId(src.Id)))
                 .PreserveReferences();
-                
+
             CreateMap<Models.Language, Domain.Models.Language>()
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();
-                
+
             CreateMap<Models.PostalCode, Domain.Models.PostalCode>()
                 .PreserveReferences()
                 .ReverseMap()
@@ -72,7 +79,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ReverseMap()
                 .ForMember(dest => dest.CustomerRecordId, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.DataId : (src.Contact != null ? src.Contact.Id : src.Building.Id)))
                 .PreserveReferences();
-                
+
             CreateMap<Models.TelephoneType, Domain.Models.TelephoneType>()
                 .PreserveReferences()
                 .ReverseMap()
@@ -165,9 +172,9 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences();
         }
 
-        private DateTime? ParseDate(string dateString) 
+        private DateTime? ParseDate(string dateString)
         {
-            if (dateString == null) 
+            if (dateString == null)
             {
                 return null;
             }
@@ -180,7 +187,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                     return dateTime;
                 else if (DateTime.TryParseExact(dateString, "d/MM/yy", new CultureInfo("nl-BE"), DateTimeStyles.None, out dateTime))
                     return dateTime;
-                else 
+                else
                     return null;
             }
         }

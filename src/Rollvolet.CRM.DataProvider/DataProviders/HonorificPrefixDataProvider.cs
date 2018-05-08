@@ -10,7 +10,7 @@ using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class HonorificPrefixDataProvider : IHonorificPrefixDataProvider
     {
         private readonly CrmContext _context;
@@ -36,7 +36,7 @@ namespace Rollvolet.CRM.DataProviders
             var entityId = DataProvider.Models.HonorificPrefix.DecomposeEntityId(composedId);
             var languageId = DataProvider.Models.HonorificPrefix.DecomposeLanguageId(composedId);
             var prefix = await _context.HonorificPrefixes.Where(x => x.Id == entityId && x.LanguageId == languageId).FirstOrDefaultAsync();
-            
+
             if (prefix == null)
             {
                 _logger.LogError($"No honorific prefix found with composed id {composedId}");

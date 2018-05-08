@@ -13,10 +13,10 @@ using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class CustomerDataProvider : CustomerRecordDataProvider, ICustomerDataProvider
     {
-        public CustomerDataProvider(CrmContext context, IMapper mapper, ISequenceDataProvider sequenceDataProvider, 
+        public CustomerDataProvider(CrmContext context, IMapper mapper, ISequenceDataProvider sequenceDataProvider,
                                     ILogger<CustomerDataProvider> logger) : base(context, mapper, sequenceDataProvider, logger)
         {
         }
@@ -45,7 +45,7 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<Customer> GetByNumberAsync(int number, QuerySet query = null)
         {
             var customer = await FindByNumberAsync(number, query);
-            
+
             if (customer == null)
             {
                 _logger.LogError($"No customer found with number {number}");
@@ -53,7 +53,7 @@ namespace Rollvolet.CRM.DataProviders
             }
 
             return _mapper.Map<Customer>(customer);
-        }      
+        }
 
         public async Task<Customer> CreateAsync(Customer customer)
         {
