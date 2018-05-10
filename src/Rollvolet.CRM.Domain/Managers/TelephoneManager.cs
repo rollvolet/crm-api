@@ -33,7 +33,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _buildingDataProvider = buildingDataProvider;
             _logger = logger;
         }
-        
+
         public async Task<Paged<Telephone>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
             if (query.Sort.Field == null)
@@ -41,7 +41,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
             return await _telephoneDataProvider.GetAllByCustomerIdAsync(customerId, query);
         }
-        
+
         public async Task<Paged<Telephone>> GetAllByContactIdAsync(int contactId, QuerySet query)
         {
             if (query.Sort.Field == null)
@@ -49,7 +49,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
             return await _telephoneDataProvider.GetAllByContactIdAsync(contactId, query);
         }
-        
+
         public async Task<Paged<Telephone>> GetAllByBuildingIdAsync(int buildingId, QuerySet query)
         {
             if (query.Sort.Field == null)
@@ -91,7 +91,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 else if (telephone.Building != null)
                     telephone.Building = await _buildingDataProvider.GetByIdAsync(telephone.Building.Id);
             }
-            catch (EntityNotFoundException) 
+            catch (EntityNotFoundException)
             {
                 _logger.LogDebug($"Failed to find a related entity");
                 throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");

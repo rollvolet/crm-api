@@ -37,11 +37,18 @@ namespace Rollvolet.CRM.API.Controllers
             var telephone = _mapper.Map<Telephone>(resource.Data);
 
             telephone = await _telephoneManager.CreateAsync(telephone);
-            var telephoneDto = _mapper.Map<TelephoneDto>(telephone);
+            var include = new IncludeQuery() { Fields = new string[] { "telephone-type", "country" } };
+            var telephoneDto = _mapper.Map<TelephoneDto>(telephone, opt => opt.Items["include"] = include);
 
             var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, telephoneDto.Id);
 
             return Created(links.Self, new ResourceResponse() { Links = links, Data = telephoneDto });
+        }
+
+        [HttpPatch("{id}")]
+        public IActionResult Update([FromBody] ResourceRequest<TelephoneRequestDto> resource)
+        {
+            throw new NotSupportedException();
         }
 
         [HttpDelete("{id}")]

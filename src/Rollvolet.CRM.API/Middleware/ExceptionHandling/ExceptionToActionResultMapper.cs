@@ -10,7 +10,8 @@ using Microsoft.AspNetCore.Http;
 
 namespace Rollvolet.CRM.API.Middleware.ExceptionHandling
 {
-    public class ExceptionToActionResultMapper : IExceptionToActionResultMapper
+    public class
+    ExceptionToActionResultMapper : IExceptionToActionResultMapper
     {
         private readonly IHostingEnvironment _hostingEnvironment;
         private readonly ILogger _logger;
@@ -26,6 +27,18 @@ namespace Rollvolet.CRM.API.Middleware.ExceptionHandling
             if (ex is EntityNotFoundException)
             {
                 return new NotFoundResult();
+            }
+
+            if (ex is NotSupportedException)
+            {
+                var error = new Error
+                {
+                    Code = "NotSupported",
+                    Status = "400",
+                    Title = "Not supported",
+                    Detail = "The operation is not supported by the API."
+                };
+                return new BadRequestObjectResult(error);
             }
 
             if (ex is IllegalArgumentException)
