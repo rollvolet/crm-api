@@ -15,13 +15,13 @@ using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Exceptions;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class TelephoneDataProvider : ITelephoneDataProvider
     {
         private readonly CrmContext _context;
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
-        private static Regex _digitsOnly = new Regex(@"[^\d]");  
+        private static Regex _digitsOnly = new Regex(@"[^\d]");
 
         public TelephoneDataProvider(CrmContext context, IMapper mapper, ILogger<TelephoneDataProvider> logger)
         {
@@ -33,7 +33,7 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<Telephone> GetByIdAsync(string composedId)
         {
             var telephone = await FindByIdAsync(composedId);
-            
+
             if (telephone == null)
             {
                 _logger.LogError($"No telephone found with composed id {composedId}");
@@ -52,7 +52,7 @@ namespace Rollvolet.CRM.DataProviders
                 _logger.LogError($"No customer found with number {customerId}");
                 throw new EntityNotFoundException();
             }
-            
+
             return await this.GetAllByCustomerDataIdAsync(customer.DataId, query);
         }
 
@@ -61,9 +61,9 @@ namespace Rollvolet.CRM.DataProviders
             return await this.GetAllByCustomerDataIdAsync(contactId, query);
         }
 
-        public async Task<Paged<Telephone>> GetAllByBuildingIdAsync(int contactId, QuerySet query)
+        public async Task<Paged<Telephone>> GetAllByBuildingIdAsync(int buildingId, QuerySet query)
         {
-            return await this.GetAllByCustomerDataIdAsync(contactId, query);
+            return await this.GetAllByCustomerDataIdAsync(buildingId, query);
         }
 
         public async Task<Telephone> CreateAsync(Telephone telephone)
@@ -87,7 +87,7 @@ namespace Rollvolet.CRM.DataProviders
                 _context.Telephones.Remove(telephone);
                 await _context.SaveChangesAsync();
            }
-        }        
+        }
 
         private async Task<DataProvider.Models.Telephone> FindByIdAsync(string composedId)
         {
@@ -96,12 +96,12 @@ namespace Rollvolet.CRM.DataProviders
             var countryId = DataProvider.Models.Telephone.DecomposeCountryId(composedId);
             var area = DataProvider.Models.Telephone.DecomposeArea(composedId);
             var number = DataProvider.Models.Telephone.DecomposeNumber(composedId);
-            
+
             return await _context.Telephones.Where(x => x.CustomerRecordId == customerId
                             && x.TelephoneTypeId == telephoneTypeId && x.CountryId == countryId
                             && x.Area == area && x.Number == number)
                             .FirstOrDefaultAsync();
-        }  
+        }
 
         private async Task<Paged<Telephone>> GetAllByCustomerDataIdAsync(int dataId, QuerySet query)
         {

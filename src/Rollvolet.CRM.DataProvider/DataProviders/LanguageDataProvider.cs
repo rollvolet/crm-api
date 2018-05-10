@@ -43,5 +43,31 @@ namespace Rollvolet.CRM.DataProviders
 
             return _mapper.Map<Language>(language);
         }
+
+        public async Task<Language> GetByContactIdAsync(int id)
+        {
+            var language = await _context.Contacts.Where(c => c.DataId == id).Select(c => c.Language).FirstOrDefaultAsync();
+
+            if (language == null)
+            {
+                _logger.LogError($"No language found for contact with id {id}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Language>(language);
+        }
+
+        public async Task<Language> GetByBuildingIdAsync(int id)
+        {
+            var language = await _context.Buildings.Where(c => c.DataId == id).Select(c => c.Language).FirstOrDefaultAsync();
+
+            if (language == null)
+            {
+                _logger.LogError($"No language found for building with id {id}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Language>(language);
+        }
     }
 }

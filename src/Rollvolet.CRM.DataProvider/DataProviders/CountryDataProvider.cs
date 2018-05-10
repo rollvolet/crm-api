@@ -43,5 +43,31 @@ namespace Rollvolet.CRM.DataProviders
 
             return _mapper.Map<Country>(country);
         }
+
+        public async Task<Country> GetByContactIdAsync(int id)
+        {
+            var country = await _context.Contacts.Where(c => c.DataId == id).Select(c => c.Country).FirstOrDefaultAsync();
+
+            if (country == null)
+            {
+                _logger.LogError($"No country found for contact with id {id}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Country>(country);
+        }
+
+        public async Task<Country> GetByBuildingIdAsync(int id)
+        {
+            var country = await _context.Buildings.Where(c => c.DataId == id).Select(c => c.Country).FirstOrDefaultAsync();
+
+            if (country == null)
+            {
+                _logger.LogError($"No country found for building with id {id}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Country>(country);
+        }
     }
 }

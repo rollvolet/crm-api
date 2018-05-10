@@ -7,6 +7,8 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
 {
     public interface IHonorificPrefixManager
     {
-        Task<IEnumerable<HonorificPrefix>> GetAllAsync(); 
+        Task<IEnumerable<HonorificPrefix>> GetAllAsync();
+        Task<HonorificPrefix> GetByContactIdAsync(int id);
+        Task<HonorificPrefix> GetByBuildingIdAsync(int id);
     }
 }

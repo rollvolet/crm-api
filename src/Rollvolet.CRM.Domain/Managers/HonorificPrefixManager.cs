@@ -20,10 +20,20 @@ namespace Rollvolet.CRM.Domain.Managers
             _honorificPrefixDataProvider = honorificPrefixDataProvider;
             _logger = logger;
         }
-        
+
         public async Task<IEnumerable<HonorificPrefix>> GetAllAsync()
         {
             return await _honorificPrefixDataProvider.GetAll();
+        }
+
+        public async Task<HonorificPrefix> GetByContactIdAsync(int id)
+        {
+            return await _honorificPrefixDataProvider.GetByContactIdAsync(id);
+        }
+
+        public async Task<HonorificPrefix> GetByBuildingIdAsync(int id)
+        {
+            return await _honorificPrefixDataProvider.GetByBuildingIdAsync(id);
         }
     }
 }

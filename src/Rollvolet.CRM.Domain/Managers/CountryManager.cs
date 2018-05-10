@@ -20,10 +20,20 @@ namespace Rollvolet.CRM.Domain.Managers
             _countryDataProvider = countryDataProvider;
             _logger = logger;
         }
-        
+
         public async Task<IEnumerable<Country>> GetAllAsync()
         {
             return await _countryDataProvider.GetAll();
+        }
+
+        public async Task<Country> GetByContactIdAsync(int id)
+        {
+            return await _countryDataProvider.GetByContactIdAsync(id);
+        }
+
+        public async Task<Country> GetByBuildingIdAsync(int id)
+        {
+            return await _countryDataProvider.GetByBuildingIdAsync(id);
         }
     }
 }

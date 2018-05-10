@@ -20,10 +20,20 @@ namespace Rollvolet.CRM.Domain.Managers
             _languageDataProvider = languageDataProvider;
             _logger = logger;
         }
-        
+
         public async Task<IEnumerable<Language>> GetAllAsync()
         {
             return await _languageDataProvider.GetAll();
+        }
+
+        public async Task<Language> GetByContactIdAsync(int id)
+        {
+            return await _languageDataProvider.GetByContactIdAsync(id);
+        }
+
+        public async Task<Language> GetByBuildingIdAsync(int id)
+        {
+            return await _languageDataProvider.GetByBuildingIdAsync(id);
         }
     }
 }

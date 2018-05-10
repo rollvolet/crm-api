@@ -45,5 +45,31 @@ namespace Rollvolet.CRM.DataProviders
 
             return _mapper.Map<HonorificPrefix>(prefix);
         }
+
+        public async Task<HonorificPrefix> GetByContactIdAsync(int id)
+        {
+            var honorificPrefix = await _context.Contacts.Where(c => c.DataId == id).Select(c => c.HonorificPrefix).FirstOrDefaultAsync();
+
+            if (honorificPrefix == null)
+            {
+                _logger.LogError($"No honorific-prefix found for contact with id {id}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<HonorificPrefix>(honorificPrefix);
+        }
+
+        public async Task<HonorificPrefix> GetByBuildingIdAsync(int id)
+        {
+            var honorificPrefix = await _context.Buildings.Where(c => c.DataId == id).Select(c => c.HonorificPrefix).FirstOrDefaultAsync();
+
+            if (honorificPrefix == null)
+            {
+                _logger.LogError($"No honorific-prefix found for building with id {id}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<HonorificPrefix>(honorificPrefix);
+        }
     }
 }

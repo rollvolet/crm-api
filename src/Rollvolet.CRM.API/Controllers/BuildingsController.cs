@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
+using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Buildings;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
@@ -25,15 +26,22 @@ namespace Rollvolet.CRM.API.Controllers
     {
         private readonly IBuildingManager _buildingManager;
         private readonly ITelephoneManager _telephoneManager;
+        private readonly ICountryManager _countryManager;
+        private readonly ILanguageManager _languageManager;
+        private readonly IHonorificPrefixManager _honorificPrefixManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public BuildingsController(IBuildingManager buildingManager, ITelephoneManager telephoneManager, IIncludedCollector includedCollector,
-                                    IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+        public BuildingsController(IBuildingManager buildingManager, ITelephoneManager telephoneManager, ICountryManager countryManager,
+                                    ILanguageManager languageManager, IHonorificPrefixManager honorificPrefixManager,
+                                    IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _buildingManager = buildingManager;
             _telephoneManager = telephoneManager;
+            _countryManager = countryManager;
+            _languageManager = languageManager;
+            _honorificPrefixManager = honorificPrefixManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -108,5 +116,40 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = telephoneDtos, Included = included });
         }
 
+        [HttpGet("{buildingId}/country")]
+        [HttpGet("{buildingId}/links/country")]
+        public async Task<IActionResult> GetRelatedCountryById(int buildingId)
+        {
+            var country = await _countryManager.GetByBuildingIdAsync(buildingId);
+
+            var countryDto = _mapper.Map<CountryDto>(country);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = countryDto });
+        }
+
+        [HttpGet("{buildingId}/language")]
+        [HttpGet("{buildingId}/links/language")]
+        public async Task<IActionResult> GetRelatedLanguageById(int buildingId)
+        {
+            var language = await _languageManager.GetByBuildingIdAsync(buildingId);
+
+            var languageDto = _mapper.Map<LanguageDto>(language);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = languageDto });
+        }
+
+        [HttpGet("{buildingId}/honorific-prefix")]
+        [HttpGet("{buildingId}/links/honorofic-prefix")]
+        public async Task<IActionResult> GetRelatedHonorificPrefixById(int buildingId)
+        {
+            var language = await _honorificPrefixManager.GetByBuildingIdAsync(buildingId);
+
+            var languageDto = _mapper.Map<HonorificPrefixDto>(language);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = languageDto });
+        }
     }
 }

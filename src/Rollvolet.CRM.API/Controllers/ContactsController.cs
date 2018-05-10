@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
+using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
@@ -25,15 +26,22 @@ namespace Rollvolet.CRM.API.Controllers
     {
         private readonly IContactManager _contactManager;
         private readonly ITelephoneManager _telephoneManager;
+        private readonly ICountryManager _countryManager;
+        private readonly ILanguageManager _languageManager;
+        private readonly IHonorificPrefixManager _honorificPrefixManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public ContactsController(IContactManager contactManager, ITelephoneManager telephoneManager, IIncludedCollector includedCollector,
-                                    IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+        public ContactsController(IContactManager contactManager, ITelephoneManager telephoneManager, ICountryManager countryManager,
+                                    ILanguageManager languageManager, IHonorificPrefixManager honorificPrefixManager,
+                                    IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _contactManager = contactManager;
             _telephoneManager = telephoneManager;
+            _countryManager = countryManager;
+            _languageManager = languageManager;
+            _honorificPrefixManager = honorificPrefixManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -62,9 +70,7 @@ namespace Rollvolet.CRM.API.Controllers
 
             contact = await _contactManager.CreateAsync(contact);
 
-            // TODO replace include with get endpoints on these relations
-            var include = new IncludeQuery() { Fields = new string[] { "language", "country", "honorific-prefix" } };
-            var contactDto = _mapper.Map<ContactDto>(contact, opt => opt.Items["include"] = include);
+            var contactDto = _mapper.Map<ContactDto>(contact);
             var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, contactDto.Id);
 
             return Created(links.Self, new ResourceResponse() { Links = links, Data = contactDto });
@@ -74,7 +80,7 @@ namespace Rollvolet.CRM.API.Controllers
         public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<ContactRequestDto> resource)
         {
             if (resource.Data.Type != "contacts" || resource.Data.Id != id) return StatusCode(409);
-            
+
             var contact = _mapper.Map<Contact>(resource.Data);
 
             contact = await _contactManager.UpdateAsync(contact);
@@ -110,5 +116,40 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = telephoneDtos, Included = included });
         }
 
+        [HttpGet("{contactId}/country")]
+        [HttpGet("{contactId}/links/country")]
+        public async Task<IActionResult> GetRelatedCountryById(int contactId)
+        {
+            var country = await _countryManager.GetByContactIdAsync(contactId);
+
+            var countryDto = _mapper.Map<CountryDto>(country);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = countryDto });
+        }
+
+        [HttpGet("{contactId}/language")]
+        [HttpGet("{contactId}/links/language")]
+        public async Task<IActionResult> GetRelatedLanguageById(int contactId)
+        {
+            var language = await _languageManager.GetByContactIdAsync(contactId);
+
+            var languageDto = _mapper.Map<LanguageDto>(language);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = languageDto });
+        }
+
+        [HttpGet("{contactId}/honorific-prefix")]
+        [HttpGet("{contactId}/links/honorofic-prefix")]
+        public async Task<IActionResult> GetRelatedHonorificPrefixById(int contactId)
+        {
+            var language = await _honorificPrefixManager.GetByContactIdAsync(contactId);
+
+            var languageDto = _mapper.Map<HonorificPrefixDto>(language);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = languageDto });
+        }
     }
 }
