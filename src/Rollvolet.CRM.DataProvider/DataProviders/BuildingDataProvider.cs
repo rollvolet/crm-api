@@ -13,10 +13,10 @@ using Rollvolet.CRM.Domain.Exceptions;
 using System;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class BuildingDataProvider : CustomerRecordDataProvider, IBuildingDataProvider
     {
-        public BuildingDataProvider(CrmContext context, IMapper mapper, ISequenceDataProvider sequenceDataProvider, 
+        public BuildingDataProvider(CrmContext context, IMapper mapper, ISequenceDataProvider sequenceDataProvider,
                                     ILogger<BuildingDataProvider> logger) : base(context, mapper, sequenceDataProvider, logger)
         {
         }
@@ -24,7 +24,7 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<Building> GetByIdAsync(int id, QuerySet query = null)
         {
             var building = await FindByIdAsync(id, query);
-            
+
             if (building == null)
             {
                 _logger.LogError($"No building found with data id {id}");
@@ -74,6 +74,20 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Building>(buildingRecord);
         }
 
+        public async Task<Building> UpdateAsync(Building building)
+        {
+            var buildingRecord = await FindByIdAsync(building.Id);
+            _mapper.Map(building, buildingRecord);
+            buildingRecord.SearchName = CalculateSearchName(building.Name);
+
+            await HydratePostalCode(building, buildingRecord);
+
+            _context.Buildings.Update(buildingRecord);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Building>(buildingRecord);
+        }
+
         public async Task DeleteByIdAsync(int id)
         {
             var building = await FindByIdAsync(id);
@@ -93,6 +107,6 @@ namespace Rollvolet.CRM.DataProviders
                 source = source.Include(query);
 
             return await source.FirstOrDefaultAsync();
-        } 
+        }
     }
 }

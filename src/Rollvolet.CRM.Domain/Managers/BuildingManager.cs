@@ -18,8 +18,8 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly ILanguageDataProvider _langugageDataProvider;
         private readonly ILogger _logger;
 
-        public BuildingManager(IBuildingDataProvider buildingDataProvider, ICustomerDataProvider customerDataProvider, 
-                                ICountryDataProvider countryDataProvider, IHonorificPrefixDataProvider honorificPrefixDataProvider, 
+        public BuildingManager(IBuildingDataProvider buildingDataProvider, ICustomerDataProvider customerDataProvider,
+                                ICountryDataProvider countryDataProvider, IHonorificPrefixDataProvider honorificPrefixDataProvider,
                                 ILanguageDataProvider languageDataProvider, ILogger<BuildingManager> logger)
         {
             _buildingDataProvider = buildingDataProvider;
@@ -29,7 +29,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _langugageDataProvider = languageDataProvider;
             _logger = logger;
         }
-        
+
         public async Task<Paged<Building>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
             if (query.Sort.Field == null)
@@ -65,35 +65,97 @@ namespace Rollvolet.CRM.Domain.Managers
             if (building.Language == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Language is required on building creation.");
 
-            // Embed existing records
-            try {
-                var id = int.Parse(building.Country.Id);
-                building.Country = await _countryDataProvider.GetByIdAsync(id);
-
-                id = int.Parse(building.Language.Id);
-                building.Language = await _langugageDataProvider.GetByIdAsync(id);
-
-                id = building.Customer.Id;
-                building.Customer = await _customerDataProvider.GetByNumberAsync(id);
-
-                if (building.HonorificPrefix != null)
-                {
-                    var composedId = building.HonorificPrefix.Id;
-                    building.HonorificPrefix = await _honorificPrefixDataProvider.GetByIdAsync(composedId);
-                }
-            }
-            catch (EntityNotFoundException) 
-            {
-                _logger.LogDebug($"Failed to find a related entity");
-                throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
-            }
+            await EmbedRelations(building);
 
             return await _buildingDataProvider.CreateAsync(building);
+        }
+
+        public async Task<Building> UpdateAsync(Building building)
+        {
+            var query = new QuerySet();
+            query.Include.Fields = new string[] { "customer", "country", "language", "honorific-prefix" };
+            var existingBuilding = await _buildingDataProvider.GetByIdAsync(building.Id, query);
+
+            if (building.Number != existingBuilding.Number)
+                throw new IllegalArgumentException("IllegalAttribute", "Building number cannot be updated.");
+            if ((building.PostalCode != null && building.City == null) || (building.PostalCode == null && building.City != null))
+                throw new IllegalArgumentException("IllegalAttribute", "Building's postal-code and city must be both filled in or not filled.");
+            if (building.Telephones != null)
+            {
+                var message = "Telephones cannot be change during building update.";
+                _logger.LogDebug(message);
+                throw new IllegalArgumentException("IllegalAttribute", message);
+            }
+
+            await EmbedRelations(building, existingBuilding);
+
+            if (building.Customer == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
+            if (building.Country == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Country is required.");
+            if (building.Language == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Language is required.");
+
+            return await _buildingDataProvider.UpdateAsync(building);
         }
 
         public async Task DeleteAsync(int id)
         {
             await _buildingDataProvider.DeleteByIdAsync(id);
         }
+
+        // Embed relations in contact resource: use old embedded value if there is one and the relation isn't updated or null
+        private async Task EmbedRelations(Building building, Building oldBuilding = null)
+        {
+            try {
+                if (building.Country != null && (oldBuilding == null || oldBuilding.Country == null || building.Country.Id != oldBuilding.Country.Id) )
+                {
+                    var id = int.Parse(building.Country.Id);
+                    building.Country = await _countryDataProvider.GetByIdAsync(id);
+                }
+                else
+                {
+                    building.Country = oldBuilding != null ? oldBuilding.Country : null;
+                }
+
+                if (building.Language != null && (oldBuilding == null || oldBuilding.Language == null || building.Language.Id != oldBuilding.Language.Id) )
+                {
+                    var id = int.Parse(building.Language.Id);
+                    building.Language = await _langugageDataProvider.GetByIdAsync(id);
+                }
+                else
+                {
+                    building.Language = oldBuilding != null ? oldBuilding.Language : null;
+                }
+
+                if (building.Customer != null && (oldBuilding == null || oldBuilding.Customer == null || building.Customer.Id != oldBuilding.Customer.Id) )
+                {
+                    var id = building.Customer.Id;
+                    building.Customer = await _customerDataProvider.GetByNumberAsync(id);
+                }
+                else
+                {
+                    building.Customer = oldBuilding != null ? oldBuilding.Customer : null;
+                }
+
+                if (building.HonorificPrefix != null &&
+                        (oldBuilding == null || oldBuilding.HonorificPrefix == null || building.HonorificPrefix.Id != oldBuilding.HonorificPrefix.Id) )
+                {
+                    var composedId = building.HonorificPrefix.Id;
+                    building.HonorificPrefix = await _honorificPrefixDataProvider.GetByIdAsync(composedId);
+                }
+                else
+                {
+                    building.HonorificPrefix = oldBuilding != null ? oldBuilding.HonorificPrefix : null;
+                }
+            }
+            catch (EntityNotFoundException)
+            {
+                _logger.LogDebug($"Failed to find a related entity");
+                throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
+            }
+
+        }
+
     }
 }

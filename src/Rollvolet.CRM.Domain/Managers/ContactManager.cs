@@ -79,8 +79,12 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Contact number cannot be updated.");
             if ((contact.PostalCode != null && contact.City == null) || (contact.PostalCode == null && contact.City != null))
                 throw new IllegalArgumentException("IllegalAttribute", "Contact's postal-code and city must be both filled in or not filled.");
-
-            // TODO handle telephones
+            if (contact.Telephones != null)
+            {
+                var message = "Telephones cannot be change during contact update.";
+                _logger.LogDebug(message);
+                throw new IllegalArgumentException("IllegalAttribute", message);
+            }
 
             await EmbedRelations(contact, existingContact);
 
@@ -149,7 +153,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogDebug($"Failed to find a related entity");
                 throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
             }
-
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public BuildingsController(IBuildingManager buildingManager, ITelephoneManager telephoneManager, IIncludedCollector includedCollector, 
+        public BuildingsController(IBuildingManager buildingManager, ITelephoneManager telephoneManager, IIncludedCollector includedCollector,
                                     IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _buildingManager = buildingManager;
@@ -38,7 +38,7 @@ namespace Rollvolet.CRM.API.Controllers
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
         }
-        
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -56,6 +56,8 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ResourceRequest<BuildingRequestDto> resource)
         {
+            if (resource.Data.Type != "buildings") return StatusCode(409);
+
             var building = _mapper.Map<Building>(resource.Data);
 
             building = await _buildingManager.CreateAsync(building);
@@ -64,6 +66,21 @@ namespace Rollvolet.CRM.API.Controllers
             var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, buildingDto.Id);
 
             return Created(links.Self, new ResourceResponse() { Links = links, Data = buildingDto });
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<BuildingRequestDto> resource)
+        {
+            if (resource.Data.Type != "buildings" || resource.Data.Id != id) return StatusCode(409);
+
+            var building = _mapper.Map<Building>(resource.Data);
+
+            building = await _buildingManager.UpdateAsync(building);
+
+            var buildingDto = _mapper.Map<BuildingDto>(building);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = buildingDto });
         }
 
         [HttpDelete("{id}")]
@@ -92,4 +109,4 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
     }
-} 
+}

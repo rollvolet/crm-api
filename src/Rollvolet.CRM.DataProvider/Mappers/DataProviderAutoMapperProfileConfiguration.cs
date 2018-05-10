@@ -44,7 +44,14 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.EmbeddedCity))
                 .PreserveReferences()
                 .ReverseMap()
-                .ForMember(dest => dest.HonorificPrefixId, opt => opt.Ignore())
+                .ForMember(dest => dest.Country, opt => opt.Ignore())
+                .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.Country != null ? src.Country.Id : null))
+                .ForMember(dest => dest.Language, opt => opt.Ignore())
+                .ForMember(dest => dest.LanguageId, opt => opt.MapFrom(src => src.Language != null ? src.Language.Id : null))
+                .ForMember(dest => dest.Customer, opt => opt.Ignore())
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
+                .ForMember(dest => dest.HonorificPrefix, opt => opt.Ignore())
+                .ForMember(dest => dest.HonorificPrefixId, opt =>opt.MapFrom(src => Models.HonorificPrefix.DecomposeEntityId(src.HonorificPrefix.Id)))
                 .PreserveReferences();
 
             CreateMap<Models.Country, Domain.Models.Country>()
