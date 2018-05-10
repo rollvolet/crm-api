@@ -34,9 +34,12 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ResourceRequest<TelephoneRequestDto> resource)
         {
+            if (resource.Data.Type != "telephones") return StatusCode(409);
+
             var telephone = _mapper.Map<Telephone>(resource.Data);
 
             telephone = await _telephoneManager.CreateAsync(telephone);
+            // TODO replace include with get endpoints on these relations
             var include = new IncludeQuery() { Fields = new string[] { "telephone-type", "country" } };
             var telephoneDto = _mapper.Map<TelephoneDto>(telephone, opt => opt.Items["include"] = include);
 

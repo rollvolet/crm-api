@@ -56,21 +56,25 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ResourceRequest<ContactRequestDto> resource)
         {
-            // TODO return 409 if type is not correct
+            if (resource.Data.Type != "contacts") return StatusCode(409);
+
             var contact = _mapper.Map<Contact>(resource.Data);
 
             contact = await _contactManager.CreateAsync(contact);
 
-            var contactDto = _mapper.Map<ContactDto>(contact);
+            // TODO replace include with get endpoints on these relations
+            var include = new IncludeQuery() { Fields = new string[] { "language", "country", "honorific-prefix" } };
+            var contactDto = _mapper.Map<ContactDto>(contact, opt => opt.Items["include"] = include);
             var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, contactDto.Id);
 
             return Created(links.Self, new ResourceResponse() { Links = links, Data = contactDto });
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update([FromBody] ResourceRequest<ContactRequestDto> resource)
+        public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<ContactRequestDto> resource)
         {
-            // TODO return 409 if id and type are not correct
+            if (resource.Data.Type != "contacts" || resource.Data.Id != id) return StatusCode(409);
+            
             var contact = _mapper.Map<Contact>(resource.Data);
 
             contact = await _contactManager.UpdateAsync(contact);
