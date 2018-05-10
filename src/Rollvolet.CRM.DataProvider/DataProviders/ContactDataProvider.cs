@@ -62,7 +62,7 @@ namespace Rollvolet.CRM.DataProviders
             var contactRecord = _mapper.Map<DataProvider.Models.Contact>(contact);
 
             var customerId = contact.Customer.Id;
-            contactRecord.Number = await _sequenceDataProvider.GetNextRelativeCustomerNumber(customerId);
+            contactRecord.Number = await _sequenceDataProvider.GetNextRelativeContactNumber(customerId);
             contactRecord.CustomerId = customerId;
             contactRecord.Created = DateTime.Now;
             contactRecord.SearchName = CalculateSearchName(contact.Name);

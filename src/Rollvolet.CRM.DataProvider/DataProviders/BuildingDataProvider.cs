@@ -61,7 +61,7 @@ namespace Rollvolet.CRM.DataProviders
             var buildingRecord = _mapper.Map<DataProvider.Models.Building>(building);
 
             var customerId = building.Customer.Id;
-            buildingRecord.Number = await _sequenceDataProvider.GetNextRelativeCustomerNumber(customerId);
+            buildingRecord.Number = await _sequenceDataProvider.GetNextRelativeBuildingNumber(customerId);
             buildingRecord.CustomerId = customerId;
             buildingRecord.Created = DateTime.Now;
             buildingRecord.SearchName = CalculateSearchName(building.Name);
