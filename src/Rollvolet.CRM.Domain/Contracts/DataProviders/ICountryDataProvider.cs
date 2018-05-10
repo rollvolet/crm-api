@@ -11,5 +11,6 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
         Task<Country> GetByIdAsync(int id);
         Task<Country> GetByContactIdAsync(int id);
         Task<Country> GetByBuildingIdAsync(int id);
+        Task<Country> GetByTelephoneIdAsync(string id);
     }
 }

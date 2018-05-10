@@ -10,7 +10,7 @@ using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class TelephoneTypeDataProvider : ITelephoneTypeDataProvider
     {
         private readonly CrmContext _context;
@@ -35,10 +35,24 @@ namespace Rollvolet.CRM.DataProviders
         {
 
             var telephoneType = await _context.TelephoneTypes.Where(x => x.Id == id).FirstOrDefaultAsync();
-            
+
             if (telephoneType == null)
             {
                 _logger.LogError($"No telephone-type found with id {id}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<TelephoneType>(telephoneType);
+        }
+
+        public async Task<TelephoneType> GetByTelephoneIdAsync(string composedId)
+        {
+            var telephoneTypeId = DataProvider.Models.Telephone.DecomposeTelephoneTypeId(composedId);
+            var telephoneType = await _context.TelephoneTypes.Where(c => c.Id == telephoneTypeId).FirstOrDefaultAsync();
+
+            if (telephoneType == null)
+            {
+                _logger.LogError($"No telephone-type found for telephone with id {composedId}");
                 throw new EntityNotFoundException();
             }
 

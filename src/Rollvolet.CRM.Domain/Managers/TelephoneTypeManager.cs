@@ -20,10 +20,15 @@ namespace Rollvolet.CRM.Domain.Managers
             _telephoneTypeDataProvider = telephoneTypeDataProvider;
             _logger = logger;
         }
-        
+
         public async Task<IEnumerable<TelephoneType>> GetAllAsync()
         {
             return await _telephoneTypeDataProvider.GetAll();
+        }
+
+        public async Task<TelephoneType> GetByTelephoneIdAsync(string id)
+        {
+            return await _telephoneTypeDataProvider.GetByTelephoneIdAsync(id);
         }
     }
 }

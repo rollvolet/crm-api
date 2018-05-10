@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.API.Builders.Interfaces;
+using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
@@ -21,12 +22,17 @@ namespace Rollvolet.CRM.API.Controllers
     public class TelephonesController : Controller
     {
         private readonly ITelephoneManager _telephoneManager;
+        private readonly ICountryManager _countryManager;
+        private readonly ITelephoneTypeManager _telephoneTypeManager;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public TelephonesController(ITelephoneManager telephoneManager, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+        public TelephonesController(ITelephoneManager telephoneManager, ICountryManager countryManager, ITelephoneTypeManager telephoneTypeManager,
+                                    IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _telephoneManager = telephoneManager;
+            _countryManager = countryManager;
+            _telephoneTypeManager = telephoneTypeManager;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
         }
@@ -39,9 +45,7 @@ namespace Rollvolet.CRM.API.Controllers
             var telephone = _mapper.Map<Telephone>(resource.Data);
 
             telephone = await _telephoneManager.CreateAsync(telephone);
-            // TODO replace include with get endpoints on these relations
-            var include = new IncludeQuery() { Fields = new string[] { "telephone-type", "country" } };
-            var telephoneDto = _mapper.Map<TelephoneDto>(telephone, opt => opt.Items["include"] = include);
+            var telephoneDto = _mapper.Map<TelephoneDto>(telephone);
 
             var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, telephoneDto.Id);
 
@@ -60,6 +64,30 @@ namespace Rollvolet.CRM.API.Controllers
             await _telephoneManager.DeleteAsync(id);
 
             return NoContent();
+        }
+
+        [HttpGet("{telephoneId}/country")]
+        [HttpGet("{telephoneId}/links/country")]
+        public async Task<IActionResult> GetRelatedCountryById(string telephoneId)
+        {
+            var country = await _countryManager.GetByTelephoneIdAsync(telephoneId);
+
+            var countryDto = _mapper.Map<CountryDto>(country);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = countryDto });
+        }
+
+        [HttpGet("{telephoneId}/telephone-type")]
+        [HttpGet("{telephoneId}/links/telephone-type")]
+        public async Task<IActionResult> GetRelatedTelephoneTypeById(string telephoneId)
+        {
+            var country = await _telephoneTypeManager.GetByTelephoneIdAsync(telephoneId);
+
+            var countryDto = _mapper.Map<TelephoneTypeDto>(country);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = countryDto });
         }
     }
 }
