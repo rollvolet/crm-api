@@ -87,7 +87,6 @@ namespace Rollvolet.CRM.DataProviders
             await _context.SaveChangesAsync();
 
             return _mapper.Map<Contact>(contactRecord);
-
         }
 
         public async Task DeleteByIdAsync(int id)

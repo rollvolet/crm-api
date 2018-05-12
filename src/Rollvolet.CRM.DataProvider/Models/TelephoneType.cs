@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rollvolet.CRM.DataProvider.Models
@@ -6,13 +7,13 @@ namespace Rollvolet.CRM.DataProvider.Models
     {
         [Column("TelTypeId")]
         public int Id { get; set; }
-        
+
         [Column("TypeTel")]
         public string Name { get; set; }
 
 
         // Include resource
-        public Telephone Telephone { get; set; }
+        public IEnumerable<Telephone> Telephones { get; set; }
     }
-  
+
 }

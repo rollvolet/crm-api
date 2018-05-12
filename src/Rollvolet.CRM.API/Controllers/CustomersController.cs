@@ -40,9 +40,9 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager, 
-                                    ITelephoneManager telephoneManager, IRequestManager requestManager, IOfferManager offerManager, 
-                                    IOrderManager orderManager, IDepositInvoiceManager depositInvoiceManager, IInvoiceManager invoiceManager, 
+        public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
+                                    ITelephoneManager telephoneManager, IRequestManager requestManager, IOfferManager offerManager,
+                                    IOrderManager orderManager, IDepositInvoiceManager depositInvoiceManager, IInvoiceManager invoiceManager,
                                     ITagManager tagManager, IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _customerManager = customerManager;
@@ -74,7 +74,7 @@ namespace Rollvolet.CRM.API.Controllers
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = customerDtos, Included = included });
         }
-        
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -100,6 +100,21 @@ namespace Rollvolet.CRM.API.Controllers
             var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, customerDto.Id);
 
             return Created(links.Self, new ResourceResponse() { Links = links, Data = customerDto });
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<CustomerRequestDto> resource)
+        {
+            if (resource.Data.Type != "customers" || resource.Data.Id != id) return StatusCode(409);
+
+            var customer = _mapper.Map<Customer>(resource.Data);
+
+            customer = await _customerManager.UpdateAsync(customer);
+
+            var customerDto = _mapper.Map<CustomerDto>(customer);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = customerDto });
         }
 
         [HttpDelete("{id}")]
@@ -221,7 +236,7 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedInvoices);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = invoiceDtos, Included = included });
-        }  
+        }
 
         [HttpGet("{customerId}/invoices")]
         [HttpGet("{customerId}/links/invoices")]
@@ -237,7 +252,7 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedInvoices);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = invoiceDtos, Included = included });
-        }     
+        }
 
         [HttpGet("{customerId}/tags")]
         [HttpGet("{customerId}/links/tags")]
@@ -255,4 +270,4 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = tagDtos, Included = included });
         }
     }
-} 
+}

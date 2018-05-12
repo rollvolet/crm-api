@@ -78,6 +78,37 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Customer>(customerRecord);
         }
 
+        public async Task<Customer> UpdateAsync(Customer customer)
+        {
+            var customerRecord = await FindByNumberAsync(customer.Id);
+            var memoRecord = customerRecord.Memo;
+            _mapper.Map(customer, customerRecord);
+            customerRecord.SearchName = CalculateSearchName(customer.Name);
+
+            await HydratePostalCode(customer, customerRecord);
+
+            if (customer.Memo != null)
+            {
+                if (memoRecord != null)  // update existing memo
+                {
+                    memoRecord.Text = customer.Memo;
+                }
+                else  // create new memo
+                {
+                    var memo = new DataProvider.Models.Memo() { Text = customer.Memo };
+                    customerRecord.Memo = memo;
+                    _context.Memos.Add(memo);
+                }
+            }
+            else if (memoRecord != null)  // delete old memo
+                _context.Memos.Remove(memoRecord);
+
+            _context.Customers.Update(customerRecord);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Customer>(customerRecord);
+        }
+
         public async Task DeleteByNumberAsync(int number)
         {
             var customer = await FindByNumberAsync(number);
