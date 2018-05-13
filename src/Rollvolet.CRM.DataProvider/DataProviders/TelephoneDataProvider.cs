@@ -70,7 +70,10 @@ namespace Rollvolet.CRM.DataProviders
         {
             var telephoneRecord = _mapper.Map<DataProvider.Models.Telephone>(telephone);
 
-            // TODO format numbers with '.' before saving
+            if (telephone.Number.Length == 6)
+                telephoneRecord.Number = $"{telephone.Number.Substring(0, 2)}.{telephone.Number.Substring(2, 2)}.{telephone.Number.Substring(4, 2)}";
+            else
+                telephoneRecord.Number = $"{telephone.Number.Substring(0, 3)}.{telephone.Number.Substring(3, 2)}.{telephone.Number.Substring(5, 2)}";
 
             _context.Telephones.Add(telephoneRecord);
             await _context.SaveChangesAsync();

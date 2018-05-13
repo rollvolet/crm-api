@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
@@ -74,7 +75,13 @@ namespace Rollvolet.CRM.Domain.Managers
             if (new CustomerEntity[3] { telephone.Customer, telephone.Contact, telephone.Building }.Where(x => x != null).Count() != 1)
                 throw new IllegalArgumentException("IllegalAttribute", "Just one of customer, contact or building is required on telephone creation.");
 
-            // TODO add validation on area and number (only digits + length)
+            var number = Regex.Replace(telephone.Number, @"\s+", "");
+            if (!Regex.IsMatch(number, @"^[0-9]{6,}$"))
+                throw new IllegalArgumentException("IllegalAttribute", "Number must at least contain 6 numbers.");
+
+            var area = Regex.Replace(telephone.Area, @"\s+", "");
+            if (!Regex.IsMatch(area, @"^[0-9]{2,4}$"))
+                throw new IllegalArgumentException("IllegalAttribute", "Area must contain 2-4 numbers.");
 
             // Embed existing records
             try {
