@@ -45,7 +45,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
         public static IQueryable<Customer> Include(this IQueryable<Customer> source, QuerySet querySet)
         {
             var selectors = new Dictionary<string, Expression<Func<Customer, object>>>();
-            
+
             selectors.Add("country", c => c.Country);
             selectors.Add("language", c => c.Language);
             selectors.Add("honorific-prefix", c => c.HonorificPrefix);
@@ -69,7 +69,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
         public static IQueryable<Customer> Sort(this IQueryable<Customer> source, QuerySet querySet)
         {
             var selectors = new Dictionary<string, Expression<Func<Customer, object>>>();
-            
+
             selectors.Add("name", x => x.SearchName);
             selectors.Add("number", x => x.Number);
             selectors.Add("address", x => x.Address1);
@@ -90,7 +90,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 int number;
                 if (Int32.TryParse(filterValue, out number))
                     source = source.Where(c => c.Number == number);
-            }  
+            }
 
             if (querySet.Filter.Fields.ContainsKey("customer"))
             {
@@ -101,25 +101,25 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             }
 
             return source;
-        }        
+        }
 
         public static IQueryable<Contact> Include(this IQueryable<Contact> source, QuerySet querySet)
         {
             var selectors = new Dictionary<string, Expression<Func<Contact, object>>>();
-            
+
             selectors.Add("country", c => c.Country);
             selectors.Add("language", c => c.Language);
             selectors.Add("honorific-prefix", c => c.HonorificPrefix);
             selectors.Add("customer", c => c.Customer);
             selectors.Add("telephones", c => c.Telephones);
 
-            return source.Include<Contact>(querySet, selectors);         
+            return source.Include<Contact>(querySet, selectors);
         }
 
         public static IQueryable<Contact> Sort(this IQueryable<Contact> source, QuerySet querySet)
         {
             var selectors = new Dictionary<string, Expression<Func<Contact, object>>>();
-            
+
             selectors.Add("name", x => x.SearchName);
             selectors.Add("address", x => x.Address1);
             selectors.Add("postal-code", x => x.EmbeddedPostalCode);
@@ -139,7 +139,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 int number;
                 if (Int32.TryParse(filterValue, out number))
                     source = source.Where(c => c.Number == number);
-            }  
+            }
 
             if (querySet.Filter.Fields.ContainsKey("customer"))
             {
@@ -150,25 +150,25 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             }
 
             return source;
-        } 
+        }
 
         public static IQueryable<Building> Include(this IQueryable<Building> source, QuerySet querySet)
         {
             var selectors = new Dictionary<string, Expression<Func<Building, object>>>();
-            
+
             selectors.Add("country", c => c.Country);
             selectors.Add("language", c => c.Language);
             selectors.Add("honorific-prefix", c => c.HonorificPrefix);
             selectors.Add("customer", c => c.Customer);
             selectors.Add("telephones", c => c.Telephones);
 
-            return source.Include<Building>(querySet, selectors);         
+            return source.Include<Building>(querySet, selectors);
         }
 
         public static IQueryable<Building> Sort(this IQueryable<Building> source, QuerySet querySet)
         {
             var selectors = new Dictionary<string, Expression<Func<Building, object>>>();
-            
+
             selectors.Add("name", x => x.SearchName);
             selectors.Add("address", x => x.Address1);
             selectors.Add("postal-code", x => x.EmbeddedPostalCode);
@@ -182,7 +182,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
         {
             if (querySet.Filter.Fields.ContainsKey("name"))
             {
-                var filterValue = querySet.Filter.Fields["name"].FilterWhitespace().FilterWildcard();
+                var filterValue = querySet.Filter.Fields["name"].TextSearch();
                 source = source.Where(c => EF.Functions.Like(c.SearchName, filterValue));
             }
 
@@ -190,7 +190,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             {
                 var filterValue = querySet.Filter.Fields["postal-code"];
                 source = source.Where(c => c.EmbeddedPostalCode == filterValue);
-            }  
+            }
 
             if (querySet.Filter.Fields.ContainsKey("city"))
             {
@@ -201,7 +201,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("street"))
             {
                 var filterValue = querySet.Filter.Fields["street"].FilterWildcard();
-                source = source.Where(c => EF.Functions.Like(c.Address1, filterValue) 
+                source = source.Where(c => EF.Functions.Like(c.Address1, filterValue)
                                         || EF.Functions.Like(c.Address2, filterValue)
                                         || EF.Functions.Like(c.Address3, filterValue));
             }
@@ -218,7 +218,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             {
                 var ids = querySet.Filter.Fields["ids"].Split(",").Select(int.Parse).ToList();
                 source = source.Where(c => ids.Contains(c.DataId));
-            }         
+            }
 
             return source;
         }

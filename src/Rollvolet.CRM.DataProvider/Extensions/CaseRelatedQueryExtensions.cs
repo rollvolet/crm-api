@@ -18,7 +18,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
         {
             if (querySet.Filter.Fields.ContainsKey("customer.name"))
             {
-                var filterValue = querySet.Filter.Fields["customer.name"].FilterWhitespace().FilterWildcard();
+                var filterValue = querySet.Filter.Fields["customer.name"].TextSearch();
                 source = source.Where(c => EF.Functions.Like(c.Customer.SearchName, filterValue));
             }
 
@@ -58,7 +58,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
                 if (querySet.Filter.Fields.ContainsKey("building.name"))
                 {
-                    var filterValue = querySet.Filter.Fields["building.name"].FilterWhitespace().FilterWildcard();
+                    var filterValue = querySet.Filter.Fields["building.name"].TextSearch();
                     predicate.And(c => EF.Functions.Like(c.Building.SearchName, filterValue));
                 }
 
@@ -77,7 +77,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 if (querySet.Filter.Fields.ContainsKey("building.street"))
                 {
                     var filterValue = querySet.Filter.Fields["building.street"].FilterWildcard();
-                    predicate.And(c => EF.Functions.Like(c.Building.Address1, filterValue) 
+                    predicate.And(c => EF.Functions.Like(c.Building.Address1, filterValue)
                                             || EF.Functions.Like(c.Building.Address2, filterValue)
                                             || EF.Functions.Like(c.Building.Address3, filterValue));
                 }
@@ -89,9 +89,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                     (r, b) => new CaseTuple<T> { Source = r, Building = b }
                 ).Where(predicate)
                 .Select(x => x.Source);
-            }    
+            }
 
-            return source;      
+            return source;
         }
     }
 }

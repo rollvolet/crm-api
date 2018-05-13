@@ -56,10 +56,11 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             return Regex.Replace(value, @"\s+", "");
         }
 
+        // see https://stackoverflow.com/questions/249087/how-do-i-remove-diacritics-accents-from-a-string-in-net
         public static string FilterDiacritics(this string value)
         {
             var normalizedString = value.Normalize(NormalizationForm.FormD);
-            
+
             var stringBuilder = new StringBuilder();
 
             foreach (var c in normalizedString)
@@ -77,6 +78,11 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             return value.Replace("*", "%") + "%";
         }
 
+        public static string TextSearch(this string value)
+        {
+            return value.FilterWhitespace().FilterWildcard().FilterDiacritics();
+        }
+
         public static IQueryable<T> ForPage<T>(this IQueryable<T> source, QuerySet querySet)
         {
             if (querySet.Page.IsPaged)
@@ -90,7 +96,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             foreach(var field in querySet.Include.Fields)
             {
                 Expression<Func<T, object>> selector;
-            
+
                 var includesSelector = selectors.TryGetValue(field, out selector);
                 if (includesSelector)
                 {
@@ -105,7 +111,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             }
 
             return source;
-        }        
+        }
 
         public static IQueryable<T> Sort<T>(this IQueryable<T> source, QuerySet querySet, IDictionary<string, Expression<Func<T, object>>> selectors)
         {
@@ -115,13 +121,13 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (field != null && selectors.TryGetValue(field, out selector))
             {
                 source = querySet.Sort.Order == SortQuery.ORDER_ASC ? source.OrderBy(selector) : source.OrderByDescending(selector);
-            } 
+            }
             else if (field != null)
             {
                 ApplicationLogging.CreateLogger(typeof(BaseQueryExtensions).AssemblyQualifiedName)
                     .LogWarning("'{Value}' is not supported as sort value on type {Type}", field, typeof(T).AssemblyQualifiedName);
             }
-            
+
             return source;
         }
     }
