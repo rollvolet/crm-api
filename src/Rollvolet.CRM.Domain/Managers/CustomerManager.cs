@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
@@ -13,6 +14,7 @@ namespace Rollvolet.CRM.Domain.Managers
 {
     public class CustomerManager : ICustomerManager
     {
+        private static Regex _vatNumberRegex = new Regex(@"^[a-zA-Z]{2}\d{10,18}$");
         private readonly ICustomerDataProvider _customerDataProvider;
         private readonly ICountryDataProvider _countryDataProvider;
         private readonly IHonorificPrefixDataProvider _honorificPrefixDataProvider;
@@ -47,13 +49,18 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<Customer> CreateAsync(Customer customer)
         {
-            // Validations
             if (customer.DataId != 0)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer cannot have a data-id on create.");
             if (customer.Id != 0 || customer.Number != 0)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer cannot have an id/number on create.");
             if ((customer.PostalCode != null && customer.City == null) || (customer.PostalCode == null && customer.City != null))
                 throw new IllegalArgumentException("IllegalAttribute", "Customer's postal-code and city must be both filled in or not filled.");
+            if (customer.VatNumber != null && !_vatNumberRegex.IsMatch(customer.VatNumber))
+                throw new IllegalArgumentException("IllegalAttribute", "Invalid VAT number.");
+            if (customer.Country == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Country is required on customer creation.");
+            if (customer.Language == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Language is required on customer creation.");
             if (customer.Telephones != null || customer.Contacts != null || customer.Buildings != null || customer.Requests != null
                   || customer.Offers != null || customer.Orders != null || customer.DepositInvoices != null || customer.Invoices != null)
             {
@@ -61,10 +68,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogDebug(message);
                 throw new IllegalArgumentException("IllegalAttribute", message);
             }
-            if (customer.Country == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Country is required on customer creation.");
-            if (customer.Language == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Language is required on customer creation.");
 
             if (string.IsNullOrEmpty(customer.Memo))
                 customer.Memo = null;
@@ -86,6 +89,8 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Customer id/number cannot be updated.");
             if ((customer.PostalCode != null && customer.City == null) || (customer.PostalCode == null && customer.City != null))
                 throw new IllegalArgumentException("IllegalAttribute", "Customer's postal-code and city must be both filled in or not filled.");
+            if (customer.VatNumber != null && !_vatNumberRegex.IsMatch(customer.VatNumber))
+                throw new IllegalArgumentException("IllegalAttribute", "Invalid VAT number.");
             if (customer.Telephones != null)
             {
                 var message = "Telephones cannot be change during customer update.";

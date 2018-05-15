@@ -5,15 +5,16 @@ namespace Rollvolet.CRM.DataProvider.Models
 {
     public class Telephone
     {
+
         [Column("DataId")]
         public int CustomerRecordId { get; set; }
 
         [Column("TelTypeId")]
         public int TelephoneTypeId { get; set; }
-        
+
         [Column("LandId")]
         public int CountryId { get; set; }
-        
+
         [Column("Zonenr")]
         public string Area { get; set; }
 
@@ -33,7 +34,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public TelephoneType TelephoneType { get; set; }
 
 
-        public string ComposedId 
+        public string ComposedId
         {
             get
             {
@@ -56,25 +57,40 @@ namespace Rollvolet.CRM.DataProvider.Models
         {
             var idParts = DecomposeId(composedId);
             return int.Parse(idParts[1]);
-        }  
+        }
 
         public static int DecomposeCountryId(string composedId)
         {
             var idParts = DecomposeId(composedId);
             return int.Parse(idParts[2]);
-        }  
+        }
 
         public static string DecomposeArea(string composedId)
         {
             var idParts = DecomposeId(composedId);
             return idParts[3];
-        }  
+        }
 
         public static string DecomposeNumber(string composedId)
         {
             var idParts = DecomposeId(composedId);
             return idParts[4];
-        }        
+        }
+
+        public static string SerializeNumber(string number)
+        {
+            if (number != null)
+            {
+                if (number.Length == 6)
+                    return $"{number.Substring(0, 2)}.{number.Substring(2, 2)}.{number.Substring(4, 2)}";
+                else
+                    return $"{number.Substring(0, 3)}.{number.Substring(3, 2)}.{number.Substring(5, 2)}";
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
-  
+
 }

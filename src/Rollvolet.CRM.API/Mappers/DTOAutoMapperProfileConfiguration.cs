@@ -15,8 +15,6 @@ namespace Rollvolet.CRM.API.Mappers
 {
     public class DTOAutoMapperProfileConfiguration : Profile
     {
-        private static Regex _digitsOnly = new Regex(@"[^\d]");
-
         public DTOAutoMapperProfileConfiguration()
         {
             // Customer mappings
@@ -27,7 +25,9 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
-            CreateMap<Customer, CustomerAttributesDto>().ReverseMap();
+            CreateMap<Customer, CustomerAttributesDto>()
+                .ReverseMap()
+                .ForMember(dest => dest.VatNumber, opt => opt.MapFrom(src => Customer.SerializeVatNumber(src.VatNumber)));
 
             CreateMap<Customer, CustomerRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
@@ -260,8 +260,8 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<Telephone, TelephoneAttributesDto>()
                 .ReverseMap()
-                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => _digitsOnly.Replace(src.Number, "")))
-                .ForMember(dest => dest.Area, opt => opt.MapFrom(src => _digitsOnly.Replace(src.Area, "")));
+                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => Telephone.SerializeNumber(src.Number)))
+                .ForMember(dest => dest.Area, opt => opt.MapFrom(src => Telephone.SerializeArea(src.Area)));
 
             CreateMap<Telephone, TelephoneRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 

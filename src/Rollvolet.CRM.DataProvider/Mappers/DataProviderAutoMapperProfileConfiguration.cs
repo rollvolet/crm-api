@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
 using AutoMapper;
 
 namespace Rollvolet.CRM.DataProvider.Mappers
 {
     public class DataProviderAutoMapperProfileConfiguration : Profile
     {
-        private static Regex _digitsOnly = new Regex(@"[^\d]");
-
         public DataProviderAutoMapperProfileConfiguration()
         {
             CreateMap<Models.Customer, Domain.Models.Customer>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Number))
+                .ForMember(dest => dest.VatNumber, opt => opt.MapFrom(src => Domain.Models.Customer.SerializeVatNumber(src.VatNumber)))
                 .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.EmbeddedPostalCode))
                 .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.EmbeddedCity))
                 .ForMember(dest => dest.Memo, opt => opt.MapFrom(src => src.Memo != null ? src.Memo.Text : null))
@@ -21,6 +19,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.DepositInvoices, opt => opt.Ignore())
                 .PreserveReferences()
                 .ReverseMap()
+                .ForMember(dest => dest.VatNumber, opt => opt.MapFrom(src => Models.Customer.SerializeVatNumber(src.VatNumber)))
                 .ForMember(dest => dest.Memo, opt => opt.Ignore())
                 .ForMember(dest => dest.Country, opt => opt.Ignore())
                 .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.Country != null ? src.Country.Id : null))
@@ -95,14 +94,14 @@ namespace Rollvolet.CRM.DataProvider.Mappers
 
             CreateMap<Models.Telephone, Domain.Models.Telephone>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ComposedId))
-                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => _digitsOnly.Replace(src.Number, "")))
+                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => Domain.Models.Telephone.SerializeNumber(src.Number)))
                 .ForMember(dest => dest.Customer, opt => opt.Ignore())
                 .ForMember(dest => dest.Building, opt => opt.Ignore())
                 .ForMember(dest => dest.Contact, opt => opt.Ignore())
                 .PreserveReferences()
                 .ReverseMap()
                 .ForMember(dest => dest.CustomerRecordId, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.DataId : (src.Contact != null ? src.Contact.Id : src.Building.Id)))
-                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => FormatTelephoneNumber(src.Number)))
+                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => Models.Telephone.SerializeNumber(src.Number)))
                 .ForMember(dest => dest.CustomerRecord, opt => opt.Ignore())
                 .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.Country.Id))
                 .ForMember(dest => dest.Country, opt => opt.Ignore())
@@ -222,22 +221,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 else
                     return null;
             }
-        }
-
-        private string FormatTelephoneNumber(string number)
-        {
-            if (number != null)
-            {
-                if (number.Length == 6)
-                    return $"{number.Substring(0, 2)}.{number.Substring(2, 2)}.{number.Substring(4, 2)}";
-                else
-                    return $"{number.Substring(0, 3)}.{number.Substring(3, 2)}.{number.Substring(5, 2)}";
-            }
-            else
-            {
-                return null;
-            }
-
         }
     }
 }
