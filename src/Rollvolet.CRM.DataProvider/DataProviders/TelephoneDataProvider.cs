@@ -21,7 +21,6 @@ namespace Rollvolet.CRM.DataProviders
         private readonly CrmContext _context;
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
-        private static Regex _digitsOnly = new Regex(@"[^\d]");
 
         public TelephoneDataProvider(CrmContext context, IMapper mapper, ILogger<TelephoneDataProvider> logger)
         {
@@ -69,11 +68,6 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<Telephone> CreateAsync(Telephone telephone)
         {
             var telephoneRecord = _mapper.Map<DataProvider.Models.Telephone>(telephone);
-
-            if (telephone.Number.Length == 6)
-                telephoneRecord.Number = $"{telephone.Number.Substring(0, 2)}.{telephone.Number.Substring(2, 2)}.{telephone.Number.Substring(4, 2)}";
-            else
-                telephoneRecord.Number = $"{telephone.Number.Substring(0, 3)}.{telephone.Number.Substring(3, 2)}.{telephone.Number.Substring(5, 2)}";
 
             _context.Telephones.Add(telephoneRecord);
             await _context.SaveChangesAsync();

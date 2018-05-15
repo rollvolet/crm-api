@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using AutoMapper;
 
 namespace Rollvolet.CRM.DataProvider.Mappers
 {
     public class DataProviderAutoMapperProfileConfiguration : Profile
     {
+        private static Regex _digitsOnly = new Regex(@"[^\d]");
+
         public DataProviderAutoMapperProfileConfiguration()
         {
             CreateMap<Models.Customer, Domain.Models.Customer>()
@@ -92,12 +95,14 @@ namespace Rollvolet.CRM.DataProvider.Mappers
 
             CreateMap<Models.Telephone, Domain.Models.Telephone>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ComposedId))
+                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => _digitsOnly.Replace(src.Number, "")))
                 .ForMember(dest => dest.Customer, opt => opt.Ignore())
                 .ForMember(dest => dest.Building, opt => opt.Ignore())
                 .ForMember(dest => dest.Contact, opt => opt.Ignore())
                 .PreserveReferences()
                 .ReverseMap()
                 .ForMember(dest => dest.CustomerRecordId, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.DataId : (src.Contact != null ? src.Contact.Id : src.Building.Id)))
+                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => FormatTelephoneNumber(src.Number)))
                 .ForMember(dest => dest.CustomerRecord, opt => opt.Ignore())
                 .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.Country.Id))
                 .ForMember(dest => dest.Country, opt => opt.Ignore())
@@ -217,6 +222,22 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 else
                     return null;
             }
+        }
+
+        private string FormatTelephoneNumber(string number)
+        {
+            if (number != null)
+            {
+                if (number.Length == 6)
+                    return $"{number.Substring(0, 2)}.{number.Substring(2, 2)}.{number.Substring(4, 2)}";
+                else
+                    return $"{number.Substring(0, 3)}.{number.Substring(3, 2)}.{number.Substring(5, 2)}";
+            }
+            else
+            {
+                return null;
+            }
+
         }
     }
 }

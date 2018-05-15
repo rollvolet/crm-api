@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using AutoMapper;
 using Newtonsoft.Json.Linq;
 using Rollvolet.CRM.APIContracts.DTO;
@@ -14,6 +15,8 @@ namespace Rollvolet.CRM.API.Mappers
 {
     public class DTOAutoMapperProfileConfiguration : Profile
     {
+        private static Regex _digitsOnly = new Regex(@"[^\d]");
+
         public DTOAutoMapperProfileConfiguration()
         {
             // Customer mappings
@@ -58,17 +61,17 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<RelatedResource, Customer>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());                
+                .ForAllOtherMembers(opt => opt.Ignore());
 
 
             // Contact mappings
-            
+
             CreateMap<Contact, ContactDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.UseValue("contacts"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
-            
+
             CreateMap<Contact, ContactAttributesDto>().ReverseMap();
 
             CreateMap<Contact, ContactRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
@@ -83,7 +86,7 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Language : null))
                 .ForMember(dest => dest.HonorificPrefix, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.HonorificPrefix : null))
                 .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Customer : null))
-                .ForAllOtherMembers(opt => opt.Ignore());   
+                .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<OneRelationship, Contact>()
                 .ConstructUsing((src, context) => context.Mapper.Map<Contact>(src.Data))
@@ -109,7 +112,7 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<Building, BuildingAttributesDto>().ReverseMap();
 
             CreateMap<Building, BuildingRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
-            
+
             CreateMap<Building, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("buildings"));
 
@@ -120,7 +123,7 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Language : null))
                 .ForMember(dest => dest.HonorificPrefix, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.HonorificPrefix : null))
                 .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Customer : null))
-                .ForAllOtherMembers(opt => opt.Ignore());  
+                .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<OneRelationship, Building>()
                 .ConstructUsing((src, context) => context.Mapper.Map<Building>(src.Data))
@@ -244,7 +247,7 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<RelatedResource, PostalCode>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());                
+                .ForAllOtherMembers(opt => opt.Ignore());
 
 
             // Telephone mappings
@@ -255,9 +258,12 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
-            CreateMap<Telephone, TelephoneAttributesDto>().ReverseMap();
+            CreateMap<Telephone, TelephoneAttributesDto>()
+                .ReverseMap()
+                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => _digitsOnly.Replace(src.Number, "")))
+                .ForMember(dest => dest.Area, opt => opt.MapFrom(src => _digitsOnly.Replace(src.Area, "")));
 
-            CreateMap<Telephone, TelephoneRelationshipsDto>().ConvertUsing<RelationshipsConverter>();         
+            CreateMap<Telephone, TelephoneRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<Telephone, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("telephones"));
@@ -394,7 +400,7 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<RelatedResource, WayOfEntry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());                
+                .ForAllOtherMembers(opt => opt.Ignore());
 
 
             // Visit mappings
@@ -466,7 +472,7 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<VatRate, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<VatRate, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.UseValue("vat-rates"));  
+                .ForMember(dest => dest.Type, opt => opt.UseValue("vat-rates"));
 
             CreateMap<OneRelationship, VatRate>()
                 .ConstructUsing((src, context) => context.Mapper.Map<VatRate>(src.Data))
@@ -522,7 +528,7 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<Order, OrderDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<Order, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.UseValue("orders"));     
+                .ForMember(dest => dest.Type, opt => opt.UseValue("orders"));
 
             CreateMap<OneRelationship, Order>()
                 .ConstructUsing((src, context) => context.Mapper.Map<Order>(src.Data))
@@ -534,7 +540,7 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<RelatedResource, Order>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());     
+                .ForAllOtherMembers(opt => opt.Ignore());
 
 
             // Invoice mappings
@@ -550,7 +556,7 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<Invoice, InvoiceDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<Invoice, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.UseValue("invoices"));       
+                .ForMember(dest => dest.Type, opt => opt.UseValue("invoices"));
 
             CreateMap<OneRelationship, Invoice>()
                 .ConstructUsing((src, context) => context.Mapper.Map<Invoice>(src.Data))
@@ -578,7 +584,7 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<DepositInvoice, DepositInvoiceDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<DepositInvoice, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.UseValue("deposit-invoices"));   
+                .ForMember(dest => dest.Type, opt => opt.UseValue("deposit-invoices"));
 
             CreateMap<OneRelationship, DepositInvoice>()
                 .ConstructUsing((src, context) => context.Mapper.Map<DepositInvoice>(src.Data))
@@ -606,7 +612,7 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<InvoiceSupplement, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<InvoiceSupplement, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.UseValue("invoice-supplements"));  
+                .ForMember(dest => dest.Type, opt => opt.UseValue("invoice-supplements"));
 
             CreateMap<OneRelationship, InvoiceSupplement>()
                 .ConstructUsing((src, context) => context.Mapper.Map<InvoiceSupplement>(src.Data))
@@ -618,7 +624,7 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<RelatedResource, InvoiceSupplement>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());  
+                .ForAllOtherMembers(opt => opt.Ignore());
 
 
             // Deposit mappings
@@ -634,7 +640,7 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<Deposit, DepositDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<Deposit, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.UseValue("deposits"));  
+                .ForMember(dest => dest.Type, opt => opt.UseValue("deposits"));
 
             CreateMap<OneRelationship, Deposit>()
                 .ConstructUsing((src, context) => context.Mapper.Map<Deposit>(src.Data))
@@ -646,7 +652,7 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<RelatedResource, Deposit>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore()); 
+                .ForAllOtherMembers(opt => opt.Ignore());
 
 
             // Employee mappings
@@ -662,7 +668,7 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<Employee, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<Employee, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.UseValue("employees"));  
+                .ForMember(dest => dest.Type, opt => opt.UseValue("employees"));
 
             CreateMap<OneRelationship, Employee>()
                 .ConstructUsing((src, context) => context.Mapper.Map<Employee>(src.Data))
@@ -691,7 +697,7 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<WorkingHour, WorkingHourDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<WorkingHour, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.UseValue("working-hours"));  
+                .ForMember(dest => dest.Type, opt => opt.UseValue("working-hours"));
 
             CreateMap<OneRelationship, WorkingHour>()
                 .ConstructUsing((src, context) => context.Mapper.Map<WorkingHour>(src.Data))
@@ -719,7 +725,7 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<Payment, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<Payment, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.UseValue("payments"));  
+                .ForMember(dest => dest.Type, opt => opt.UseValue("payments"));
 
             CreateMap<OneRelationship, Payment>()
                 .ConstructUsing((src, context) => context.Mapper.Map<Payment>(src.Data))
@@ -731,7 +737,7 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<RelatedResource, Payment>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());                                                                    
+                .ForAllOtherMembers(opt => opt.Ignore());
         }
 
     }

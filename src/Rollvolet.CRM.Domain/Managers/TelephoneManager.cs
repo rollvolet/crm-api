@@ -13,6 +13,8 @@ namespace Rollvolet.CRM.Domain.Managers
 {
     public class TelephoneManager : ITelephoneManager
     {
+        private static Regex _digitsOnly = new Regex(@"[^\d]");
+
         private readonly ITelephoneDataProvider _telephoneDataProvider;
         private readonly ICountryDataProvider _countryDataProvider;
         private readonly ITelephoneTypeDataProvider _telephoneTypeDataProvider;
@@ -75,13 +77,11 @@ namespace Rollvolet.CRM.Domain.Managers
             if (new CustomerEntity[3] { telephone.Customer, telephone.Contact, telephone.Building }.Where(x => x != null).Count() != 1)
                 throw new IllegalArgumentException("IllegalAttribute", "Just one of customer, contact or building is required on telephone creation.");
 
-            var number = Regex.Replace(telephone.Number, @"\s+", "");
-            if (!Regex.IsMatch(number, @"^[0-9]{6,}$"))
-                throw new IllegalArgumentException("IllegalAttribute", "Number must at least contain 6 numbers.");
+            if (telephone.Number.Length < 6)
+                throw new IllegalArgumentException("IllegalAttribute", "Number must at least contain 6 digits.");
 
-            var area = Regex.Replace(telephone.Area, @"\s+", "");
-            if (!Regex.IsMatch(area, @"^[0-9]{2,4}$"))
-                throw new IllegalArgumentException("IllegalAttribute", "Area must contain 2-4 numbers.");
+            if (telephone.Area.Length < 2 || telephone.Area.Length > 4)
+                throw new IllegalArgumentException("IllegalAttribute", "Area must contain 2-4 digits.");
 
             // Embed existing records
             try {
