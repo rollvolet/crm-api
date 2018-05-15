@@ -13,10 +13,10 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 {
     public static class WorkingHourQueryExtensions
     {
-        public static IQueryable<WorkingHour> Filter(this IQueryable<WorkingHour> source, QuerySet querySet)  
+        public static IQueryable<WorkingHour> Filter(this IQueryable<WorkingHour> source, QuerySet querySet)
         {
             return source;
-        }      
+        }
 
         public static IQueryable<WorkingHour> Include(this IQueryable<WorkingHour> source, QuerySet querySet)
         {
@@ -34,7 +34,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             selectors.Add("date", x => x.Date);
             selectors.Add("employee", x => x.Employee.LastName);
-            selectors.Add("amount", x => x.Amount);
 
             return source.Sort<WorkingHour>(querySet, selectors);
         }

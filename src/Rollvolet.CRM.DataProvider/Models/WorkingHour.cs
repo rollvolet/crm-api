@@ -18,10 +18,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Technieker")]
         public string EmployeeName { get; set; }
 
-        [Column("Uren")]
-        public decimal Amount { get; set; }
-
-
         // Included resources
         public Invoice Invoice { get; set; }
         public Employee Employee { get; set; }

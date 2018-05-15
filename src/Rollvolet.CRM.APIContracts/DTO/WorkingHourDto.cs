@@ -11,7 +11,6 @@ namespace Rollvolet.CRM.APIContracts.DTO
         {
             public int Id { get; set; }
             public DateTime Date { get; set; }
-            public decimal Amount { get; set; }
         }
 
         public class RelationshipsDto
