@@ -25,6 +25,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Deposit> Deposits { get; set; }
         public DbSet<DepositInvoiceHub> DepositInvoices { get; set; }
         public DbSet<WorkingHour> WorkingHours { get; set; }
+        public DbSet<VatRate> VatRates { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
         {
@@ -64,7 +65,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             modelBuilder.Entity<Contact>()
                 .HasOne(e => e.HonorificPrefix)
                 .WithMany()
-                .HasForeignKey(e => new { e.HonorificPrefixId, e.LanguageId });                
+                .HasForeignKey(e => new { e.HonorificPrefixId, e.LanguageId });
 
             modelBuilder.Entity<Building>()
                 .HasOne(e => e.Customer)
@@ -75,7 +76,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             modelBuilder.Entity<Building>()
                 .HasOne(e => e.HonorificPrefix)
                 .WithMany()
-                .HasForeignKey(e => new { e.HonorificPrefixId, e.LanguageId });  
+                .HasForeignKey(e => new { e.HonorificPrefixId, e.LanguageId });
 
 
             // Country
@@ -179,14 +180,14 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             modelBuilder.Entity<CustomerTag>()
                 .HasOne(e => e.Tag)
                 .WithMany(e => e.CustomerTags)
-                .HasForeignKey(e => e.TagId);            
+                .HasForeignKey(e => e.TagId);
 
 
             // Request
 
             modelBuilder.Entity<Request>()
                 .ToTable("TblAanvraag", schema: "dbo");
-            
+
             modelBuilder.Entity<Request>()
                 .HasKey(e => e.Id)
                 .HasName("TblAanvraag$PrimaryKey");
@@ -211,7 +212,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             //     .WithMany()
             //     .HasForeignKey(e => new { e.RelativeContactId, e.CustomerId })
             //     .HasPrincipalKey(e => new { e.Number, e.CustomerId });
-                
+
 
             // Visit
 
@@ -237,7 +238,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<WayOfEntry>()
                 .ToTable("TblAanmelding", schema: "dbo");
-            
+
             modelBuilder.Entity<WayOfEntry>()
                 .HasKey(e => e.Id)
                 .HasName("TblAanmelding$PrimaryKey");
@@ -249,10 +250,10 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<Offer>()
                 .HasKey(e => e.Id)
-                .HasName("tblOfferte$PrimaryKey");   
+                .HasName("tblOfferte$PrimaryKey");
 
             modelBuilder.Entity<Offer>()
-                .HasQueryFilter(e => e.Currency == "EUR");         
+                .HasQueryFilter(e => e.Currency == "EUR");
 
             modelBuilder.Entity<Offer>()
                 .HasOne(e => e.Request)
@@ -263,7 +264,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasOne(e => e.Customer)
                 .WithMany(e => e.Offers)
                 .HasForeignKey(e => e.CustomerId)
-                .HasPrincipalKey(e => e.Number);                
+                .HasPrincipalKey(e => e.Number);
 
             modelBuilder.Entity<Offer>()
                 .HasOne(e => e.VatRate)
@@ -274,7 +275,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasOne(e => e.SubmissionType)
                 .WithMany()
                 .HasForeignKey(e => e.SubmissionTypeId);
-                
+
 
             // VatRate
 
@@ -283,7 +284,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<VatRate>()
                 .HasKey(e => e.Id)
-                .HasName("TblBtw$PrimaryKey");  
+                .HasName("TblBtw$PrimaryKey");
 
 
             // Submission type
@@ -293,14 +294,14 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<SubmissionType>()
                 .HasKey(e => e.Id)
-                .HasName("TblVerzendType$PrimaryKey"); 
+                .HasName("TblVerzendType$PrimaryKey");
 
 
             // Order
 
             modelBuilder.Entity<Order>()
                 .ToTable("tblOfferte", schema: "dbo");
-            
+
             modelBuilder.Entity<Order>()
                 .HasKey(e => e.Id)
                 .HasName("tblOfferte$PrimaryKey");
@@ -312,13 +313,13 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasOne(e => e.Customer)
                 .WithMany(e => e.Orders)
                 .HasForeignKey(e => e.CustomerId)
-                .HasPrincipalKey(e => e.Number);    
+                .HasPrincipalKey(e => e.Number);
 
             modelBuilder.Entity<Order>()
                 .HasOne(e => e.Offer)
                 .WithOne(e => e.Order)
                 .HasForeignKey<Order>(e => e.Id) // offer and order are stored in the same table on the same row
-                .HasPrincipalKey<Offer>(e => e.Id);    
+                .HasPrincipalKey<Offer>(e => e.Id);
 
             modelBuilder.Entity<Order>()
                 .HasOne(e => e.VatRate)
@@ -328,14 +329,14 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             modelBuilder.Entity<Order>()
                 .HasMany(e => e.Deposits)
                 .WithOne(e => e.Order)
-                .HasForeignKey(e => e.OrderId);   
+                .HasForeignKey(e => e.OrderId);
 
 
             // Invoice
 
             modelBuilder.Entity<Invoice>()
                 .ToTable("TblFactuur", schema: "dbo");
-            
+
             modelBuilder.Entity<Invoice>()
                 .HasKey(e => e.Id)
                 .HasName("TblFactuur$PrimaryKey");
@@ -347,13 +348,13 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasOne(e => e.Customer)
                 .WithMany(e => e.Invoices)
                 .HasForeignKey(e => e.CustomerId)
-                .HasPrincipalKey(e => e.Number);   
+                .HasPrincipalKey(e => e.Number);
 
             modelBuilder.Entity<Invoice>()
                 .HasOne(e => e.Order)
                 .WithOne(e => e.Invoice)
                 .HasForeignKey<Invoice>(e => e.OrderId)
-                .HasPrincipalKey<Order>(e => e.Id);    
+                .HasPrincipalKey<Order>(e => e.Id);
 
             modelBuilder.Entity<Invoice>()
                 .HasOne(e => e.VatRate)
@@ -363,13 +364,13 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             modelBuilder.Entity<Invoice>()
                 .HasMany(e => e.Deposits)
                 .WithOne(e => e.Invoice)
-                .HasForeignKey(e => e.InvoiceId);   
+                .HasForeignKey(e => e.InvoiceId);
 
-            
+
             // Invoice supplement
             modelBuilder.Entity<InvoiceSupplement>()
                 .ToTable("TblFactuurExtra", schema: "dbo");
-            
+
             modelBuilder.Entity<InvoiceSupplement>()
                 .HasKey(e => e.Id)
                 .HasName("TblFactuurExtra$PrimaryKey");
@@ -392,7 +393,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasKey(e => e.Id)
                 .HasName("TblVoorschot$PrimaryKey");
 
-            modelBuilder.Entity<Deposit>()    
+            modelBuilder.Entity<Deposit>()
                 .HasQueryFilter(e => e.Currency == "EUR" && e.IsDeposit);
 
             modelBuilder.Entity<Deposit>()
@@ -410,7 +411,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             // Deposit invoices
 
             modelBuilder.Entity<DepositInvoiceHub>()
-                .ToTable("TblVoorschotFactuur", schema: "dbo");     
+                .ToTable("TblVoorschotFactuur", schema: "dbo");
 
             modelBuilder.Entity<DepositInvoiceHub>()
                 .HasKey(e => e.Id)
@@ -420,7 +421,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasOne(e => e.Customer)
                 .WithMany()
                 .HasForeignKey(e => e.CustomerId)
-                .HasPrincipalKey(e => e.Number);  
+                .HasPrincipalKey(e => e.Number);
 
             modelBuilder.Entity<DepositInvoiceHub>()
                 .HasOne(e => e.Order)
@@ -441,34 +442,34 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasPrincipalKey<Invoice>(e => e.Id);
 
 
-            // Employee    
+            // Employee
 
             modelBuilder.Entity<Employee>()
                 .ToTable("TblPersoneel", schema: "dbo");
 
             modelBuilder.Entity<Employee>()
-                .HasKey(e => e.Id);  
+                .HasKey(e => e.Id);
 
 
-            // WorkingHour    
+            // WorkingHour
 
             modelBuilder.Entity<WorkingHour>()
                 .ToTable("tblWerkUren", schema: "dbo");
 
             modelBuilder.Entity<WorkingHour>()
-                .HasKey(e => e.Id);   
+                .HasKey(e => e.Id);
 
             modelBuilder.Entity<WorkingHour>()
                 .HasOne(e => e.Employee)
                 .WithMany(e => e.WorkingHours)
                 .HasForeignKey(e => e.EmployeeName)
-                .HasPrincipalKey(e => e.FirstName);  
+                .HasPrincipalKey(e => e.FirstName);
 
             modelBuilder.Entity<WorkingHour>()
                 .HasOne(e => e.Invoice)
                 .WithMany(e => e.WorkingHours)
                 .HasForeignKey(e => e.InvoiceId)
-                .HasPrincipalKey(e => e.Id);          
+                .HasPrincipalKey(e => e.Id);
 
 
             // Payment
@@ -478,7 +479,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasQueryFilter(e => e.Type == "BETALING");
 
             modelBuilder.Entity<Payment>()
-                .HasKey(e => e.Id);                                                                 
+                .HasKey(e => e.Id);
         }
     }
 }
