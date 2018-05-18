@@ -26,6 +26,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<DepositInvoiceHub> DepositInvoices { get; set; }
         public DbSet<WorkingHour> WorkingHours { get; set; }
         public DbSet<VatRate> VatRates { get; set; }
+        public DbSet<SubmissionType> SubmissionTypes { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
         {

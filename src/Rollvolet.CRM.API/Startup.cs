@@ -135,6 +135,8 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IWorkingHourDataProvider, WorkingHourDataProvider>();
             services.AddTransient<IVatRateManager, VatRateManager>();
             services.AddTransient<IVatRateDataProvider, VatRateDataProvider>();
+            services.AddTransient<ISubmissionTypeManager, SubmissionTypeManager>();
+            services.AddTransient<ISubmissionTypeDataProvider, SubmissionTypeDataProvider>();
             services.AddTransient<ISequenceDataProvider, SequenceDataProvider>();
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
             services.AddTransient<IIncludedCollector, IncludedCollector>();

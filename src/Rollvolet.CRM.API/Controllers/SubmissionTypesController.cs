@@ -15,28 +15,28 @@ using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.API.Controllers
 {
-    [Route("vat-rates")]
+    [Route("submission-types")]
     [Authorize]
-    public class VatRatesController : Controller
+    public class SubmissionTypesController : Controller
     {
-        private readonly IVatRateManager _vatRateManager;
+        private readonly ISubmissionTypeManager _submissionTypeManager;
         private readonly IMapper _mapper;
 
-        public VatRatesController(IVatRateManager vatRateManager, IMapper mapper)
+        public SubmissionTypesController(ISubmissionTypeManager submissionTypeManager, IMapper mapper)
         {
-            _vatRateManager = vatRateManager;
+            _submissionTypeManager = submissionTypeManager;
             _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var vatRates = await _vatRateManager.GetAllAsync();
+            var submissionTypes = await _submissionTypeManager.GetAllAsync();
 
-            var vatRateDtos = _mapper.Map<IEnumerable<VatRateDto>>(vatRates);
+            var submissionTypeDtos = _mapper.Map<IEnumerable<SubmissionTypeDto>>(submissionTypes);
             var links = new CollectionLinks() { Self = HttpContext.Request.Path };
 
-            return Ok(new ResourceResponse() { Links = links, Data = vatRateDtos });
+            return Ok(new ResourceResponse() { Links = links, Data = submissionTypeDtos });
         }
     }
 }
