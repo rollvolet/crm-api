@@ -15,28 +15,28 @@ using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.API.Controllers
 {
-    [Route("[controller]")]
+    [Route("way-of-entries")]
     [Authorize]
-    public class EmployeesController : Controller
+    public class WayOfEntriesController : Controller
     {
-        private readonly IEmployeeManager _employeeManager;
+        private readonly IWayOfEntryManager _wayOfEntryManager;
         private readonly IMapper _mapper;
 
-        public EmployeesController(IEmployeeManager employeeManager, IMapper mapper)
+        public WayOfEntriesController(IWayOfEntryManager wayOfEntryManager, IMapper mapper)
         {
-            _employeeManager = employeeManager;
+            _wayOfEntryManager = wayOfEntryManager;
             _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var employees = await _employeeManager.GetAllAsync();
+            var wayOfEntries = await _wayOfEntryManager.GetAllAsync();
 
-            var employeeDtos = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+            var wayOfEntryDtos = _mapper.Map<IEnumerable<WayOfEntryDto>>(wayOfEntries);
             var links = new CollectionLinks() { Self = HttpContext.Request.Path };
 
-            return Ok(new ResourceResponse() { Links = links, Data = employeeDtos });
+            return Ok(new ResourceResponse() { Links = links, Data = wayOfEntryDtos });
         }
     }
 }
