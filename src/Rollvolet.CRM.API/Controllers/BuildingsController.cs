@@ -14,6 +14,7 @@ using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Buildings;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -120,11 +121,18 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpGet("{buildingId}/links/country")]
         public async Task<IActionResult> GetRelatedCountryById(int buildingId)
         {
-            var country = await _countryManager.GetByBuildingIdAsync(buildingId);
+            CountryDto countryDto;
+            try
+            {
+                var country = await _countryManager.GetByBuildingIdAsync(buildingId);
+                countryDto = _mapper.Map<CountryDto>(country);
+            }
+            catch (EntityNotFoundException)
+            {
+                countryDto = null;
+            }
 
-            var countryDto = _mapper.Map<CountryDto>(country);
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
-
             return Ok(new ResourceResponse() { Links = links, Data = countryDto });
         }
 
@@ -132,11 +140,18 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpGet("{buildingId}/links/language")]
         public async Task<IActionResult> GetRelatedLanguageById(int buildingId)
         {
-            var language = await _languageManager.GetByBuildingIdAsync(buildingId);
+            LanguageDto languageDto;
+            try
+            {
+                var language = await _languageManager.GetByBuildingIdAsync(buildingId);
+                languageDto = _mapper.Map<LanguageDto>(language);
+            }
+            catch (EntityNotFoundException)
+            {
+                languageDto = null;
+            }
 
-            var languageDto = _mapper.Map<LanguageDto>(language);
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
-
             return Ok(new ResourceResponse() { Links = links, Data = languageDto });
         }
 
@@ -144,12 +159,19 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpGet("{buildingId}/links/honorific-prefix")]
         public async Task<IActionResult> GetRelatedHonorificPrefixById(int buildingId)
         {
-            var language = await _honorificPrefixManager.GetByBuildingIdAsync(buildingId);
+            HonorificPrefixDto honorificPrefixDto;
+            try
+            {
+                var honorificPrefix = await _honorificPrefixManager.GetByBuildingIdAsync(buildingId);
+                honorificPrefixDto = _mapper.Map<HonorificPrefixDto>(honorificPrefix);
+            }
+            catch (EntityNotFoundException)
+            {
+                honorificPrefixDto = null;
+            }
 
-            var languageDto = _mapper.Map<HonorificPrefixDto>(language);
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
-
-            return Ok(new ResourceResponse() { Links = links, Data = languageDto });
+            return Ok(new ResourceResponse() { Links = links, Data = honorificPrefixDto });
         }
     }
 }

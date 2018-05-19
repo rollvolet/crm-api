@@ -11,6 +11,7 @@ using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -70,11 +71,18 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpGet("{telephoneId}/links/country")]
         public async Task<IActionResult> GetRelatedCountryById(string telephoneId)
         {
-            var country = await _countryManager.GetByTelephoneIdAsync(telephoneId);
+            CountryDto countryDto;
+            try
+            {
+                var country = await _countryManager.GetByTelephoneIdAsync(telephoneId);
+                countryDto = _mapper.Map<CountryDto>(country);
+            }
+            catch (EntityNotFoundException)
+            {
+                countryDto = null;
+            }
 
-            var countryDto = _mapper.Map<CountryDto>(country);
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
-
             return Ok(new ResourceResponse() { Links = links, Data = countryDto });
         }
 
@@ -82,12 +90,19 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpGet("{telephoneId}/links/telephone-type")]
         public async Task<IActionResult> GetRelatedTelephoneTypeById(string telephoneId)
         {
-            var country = await _telephoneTypeManager.GetByTelephoneIdAsync(telephoneId);
+            TelephoneTypeDto telephoneTypeDto;
+            try
+            {
+                var telephoneType = await _telephoneTypeManager.GetByTelephoneIdAsync(telephoneId);
+                telephoneTypeDto = _mapper.Map<TelephoneTypeDto>(telephoneType);
+            }
+            catch (EntityNotFoundException)
+            {
+                telephoneTypeDto = null;
+            }
 
-            var countryDto = _mapper.Map<TelephoneTypeDto>(country);
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
-
-            return Ok(new ResourceResponse() { Links = links, Data = countryDto });
+            return Ok(new ResourceResponse() { Links = links, Data = telephoneTypeDto });
         }
     }
 }
