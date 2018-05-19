@@ -8,6 +8,7 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
     public interface ICountryManager
     {
         Task<IEnumerable<Country>> GetAllAsync();
+        Task<Country> GetByCustomerIdAsync(int id);
         Task<Country> GetByContactIdAsync(int id);
         Task<Country> GetByBuildingIdAsync(int id);
         Task<Country> GetByTelephoneIdAsync(string id);

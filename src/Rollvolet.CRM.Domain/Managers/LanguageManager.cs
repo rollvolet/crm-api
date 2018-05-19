@@ -26,6 +26,11 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _languageDataProvider.GetAll();
         }
 
+        public async Task<Language> GetByCustomerIdAsync(int id)
+        {
+            return await _languageDataProvider.GetByCustomerNumberAsync(id);
+        }
+
         public async Task<Language> GetByContactIdAsync(int id)
         {
             return await _languageDataProvider.GetByContactIdAsync(id);

@@ -141,7 +141,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("{contactId}/honorific-prefix")]
-        [HttpGet("{contactId}/links/honorofic-prefix")]
+        [HttpGet("{contactId}/links/honorific-prefix")]
         public async Task<IActionResult> GetRelatedHonorificPrefixById(int contactId)
         {
             var language = await _honorificPrefixManager.GetByContactIdAsync(contactId);

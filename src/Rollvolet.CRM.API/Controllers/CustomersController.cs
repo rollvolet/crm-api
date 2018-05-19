@@ -36,6 +36,9 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IDepositInvoiceManager _depositInvoiceManager;
         private readonly IInvoiceManager _invoiceManager;
         private readonly ITagManager _tagManager;
+        private readonly ICountryManager _countryManager;
+        private readonly ILanguageManager _languageManager;
+        private readonly IHonorificPrefixManager _honorificPrefixManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
@@ -43,7 +46,9 @@ namespace Rollvolet.CRM.API.Controllers
         public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
                                     ITelephoneManager telephoneManager, IRequestManager requestManager, IOfferManager offerManager,
                                     IOrderManager orderManager, IDepositInvoiceManager depositInvoiceManager, IInvoiceManager invoiceManager,
-                                    ITagManager tagManager, IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+                                    ITagManager tagManager, ICountryManager countryManager, ILanguageManager languageManager,
+                                    IHonorificPrefixManager honorificPrefixManager, IIncludedCollector includedCollector,
+                                    IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _customerManager = customerManager;
             _contactManager = contactManager;
@@ -55,6 +60,9 @@ namespace Rollvolet.CRM.API.Controllers
             _depositInvoiceManager = depositInvoiceManager;
             _invoiceManager = invoiceManager;
             _tagManager = tagManager;
+            _countryManager = countryManager;
+            _languageManager = languageManager;
+            _honorificPrefixManager = honorificPrefixManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -268,6 +276,42 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedTags);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = tagDtos, Included = included });
+        }
+
+        [HttpGet("{customerId}/country")]
+        [HttpGet("{customerId}/links/country")]
+        public async Task<IActionResult> GetRelatedCountryById(int customerId)
+        {
+            var country = await _countryManager.GetByCustomerIdAsync(customerId);
+
+            var countryDto = _mapper.Map<CountryDto>(country);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = countryDto });
+        }
+
+        [HttpGet("{customerId}/language")]
+        [HttpGet("{customerId}/links/language")]
+        public async Task<IActionResult> GetRelatedLanguageById(int customerId)
+        {
+            var language = await _languageManager.GetByCustomerIdAsync(customerId);
+
+            var languageDto = _mapper.Map<LanguageDto>(language);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = languageDto });
+        }
+
+        [HttpGet("{customerId}/honorific-prefix")]
+        [HttpGet("{customerId}/links/honorific-prefix")]
+        public async Task<IActionResult> GetRelatedHonorificPrefixById(int customerId)
+        {
+            var language = await _honorificPrefixManager.GetByCustomerIdAsync(customerId);
+
+            var languageDto = _mapper.Map<HonorificPrefixDto>(language);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = languageDto });
         }
     }
 }

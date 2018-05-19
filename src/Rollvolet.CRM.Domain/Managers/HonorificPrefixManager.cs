@@ -26,6 +26,11 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _honorificPrefixDataProvider.GetAll();
         }
 
+        public async Task<HonorificPrefix> GetByCustomerIdAsync(int id)
+        {
+            return await _honorificPrefixDataProvider.GetByCustomerNumberAsync(id);
+        }
+
         public async Task<HonorificPrefix> GetByContactIdAsync(int id)
         {
             return await _honorificPrefixDataProvider.GetByContactIdAsync(id);
