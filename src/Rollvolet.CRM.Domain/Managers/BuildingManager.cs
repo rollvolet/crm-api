@@ -80,6 +80,12 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Building number cannot be updated.");
             if ((building.PostalCode != null && building.City == null) || (building.PostalCode == null && building.City != null))
                 throw new IllegalArgumentException("IllegalAttribute", "Building's postal-code and city must be both filled in or not filled.");
+            if (building.Customer == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
+            if (building.Country == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Country is required.");
+            if (building.Language == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Language is required.");
             if (building.Telephones != null)
             {
                 var message = "Telephones cannot be change during building update.";
@@ -88,13 +94,6 @@ namespace Rollvolet.CRM.Domain.Managers
             }
 
             await EmbedRelations(building, existingBuilding);
-
-            if (building.Customer == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
-            if (building.Country == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Country is required.");
-            if (building.Language == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Language is required.");
 
             return await _buildingDataProvider.UpdateAsync(building);
         }
@@ -108,45 +107,36 @@ namespace Rollvolet.CRM.Domain.Managers
         private async Task EmbedRelations(Building building, Building oldBuilding = null)
         {
             try {
-                if (building.Country != null && (oldBuilding == null || oldBuilding.Country == null || building.Country.Id != oldBuilding.Country.Id) )
+                if (building.Country != null)
                 {
-                    var id = int.Parse(building.Country.Id);
-                    building.Country = await _countryDataProvider.GetByIdAsync(id);
-                }
-                else
-                {
-                    building.Country = oldBuilding != null ? oldBuilding.Country : null;
+                    if (oldBuilding != null && oldBuilding.Country != null && oldBuilding.Country.Id == building.Country.Id)
+                        building.Country = oldBuilding.Country;
+                    else
+                        building.Country = await _countryDataProvider.GetByIdAsync(int.Parse(building.Country.Id));
                 }
 
-                if (building.Language != null && (oldBuilding == null || oldBuilding.Language == null || building.Language.Id != oldBuilding.Language.Id) )
+                if (building.Language != null)
                 {
-                    var id = int.Parse(building.Language.Id);
-                    building.Language = await _langugageDataProvider.GetByIdAsync(id);
-                }
-                else
-                {
-                    building.Language = oldBuilding != null ? oldBuilding.Language : null;
+                    if (oldBuilding != null && oldBuilding.Language != null && oldBuilding.Language.Id == building.Language.Id)
+                        building.Language = oldBuilding.Language;
+                    else
+                        building.Language = await _langugageDataProvider.GetByIdAsync(int.Parse(building.Language.Id));
                 }
 
-                if (building.Customer != null && (oldBuilding == null || oldBuilding.Customer == null || building.Customer.Id != oldBuilding.Customer.Id) )
+                if (building.HonorificPrefix != null)
                 {
-                    var id = building.Customer.Id;
-                    building.Customer = await _customerDataProvider.GetByNumberAsync(id);
-                }
-                else
-                {
-                    building.Customer = oldBuilding != null ? oldBuilding.Customer : null;
+                    if (oldBuilding != null && oldBuilding.HonorificPrefix != null && oldBuilding.HonorificPrefix.Id == building.HonorificPrefix.Id)
+                        building.HonorificPrefix = oldBuilding.HonorificPrefix;
+                    else
+                        building.HonorificPrefix = await _honorificPrefixDataProvider.GetByIdAsync(building.HonorificPrefix.Id);
                 }
 
-                if (building.HonorificPrefix != null &&
-                        (oldBuilding == null || oldBuilding.HonorificPrefix == null || building.HonorificPrefix.Id != oldBuilding.HonorificPrefix.Id) )
+                if (building.Customer != null)
                 {
-                    var composedId = building.HonorificPrefix.Id;
-                    building.HonorificPrefix = await _honorificPrefixDataProvider.GetByIdAsync(composedId);
-                }
-                else
-                {
-                    building.HonorificPrefix = oldBuilding != null ? oldBuilding.HonorificPrefix : null;
+                    if (oldBuilding != null && oldBuilding.Customer != null && oldBuilding.Customer.Id == building.Customer.Id)
+                        building.Customer = oldBuilding.Customer;
+                    else
+                        building.Customer = await _customerDataProvider.GetByNumberAsync(building.Customer.Id);
                 }
             }
             catch (EntityNotFoundException)

@@ -79,6 +79,12 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Contact number cannot be updated.");
             if ((contact.PostalCode != null && contact.City == null) || (contact.PostalCode == null && contact.City != null))
                 throw new IllegalArgumentException("IllegalAttribute", "Contact's postal-code and city must be both filled in or not filled.");
+            if (contact.Customer == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
+            if (contact.Country == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Country is required.");
+            if (contact.Language == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Language is required.");
             if (contact.Telephones != null)
             {
                 var message = "Telephones cannot be change during contact update.";
@@ -87,13 +93,6 @@ namespace Rollvolet.CRM.Domain.Managers
             }
 
             await EmbedRelations(contact, existingContact);
-
-            if (contact.Customer == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
-            if (contact.Country == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Country is required.");
-            if (contact.Language == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Language is required.");
 
             return await _contactDataProvider.UpdateAsync(contact);
         }
@@ -107,45 +106,36 @@ namespace Rollvolet.CRM.Domain.Managers
         private async Task EmbedRelations(Contact contact, Contact oldContact = null)
         {
             try {
-                if (contact.Country != null && (oldContact == null || oldContact.Country == null || contact.Country.Id != oldContact.Country.Id) )
+                if (contact.Country != null)
                 {
-                    var id = int.Parse(contact.Country.Id);
-                    contact.Country = await _countryDataProvider.GetByIdAsync(id);
-                }
-                else
-                {
-                    contact.Country = oldContact != null ? oldContact.Country : null;
+                    if (oldContact != null && oldContact.Country != null && oldContact.Country.Id == contact.Country.Id)
+                        contact.Country = oldContact.Country;
+                    else
+                        contact.Country = await _countryDataProvider.GetByIdAsync(int.Parse(contact.Country.Id));
                 }
 
-                if (contact.Language != null && (oldContact == null || oldContact.Language == null || contact.Language.Id != oldContact.Language.Id) )
+                if (contact.Language != null)
                 {
-                    var id = int.Parse(contact.Language.Id);
-                    contact.Language = await _langugageDataProvider.GetByIdAsync(id);
-                }
-                else
-                {
-                    contact.Language = oldContact != null ? oldContact.Language : null;
+                    if (oldContact != null && oldContact.Language != null && oldContact.Language.Id == contact.Language.Id)
+                        contact.Language = oldContact.Language;
+                    else
+                        contact.Language = await _langugageDataProvider.GetByIdAsync(int.Parse(contact.Language.Id));
                 }
 
-                if (contact.Customer != null && (oldContact == null || oldContact.Customer == null || contact.Customer.Id != oldContact.Customer.Id) )
+                if (contact.HonorificPrefix != null)
                 {
-                    var id = contact.Customer.Id;
-                    contact.Customer = await _customerDataProvider.GetByNumberAsync(id);
-                }
-                else
-                {
-                    contact.Customer = oldContact != null ? oldContact.Customer : null;
+                    if (oldContact != null && oldContact.HonorificPrefix != null && oldContact.HonorificPrefix.Id == contact.HonorificPrefix.Id)
+                        contact.HonorificPrefix = oldContact.HonorificPrefix;
+                    else
+                        contact.HonorificPrefix = await _honorificPrefixDataProvider.GetByIdAsync(contact.HonorificPrefix.Id);
                 }
 
-                if (contact.HonorificPrefix != null &&
-                        (oldContact == null || oldContact.HonorificPrefix == null || contact.HonorificPrefix.Id != oldContact.HonorificPrefix.Id) )
+                if (contact.Customer != null)
                 {
-                    var composedId = contact.HonorificPrefix.Id;
-                    contact.HonorificPrefix = await _honorificPrefixDataProvider.GetByIdAsync(composedId);
-                }
-                else
-                {
-                    contact.HonorificPrefix = oldContact != null ? oldContact.HonorificPrefix : null;
+                    if (oldContact != null && oldContact.Customer != null && oldContact.Customer.Id == contact.Customer.Id)
+                        contact.Customer = oldContact.Customer;
+                    else
+                        contact.Customer = await _customerDataProvider.GetByNumberAsync(contact.Customer.Id);
                 }
             }
             catch (EntityNotFoundException)
