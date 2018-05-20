@@ -88,7 +88,7 @@ namespace Rollvolet.CRM.DataProviders
 
         private async Task<DataProvider.Models.Telephone> FindByIdAsync(string composedId)
         {
-            var customerId = DataProvider.Models.Telephone.DecomposeCustomerId(composedId);
+            var customerId = DataProvider.Models.Telephone.DecomposeCustomerRecordId(composedId);
             var telephoneTypeId = DataProvider.Models.Telephone.DecomposeTelephoneTypeId(composedId);
             var countryId = DataProvider.Models.Telephone.DecomposeCountryId(composedId);
             var area = DataProvider.Models.Telephone.DecomposeArea(composedId);

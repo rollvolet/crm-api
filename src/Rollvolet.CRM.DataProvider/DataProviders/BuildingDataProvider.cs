@@ -56,6 +56,21 @@ namespace Rollvolet.CRM.DataProviders
             };
         }
 
+        public async Task<Building> GetByTelephoneIdAsync(string telephoneId)
+        {
+            var id = DataProvider.Models.Telephone.DecomposeCustomerRecordId(telephoneId);
+
+            var building = await FindByIdAsync(id);
+
+            if (building == null)
+            {
+                _logger.LogError($"No building found with data id {id}, extracted from telephone id {telephoneId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Building>(building);
+        }
+
         public async Task<Building> CreateAsync(Building building)
         {
             var buildingRecord = _mapper.Map<DataProvider.Models.Building>(building);

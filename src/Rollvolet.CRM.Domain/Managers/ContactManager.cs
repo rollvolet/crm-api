@@ -43,6 +43,11 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _contactDataProvider.GetByIdAsync(id, query);
         }
 
+        public async Task<Contact> GetByTelephoneIdAsync(string telephoneId)
+        {
+            return await _contactDataProvider.GetByTelephoneIdAsync(telephoneId);
+        }
+
         public async Task<Contact> CreateAsync(Contact contact)
         {
             if (contact.Id != 0)

@@ -43,6 +43,11 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _buildingDataProvider.GetByIdAsync(id, query);
         }
 
+        public async Task<Building> GetByTelephoneIdAsync(string telephoneId)
+        {
+            return await _buildingDataProvider.GetByTelephoneIdAsync(telephoneId);
+        }
+
         public async Task<Building> CreateAsync(Building building)
         {
             // Validations

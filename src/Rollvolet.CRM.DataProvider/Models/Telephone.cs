@@ -47,7 +47,7 @@ namespace Rollvolet.CRM.DataProvider.Models
            return composedId.Split('-', StringSplitOptions.None);
         }
 
-        public static int DecomposeCustomerId(string composedId)
+        public static int DecomposeCustomerRecordId(string composedId)
         {
             var idParts = DecomposeId(composedId);
             return int.Parse(idParts[0]);
