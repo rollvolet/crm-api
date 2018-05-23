@@ -25,5 +25,10 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             return await _wayOfEntryDataProvider.GetAll();
         }
+
+        public async Task<WayOfEntry> GetByRequestIdAsync(int id)
+        {
+            return await _wayOfEntryDataProvider.GetByRequestIdAsync(id);
+        }
     }
 }

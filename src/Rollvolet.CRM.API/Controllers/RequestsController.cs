@@ -10,8 +10,10 @@ using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
+using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.JsonApi;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -23,13 +25,16 @@ namespace Rollvolet.CRM.API.Controllers
     public class RequestsController : Controller
     {
         private readonly IRequestManager _requestManager;
+        private readonly IWayOfEntryManager _wayOfEntryManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public RequestsController(IRequestManager requestManager, IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+        public RequestsController(IRequestManager requestManager, IWayOfEntryManager wayOfEntryManager,
+                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _requestManager = requestManager;
+            _wayOfEntryManager = wayOfEntryManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -92,6 +97,25 @@ namespace Rollvolet.CRM.API.Controllers
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
 
             return Ok(new ResourceResponse() { Links = links, Data = requestDto });
+        }
+
+        [HttpGet("{requestId}/way-of-entry")]
+        [HttpGet("{requestId}/links/way-of-entry")]
+        public async Task<IActionResult> GetRelatedWayOfEntryeById(int requestId)
+        {
+            WayOfEntryDto wayOfEntryDto;
+            try
+            {
+                var wayOfEntry = await _wayOfEntryManager.GetByRequestIdAsync(requestId);
+                wayOfEntryDto = _mapper.Map<WayOfEntryDto>(wayOfEntry);
+            }
+            catch (EntityNotFoundException)
+            {
+                wayOfEntryDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = wayOfEntryDto });
         }
     }
 }

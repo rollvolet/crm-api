@@ -9,5 +9,6 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     {
         Task<IEnumerable<WayOfEntry>> GetAll();
         Task<WayOfEntry> GetByIdAsync(int id);
+        Task<WayOfEntry> GetByRequestIdAsync(int id);
     }
 }

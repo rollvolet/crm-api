@@ -8,5 +8,6 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
     public interface IWayOfEntryManager
     {
         Task<IEnumerable<WayOfEntry>> GetAllAsync();
+        Task<WayOfEntry> GetByRequestIdAsync(int id);
     }
 }
