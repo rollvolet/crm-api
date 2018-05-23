@@ -124,6 +124,16 @@ namespace Rollvolet.CRM.DataProvider.Mappers
             CreateMap<Models.Request, Domain.Models.Request>()
                 .PreserveReferences()
                 .ReverseMap()
+                .ForMember(dest => dest.Customer, opt => opt.Ignore())
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
+                .ForMember(dest => dest.WayOfEntry, opt => opt.Ignore())
+                .ForMember(dest => dest.WayOfEntryId, opt => opt.MapFrom(src => src.WayOfEntry != null ? src.WayOfEntry.Id : null))
+                .ForMember(dest => dest.Contact, opt => opt.Ignore())
+                .ForMember(dest => dest.RelativeContactId, opt => opt.MapFrom(src => src.Contact != null ? src.Contact.Number : (int?) null))
+                .ForMember(dest => dest.Building, opt => opt.Ignore())
+                .ForMember(dest => dest.RelativeBuildingId, opt => opt.MapFrom(src => src.Building != null ? src.Building.Number : (int?) null))
+                .ForMember(dest => dest.Visit, opt => opt.Ignore())
+                .ForMember(dest => dest.Offer, opt => opt.Ignore())
                 .PreserveReferences();
 
             CreateMap<Models.WayOfEntry, Domain.Models.WayOfEntry>()

@@ -63,5 +63,35 @@ namespace Rollvolet.CRM.API.Controllers
 
             return Ok(new ResourceResponse() { Links = links, Data = requestDto, Included = included });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] ResourceRequest<RequestRequestDto> resource)
+        {
+            if (resource.Data.Type != "requests") return StatusCode(409);
+
+            var request = _mapper.Map<Request>(resource.Data);
+
+            request = await _requestManager.CreateAsync(request);
+            var requestDto = _mapper.Map<RequestDto>(request);
+
+            var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, requestDto.Id);
+
+            return Created(links.Self, new ResourceResponse() { Links = links, Data = requestDto });
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<RequestRequestDto> resource)
+        {
+            if (resource.Data.Type != "requests" || resource.Data.Id != id) return StatusCode(409);
+
+            var request = _mapper.Map<Request>(resource.Data);
+
+            request = await _requestManager.UpdateAsync(request);
+
+            var requestDto = _mapper.Map<RequestDto>(request);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = requestDto });
+        }
     }
 }

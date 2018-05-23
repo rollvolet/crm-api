@@ -102,6 +102,8 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ResourceRequest<CustomerRequestDto> resource)
         {
+            if (resource.Data.Type != "customers") return StatusCode(409);
+
             var customer = _mapper.Map<Customer>(resource.Data);
 
             customer = await _customerManager.CreateAsync(customer);

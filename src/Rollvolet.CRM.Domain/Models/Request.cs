@@ -14,7 +14,7 @@ namespace Rollvolet.CRM.Domain.Models
 
         public bool RequiresVisit { get; set; }
         public WayOfEntry WayOfEntry { get; set; }
-        public DateTime RequestDate { get; set; }
+        public DateTime? RequestDate { get; set; }
         public string Comment { get; set; }
         public string Employee { get; set; }
     }

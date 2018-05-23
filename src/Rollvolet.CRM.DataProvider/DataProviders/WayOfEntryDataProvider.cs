@@ -30,5 +30,18 @@ namespace Rollvolet.CRM.DataProviders
 
             return _mapper.Map<IEnumerable<WayOfEntry>>(wayOfEntries);
         }
+
+        public async Task<WayOfEntry> GetByIdAsync(int id)
+        {
+            var wayOfEntry = await _context.WayOfEntries.Where(x => x.Id == id).FirstOrDefaultAsync();
+
+            if (wayOfEntry == null)
+            {
+                _logger.LogError($"No way-of-entry found with id {id}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<WayOfEntry>(wayOfEntry);
+        }
     }
 }
