@@ -85,12 +85,12 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Building number cannot be updated.");
             if ((building.PostalCode != null && building.City == null) || (building.PostalCode == null && building.City != null))
                 throw new IllegalArgumentException("IllegalAttribute", "Building's postal-code and city must be both filled in or not filled.");
-            if (building.Customer == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
             if (building.Country == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Country is required.");
             if (building.Language == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Language is required.");
+            if (building.Customer != null && building.Customer.Id != existingBuilding.Customer.Id)
+                throw new IllegalArgumentException("IllegalAttribute", "Customer cannot be updated.");
             if (building.Telephones != null)
             {
                 var message = "Telephones cannot be change during building update.";
@@ -136,13 +136,11 @@ namespace Rollvolet.CRM.Domain.Managers
                         building.HonorificPrefix = await _honorificPrefixDataProvider.GetByIdAsync(building.HonorificPrefix.Id);
                 }
 
-                if (building.Customer != null)
-                {
-                    if (oldBuilding != null && oldBuilding.Customer != null && oldBuilding.Customer.Id == building.Customer.Id)
-                        building.Customer = oldBuilding.Customer;
-                    else
-                        building.Customer = await _customerDataProvider.GetByNumberAsync(building.Customer.Id);
-                }
+                // Customer cannot be updated. Take customer of oldBuilding on update.
+                if (oldBuilding != null)
+                    building.Customer = oldBuilding.Customer;
+                else
+                    building.Customer = await _customerDataProvider.GetByNumberAsync(building.Customer.Id);
             }
             catch (EntityNotFoundException)
             {

@@ -84,15 +84,15 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Contact number cannot be updated.");
             if ((contact.PostalCode != null && contact.City == null) || (contact.PostalCode == null && contact.City != null))
                 throw new IllegalArgumentException("IllegalAttribute", "Contact's postal-code and city must be both filled in or not filled.");
-            if (contact.Customer == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
             if (contact.Country == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Country is required.");
             if (contact.Language == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Language is required.");
+            if (contact.Customer != null && contact.Customer.Id != existingContact.Customer.Id)
+                throw new IllegalArgumentException("IllegalAttribute", "Customer cannot be updated.");
             if (contact.Telephones != null)
             {
-                var message = "Telephones cannot be change during contact update.";
+                var message = "Telephones cannot be changed during contact update.";
                 _logger.LogDebug(message);
                 throw new IllegalArgumentException("IllegalAttribute", message);
             }
@@ -135,13 +135,11 @@ namespace Rollvolet.CRM.Domain.Managers
                         contact.HonorificPrefix = await _honorificPrefixDataProvider.GetByIdAsync(contact.HonorificPrefix.Id);
                 }
 
-                if (contact.Customer != null)
-                {
-                    if (oldContact != null && oldContact.Customer != null && oldContact.Customer.Id == contact.Customer.Id)
-                        contact.Customer = oldContact.Customer;
-                    else
-                        contact.Customer = await _customerDataProvider.GetByNumberAsync(contact.Customer.Id);
-                }
+                // Customer cannot be updated. Take customer of oldContact on update.
+                if (oldContact != null)
+                    contact.Customer = oldContact.Customer;
+                else
+                    contact.Customer = await _customerDataProvider.GetByNumberAsync(contact.Customer.Id);
             }
             catch (EntityNotFoundException)
             {
