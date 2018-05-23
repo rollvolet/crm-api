@@ -15,14 +15,19 @@ namespace Rollvolet.CRM.Domain.Managers
     {
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly ICustomerDataProvider _customerDataProvider;
+        private readonly IContactDataProvider _contactDataProvider;
+        private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly IWayOfEntryDataProvider _wayOfEntryDataProvider;
         private readonly ILogger _logger;
 
         public RequestManager(IRequestDataProvider requestDataProvider, ICustomerDataProvider customerDataProvider,
+                                IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                                 IWayOfEntryDataProvider wayOfEntryDataProvider, ILogger<RequestManager> logger)
         {
             _requestDataProvider = requestDataProvider;
             _customerDataProvider = customerDataProvider;
+            _contactDataProvider = contactDataProvider;
+            _buildingDataProvider = buildingDataProvider;
             _wayOfEntryDataProvider = wayOfEntryDataProvider;
             _logger = logger;
         }
@@ -70,6 +75,11 @@ namespace Rollvolet.CRM.Domain.Managers
             }
 
             await EmbedRelations(request);
+            
+            if (request.Contact != null && request.Contact.Customer.Id != request.Customer.Id)
+                throw new IllegalArgumentException("IllegalAttribute", $"Contact is not attached to customer {request.Contact.Id}.");
+            if (request.Building != null && request.Building.Customer.Id != request.Customer.Id)
+                throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {request.Customer.Id}.");
 
             return await _requestDataProvider.CreateAsync(request);
         }
@@ -95,6 +105,10 @@ namespace Rollvolet.CRM.Domain.Managers
 
             if (request.Customer == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
+            if (request.Contact != null && request.Contact.Customer.Id != request.Customer.Id)
+                throw new IllegalArgumentException("IllegalAttribute", $"Contact is not attached to customer {request.Contact.Id}.");
+            if (request.Building != null && request.Building.Customer.Id != request.Customer.Id)
+                throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {request.Customer.Id}.");
 
             return await _requestDataProvider.UpdateAsync(request);
         }
@@ -116,7 +130,21 @@ namespace Rollvolet.CRM.Domain.Managers
                         request.WayOfEntry = await _wayOfEntryDataProvider.GetByIdAsync(int.Parse(request.WayOfEntry.Id));
                 }
 
-                // TODO handle building/contact
+                if (request.Contact != null)
+                {
+                    if (oldRequest != null && oldRequest.Contact != null && oldRequest.Contact.Id == request.Contact.Id)
+                        request.Contact = oldRequest.Contact;
+                    else
+                        request.Contact = await _contactDataProvider.GetByIdAsync(request.Contact.Id);
+                }
+
+                if (request.Building != null)
+                {
+                    if (oldRequest != null && oldRequest.Building != null && oldRequest.Building.Id == request.Building.Id)
+                        request.Building = oldRequest.Building;
+                    else
+                        request.Building = await _buildingDataProvider.GetByIdAsync(request.Building.Id);
+                }
 
                 // TODO handle visit
 
