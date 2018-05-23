@@ -7,6 +7,7 @@ using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Buildings;
 using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
+using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
@@ -355,9 +356,20 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
-            CreateMap<Request, RequestDto.AttributesDto>();
+            CreateMap<Request, RequestAttributesDto>().ReverseMap();
 
-            CreateMap<Request, RequestDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+            CreateMap<Request, RequestRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<RequestRequestDto, Request>()
+                .ConstructUsing((src, context) => context.Mapper.Map<Request>(src.Attributes))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Customer : null))
+                .ForMember(dest => dest.Contact, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Contact : null))
+                .ForMember(dest => dest.Building, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Building : null))
+                .ForMember(dest => dest.WayOfEntry, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.WayOfEntry : null))
+                .ForMember(dest => dest.Visit, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Visit : null))
+                .ForMember(dest => dest.Offer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Offer : null))
+                .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<Request, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("requests"));

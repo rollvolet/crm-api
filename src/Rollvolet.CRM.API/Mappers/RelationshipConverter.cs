@@ -4,6 +4,7 @@ using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Buildings;
 using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
+using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
@@ -15,7 +16,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Contact, ContactRelationshipsDto>,
                                             ITypeConverter<Building, BuildingRelationshipsDto>,
                                             ITypeConverter<Telephone, TelephoneRelationshipsDto>,
-                                            ITypeConverter<Request, RequestDto.RelationshipsDto>,
+                                            ITypeConverter<Request, RequestRelationshipsDto>,
                                             ITypeConverter<Offer, OfferDto.RelationshipsDto>,
                                             ITypeConverter<Order, OrderDto.RelationshipsDto>,
                                             ITypeConverter<Invoice, InvoiceDto.RelationshipsDto>,
@@ -71,7 +72,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Country = GetOneRelationship<Country>("buildings", source.Id, "country", source.Country, context);
             relationships.Language = GetOneRelationship<Language>("buildings", source.Id, "language", source.Language, context);
             relationships.HonorificPrefix = GetOneRelationship<HonorificPrefix>("buildings", source.Id, "honorific-prefix", source.HonorificPrefix, context);
-            relationships.Customer = GetOneRelationship<Customer>("buildings", source.Id, "customer", source.Customer, context);            
+            relationships.Customer = GetOneRelationship<Customer>("buildings", source.Id, "customer", source.Customer, context);
             relationships.Telephones = GetManyRelationship<Telephone>("buildings", source.Id, "telephones", source.Telephones, context);
             return relationships;
         }
@@ -87,9 +88,9 @@ namespace Rollvolet.CRM.API.Mappers
             return relationships;
         }
 
-        RequestDto.RelationshipsDto ITypeConverter<Request, RequestDto.RelationshipsDto>.Convert(Request source, RequestDto.RelationshipsDto destination, ResolutionContext context)
+        RequestRelationshipsDto ITypeConverter<Request, RequestRelationshipsDto>.Convert(Request source, RequestRelationshipsDto destination, ResolutionContext context)
         {
-            var relationships = new RequestDto.RelationshipsDto();
+            var relationships = new RequestRelationshipsDto();
             relationships.Customer = GetOneRelationship<Customer>("requests", source.Id, "customer", source.Customer, context);
             relationships.Building = GetOneRelationship<Building>("requests", source.Id, "building", source.Building, context);
             relationships.Contact = GetOneRelationship<Contact>("requests", source.Id, "contact", source.Contact, context);
@@ -122,9 +123,9 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Contact = GetOneRelationship<Contact>("orders", source.Id, "contact", source.Contact, context);
             relationships.VatRate = GetOneRelationship<VatRate>("orders", source.Id, "vat-rate", source.VatRate, context);
             relationships.Deposits = GetManyRelationship<Deposit>("orders", source.Id, "deposits", source.Deposits, context);
-            relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("orders", source.Id, "deposit-invoices", source.DepositInvoices, context);   
+            relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("orders", source.Id, "deposit-invoices", source.DepositInvoices, context);
             return relationships;
-        } 
+        }
 
         InvoiceDto.RelationshipsDto ITypeConverter<Invoice, InvoiceDto.RelationshipsDto>.Convert(Invoice source, InvoiceDto.RelationshipsDto destination, ResolutionContext context)
         {
@@ -134,12 +135,12 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Building = GetOneRelationship<Building>("invoices", source.Id, "building", source.Building, context);
             relationships.Contact = GetOneRelationship<Contact>("invoices", source.Id, "contact", source.Contact, context);
             relationships.VatRate = GetOneRelationship<VatRate>("invoices", source.Id, "vat-rate", source.VatRate, context);
-            relationships.Supplements = GetManyRelationship<InvoiceSupplement>("invoices", source.Id, "supplements", source.Supplements, context); 
-            relationships.Deposits = GetManyRelationship<Deposit>("invoices", source.Id, "deposits", source.Deposits, context);  
-            relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("invoices", source.Id, "deposit-invoices", source.DepositInvoices, context);    
-            relationships.WorkingHours = GetManyRelationship<WorkingHour>("invoices", source.Id, "working-hours", source.WorkingHours, context);          
+            relationships.Supplements = GetManyRelationship<InvoiceSupplement>("invoices", source.Id, "supplements", source.Supplements, context);
+            relationships.Deposits = GetManyRelationship<Deposit>("invoices", source.Id, "deposits", source.Deposits, context);
+            relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("invoices", source.Id, "deposit-invoices", source.DepositInvoices, context);
+            relationships.WorkingHours = GetManyRelationship<WorkingHour>("invoices", source.Id, "working-hours", source.WorkingHours, context);
             return relationships;
-        } 
+        }
 
         DepositInvoiceDto.RelationshipsDto ITypeConverter<DepositInvoice, DepositInvoiceDto.RelationshipsDto>.Convert(DepositInvoice source, DepositInvoiceDto.RelationshipsDto destination, ResolutionContext context)
         {
@@ -148,9 +149,9 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Customer = GetOneRelationship<Customer>("deposit-invoices", source.Id, "customer", source.Customer, context);
             relationships.Building = GetOneRelationship<Building>("deposit-invoices", source.Id, "building", source.Building, context);
             relationships.Contact = GetOneRelationship<Contact>("deposit-invoices", source.Id, "contact", source.Contact, context);
-            relationships.VatRate = GetOneRelationship<VatRate>("deposit-invoices", source.Id, "vat-rate", source.VatRate, context);           
+            relationships.VatRate = GetOneRelationship<VatRate>("deposit-invoices", source.Id, "vat-rate", source.VatRate, context);
             return relationships;
-        } 
+        }
 
         DepositDto.RelationshipsDto ITypeConverter<Deposit, DepositDto.RelationshipsDto>.Convert(Deposit source, DepositDto.RelationshipsDto destination, ResolutionContext context)
         {
@@ -160,7 +161,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Customer = GetOneRelationship<Customer>("deposits", source.Id, "customer", source.Customer, context);
             relationships.Payment = GetOneRelationship<Payment>("deposits", source.Id, "payment", source.Payment, context);
             return relationships;
-        }    
+        }
 
         WorkingHourDto.RelationshipsDto ITypeConverter<WorkingHour, WorkingHourDto.RelationshipsDto>.Convert(WorkingHour source, WorkingHourDto.RelationshipsDto destination, ResolutionContext context)
         {
@@ -168,7 +169,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Employee = GetOneRelationship<Employee>("working-hours", source.Id, "employee", source.Employee, context);
             relationships.Invoice = GetOneRelationship<Invoice>("working-hours", source.Id, "invoice", source.Invoice, context);
             return relationships;
-        }                
+        }
 
         EmptyRelationshipsDto ITypeConverter<Country, EmptyRelationshipsDto>.Convert(Country source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
@@ -199,7 +200,7 @@ namespace Rollvolet.CRM.API.Mappers
         {
             return new EmptyRelationshipsDto();
         }
-        
+
 
         EmptyRelationshipsDto ITypeConverter<WayOfEntry, EmptyRelationshipsDto>.Convert(WayOfEntry source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
@@ -238,14 +239,14 @@ namespace Rollvolet.CRM.API.Mappers
 
         private IRelationship GetManyRelationship<T>(string resourceName, int id, string relatedResourceName, IEnumerable<T> relatedResources, ResolutionContext context)
         {
-            return GetManyRelationship<T>(resourceName, id.ToString(), relatedResourceName, relatedResources, context);       
+            return GetManyRelationship<T>(resourceName, id.ToString(), relatedResourceName, relatedResources, context);
         }
 
         private IRelationship GetManyRelationship<T>(string resourceName, string id, string relatedResourceName, IEnumerable<T> relatedResources, ResolutionContext context)
         {
             if (context.Items.Keys.Contains("include") && ((IncludeQuery) context.Items["include"]).Contains(relatedResourceName))
             {
-                return new ManyRelationship() { 
+                return new ManyRelationship() {
                     Links = GetRelationshipLinks(resourceName, id, relatedResourceName),
                     Data = context.Mapper.Map<IEnumerable<RelatedResource>>(relatedResources)
                 };
@@ -265,7 +266,7 @@ namespace Rollvolet.CRM.API.Mappers
         {
             if (context.Items.Keys.Contains("include") && ((IncludeQuery) context.Items["include"]).Contains(relatedResourceName))
             {
-                return new OneRelationship() { 
+                return new OneRelationship() {
                     Links = GetRelationshipLinks(resourceName, id, relatedResourceName),
                     Data = context.Mapper.Map<RelatedResource>(relatedResource)
                 };
@@ -273,11 +274,11 @@ namespace Rollvolet.CRM.API.Mappers
             else
             {
                 return new Relationship() { Links = GetRelationshipLinks(resourceName, id, relatedResourceName) };
-            }         
+            }
         }
 
         private Links GetRelationshipLinks(string resourceName, string id, string relationName) {
-            return new Links { 
+            return new Links {
                 // TODO api prefix must be configurable
                 Self = $"/api/{resourceName}/{id}/links/{relationName}",
                 Related = $"/api/{resourceName}/{id}/{relationName}"

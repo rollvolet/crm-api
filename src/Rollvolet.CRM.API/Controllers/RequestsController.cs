@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
-using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
@@ -64,4 +64,4 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Links = links, Data = requestDto, Included = included });
         }
     }
-} 
+}

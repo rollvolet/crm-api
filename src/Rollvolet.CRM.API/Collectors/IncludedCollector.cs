@@ -5,6 +5,7 @@ using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Buildings;
 using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
+using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
@@ -24,7 +25,7 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(Customer customer, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             // one-relations
             if (includeQuery.Contains("country") && customer.Country != null)
                 included.Add(_mapper.Map<CountryDto>(customer.Country));
@@ -59,7 +60,7 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(IEnumerable<Customer> customers, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             foreach (var customer in customers)
                 included.UnionWith(CollectIncluded(customer, includeQuery));
 
@@ -69,7 +70,7 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(Contact contact, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             // one-relations
             if (includeQuery.Contains("country") && contact.Country != null)
                 included.Add(_mapper.Map<CountryDto>(contact.Country));
@@ -79,7 +80,7 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<HonorificPrefixDto>(contact.HonorificPrefix));
             if (includeQuery.Contains("customer") && contact.Customer != null)
                 included.Add(_mapper.Map<CustomerDto>(contact.Customer));
-                
+
             // many-relations
             if (includeQuery.Contains("telephones") && contact.Telephones.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<TelephoneDto>>(contact.Telephones));
@@ -90,7 +91,7 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(IEnumerable<Contact> contacts, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             foreach (var contact in contacts)
                 included.UnionWith(CollectIncluded(contact, includeQuery));
 
@@ -100,7 +101,7 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(Building building, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             // one-relations
             if (includeQuery.Contains("country") && building.Country != null)
                 included.Add(_mapper.Map<CountryDto>(building.Country));
@@ -110,7 +111,7 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<HonorificPrefixDto>(building.HonorificPrefix));
             if (includeQuery.Contains("customer") && building.Customer != null)
                 included.Add(_mapper.Map<CustomerDto>(building.Customer));
-                
+
             // many-relations
             if (includeQuery.Contains("telephones") && building.Telephones.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<TelephoneDto>>(building.Telephones));
@@ -121,7 +122,7 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(IEnumerable<Building> buildings, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             foreach (var building in buildings)
                 included.UnionWith(CollectIncluded(building, includeQuery));
 
@@ -131,7 +132,7 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(Telephone telephone, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             if (includeQuery.Contains("country") && telephone.Country != null)
                 included.Add(_mapper.Map<CountryDto>(telephone.Country));
             if (includeQuery.Contains("telephone-type") && telephone.TelephoneType != null)
@@ -149,7 +150,7 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(IEnumerable<Telephone> telephones, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             foreach (var telephone in telephones)
                 included.UnionWith(CollectIncluded(telephone, includeQuery));
 
@@ -161,7 +162,7 @@ namespace Rollvolet.CRM.API.Collectors
             ISet<IResource> included = new HashSet<IResource>();
 
             var customerIncludeQuery = includeQuery.NestedInclude("customer");
-            
+
             // one-relations
             if (includeQuery.Contains("customer") && request.Customer != null)
                 included.Add(_mapper.Map<CustomerDto>(request.Customer, opt => opt.Items["include"] = customerIncludeQuery));
@@ -184,7 +185,7 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(IEnumerable<Request> requests, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             foreach (var request in requests)
                 included.UnionWith(CollectIncluded(request, includeQuery));
 
@@ -194,7 +195,7 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(Offer offer, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             var customerIncludeQuery = includeQuery.NestedInclude("customer");
 
             // one-relations
@@ -221,19 +222,19 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(IEnumerable<Offer> offers, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             foreach (var offer in offers)
                 included.UnionWith(CollectIncluded(offer, includeQuery));
 
             return included;
-        } 
+        }
 
         public IEnumerable<IResource> CollectIncluded(Order order, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
 
-            var customerIncludeQuery = includeQuery.NestedInclude("customer");            
-            
+            var customerIncludeQuery = includeQuery.NestedInclude("customer");
+
             // one-relations
             if (includeQuery.Contains("offer") && order.Offer != null)
                 included.Add(_mapper.Map<OfferDto>(order.Offer));
@@ -262,19 +263,19 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(IEnumerable<Order> orders, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             foreach (var order in orders)
                 included.UnionWith(CollectIncluded(order, includeQuery));
 
             return included;
-        }     
+        }
 
         public IEnumerable<IResource> CollectIncluded(Invoice invoice, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
 
-            var customerIncludeQuery = includeQuery.NestedInclude("customer");            
-            var workingHoursIncludeQuery = includeQuery.NestedInclude("working-hours");   
+            var customerIncludeQuery = includeQuery.NestedInclude("customer");
+            var workingHoursIncludeQuery = includeQuery.NestedInclude("working-hours");
 
             // one-relations
             if (includeQuery.Contains("order") && invoice.Order != null)
@@ -308,24 +309,24 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(IEnumerable<Invoice> invoices, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             foreach (var invoice in invoices)
                 included.UnionWith(CollectIncluded(invoice, includeQuery));
 
             return included;
-        }    
+        }
 
         public IEnumerable<IResource> CollectIncluded(Tag tag, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             return included;
         }
 
         public IEnumerable<IResource> CollectIncluded(IEnumerable<Tag> tags, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             foreach (var tag in tags)
                 included.UnionWith(CollectIncluded(tag, includeQuery));
 
@@ -335,7 +336,7 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(Deposit deposit, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             // one-relations
             if (includeQuery.Contains("customer") && deposit.Customer != null)
                 included.Add(_mapper.Map<CustomerDto>(deposit.Customer));
@@ -352,7 +353,7 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(IEnumerable<Deposit> deposits, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             foreach (var deposit in deposits)
                 included.UnionWith(CollectIncluded(deposit, includeQuery));
 
@@ -363,8 +364,8 @@ namespace Rollvolet.CRM.API.Collectors
         {
             ISet<IResource> included = new HashSet<IResource>();
 
-            var customerIncludeQuery = includeQuery.NestedInclude("customer");            
-            
+            var customerIncludeQuery = includeQuery.NestedInclude("customer");
+
             // one-relations
             if (includeQuery.Contains("order") && depositInvoice.Order != null)
                 included.Add(_mapper.Map<OrderDto>(depositInvoice.Order));
@@ -385,17 +386,17 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(IEnumerable<DepositInvoice> depositInvoices, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             foreach (var invoice in depositInvoices)
                 included.UnionWith(CollectIncluded(invoice, includeQuery));
 
             return included;
-        }   
+        }
 
         public IEnumerable<IResource> CollectIncluded(WorkingHour workingHour, IncludeQuery includeQuery)
         {
-            ISet<IResource> included = new HashSet<IResource>();          
-            
+            ISet<IResource> included = new HashSet<IResource>();
+
             // one-relations
             if (includeQuery.Contains("employee") && workingHour.Employee != null)
                 included.Add(_mapper.Map<EmployeeDto>(workingHour.Employee));
@@ -408,12 +409,12 @@ namespace Rollvolet.CRM.API.Collectors
         public IEnumerable<IResource> CollectIncluded(IEnumerable<WorkingHour> workingHours, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
-            
+
             foreach (var workingHour in workingHours)
                 included.UnionWith(CollectIncluded(workingHour, includeQuery));
 
             return included;
-        }                  
+        }
     }
 
 }
