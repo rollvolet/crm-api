@@ -99,6 +99,11 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _requestDataProvider.UpdateAsync(request);
         }
 
+        public async Task DeleteAsync(int id)
+        {
+            await _requestDataProvider.DeleteByIdAsync(id);
+        }
+
         // Embed relations in request resource: reuse old relation if there is one and it hasn't changed
         private async Task EmbedRelations(Request request, Request oldRequest = null)
         {

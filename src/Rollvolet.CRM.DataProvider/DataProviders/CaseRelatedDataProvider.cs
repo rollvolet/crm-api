@@ -14,7 +14,7 @@ using Rollvolet.CRM.DataProvider.Models;
 using Rollvolet.CRM.DataProvider.Models.Interfaces;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class CaseRelatedDataProvider<T> where T : ICaseRelated
     {
         protected readonly CrmContext _context;
@@ -101,6 +101,6 @@ namespace Rollvolet.CRM.DataProviders
             }
 
             return items;
-        }         
+        }
     }
 }

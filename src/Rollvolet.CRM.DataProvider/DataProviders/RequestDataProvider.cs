@@ -101,6 +101,17 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Request>(requestRecord);
         }
 
+        public async Task DeleteByIdAsync(int id)
+        {
+            var request = await FindByIdAsync(id);
+
+            if (request != null)
+            {
+                _context.Requests.Remove(request);
+                await _context.SaveChangesAsync();
+           }
+        }
+
         private async Task<DataProvider.Models.Request> FindByIdAsync(int id, QuerySet query = null)
         {
             var source = _context.Requests.Where(c => c.Id == id);

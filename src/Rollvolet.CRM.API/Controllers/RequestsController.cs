@@ -11,6 +11,9 @@ using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
 using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.Buildings;
+using Rollvolet.CRM.APIContracts.DTO.Contacts;
+using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Exceptions;
@@ -26,15 +29,22 @@ namespace Rollvolet.CRM.API.Controllers
     {
         private readonly IRequestManager _requestManager;
         private readonly IWayOfEntryManager _wayOfEntryManager;
+        private readonly ICustomerManager _customerManager;
+        private readonly IContactManager _contactManager;
+        private readonly IBuildingManager _buildingManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
         public RequestsController(IRequestManager requestManager, IWayOfEntryManager wayOfEntryManager,
+                                    ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
                                      IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _requestManager = requestManager;
             _wayOfEntryManager = wayOfEntryManager;
+            _customerManager = customerManager;
+            _contactManager = contactManager;
+            _buildingManager = buildingManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -97,6 +107,71 @@ namespace Rollvolet.CRM.API.Controllers
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
 
             return Ok(new ResourceResponse() { Links = links, Data = requestDto });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _requestManager.DeleteAsync(id);
+
+            return NoContent();
+        }
+
+        [HttpGet("{requestId}/customer")]
+        [HttpGet("{requestId}/links/customer")]
+        public async Task<IActionResult> GetRelatedCustomerById(int requestId)
+        {
+            CustomerDto customerDto;
+            try
+            {
+                var customer = await _customerManager.GetByRequestIdAsync(requestId);
+                customerDto = _mapper.Map<CustomerDto>(customer);
+            }
+            catch (EntityNotFoundException)
+            {
+                customerDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = customerDto });
+        }
+
+        [HttpGet("{requestId}/contact")]
+        [HttpGet("{requestId}/links/contact")]
+        public async Task<IActionResult> GetRelatedContactById(int requestId)
+        {
+            ContactDto contactDto;
+            try
+            {
+                var contact = await _contactManager.GetByRequestIdAsync(requestId);
+                contactDto = _mapper.Map<ContactDto>(contact);
+            }
+            catch (EntityNotFoundException)
+            {
+                contactDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = contactDto });
+        }
+
+        [HttpGet("{requestId}/building")]
+        [HttpGet("{requestId}/links/building")]
+        public async Task<IActionResult> GetRelatedBuildingById(int requestId)
+        {
+            BuildingDto buildingDto;
+            try
+            {
+                var building = await _buildingManager.GetByRequestIdAsync(requestId);
+                buildingDto = _mapper.Map<BuildingDto>(building);
+            }
+            catch (EntityNotFoundException)
+            {
+                buildingDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = buildingDto });
         }
 
         [HttpGet("{requestId}/way-of-entry")]
