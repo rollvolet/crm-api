@@ -11,6 +11,7 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<Customer> GetByIdAsync(int id, QuerySet query);
         Task<Customer> GetByTelephoneIdAsync(string telephoneId);
         Task<Customer> GetByRequestIdAsync(int requestId);
+        Task<Customer> GetByOfferIdAsync(int offerId);
         Task<Customer> CreateAsync(Customer customer);
         Task<Customer> UpdateAsync(Customer customer);
         Task DeleteAsync(int id);

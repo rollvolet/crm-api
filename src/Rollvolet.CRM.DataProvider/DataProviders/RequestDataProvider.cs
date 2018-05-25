@@ -78,6 +78,19 @@ namespace Rollvolet.CRM.DataProviders
             };
         }
 
+        public async Task<Request> GetByOfferIdAsync(int offerId)
+        {
+            var request = await _context.Offers.Where(r => r.Id == offerId).Select(r => r.Request).FirstOrDefaultAsync();
+
+            if (request == null)
+            {
+                _logger.LogError($"No request found for offer id {offerId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Request>(request);
+        }
+
         public async Task<Request> CreateAsync(Request request)
         {
             var requestRecord = _mapper.Map<DataProvider.Models.Request>(request);

@@ -59,6 +59,11 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _requestDataProvider.GetAllByCustomerIdAsync(customerId, query);
         }
 
+        public async Task<Request> GetByOfferIdAsync(int offerId)
+        {
+            return await _requestDataProvider.GetByOfferIdAsync(offerId);
+        }
+
         public async Task<Request> CreateAsync(Request request)
         {
             if (request.Id != 0)
@@ -75,7 +80,7 @@ namespace Rollvolet.CRM.Domain.Managers
             }
 
             await EmbedRelations(request);
-            
+
             if (request.Contact != null && request.Contact.Customer.Id != request.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Contact is not attached to customer {request.Contact.Id}.");
             if (request.Building != null && request.Building.Customer.Id != request.Customer.Id)
