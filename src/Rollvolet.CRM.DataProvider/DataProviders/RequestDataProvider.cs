@@ -82,7 +82,7 @@ namespace Rollvolet.CRM.DataProviders
         {
             var requestRecord = _mapper.Map<DataProvider.Models.Request>(request);
 
-            // TODO fill in embeddedCity
+            requestRecord.EmbeddedCity = await GetCity(requestRecord);
 
             _context.Requests.Add(requestRecord);
             await _context.SaveChangesAsync();
@@ -94,6 +94,8 @@ namespace Rollvolet.CRM.DataProviders
         {
             var requestRecord = await FindByIdAsync(request.Id);
             _mapper.Map(request, requestRecord);
+
+            requestRecord.EmbeddedCity = await GetCity(requestRecord);
 
             _context.Requests.Update(requestRecord);
             await _context.SaveChangesAsync();
@@ -126,6 +128,26 @@ namespace Rollvolet.CRM.DataProviders
             {
                 return await source.FirstOrDefaultAsync();
             }
+        }
+
+        private async Task<string> GetCity(DataProvider.Models.Request request)
+        {
+            if (request.CustomerId != null)
+            {
+                if (request.RelativeBuildingId != null)
+                {
+                    var building = await _context.Buildings.Where(b => b.Number == request.RelativeBuildingId && b.CustomerId == request.CustomerId)
+                                                .FirstOrDefaultAsync();
+                    if (building != null)
+                        return building.EmbeddedCity;
+                }
+
+                var customer = await _context.Customers.Where(c => c.DataId == request.CustomerId).FirstOrDefaultAsync();
+                if (customer != null)
+                    request.EmbeddedCity = customer.EmbeddedCity;
+            }
+
+            return null;
         }
     }
 }
