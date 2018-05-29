@@ -32,19 +32,21 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly ICustomerManager _customerManager;
         private readonly IContactManager _contactManager;
         private readonly IBuildingManager _buildingManager;
+        private readonly IVisitManager _visitManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
         public RequestsController(IRequestManager requestManager, IWayOfEntryManager wayOfEntryManager,
                                     ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
-                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+                                     IVisitManager visitManager, IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _requestManager = requestManager;
             _wayOfEntryManager = wayOfEntryManager;
             _customerManager = customerManager;
             _contactManager = contactManager;
             _buildingManager = buildingManager;
+            _visitManager = visitManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -176,7 +178,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{requestId}/way-of-entry")]
         [HttpGet("{requestId}/links/way-of-entry")]
-        public async Task<IActionResult> GetRelatedWayOfEntryeById(int requestId)
+        public async Task<IActionResult> GetRelatedWayOfEntryById(int requestId)
         {
             WayOfEntryDto wayOfEntryDto;
             try
@@ -191,6 +193,25 @@ namespace Rollvolet.CRM.API.Controllers
 
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
             return Ok(new ResourceResponse() { Links = links, Data = wayOfEntryDto });
+        }
+
+        [HttpGet("{requestId}/visit")]
+        [HttpGet("{requestId}/links/visit")]
+        public async Task<IActionResult> GetRelatedVisitById(int requestId)
+        {
+            VisitDto visitDto;
+            try
+            {
+                var visit = await _visitManager.GetByRequestIdAsync(requestId);
+                visitDto = _mapper.Map<VisitDto>(visit);
+            }
+            catch (EntityNotFoundException)
+            {
+                visitDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = visitDto });
         }
     }
 }

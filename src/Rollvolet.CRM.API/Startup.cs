@@ -141,6 +141,8 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IEmployeeDataProvider, EmployeeDataProvider>();
             services.AddTransient<IWayOfEntryManager, WayOfEntryManager>();
             services.AddTransient<IWayOfEntryDataProvider, WayOfEntryDataProvider>();
+            services.AddTransient<IVisitManager, VisitManager>();
+            services.AddTransient<IVisitDataProvider, VisitDataProvider>();
             services.AddTransient<ISequenceDataProvider, SequenceDataProvider>();
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
             services.AddTransient<IIncludedCollector, IncludedCollector>();
