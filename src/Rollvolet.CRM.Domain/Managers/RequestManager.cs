@@ -78,6 +78,12 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogDebug(message);
                 throw new IllegalArgumentException("IllegalAttribute", message);
             }
+            if (request.Visit != null)
+            {
+                var message = "Visit cannot be added to a request on creation.";
+                _logger.LogDebug(message);
+                throw new IllegalArgumentException("IllegalAttribute", message);
+            }
 
             await EmbedRelations(request);
 
@@ -101,12 +107,14 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Request-date is required.");
             if (request.Offer != null)
             {
-                var message = "Offer cannot be changed during offer update.";
+                var message = "Offer cannot be changed during request update.";
                 _logger.LogDebug(message);
                 throw new IllegalArgumentException("IllegalAttribute", message);
             }
 
             await EmbedRelations(request, existingRequest);
+
+            // TODO update visit if required (e.g. if comment has changed)
 
             if (request.Customer == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
@@ -151,7 +159,7 @@ namespace Rollvolet.CRM.Domain.Managers
                         request.Building = await _buildingDataProvider.GetByIdAsync(request.Building.Id);
                 }
 
-                // TODO handle visit
+                // Ignore request.Visit. Nothing should happen with it.
 
                 // Customer cannot be updated. Take customer of oldBuilding on update.
                 if (oldRequest != null)

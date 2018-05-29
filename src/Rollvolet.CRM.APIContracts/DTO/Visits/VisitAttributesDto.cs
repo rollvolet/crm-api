@@ -1,18 +1,20 @@
 using System;
-using System.Collections.Generic;
+using Newtonsoft.Json;
+using Rollvolet.CRM.APIContracts.JsonApi;
 
-namespace Rollvolet.CRM.Domain.Models
+namespace Rollvolet.CRM.APIContracts.DTO.Visits
 {
-    public class Visit
+    public class VisitAttributesDto
     {
-        public int Id { get; set; }
-        public Customer Customer { get; set; }
-        public Request Request { get; set; }
+        [JsonProperty("offer-expected")]
         public bool OfferExpected { get; set; }
         public string Visitor { get; set; }
+        [JsonProperty("visit-date")]
         public DateTime? VisitDate { get; set; }
         public string Comment { get; set; }
+        [JsonProperty("calendar-subject")]
         public string CalendarSubject { get; set; }
+        [JsonProperty("calendar-id")]
         public string CalendarId { get; set; }
     }
 }

@@ -144,6 +144,10 @@ namespace Rollvolet.CRM.DataProvider.Mappers
             CreateMap<Models.Visit, Domain.Models.Visit>()
                 .PreserveReferences()
                 .ReverseMap()
+                .ForMember(dest => dest.Customer, opt => opt.Ignore())
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
+                .ForMember(dest => dest.Request, opt => opt.Ignore())
+                .ForMember(dest => dest.RequestId, opt => opt.MapFrom(src => src.Request.Id))
                 .PreserveReferences();
 
             CreateMap<Models.Offer, Domain.Models.Offer>()

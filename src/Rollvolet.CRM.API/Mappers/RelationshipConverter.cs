@@ -6,6 +6,7 @@ using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
+using Rollvolet.CRM.APIContracts.DTO.Visits;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -17,6 +18,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Building, BuildingRelationshipsDto>,
                                             ITypeConverter<Telephone, TelephoneRelationshipsDto>,
                                             ITypeConverter<Request, RequestRelationshipsDto>,
+                                            ITypeConverter<Visit, VisitRelationshipsDto>,
                                             ITypeConverter<Offer, OfferDto.RelationshipsDto>,
                                             ITypeConverter<Order, OrderDto.RelationshipsDto>,
                                             ITypeConverter<Invoice, InvoiceDto.RelationshipsDto>,
@@ -30,7 +32,6 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Tag, EmptyRelationshipsDto>,
                                             ITypeConverter<HonorificPrefix, EmptyRelationshipsDto>,
                                             ITypeConverter<WayOfEntry, EmptyRelationshipsDto>,
-                                            ITypeConverter<Visit, EmptyRelationshipsDto>,
                                             ITypeConverter<VatRate, EmptyRelationshipsDto>,
                                             ITypeConverter<SubmissionType, EmptyRelationshipsDto>,
                                             ITypeConverter<Payment, EmptyRelationshipsDto>,
@@ -171,6 +172,14 @@ namespace Rollvolet.CRM.API.Mappers
             return relationships;
         }
 
+        VisitRelationshipsDto ITypeConverter<Visit, VisitRelationshipsDto>.Convert(Visit source, VisitRelationshipsDto destination, ResolutionContext context)
+        {
+            var relationships = new VisitRelationshipsDto();
+            relationships.Customer = GetOneRelationship<Customer>("visits", source.Id, "customer", source.Customer, context);
+            relationships.Request = GetOneRelationship<Request>("visits", source.Id, "request", source.Request, context);
+            return relationships;
+        }
+
         EmptyRelationshipsDto ITypeConverter<Country, EmptyRelationshipsDto>.Convert(Country source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
@@ -203,11 +212,6 @@ namespace Rollvolet.CRM.API.Mappers
 
 
         EmptyRelationshipsDto ITypeConverter<WayOfEntry, EmptyRelationshipsDto>.Convert(WayOfEntry source, EmptyRelationshipsDto destination, ResolutionContext context)
-        {
-            return new EmptyRelationshipsDto();
-        }
-
-        EmptyRelationshipsDto ITypeConverter<Visit, EmptyRelationshipsDto>.Convert(Visit source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
         }

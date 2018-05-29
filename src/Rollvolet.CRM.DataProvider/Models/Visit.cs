@@ -7,25 +7,25 @@ namespace Rollvolet.CRM.DataProvider.Models
     {
         [Column("BezoekId")]
         public int Id { get; set; }
-        
+
         [Column("AanvraagId")]
         public int? RequestId { get; set; }
 
         [Column("Bezoeker")]
         public string Visitor { get; set; }
-        
+
         [Column("Bezoekdatum")]
         public DateTime? VisitDate { get; set; }
-     
+
         [Column("OfferteVerwacht")]
         public bool OfferExpected { get; set; }
 
         [Column("KlantID")]
         public int? CustomerId { get; set; }
-        
+
         [Column("GebouwID")]
         public int? RelativeBuildingId { get; set; }
-        
+
         [Column("ContactID")]
         public int? RelativeContactId { get; set; }
 
@@ -42,7 +42,10 @@ namespace Rollvolet.CRM.DataProvider.Models
         // Included resources
         public Request Request { get; set; }
         public Customer Customer { get; set; }
-        
-                
+
+
+        // Embedded properties
+        [Column("Gemeente")]
+        public string EmbeddedCity { get; set; }
     }
 }

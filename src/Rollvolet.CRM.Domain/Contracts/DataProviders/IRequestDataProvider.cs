@@ -8,7 +8,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     public interface IRequestDataProvider
     {
         Task<Paged<Request>> GetAllAsync(QuerySet query);
-        Task<Request> GetByIdAsync(int id, QuerySet query);
+        Task<Request> GetByIdAsync(int id, QuerySet query = null);
         Task<Paged<Request>> GetAllByCustomerIdAsync(int customerId, QuerySet query);
         Task<Request> GetByOfferIdAsync(int offerId);
         Task<Request> CreateAsync(Request request);

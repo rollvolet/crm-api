@@ -28,6 +28,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<VatRate> VatRates { get; set; }
         public DbSet<SubmissionType> SubmissionTypes { get; set; }
         public DbSet<Employee> Employees { get; set; }
+        public DbSet<Visit> Visits { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
         {

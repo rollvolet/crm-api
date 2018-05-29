@@ -43,7 +43,7 @@ namespace Rollvolet.CRM.DataProviders
             };
         }
 
-        public async Task<Request> GetByIdAsync(int id, QuerySet query)
+        public async Task<Request> GetByIdAsync(int id, QuerySet query = null)
         {
             var request = await FindByIdAsync(id, query);
 
@@ -95,7 +95,7 @@ namespace Rollvolet.CRM.DataProviders
         {
             var requestRecord = _mapper.Map<DataProvider.Models.Request>(request);
 
-            requestRecord.EmbeddedCity = await GetCity(requestRecord);
+            await EmbedCity(requestRecord);
 
             _context.Requests.Add(requestRecord);
             await _context.SaveChangesAsync();
@@ -108,7 +108,7 @@ namespace Rollvolet.CRM.DataProviders
             var requestRecord = await FindByIdAsync(request.Id);
             _mapper.Map(request, requestRecord);
 
-            requestRecord.EmbeddedCity = await GetCity(requestRecord);
+            await EmbedCity(requestRecord);
 
             _context.Requests.Update(requestRecord);
             await _context.SaveChangesAsync();
@@ -143,7 +143,7 @@ namespace Rollvolet.CRM.DataProviders
             }
         }
 
-        private async Task<string> GetCity(DataProvider.Models.Request request)
+        private async Task EmbedCity(DataProvider.Models.Request request)
         {
             if (request.CustomerId != null)
             {
@@ -151,16 +151,18 @@ namespace Rollvolet.CRM.DataProviders
                 {
                     var building = await _context.Buildings.Where(b => b.Number == request.RelativeBuildingId && b.CustomerId == request.CustomerId)
                                                 .FirstOrDefaultAsync();
-                    if (building != null)
-                        return building.EmbeddedCity;
+                    request.EmbeddedCity = building != null ? building.EmbeddedCity : null;
                 }
-
-                var customer = await _context.Customers.Where(c => c.DataId == request.CustomerId).FirstOrDefaultAsync();
-                if (customer != null)
-                    request.EmbeddedCity = customer.EmbeddedCity;
+                else
+                {
+                    var customer = await _context.Customers.Where(c => c.Number == request.CustomerId).FirstOrDefaultAsync();
+                    request.EmbeddedCity = customer != null ? customer.EmbeddedCity : null;
+                }
             }
-
-            return null;
+            else
+            {
+                request.EmbeddedCity = null;
+            }
         }
     }
 }
