@@ -197,10 +197,9 @@ namespace Rollvolet.CRM.API.Collectors
             ISet<IResource> included = new HashSet<IResource>();
 
             var customerIncludeQuery = includeQuery.NestedInclude("customer");
+            var requestIncludeQuery = includeQuery.NestedInclude("request");
 
             // one-relations
-            if (includeQuery.Contains("request") && offer.Request != null)
-                included.Add(_mapper.Map<RequestDto>(offer.Request));
             if (includeQuery.Contains("order") && offer.Order != null)
                 included.Add(_mapper.Map<OrderDto>(offer.Order));
             if (includeQuery.Contains("customer") && offer.Customer != null)
@@ -215,6 +214,10 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<VatRateDto>(offer.VatRate));
             if (includeQuery.Contains("submission-type") && offer.SubmissionType != null)
                 included.Add(_mapper.Map<SubmissionTypeDto>(offer.SubmissionType));
+            if (includeQuery.Contains("request") && offer.Request != null)
+                included.Add(_mapper.Map<RequestDto>(offer.Request, opt => opt.Items["include"] = requestIncludeQuery));
+            if (includeQuery.Contains("request.visit") && offer.Request != null && offer.Request.Visit != null)
+                included.Add(_mapper.Map<VisitDto>(offer.Request.Visit));
 
             return included;
         }
