@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
+using Rollvolet.CRM.Domain.Contracts.MsGraph;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
@@ -13,12 +14,17 @@ namespace Rollvolet.CRM.Domain.Managers
     {
         private readonly IVisitDataProvider _visitDataProvider;
         private readonly IRequestDataProvider _requestDataProvider;
+        private readonly ICustomerDataProvider _customerDataProvider;
+        private readonly IGraphApiService _graphApiService;
         private readonly ILogger _logger;
 
-        public VisitManager(IVisitDataProvider visitDataProvider, IRequestDataProvider requestDataProvider, ILogger<VisitManager> logger)
+        public VisitManager(IVisitDataProvider visitDataProvider, IRequestDataProvider requestDataProvider, ICustomerDataProvider customerDataProvider,
+                            IGraphApiService graphApiService, ILogger<VisitManager> logger)
         {
             _visitDataProvider = visitDataProvider;
             _requestDataProvider = requestDataProvider;
+            _customerDataProvider = customerDataProvider;
+            _graphApiService = graphApiService;
             _logger = logger;
         }
 
@@ -50,9 +56,12 @@ namespace Rollvolet.CRM.Domain.Managers
 
             await EmbedRelations(visit);
 
-            // TODO create entry in Klantenbezoekagenda
+            visit = await _visitDataProvider.CreateAsync(visit);
 
-            return await _visitDataProvider.CreateAsync(visit);
+            var customerEntity = await GetRelatedCustomerEntity(visit);
+            visit = await _graphApiService.CreateCalendarEventForVisit(visit, customerEntity);
+
+            return await _visitDataProvider.UpdateAsync(visit);
         }
 
         public async Task<Visit> UpdateAsync(Visit visit)
@@ -74,13 +83,20 @@ namespace Rollvolet.CRM.Domain.Managers
 
             await EmbedRelations(visit, existingVisit);
 
-            // TODO update entry in Klantenbezoekagenda
+            if (visit.VisitDate != existingVisit.VisitDate || visit.Request.Comment != existingVisit.Comment)
+            {
+                var customerEntity = await GetRelatedCustomerEntity(visit);
+                visit = await _graphApiService.UpdateCalendarEventForVisit(visit, customerEntity);
+            }
 
             return await _visitDataProvider.UpdateAsync(visit);
         }
 
         public async Task DeleteAsync(int id)
         {
+            var visit = await _visitDataProvider.GetByIdAsync(id);
+
+            await _graphApiService.DeleteCalendarEventForVisit(visit);
             await _visitDataProvider.DeleteByIdAsync(id);
         }
 
@@ -99,6 +115,12 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogDebug($"Failed to find a related entity");
                 throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
             }
+        }
+
+        private async Task<CustomerEntity> GetRelatedCustomerEntity(Visit visit)
+        {
+            // TODO must this be the building if there is one?
+            return await _customerDataProvider.GetByRequestIdAsync(visit.Request.Id);
         }
     }
 }

@@ -42,6 +42,7 @@ using Rollvolet.CRM.Domain.Contracts.MsGraph;
 using Rollvolet.CRM.DataProvider.MsGraph;
 using Microsoft.Identity.Client;
 using Microsoft.Extensions.Caching.Memory;
+using Rollvolet.CRM.Domain.Configuration;
 
 namespace Rollvolet.CRM.API
 {
@@ -81,6 +82,8 @@ namespace Rollvolet.CRM.API
                 });
 
             services.Configure<AuthenticationConfiguration>(Configuration.GetSection("Authentication"));
+            services.Configure<CalendarConfiguration>(Configuration.GetSection("Calendar"));
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
                 jwtOptions => {
                     AuthenticationConfiguration authConfig = Configuration.GetSection("Authentication").Get<AuthenticationConfiguration>();
@@ -106,6 +109,7 @@ namespace Rollvolet.CRM.API
 
                 var clientCredential = new ClientCredential(authConfig.ClientSecret);
                 var httpContext = c.GetService<IHttpContextAccessor>().HttpContext;
+                // TODO cache access tokens for Graph API between requests
                 var tokenCache =  new TokenCache();
 
                 return new ConfidentialClientApplication(authConfig.ClientId, authConfig.Authority, authConfig.RedirectUri,

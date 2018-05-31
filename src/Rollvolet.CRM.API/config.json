@@ -8,5 +8,9 @@
     "BaseUri": "",
     "TenantId": "",
     "RedirectUri": ""
+  },
+  "Calendar": {
+    "KlantenbezoekCalendarId": "",
+    "PlanningCalendarId": ""
   }
 }
