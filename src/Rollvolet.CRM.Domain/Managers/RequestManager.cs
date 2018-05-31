@@ -18,17 +18,19 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IContactDataProvider _contactDataProvider;
         private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly IWayOfEntryDataProvider _wayOfEntryDataProvider;
+        private readonly IVisitManager _visitManager;
         private readonly ILogger _logger;
 
         public RequestManager(IRequestDataProvider requestDataProvider, ICustomerDataProvider customerDataProvider,
                                 IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
-                                IWayOfEntryDataProvider wayOfEntryDataProvider, ILogger<RequestManager> logger)
+                                IWayOfEntryDataProvider wayOfEntryDataProvider, IVisitManager visitManager, ILogger<RequestManager> logger)
         {
             _requestDataProvider = requestDataProvider;
             _customerDataProvider = customerDataProvider;
             _contactDataProvider = contactDataProvider;
             _buildingDataProvider = buildingDataProvider;
             _wayOfEntryDataProvider = wayOfEntryDataProvider;
+            _visitManager = visitManager;
             _logger = logger;
         }
 
@@ -114,8 +116,6 @@ namespace Rollvolet.CRM.Domain.Managers
 
             await EmbedRelations(request, existingRequest);
 
-            // TODO update visit if required (e.g. if comment has changed)
-
             if (request.Customer == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
             if (request.Contact != null && request.Contact.Customer.Id != request.Customer.Id)
@@ -123,7 +123,12 @@ namespace Rollvolet.CRM.Domain.Managers
             if (request.Building != null && request.Building.Customer.Id != request.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {request.Customer.Id}.");
 
-            return await _requestDataProvider.UpdateAsync(request);
+            request = await _requestDataProvider.UpdateAsync(request);
+
+            if (request.Comment != existingRequest.Comment)
+                await SyncVisit(request);
+
+            return request;
         }
 
         public async Task DeleteAsync(int id)
@@ -171,6 +176,19 @@ namespace Rollvolet.CRM.Domain.Managers
             {
                 _logger.LogDebug($"Failed to find a related entity");
                 throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
+            }
+        }
+
+        private async Task SyncVisit(Request request)
+        {
+            try
+            {
+                var visit = await _visitManager.GetByRequestIdAsync(request.Id);
+                await _visitManager.UpdateAsync(visit);
+            }
+            catch(EntityNotFoundException)
+            {
+                // No visit to update
             }
         }
     }
