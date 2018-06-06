@@ -47,6 +47,8 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Visit date is required on visit creation.");
             if (visit.Request == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Request is required on visit creation.");
+            if (visit.CalendarId != null || visit.MsObjectId != null || visit.CalendarId != null)
+                throw new IllegalArgumentException("IllegalAttribute", "Calendar properties cannot be set.");
             if (visit.Customer != null)
             {
                 var message = "Customer cannot be added to a visit on creation.";
@@ -80,6 +82,8 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogDebug(message);
                 throw new IllegalArgumentException("IllegalAttribute", message);
             }
+            if (visit.CalendarId != existingVisit.CalendarId || visit.MsObjectId != existingVisit.MsObjectId || visit.CalendarSubject != existingVisit.CalendarSubject)
+                throw new IllegalArgumentException("IllegalAttribute", "Calendar properties cannot be updated.");
 
             await EmbedRelations(visit, existingVisit);
 

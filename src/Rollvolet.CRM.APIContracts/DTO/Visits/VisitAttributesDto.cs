@@ -16,5 +16,7 @@ namespace Rollvolet.CRM.APIContracts.DTO.Visits
         public string CalendarSubject { get; set; }
         [JsonProperty("calendar-id")]
         public string CalendarId { get; set; }
+        [JsonProperty("ms-object-id")]
+        public string MsObjectId { get; set; }
     }
 }

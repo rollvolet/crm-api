@@ -17,18 +17,20 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly ICustomerDataProvider _customerDataProvider;
         private readonly IContactDataProvider _contactDataProvider;
         private readonly IBuildingDataProvider _buildingDataProvider;
+        private readonly IVisitDataProvider _visitDataProvider;
         private readonly IWayOfEntryDataProvider _wayOfEntryDataProvider;
         private readonly IVisitManager _visitManager;
         private readonly ILogger _logger;
 
         public RequestManager(IRequestDataProvider requestDataProvider, ICustomerDataProvider customerDataProvider,
-                                IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
+                                IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider, IVisitDataProvider visitDataProvider,
                                 IWayOfEntryDataProvider wayOfEntryDataProvider, IVisitManager visitManager, ILogger<RequestManager> logger)
         {
             _requestDataProvider = requestDataProvider;
             _customerDataProvider = customerDataProvider;
             _contactDataProvider = contactDataProvider;
             _buildingDataProvider = buildingDataProvider;
+            _visitDataProvider = visitDataProvider;
             _wayOfEntryDataProvider = wayOfEntryDataProvider;
             _visitManager = visitManager;
             _logger = logger;
@@ -100,7 +102,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Request> UpdateAsync(Request request)
         {
             var query = new QuerySet();
-            query.Include.Fields = new string[] { "customer", "way-of-entry", "building", "contact" };
+            query.Include.Fields = new string[] { "customer", "way-of-entry", "building", "contact", "visit" };
             var existingRequest = await _requestDataProvider.GetByIdAsync(request.Id, query);
 
             if (request.Id != existingRequest.Id)
@@ -164,7 +166,13 @@ namespace Rollvolet.CRM.Domain.Managers
                         request.Building = await _buildingDataProvider.GetByIdAsync(request.Building.Id);
                 }
 
-                // Ignore request.Visit. Nothing should happen with it.
+                if (request.Visit != null)
+                {
+                    if (oldRequest != null && oldRequest.Visit != null && oldRequest.Visit.Id == request.Visit.Id)
+                        request.Visit = oldRequest.Visit;
+                    else
+                        request.Visit = await _visitDataProvider.GetByIdAsync(request.Visit.Id);
+                }
 
                 // Customer cannot be updated. Take customer of oldBuilding on update.
                 if (oldRequest != null)

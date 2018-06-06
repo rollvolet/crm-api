@@ -14,5 +14,6 @@ namespace Rollvolet.CRM.Domain.Models
         public string Comment { get; set; }
         public string CalendarSubject { get; set; }
         public string CalendarId { get; set; }
+        public string MsObjectId { get; set; }
     }
 }

@@ -33,8 +33,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                 var calendarEvent = CreateEvent(visit, customerEntity);
                 calendarEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events.Request().AddAsync(calendarEvent);
 
-                // TODO create new field to save office365 Id
-                visit.CalendarId = calendarEvent.Id;
+                visit.MsObjectId = calendarEvent.Id;
                 visit.CalendarSubject = calendarEvent.Subject;
                 _logger.LogDebug("Created calendar event in calendar {0} with id {1}", _calendarConfig.KlantenbezoekCalendarId, calendarEvent.Id);
             }
@@ -48,12 +47,12 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
 
         public async Task<Visit> UpdateCalendarEventForVisit(Visit visit, CustomerEntity customerEntity)
         {
-            if (visit.CalendarId != null)
+            if (visit.MsObjectId != null)
             {
                 if (visit.VisitDate != null)
                 {
                     var updatedEvent = CreateEvent(visit, customerEntity);
-                    updatedEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[visit.CalendarId]
+                    updatedEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[visit.MsObjectId]
                                     .Request().UpdateAsync(updatedEvent);
 
                     visit.CalendarSubject = updatedEvent.Subject;
@@ -67,7 +66,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             }
             else
             {
-                _logger.LogWarning("Cannot update calendar event for visit {0} since calendarId is not set on the visit.", visit.Id);
+                _logger.LogWarning("Cannot update calendar event for visit {0} since ms-object-id is not set on the visit.", visit.Id);
             }
 
             return visit;
@@ -75,15 +74,16 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
 
         public async Task<Visit> DeleteCalendarEventForVisit(Visit visit)
         {
-            if (visit.CalendarId != null)
+            if (visit.MsObjectId != null)
             {
-                await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[visit.CalendarId].Request().DeleteAsync();
+                await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[visit.MsObjectId].Request().DeleteAsync();
                 visit.CalendarId = null;
+                visit.MsObjectId = null;
                 visit.CalendarSubject = null;
             }
             else
             {
-                _logger.LogWarning("Cannot delete calendar event for visit {0} since calendarId is not set on the visit.", visit.Id);
+                _logger.LogWarning("Cannot delete calendar event for visit {0} since ms-object-id is not set on the visit.", visit.Id);
             }
 
             return visit;

@@ -38,6 +38,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("AfspraakID")]
         public string CalendarId { get; set; }
 
+        [Column("MsObjectId")]
+        public string MsObjectId { get; set; }
+
 
         // Included resources
         public Request Request { get; set; }
