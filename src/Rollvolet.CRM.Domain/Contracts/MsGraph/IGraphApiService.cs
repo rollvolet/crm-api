@@ -8,5 +8,6 @@ namespace Rollvolet.CRM.Domain.Contracts.MsGraph
         Task<Visit> CreateCalendarEventForVisit(Visit visit, CustomerEntity customerEntity);
         Task<Visit> UpdateCalendarEventForVisit(Visit visit, CustomerEntity customerEntity);
         Task<Visit> DeleteCalendarEventForVisit(Visit visit);
+        Task<string> GetSubject(string msObjectId);
     }
 }

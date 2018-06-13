@@ -4,8 +4,10 @@ using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Rollvolet.CRM.Domain.Configuration;
 using Rollvolet.CRM.Domain.Contracts.MsGraph;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Rollvolet.CRM.DataProvider.MsGraph
@@ -13,6 +15,16 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
     public class GraphApiService : IGraphApiService
     {
         private readonly int visitStartTime = 17;
+        private readonly IDictionary<string, string> periodMapping = new Dictionary<string, string>() {
+            { "GD", "GD" },
+            { "VM", "VM" },
+            { "NM", "NM" },
+            { "vanaf", "vanaf uur" },
+            { "van-tot", "-" },
+            { "benaderend uur", "rond uur" },
+            { "stipt uur", "uur (stipt)" },
+            { "bepaald uur", "uur" }
+        };
 
         private readonly IGraphServiceClient _client;
         private readonly CalendarConfiguration _calendarConfig;
@@ -89,15 +101,25 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return visit;
         }
 
+        public async Task<string> GetSubject(string msObjectId)
+        {
+            var calendarEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[msObjectId].Request().GetAsync();
+
+            if (calendarEvent != null)
+                return calendarEvent.Subject;
+            else
+                throw new EntityNotFoundException();
+        }
+
         private Event CreateEvent(Visit visit, CustomerEntity customerEntity)
         {
             var visitDate = (DateTime) visit.VisitDate;
             var year = visitDate.Year + 1; // TODO remove +1
             var month = visitDate.Month;
             var day = visitDate.Day;
+            var period = periodMapping[visit.Period];
 
-            // TODO add period to subject
-            var subject = $"{customerEntity.Name} {customerEntity.PostalCode} {customerEntity.City} ({visit.Request.Comment})";
+            var subject = $"{period} {customerEntity.Name} {customerEntity.PostalCode} {customerEntity.City} ({visit.Request.Comment})";
 
             var start = new DateTimeTimeZone() {
                 DateTime = new DateTime(year, month, day, visitStartTime, 0, 0).ToString("o"),

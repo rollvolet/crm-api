@@ -61,7 +61,11 @@ namespace Rollvolet.CRM.DataProviders
             _context.Visits.Add(visitRecord);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<Visit>(visitRecord);
+            var period = visit.Period;
+            var savedVisit = _mapper.Map<Visit>(visitRecord);
+            savedVisit.Period = period;
+
+            return savedVisit;
         }
 
         public async Task<Visit> UpdateAsync(Visit visit)
@@ -74,7 +78,11 @@ namespace Rollvolet.CRM.DataProviders
             _context.Visits.Update(visitRecord);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<Visit>(visitRecord);
+            var period = visit.Period;
+            var savedVisit = _mapper.Map<Visit>(visitRecord);
+            savedVisit.Period = period;
+
+            return savedVisit;
         }
 
 
