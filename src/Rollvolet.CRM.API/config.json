@@ -12,5 +12,8 @@
   "Calendar": {
     "KlantenbezoekCalendarId": "",
     "PlanningCalendarId": ""
+  },
+  "DocumentGeneration": {
+    "BaseUrl": ""
   }
 }

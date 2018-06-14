@@ -34,13 +34,15 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IContactManager _contactManager;
         private readonly IBuildingManager _buildingManager;
         private readonly IVisitManager _visitManager;
+        private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
         public RequestsController(IRequestManager requestManager, IWayOfEntryManager wayOfEntryManager,
                                     ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
-                                     IVisitManager visitManager, IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+                                     IVisitManager visitManager, IDocumentGenerationManager documentGenerationManager,
+                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _requestManager = requestManager;
             _wayOfEntryManager = wayOfEntryManager;
@@ -48,6 +50,7 @@ namespace Rollvolet.CRM.API.Controllers
             _contactManager = contactManager;
             _buildingManager = buildingManager;
             _visitManager = visitManager;
+            _documentGenerationManager = documentGenerationManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -118,6 +121,16 @@ namespace Rollvolet.CRM.API.Controllers
             await _requestManager.DeleteAsync(id);
 
             return NoContent();
+        }
+
+        [HttpPost("{id}/reports")]
+        public async Task<IActionResult> CreateVisitReport(int id)
+        {
+            var stream = await _documentGenerationManager.CreateVisitReport(id);
+
+            var file = new FileStreamResult(stream, "application/pdf");
+            file.FileDownloadName = $"bezoekrapport-{id}.pdf";
+            return file;
         }
 
         [HttpGet("{requestId}/customer")]

@@ -83,6 +83,7 @@ namespace Rollvolet.CRM.API
 
             services.Configure<AuthenticationConfiguration>(Configuration.GetSection("Authentication"));
             services.Configure<CalendarConfiguration>(Configuration.GetSection("Calendar"));
+            services.Configure<DocumentGenerationConfiguration>(Configuration.GetSection("DocumentGeneration"));
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
                 jwtOptions => {
@@ -164,6 +165,7 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IWayOfEntryDataProvider, WayOfEntryDataProvider>();
             services.AddTransient<IVisitManager, VisitManager>();
             services.AddTransient<IVisitDataProvider, VisitDataProvider>();
+            services.AddTransient<IDocumentGenerationManager, DocumentGenerationManager>();
             services.AddTransient<IGraphApiService, GraphApiService>();
             services.AddTransient<ISequenceDataProvider, SequenceDataProvider>();
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();

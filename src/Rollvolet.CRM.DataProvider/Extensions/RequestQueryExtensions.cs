@@ -14,7 +14,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 {
     public static class RequestQueryExtensions
     {
-        public static IQueryable<Request> Filter(this IQueryable<Request> source, QuerySet querySet, CrmContext context)  
+        public static IQueryable<Request> Filter(this IQueryable<Request> source, QuerySet querySet, CrmContext context)
         {
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
@@ -45,12 +45,14 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             source = source.FilterCase(querySet, context);
 
             return source;
-        }      
+        }
 
         public static IQueryable<Request> Include(this IQueryable<Request> source, QuerySet querySet)
         {
             if (querySet.Include.Fields.Contains("customer.honorific-prefix"))
                 source = source.Include(x => x.Customer).ThenInclude(x => x.HonorificPrefix);
+            if (querySet.Include.Fields.Contains("customer.language"))
+                source = source.Include(x => x.Customer).ThenInclude(x => x.Language);
 
             var selectors = new Dictionary<string, Expression<Func<Request, object>>>();
 
@@ -58,9 +60,10 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("way-of-entry", c => c.WayOfEntry);
             selectors.Add("visit", x => x.Visit);
             selectors.Add("offer", x => x.Offer);
-            
+
             // dummy entries for resources that are already included
             selectors.Add("customer.honorific-prefix", null);
+            selectors.Add("customer.language", null);
 
             // The selectors below won't work since we're not able to define the relationship in CrmContext
             // They are manually mapped in the DataProvider
