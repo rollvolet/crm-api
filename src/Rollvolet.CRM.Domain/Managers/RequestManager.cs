@@ -109,12 +109,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Request id cannot be updated.");
             if (request.RequestDate == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Request-date is required.");
-            if (request.Offer != null)
-            {
-                var message = "Offer cannot be changed during request update.";
-                _logger.LogDebug(message);
-                throw new IllegalArgumentException("IllegalAttribute", message);
-            }
 
             await EmbedRelations(request, existingRequest);
 
@@ -174,11 +168,17 @@ namespace Rollvolet.CRM.Domain.Managers
                         request.Visit = await _visitDataProvider.GetByIdAsync(request.Visit.Id);
                 }
 
-                // Customer cannot be updated. Take customer of oldBuilding on update.
+                // Customer cannot be updated. Take customer of oldRequest on update.
                 if (oldRequest != null)
                     request.Customer = oldRequest.Customer;
                 else
                     request.Customer = await _customerDataProvider.GetByNumberAsync(request.Customer.Id);
+
+                // Offer cannot be updated. Take offer of oldRequest on update.
+                if (oldRequest != null)
+                    request.Offer = oldRequest.Offer;
+                else
+                    request.Offer = null; // should not be reached. Offer cannot be set on creation // TODO throw exception instead?
             }
             catch (EntityNotFoundException)
             {
