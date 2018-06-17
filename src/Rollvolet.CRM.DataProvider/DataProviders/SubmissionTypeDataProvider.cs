@@ -30,5 +30,18 @@ namespace Rollvolet.CRM.DataProviders
 
             return _mapper.Map<IEnumerable<SubmissionType>>(submissionTypes);
         }
+
+        public async Task<SubmissionType> GetByIdAsync(string id)
+        {
+            var submissionType = await _context.SubmissionTypes.Where(x => x.Id == id).FirstOrDefaultAsync();
+
+            if (submissionType == null)
+            {
+                _logger.LogError($"No submission-type found with id {id}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<SubmissionType>(submissionType);
+        }
     }
 }

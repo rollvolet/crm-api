@@ -83,6 +83,44 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Links = links, Data = offerDto, Included = included });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] ResourceRequest<OfferRequestDto> resource)
+        {
+            if (resource.Data.Type != "offers") return StatusCode(409);
+
+            var offer = _mapper.Map<Offer>(resource.Data);
+
+            offer = await _offerManager.CreateAsync(offer);
+            var offerDto = _mapper.Map<OfferDto>(offer);
+
+            var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, offerDto.Id);
+
+            return Created(links.Self, new ResourceResponse() { Links = links, Data = offerDto });
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<OfferRequestDto> resource)
+        {
+            if (resource.Data.Type != "offers" || resource.Data.Id != id) return StatusCode(409);
+
+            var offer = _mapper.Map<Offer>(resource.Data);
+
+            offer = await _offerManager.UpdateAsync(offer);
+
+            var offerDto = _mapper.Map<OfferDto>(offer);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = offerDto });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _offerManager.DeleteAsync(id);
+
+            return NoContent();
+        }
+
         [HttpGet("{offerId}/customer")]
         [HttpGet("{offerId}/links/customer")]
         public async Task<IActionResult> GetRelatedCustomerById(int offerId)

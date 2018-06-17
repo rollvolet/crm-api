@@ -174,6 +174,17 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Order, opt => opt.Ignore())
                 .PreserveReferences();
 
+            CreateMap<Models.Offer, Models.Order>()
+                // mapping all fields that are shared between the 2 models because they share the same underlying SQL table
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.CustomerId))
+                .ForMember(dest => dest.RelativeBuildingId, opt => opt.MapFrom(src => src.RelativeBuildingId))
+                .ForMember(dest => dest.RelativeContactId, opt => opt.MapFrom(src => src.RelativeContactId))
+                .ForMember(dest => dest.OfferNumber, opt => opt.MapFrom(src => src.Number))
+                .ForMember(dest => dest.VatRateId, opt => opt.MapFrom(src => src.VatRateId))
+                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
             CreateMap<Models.SubmissionType, Domain.Models.SubmissionType>()
                 .PreserveReferences()
                 .ReverseMap()

@@ -8,5 +8,6 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     public interface IVatRateDataProvider
     {
         Task<IEnumerable<VatRate>> GetAll();
+        Task<VatRate> GetByIdAsync(int id);
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,15 @@ namespace Rollvolet.CRM.DataProviders
             _customerNumber++;
 
             return _customerNumber;
+        }
+
+        public async Task<short> GetNextOfferSequenceNumber(DateTime date)
+        {
+            var dateAtMidnight = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
+            var tomorrowAtMidnight = dateAtMidnight.AddDays(1);
+
+            var count = await _context.Offers.Where(x => x.OfferDate >= dateAtMidnight && x.OfferDate <= tomorrowAtMidnight).CountAsync();
+            return (Int16) (count + 1);
         }
 
         public async Task<int> GetNextRelativeContactNumber(int customerId)

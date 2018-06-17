@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 namespace Rollvolet.CRM.Domain.Contracts.DataProviders
@@ -7,5 +8,6 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
         Task<int> GetNextCustomerNumber();
         Task<int> GetNextRelativeContactNumber(int customerId);
         Task<int> GetNextRelativeBuildingNumber(int customerId);
+        Task<short> GetNextOfferSequenceNumber(DateTime date);
     }
 }

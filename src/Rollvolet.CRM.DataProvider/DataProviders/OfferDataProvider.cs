@@ -11,15 +11,18 @@ using Rollvolet.CRM.DataProvider.Extensions;
 using Microsoft.Extensions.Logging;
 using LinqKit;
 using Rollvolet.CRM.Domain.Exceptions;
+using System;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class OfferDataProvider : CaseRelatedDataProvider<DataProvider.Models.Offer>, IOfferDataProvider
     {
+        private readonly ISequenceDataProvider _sequenceDataProvider;
 
-        public OfferDataProvider(CrmContext context, IMapper mapper, ILogger<OfferDataProvider> logger) : base(context, mapper, logger)
+        public OfferDataProvider(CrmContext context, IMapper mapper,
+                                    ISequenceDataProvider sequenceDataProvider, ILogger<OfferDataProvider> logger) : base(context, mapper, logger)
         {
-
+            _sequenceDataProvider = sequenceDataProvider;
         }
 
         public async Task<Paged<Offer>> GetAllAsync(QuerySet query)
@@ -46,12 +49,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Offer> GetByIdAsync(int id, QuerySet query)
         {
-            var source = _context.Offers
-                            .Where(c => c.Id == id)
-                            .Include(query);
-
-            // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-            var offer = await QueryWithManualIncludeAsync(source, query);
+            var offer = await FindByIdAsync(id, query);
 
             if (offer == null)
             {
@@ -81,7 +79,95 @@ namespace Rollvolet.CRM.DataProviders
                 Count = count,
                 PageNumber = query.Page.Number,
                 PageSize = query.Page.Size
-            };            
-        }     
+            };
+        }
+
+        public async Task<Offer> CreateAsync(Offer offer)
+        {
+            var offerRecord = _mapper.Map<DataProvider.Models.Offer>(offer);
+
+            await EmbedCity(offerRecord);
+            offerRecord.Currency = "EUR";
+
+            var date = DateTime.Now;
+            var number = await _sequenceDataProvider.GetNextOfferSequenceNumber(date);
+            offerRecord.SequenceNumber = number;
+            var offerNumber = $"{(date.Year + 10).ToString().Substring(2, 2)}/{date.ToString("MM")}/{date.ToString("dd")}/{number}";
+            offerRecord.Number = offerNumber;
+
+            _context.Offers.Add(offerRecord);
+            // EF Core requires to create an order record as well because offer and order share the same underlying SQL table
+            var orderRecord = _mapper.Map<DataProvider.Models.Order>(offerRecord);
+            _context.Orders.Add(orderRecord);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Offer>(offerRecord);
+        }
+
+        public async Task<Offer> UpdateAsync(Offer offer)
+        {
+            var offerRecord = await FindByIdAsync(offer.Id);
+            _mapper.Map(offer, offerRecord);
+
+            await EmbedCity(offerRecord);
+            offerRecord.Currency = "EUR";
+
+            _context.Offers.Update(offerRecord);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Offer>(offerRecord);
+        }
+
+        public async Task DeleteByIdAsync(int id)
+        {
+            var offer = await FindByIdAsync(id);
+
+            if (offer != null)
+            {
+                _context.Offers.Remove(offer);
+                await _context.SaveChangesAsync();
+           }
+        }
+
+        private async Task<DataProvider.Models.Offer> FindByIdAsync(int id, QuerySet query = null)
+        {
+            var source = _context.Offers.Where(c => c.Id == id);
+
+            if (query != null)
+            {
+                source = source.Include(query);
+                // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
+                return await QueryWithManualIncludeAsync(source, query);
+            }
+            else
+            {
+                return await source.FirstOrDefaultAsync();
+            }
+        }
+
+        private async Task EmbedCity(DataProvider.Models.Offer offer)
+        {
+            if (offer.CustomerId != null)
+            {
+                if (offer.RelativeBuildingId != null)
+                {
+                    var building = await _context.Buildings
+                                            .Where(b => b.Number == offer.RelativeBuildingId && b.CustomerId == offer.CustomerId)
+                                            .FirstOrDefaultAsync();
+                    offer.EmbeddedCity = building != null ? building.EmbeddedCity : null;
+                }
+                else
+                {
+                    var customer = await _context.Customers
+                                            .Where(c => c.Number == offer.CustomerId)
+                                            .FirstOrDefaultAsync();
+                    offer.EmbeddedCity = customer != null ? customer.EmbeddedCity : null;
+                }
+            }
+            else
+            {
+                offer.EmbeddedCity = null;
+            }
+        }
     }
 }

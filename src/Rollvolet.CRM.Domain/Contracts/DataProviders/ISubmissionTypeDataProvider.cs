@@ -8,5 +8,6 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     public interface ISubmissionTypeDataProvider
     {
         Task<IEnumerable<SubmissionType>> GetAll();
+        Task<SubmissionType> GetByIdAsync(string id);
     }
 }
