@@ -65,6 +65,10 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Visit date is required on visit creation.");
             if (visit.Period == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Period is required on visit creation.");
+            if (visit.RequiresFromHour && visit.FromHour == null)
+                throw new IllegalArgumentException("IllegalAttribute", $"FromHour is required on visit for period {visit.Period}.");
+            if (visit.RequiresUntilHour && visit.UntilHour == null)
+                throw new IllegalArgumentException("IllegalAttribute", $"UntilHour is required on visit for period {visit.Period}.");
             if (visit.Request == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Request is required on visit creation.");
             if (visit.CalendarId != null || visit.MsObjectId != null || visit.CalendarId != null)
@@ -108,6 +112,10 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Visit date is required on visit.");
             if (visit.Period == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Period is required on visit.");
+            if (visit.RequiresFromHour && visit.FromHour == null)
+                throw new IllegalArgumentException("IllegalAttribute", $"FromHour is required on visit for period {visit.Period}.");
+            if (visit.RequiresUntilHour && visit.UntilHour == null)
+                throw new IllegalArgumentException("IllegalAttribute", $"UntilHour is required on visit for period {visit.Period}.");
             if (visit.Customer != null)
             {
                 var message = "Customer cannot be set on a visit.";
@@ -119,12 +127,9 @@ namespace Rollvolet.CRM.Domain.Managers
 
             await EmbedRelations(visit, existingVisit);
 
-            var existingPeriod = CalculatePeriod(existingVisit);
-
-            if (visit.VisitDate != existingVisit.VisitDate || visit.Period != existingPeriod || visit.Request.Comment != existingVisit.Comment)
+            if(RequiresCalendarEventUpdate(existingVisit, visit))
             {
                 var customerEntity = await GetRelatedCustomerEntity(visit);
-                // TODO copy existing period from calendar event subject in case period hasn't changed
                 visit = await _graphApiService.UpdateCalendarEventForVisit(visit, customerEntity);
             }
 
@@ -172,27 +177,71 @@ namespace Rollvolet.CRM.Domain.Managers
                 visit = await _visitDataProvider.UpdateAsync(visit);
             }
 
-            visit.Period = CalculatePeriod(visit);
+            ParsePeriodFromSubject(visit);
 
             return visit;
         }
 
-        private string CalculatePeriod(Visit visit)
+        private void ParsePeriodFromSubject(Visit visit)
         {
-            var exactStartKeywords = new string[] { "GD", "VM", "NM", "vanaf" };
-            var period = exactStartKeywords.Where(k => visit.CalendarSubject.StartsWith(k)).FirstOrDefault();
-            if (period != null)
-                return period;
-            else if (visit.CalendarSubject.StartsWith("rond"))
-                return "benaderend uur";
-            else if (periodStiptUur.IsMatch(visit.CalendarSubject))
-                return "uur (stipt)";
-            else if (periodBepaaldUur.IsMatch(visit.CalendarSubject))
-                return "bepaald uur";
-            else if (periodVanTot.IsMatch(visit.CalendarSubject))
-                return "van-tot";
+            var subject = visit.CalendarSubject;
+
+            if (subject.StartsWith("GD") || subject.StartsWith("VM") || subject.StartsWith("NM"))
+            {
+                visit.Period = subject.Substring(0, 2);
+                visit.FromHour = null;
+                visit.UntilHour = null;
+            }
+            else if (subject.StartsWith("vanaf"))
+            {
+                visit.Period = "vanaf";
+                visit.FromHour = subject.Substring("vanaf".Length).Split("uur").FirstOrDefault().Trim();
+                visit.UntilHour = null;
+            }
+            else if (subject.StartsWith("rond"))
+            {
+                visit.Period = "benaderend uur";
+                visit.FromHour = subject.Substring("rond".Length).Split("uur").FirstOrDefault().Trim();
+                visit.UntilHour = null;
+            }
+            else if (periodStiptUur.IsMatch(subject))
+            {
+                visit.Period = "stipt uur";
+                visit.FromHour = subject.Split("uur").FirstOrDefault().Trim();
+                visit.UntilHour = null;
+            }
+            else if (periodBepaaldUur.IsMatch(subject))
+            {
+                visit.Period = "bepaald uur";
+                visit.FromHour = subject.Split("uur").FirstOrDefault().Trim();
+                visit.UntilHour = null;
+            }
+            else if (periodVanTot.IsMatch(subject))
+            {
+                visit.Period = "van-tot";
+                var timeRangeSeparatorIndex = subject.IndexOf('-');
+                visit.FromHour = subject.Substring(0, timeRangeSeparatorIndex).Trim();
+                var timeRangeEndIndex = subject.IndexOf(" ");
+                visit.UntilHour = subject.Substring(timeRangeSeparatorIndex + 1, timeRangeEndIndex - timeRangeSeparatorIndex);
+            }
             else
-                return null;
+            {
+                _logger.LogWarning("Unable to parse period from subject {0} for visit {1} and event {2}", subject, visit.Id, visit.MsObjectId);
+                visit.Period = null;
+                visit.FromHour = null;
+                visit.UntilHour = null;
+            }
+        }
+
+        private bool RequiresCalendarEventUpdate(Visit existingVisit, Visit visit)
+        {
+            ParsePeriodFromSubject(existingVisit);
+
+            return visit.VisitDate != existingVisit.VisitDate
+                || visit.Period != existingVisit.Period
+                || visit.FromHour != existingVisit.FromHour
+                || visit.UntilHour != existingVisit.UntilHour
+                || visit.Request.Comment != existingVisit.Comment;
         }
     }
 }

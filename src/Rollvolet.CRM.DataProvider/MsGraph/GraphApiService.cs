@@ -14,17 +14,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
 {
     public class GraphApiService : IGraphApiService
     {
-        private readonly int visitStartTime = 17;
-        private readonly IDictionary<string, string> periodMapping = new Dictionary<string, string>() {
-            { "GD", "GD" },
-            { "VM", "VM" },
-            { "NM", "NM" },
-            { "vanaf", "vanaf uur" },
-            { "van-tot", "-" },
-            { "benaderend uur", "rond uur" },
-            { "stipt uur", "uur (stipt)" },
-            { "bepaald uur", "uur" }
-        };
+        private readonly int VISIT_START_TIME = 17;
 
         private readonly IGraphServiceClient _client;
         private readonly CalendarConfiguration _calendarConfig;
@@ -117,16 +107,16 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             var year = visitDate.Year + 1; // TODO remove +1
             var month = visitDate.Month;
             var day = visitDate.Day;
-            var period = periodMapping[visit.Period];
+            var period = GetPeriodMessage(visit.Period, visit.FromHour, visit.UntilHour);
 
             var subject = $"{period} {customerEntity.Name} {customerEntity.PostalCode} {customerEntity.City} ({visit.Request.Comment})";
 
             var start = new DateTimeTimeZone() {
-                DateTime = new DateTime(year, month, day, visitStartTime, 0, 0).ToString("o"),
+                DateTime = new DateTime(year, month, day, VISIT_START_TIME, 0, 0).ToString("o"),
                 TimeZone = "Romance Standard Time"
             };
             var end = new DateTimeTimeZone() {
-                DateTime = new DateTime(year, month, day, visitStartTime + 1, 0, 0).ToString("o"),
+                DateTime = new DateTime(year, month, day, VISIT_START_TIME + 1, 0, 0).ToString("o"),
                 TimeZone = "Romance Standard Time"
             };
 
@@ -136,6 +126,25 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                 Start = start,
                 End = end
             };
+        }
+
+        private string GetPeriodMessage(string period, string from, string until)
+        {
+            if (period == "GD" || period == "VM" || period == "NM")
+                return period;
+            else if (period == "vanaf")
+                return $"vanaf {from} uur";
+            else if (period == "benaderend uur")
+                return $"rond {from} uur";
+            else if (period == "stipt uur")
+                return $"{from} uur (stipt)";
+            else if (period == "bepaald uur")
+                return $"{from} uur";
+            else if (period == "van-tot")
+                return $"{from}-{until}";
+
+            _logger.LogWarning("Cannot format period message for given period '{0}'", period);
+            return "";
         }
     }
 }

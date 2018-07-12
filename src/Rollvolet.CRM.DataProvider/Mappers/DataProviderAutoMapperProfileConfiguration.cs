@@ -143,6 +143,8 @@ namespace Rollvolet.CRM.DataProvider.Mappers
 
             CreateMap<Models.Visit, Domain.Models.Visit>()
                 .ForMember(dest => dest.Period, opt => opt.Ignore())
+                .ForMember(dest => dest.FromHour, opt => opt.Ignore())
+                .ForMember(dest => dest.UntilHour, opt => opt.Ignore())
                 .ForMember(dest => dest.Request, opt => opt.MapFrom(src => src.Request != null ? src.Request :
                                                         (src.RequestId != null ? new Models.Request() { Id = (int) src.RequestId } : null)))
                 .PreserveReferences()

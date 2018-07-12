@@ -61,9 +61,10 @@ namespace Rollvolet.CRM.DataProviders
             _context.Visits.Add(visitRecord);
             await _context.SaveChangesAsync();
 
-            var period = visit.Period;
             var savedVisit = _mapper.Map<Visit>(visitRecord);
-            savedVisit.Period = period;
+            savedVisit.Period = visit.Period;
+            savedVisit.FromHour = visit.FromHour;
+            savedVisit.UntilHour = visit.UntilHour;
 
             return savedVisit;
         }
@@ -78,9 +79,10 @@ namespace Rollvolet.CRM.DataProviders
             _context.Visits.Update(visitRecord);
             await _context.SaveChangesAsync();
 
-            var period = visit.Period;
             var savedVisit = _mapper.Map<Visit>(visitRecord);
-            savedVisit.Period = period;
+            savedVisit.Period = visit.Period;
+            savedVisit.FromHour = visit.FromHour;
+            savedVisit.UntilHour = visit.UntilHour;
 
             return savedVisit;
         }
