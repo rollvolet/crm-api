@@ -29,6 +29,10 @@ namespace Rollvolet.CRM.Domain.Models
                 var country = vatNumber.Substring(0, 2);
                 var number = vatNumber.Substring(2);
                 number = _digitsOnly.Replace(number, "");
+
+                if (country.ToUpper() == "BE" && number.Length == 9)
+                    number = $"0{number}";
+
                 return $"{country}{number}";
             }
             else
