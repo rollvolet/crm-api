@@ -14,7 +14,6 @@ namespace Rollvolet.CRM.Domain.Managers
 {
     public class CustomerManager : ICustomerManager
     {
-        private static Regex _vatNumberRegex = new Regex(@"^[a-zA-Z]{2}\d{10,18}$");
         private readonly ICustomerDataProvider _customerDataProvider;
         private readonly ICountryDataProvider _countryDataProvider;
         private readonly IHonorificPrefixDataProvider _honorificPrefixDataProvider;
@@ -70,7 +69,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Customer cannot have an id/number on create.");
             if ((customer.PostalCode != null && customer.City == null) || (customer.PostalCode == null && customer.City != null))
                 throw new IllegalArgumentException("IllegalAttribute", "Customer's postal-code and city must be both filled in or not filled.");
-            if (customer.VatNumber != null && !_vatNumberRegex.IsMatch(customer.VatNumber))
+            if (!customer.IsValidVatNumber())
                 throw new IllegalArgumentException("IllegalAttribute", "Invalid VAT number.");
             if (customer.Country == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Country is required on customer creation.");
@@ -104,7 +103,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Customer id/number cannot be updated.");
             if ((customer.PostalCode != null && customer.City == null) || (customer.PostalCode == null && customer.City != null))
                 throw new IllegalArgumentException("IllegalAttribute", "Customer's postal-code and city must be both filled in or not filled.");
-            if (customer.VatNumber != null && !_vatNumberRegex.IsMatch(customer.VatNumber))
+            if (!customer.IsValidVatNumber())
                 throw new IllegalArgumentException("IllegalAttribute", "Invalid VAT number.");
             if (customer.Country == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Country is required.");

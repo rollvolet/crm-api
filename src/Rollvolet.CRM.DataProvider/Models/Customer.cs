@@ -33,7 +33,7 @@ namespace Rollvolet.CRM.DataProvider.Models
                 var country = vatNumber.Substring(0, 2).ToUpper();
                 var number = vatNumber.Substring(2);
 
-                if (country.ToUpper() == "BE")
+                if (country.ToUpper() == "BE" && number.Length > 7)
                     return $"{country} {number.Substring(0,4)}.{number.Substring(4,3)}.{number.Substring(7)}";
                 else
                     return $"{country} {number}";
