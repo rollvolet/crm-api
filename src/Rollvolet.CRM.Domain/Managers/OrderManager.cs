@@ -20,7 +20,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _orderDataProvider = orderDataProvider;
             _logger = logger;
         }
-        
+
         public async Task<Paged<Order>> GetAllAsync(QuerySet query)
         {
             if (query.Sort.Field == null)
@@ -46,6 +46,11 @@ namespace Rollvolet.CRM.Domain.Managers
             }
 
             return await _orderDataProvider.GetAllByCustomerIdAsync(customerId, query);
+        }
+
+        public async Task<Order> GetByOfferIdAsync(int offerId, QuerySet query = null)
+        {
+            return await _orderDataProvider.GetByOfferIdAsync(offerId, query);
         }
     }
 }

@@ -33,6 +33,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IContactManager _contactManager;
         private readonly IBuildingManager _buildingManager;
         private readonly IRequestManager _requestManager;
+        private readonly IOrderManager _orderManager;
         private readonly IVatRateManager _vatRateManager;
         private readonly ISubmissionTypeManager _submissionTypeManager;
         private readonly IIncludedCollector _includedCollector;
@@ -40,7 +41,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IJsonApiBuilder _jsonApiBuilder;
         private readonly ILogger _logger;
 
-        public OffersController(IOfferManager offerManager, IRequestManager requestManager,
+        public OffersController(IOfferManager offerManager, IRequestManager requestManager, IOrderManager orderManager,
                                     ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
                                     IVatRateManager vatRateManager, ISubmissionTypeManager submissionTypeManager,
                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder,
@@ -51,6 +52,7 @@ namespace Rollvolet.CRM.API.Controllers
             _contactManager = contactManager;
             _buildingManager = buildingManager;
             _requestManager = requestManager;
+            _orderManager = orderManager;
             _vatRateManager = vatRateManager;
             _submissionTypeManager = submissionTypeManager;
             _includedCollector = includedCollector;
@@ -200,6 +202,25 @@ namespace Rollvolet.CRM.API.Controllers
 
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
             return Ok(new ResourceResponse() { Links = links, Data = requestDto });
+        }
+
+        [HttpGet("{offerId}/order")]
+        [HttpGet("{offerId}/links/order")]
+        public async Task<IActionResult> GetRelatedOrderById(int offerId)
+        {
+            OrderDto orderDto;
+            try
+            {
+                var order = await _orderManager.GetByOfferIdAsync(offerId);
+                orderDto = _mapper.Map<OrderDto>(order);
+            }
+            catch (EntityNotFoundException)
+            {
+                orderDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = orderDto });
         }
 
         [HttpGet("{offerId}/vat-rate")]

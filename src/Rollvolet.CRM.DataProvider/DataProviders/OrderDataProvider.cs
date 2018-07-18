@@ -11,9 +11,11 @@ using Rollvolet.CRM.DataProvider.Extensions;
 using Microsoft.Extensions.Logging;
 using LinqKit;
 using Rollvolet.CRM.Domain.Exceptions;
+using System.Linq.Expressions;
+using System;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class OrderDataProvider : CaseRelatedDataProvider<DataProvider.Models.Order>, IOrderDataProvider
     {
 
@@ -46,12 +48,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Order> GetByIdAsync(int id, QuerySet query)
         {
-            var source = _context.Orders
-                            .Where(c => c.Id == id)
-                            .Include(query);
-
-            // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-            var order = await QueryWithManualIncludeAsync(source, query);
+            var order = await FindByIdAsync(id, query);
 
             if (order == null)
             {
@@ -81,7 +78,41 @@ namespace Rollvolet.CRM.DataProviders
                 Count = count,
                 PageNumber = query.Page.Number,
                 PageSize = query.Page.Size
-            };            
-        }     
+            };
+        }
+
+        public async Task<Order> GetByOfferIdAsync(int offerId, QuerySet query = null)
+        {
+            var order = await FindByIdAsync(offerId, query); // order has the same id as the attached offer
+
+            if (order == null)
+            {
+                _logger.LogError($"No offer found for offer-id {offerId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Order>(order);
+        }
+
+        private async Task<DataProvider.Models.Order> FindByIdAsync(int id, QuerySet query = null)
+        {
+            return await FindWhereAsync(c => c.Id == id, query);
+        }
+
+        private async Task<DataProvider.Models.Order> FindWhereAsync(Expression<Func<DataProvider.Models.Order, bool>> where, QuerySet query = null)
+        {
+            var source = _context.Orders.Where(where);
+
+            if (query != null)
+            {
+                source = source.Include(query);
+                // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
+                return await QueryWithManualIncludeAsync(source, query);
+            }
+            else
+            {
+                return await source.FirstOrDefaultAsync();
+            }
+        }
     }
 }
