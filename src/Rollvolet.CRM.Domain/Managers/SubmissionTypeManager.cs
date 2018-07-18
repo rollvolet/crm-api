@@ -25,5 +25,10 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             return await _submissionTypeDataProvider.GetAll();
         }
+
+        public async Task<SubmissionType> GetByOfferIdAsync(int id)
+        {
+            return await _submissionTypeDataProvider.GetByOfferIdAsync(id);
+        }
     }
 }

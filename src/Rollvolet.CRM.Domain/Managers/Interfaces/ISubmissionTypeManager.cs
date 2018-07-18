@@ -8,5 +8,6 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
     public interface ISubmissionTypeManager
     {
         Task<IEnumerable<SubmissionType>> GetAllAsync();
+        Task<SubmissionType> GetByOfferIdAsync(int id);
     }
 }

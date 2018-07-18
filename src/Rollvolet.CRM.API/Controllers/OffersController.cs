@@ -33,6 +33,8 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IContactManager _contactManager;
         private readonly IBuildingManager _buildingManager;
         private readonly IRequestManager _requestManager;
+        private readonly IVatRateManager _vatRateManager;
+        private readonly ISubmissionTypeManager _submissionTypeManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
@@ -40,6 +42,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         public OffersController(IOfferManager offerManager, IRequestManager requestManager,
                                     ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
+                                    IVatRateManager vatRateManager, ISubmissionTypeManager submissionTypeManager,
                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder,
                                     ILogger<OffersController> logger)
         {
@@ -48,6 +51,8 @@ namespace Rollvolet.CRM.API.Controllers
             _contactManager = contactManager;
             _buildingManager = buildingManager;
             _requestManager = requestManager;
+            _vatRateManager = vatRateManager;
+            _submissionTypeManager = submissionTypeManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -180,7 +185,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{offerId}/request")]
         [HttpGet("{offerId}/links/request")]
-        public async Task<IActionResult> GetRelatedWayOfEntryeById(int offerId)
+        public async Task<IActionResult> GetRelatedRequestById(int offerId)
         {
             RequestDto requestDto;
             try
@@ -195,6 +200,44 @@ namespace Rollvolet.CRM.API.Controllers
 
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
             return Ok(new ResourceResponse() { Links = links, Data = requestDto });
+        }
+
+        [HttpGet("{offerId}/vat-rate")]
+        [HttpGet("{offerId}/links/vat-rate")]
+        public async Task<IActionResult> GetRelatedVatRateById(int offerId)
+        {
+            VatRateDto vatRateDto;
+            try
+            {
+                var vatRate = await _vatRateManager.GetByOfferIdAsync(offerId);
+                vatRateDto = _mapper.Map<VatRateDto>(vatRate);
+            }
+            catch (EntityNotFoundException)
+            {
+                vatRateDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = vatRateDto });
+        }
+
+        [HttpGet("{offerId}/submission-type")]
+        [HttpGet("{offerId}/links/submission-type")]
+        public async Task<IActionResult> GetRelatedSubmissionTypeById(int offerId)
+        {
+            SubmissionTypeDto submissionTypeDto;
+            try
+            {
+                var submissionType = await _submissionTypeManager.GetByOfferIdAsync(offerId);
+                submissionTypeDto = _mapper.Map<SubmissionTypeDto>(submissionType);
+            }
+            catch (EntityNotFoundException)
+            {
+                submissionTypeDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = submissionTypeDto });
         }
     }
 }
