@@ -14,6 +14,7 @@ using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Buildings;
 using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
+using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.DTO.Visits;
 using Rollvolet.CRM.APIContracts.JsonApi;
@@ -33,18 +34,20 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly ICustomerManager _customerManager;
         private readonly IContactManager _contactManager;
         private readonly IBuildingManager _buildingManager;
+        private readonly IOfferManager _offerManager;
         private readonly IVisitManager _visitManager;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public RequestsController(IRequestManager requestManager, IWayOfEntryManager wayOfEntryManager,
+        public RequestsController(IRequestManager requestManager, IOfferManager offerManager, IWayOfEntryManager wayOfEntryManager,
                                     ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
                                      IVisitManager visitManager, IDocumentGenerationManager documentGenerationManager,
                                      IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _requestManager = requestManager;
+            _offerManager = offerManager;
             _wayOfEntryManager = wayOfEntryManager;
             _customerManager = customerManager;
             _contactManager = contactManager;
@@ -188,6 +191,25 @@ namespace Rollvolet.CRM.API.Controllers
 
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
             return Ok(new ResourceResponse() { Links = links, Data = buildingDto });
+        }
+
+        [HttpGet("{requestId}/offer")]
+        [HttpGet("{requestId}/links/offer")]
+        public async Task<IActionResult> GetRelatedOfferById(int requestId)
+        {
+            OfferDto offerDto;
+            try
+            {
+                var offer = await _offerManager.GetByRequestIdAsync(requestId);
+                offerDto = _mapper.Map<OfferDto>(offer);
+            }
+            catch (EntityNotFoundException)
+            {
+                offerDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = offerDto });
         }
 
         [HttpGet("{requestId}/way-of-entry")]

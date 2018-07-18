@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using LinqKit;
 using Rollvolet.CRM.Domain.Exceptions;
 using System;
+using System.Linq.Expressions;
 
 namespace Rollvolet.CRM.DataProviders
 {
@@ -82,6 +83,19 @@ namespace Rollvolet.CRM.DataProviders
             };
         }
 
+        public async Task<Offer> GetByRequestIdAsync(int requestId, QuerySet query = null)
+        {
+            var offer = await FindWhereAsync(r => r.RequestId == requestId, query);
+
+            if (offer == null)
+            {
+                _logger.LogError($"No offer found for request-id {requestId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Offer>(offer);
+        }
+
         public async Task<Offer> CreateAsync(Offer offer)
         {
             var offerRecord = _mapper.Map<DataProvider.Models.Offer>(offer);
@@ -131,7 +145,12 @@ namespace Rollvolet.CRM.DataProviders
 
         private async Task<DataProvider.Models.Offer> FindByIdAsync(int id, QuerySet query = null)
         {
-            var source = _context.Offers.Where(c => c.Id == id);
+            return await FindWhereAsync(c => c.Id == id, query);
+        }
+
+        private async Task<DataProvider.Models.Offer> FindWhereAsync(Expression<Func<DataProvider.Models.Offer, bool>> where, QuerySet query = null)
+        {
+            var source = _context.Offers.Where(where);
 
             if (query != null)
             {
