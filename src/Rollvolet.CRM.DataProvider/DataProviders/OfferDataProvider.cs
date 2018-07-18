@@ -139,6 +139,10 @@ namespace Rollvolet.CRM.DataProviders
             if (offer != null)
             {
                 _context.Offers.Remove(offer);
+                // EF Core requires to delete the order record as well because offer and order share the same underlying SQL table
+                var order = await _context.Orders.Where(o => o.Id == id).IgnoreQueryFilters().FirstOrDefaultAsync();
+                if (order != null)
+                  _context.Orders.Remove(order);
                 await _context.SaveChangesAsync();
            }
         }
