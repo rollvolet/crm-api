@@ -18,12 +18,14 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly ICustomerDataProvider _customerDataProvider;
         private readonly IContactDataProvider _contactDataProvider;
         private readonly IBuildingDataProvider _buildingDataProvider;
+        private readonly IOrderDataProvider _orderDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
         private readonly ISubmissionTypeDataProvider _submissionTypeDataProvider;
         private readonly ILogger _logger;
 
-        public OfferManager(IOfferDataProvider offerDataProvider, IRequestDataProvider requestDataProvider, ICustomerDataProvider customerDataProvider,
-                                IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
+        public OfferManager(IOfferDataProvider offerDataProvider, IRequestDataProvider requestDataProvider,
+                                ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
+                                IBuildingDataProvider buildingDataProvider, IOrderDataProvider orderDataProvider,
                                 IVatRateDataProvider vatRateDataProvider, ISubmissionTypeDataProvider submissionTypeDataProvider, ILogger<OfferManager> logger)
         {
             _offerDataProvider = offerDataProvider;
@@ -31,6 +33,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _customerDataProvider = customerDataProvider;
             _contactDataProvider = contactDataProvider;
             _buildingDataProvider = buildingDataProvider;
+            _orderDataProvider = orderDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
             _submissionTypeDataProvider = submissionTypeDataProvider;
             _logger = logger;
@@ -134,7 +137,16 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task DeleteAsync(int id)
         {
-            await _offerDataProvider.DeleteByIdAsync(id);
+            try
+            {
+                var order = await _orderDataProvider.GetByOfferIdAsync(id);
+                _logger.LogError($"Offer {id} cannot be deleted because order {order.Id} is attached to it.");
+                throw new InvalidOperationException($"Offer {id} cannot be deleted because order {order.Id} is attached to it.");
+            }
+            catch(EntityNotFoundException)
+            {
+                await _offerDataProvider.DeleteByIdAsync(id);
+            }
         }
 
         // Embed relations in request resource: reuse old relation if there is one and it hasn't changed

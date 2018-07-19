@@ -55,6 +55,20 @@ namespace Rollvolet.CRM.API.Middleware.ExceptionHandling
                 return new BadRequestObjectResult(error);
             }
 
+            if (ex is InvalidOperationException)
+            {
+                var typedEx = ex as InvalidOperationException;
+
+                var error = new Error
+                {
+                    Code = "InvalidOperation",
+                    Status = "400",
+                    Title = "Invalid operation",
+                    Detail = typedEx.Message
+                };
+                return new BadRequestObjectResult(error);
+            }
+
             if (ex is CodedException)
             {
                 var typedEx = ex as CodedException;

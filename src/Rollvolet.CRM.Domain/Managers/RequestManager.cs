@@ -18,12 +18,14 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IContactDataProvider _contactDataProvider;
         private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly IVisitDataProvider _visitDataProvider;
+        private readonly IOfferDataProvider _offerDataProvider;
         private readonly IWayOfEntryDataProvider _wayOfEntryDataProvider;
         private readonly IVisitManager _visitManager;
         private readonly ILogger _logger;
 
         public RequestManager(IRequestDataProvider requestDataProvider, ICustomerDataProvider customerDataProvider,
-                                IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider, IVisitDataProvider visitDataProvider,
+                                IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
+                                IVisitDataProvider visitDataProvider, IOfferDataProvider offerDataProvider,
                                 IWayOfEntryDataProvider wayOfEntryDataProvider, IVisitManager visitManager, ILogger<RequestManager> logger)
         {
             _requestDataProvider = requestDataProvider;
@@ -31,6 +33,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _contactDataProvider = contactDataProvider;
             _buildingDataProvider = buildingDataProvider;
             _visitDataProvider = visitDataProvider;
+            _offerDataProvider = offerDataProvider;
             _wayOfEntryDataProvider = wayOfEntryDataProvider;
             _visitManager = visitManager;
             _logger = logger;
@@ -129,7 +132,16 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task DeleteAsync(int id)
         {
-            await _requestDataProvider.DeleteByIdAsync(id);
+            try
+            {
+                var offer = await _offerDataProvider.GetByRequestIdAsync(id);
+                _logger.LogError($"Request {id} cannot be deleted because offer {offer.Id} is attached to it.");
+                throw new InvalidOperationException($"Request {id} cannot be deleted because offer {offer.Id} is attached to it.");
+            }
+            catch(EntityNotFoundException)
+            {
+                await _requestDataProvider.DeleteByIdAsync(id);
+            }
         }
 
         // Embed relations in request resource: reuse old relation if there is one and it hasn't changed
