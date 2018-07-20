@@ -12,6 +12,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
         Task<Contact> GetByTelephoneIdAsync(string telephoneId);
         Task<Contact> GetByRequestIdAsync(int requestId);
         Task<Contact> GetByOfferIdAsync(int offerId);
+        Task<Contact> GetByOrderIdAsync(int orderId);
         Task<Contact> CreateAsync(Contact contact);
         Task<Contact> UpdateAsync(Contact contact);
         Task DeleteByIdAsync(int id);

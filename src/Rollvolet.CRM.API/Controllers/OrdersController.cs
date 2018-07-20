@@ -11,6 +11,9 @@ using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
 using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.Buildings;
+using Rollvolet.CRM.APIContracts.DTO.Contacts;
+using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.JsonApi;
@@ -26,6 +29,9 @@ namespace Rollvolet.CRM.API.Controllers
     public class OrdersController : Controller
     {
         private readonly IOrderManager _orderManager;
+        private readonly ICustomerManager _customerManager;
+        private readonly IContactManager _contactManager;
+        private readonly IBuildingManager _buildingManager;
         private readonly IOfferManager _offerManager;
         private readonly IInvoiceManager _invoiceManager;
         private readonly IDepositManager _depositManager;
@@ -36,10 +42,14 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
         public OrdersController(IOrderManager orderManager, IOfferManager offerManager, IInvoiceManager invoiceManager,
+                                ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
                                 IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager, IVatRateManager vatRateManager,
                                 IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _orderManager = orderManager;
+            _customerManager = customerManager;
+            _contactManager = contactManager;
+            _buildingManager = buildingManager;
             _offerManager = offerManager;
             _invoiceManager = invoiceManager;
             _depositManager = depositManager;
@@ -77,6 +87,63 @@ namespace Rollvolet.CRM.API.Controllers
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path, querySet);
 
             return Ok(new ResourceResponse() { Links = links, Data = orderDto, Included = included });
+        }
+
+        [HttpGet("{orderId}/customer")]
+        [HttpGet("{orderId}/links/customer")]
+        public async Task<IActionResult> GetRelatedCustomerById(int orderId)
+        {
+            CustomerDto customerDto;
+            try
+            {
+                var customer = await _customerManager.GetByOrderIdAsync(orderId);
+                customerDto = _mapper.Map<CustomerDto>(customer);
+            }
+            catch (EntityNotFoundException)
+            {
+                customerDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = customerDto });
+        }
+
+        [HttpGet("{orderId}/contact")]
+        [HttpGet("{orderId}/links/contact")]
+        public async Task<IActionResult> GetRelatedContactById(int orderId)
+        {
+            ContactDto contactDto;
+            try
+            {
+                var contact = await _contactManager.GetByOrderIdAsync(orderId);
+                contactDto = _mapper.Map<ContactDto>(contact);
+            }
+            catch (EntityNotFoundException)
+            {
+                contactDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = contactDto });
+        }
+
+        [HttpGet("{orderId}/building")]
+        [HttpGet("{orderId}/links/building")]
+        public async Task<IActionResult> GetRelatedBuildingById(int orderId)
+        {
+            BuildingDto buildingDto;
+            try
+            {
+                var building = await _buildingManager.GetByOrderIdAsync(orderId);
+                buildingDto = _mapper.Map<BuildingDto>(building);
+            }
+            catch (EntityNotFoundException)
+            {
+                buildingDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = buildingDto });
         }
 
         [HttpGet("{orderId}/offer")]
