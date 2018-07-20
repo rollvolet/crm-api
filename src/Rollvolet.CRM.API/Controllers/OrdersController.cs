@@ -11,6 +11,7 @@ using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
 using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
@@ -29,7 +30,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public OrdersController(IOrderManager orderManager, IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager, 
+        public OrdersController(IOrderManager orderManager, IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager,
                                 IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _orderManager = orderManager;
@@ -84,7 +85,7 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedDeposits);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = depositDtos, Included = included });
-        }   
+        }
 
         [HttpGet("{orderId}/deposit-invoices")]
         [HttpGet("{orderId}/links/deposit-invoices")]
@@ -100,6 +101,6 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedInvoices);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = depositInvoiceDtos, Included = included });
-        }          
+        }
     }
-} 
+}

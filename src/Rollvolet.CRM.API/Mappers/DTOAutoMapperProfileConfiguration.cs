@@ -8,6 +8,7 @@ using Rollvolet.CRM.APIContracts.DTO.Buildings;
 using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
+using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.DTO.Visits;
@@ -556,12 +557,25 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
-            CreateMap<Order, OrderDto.AttributesDto>();
+            CreateMap<Order, OrderAttributesDto>().ReverseMap();
 
-            CreateMap<Order, OrderDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+            CreateMap<Order, OrderRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<Order, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("orders"));
+
+            CreateMap<OrderRequestDto, Order>()
+                .ConstructUsing((src, context) => context.Mapper.Map<Order>(src.Attributes))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Customer : null))
+                .ForMember(dest => dest.Contact, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Contact : null))
+                .ForMember(dest => dest.Building, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Building : null))
+                .ForMember(dest => dest.Offer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Offer : null))
+                .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Invoice : null))
+                .ForMember(dest => dest.VatRate, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.VatRate : null))
+                .ForMember(dest => dest.Deposits, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Deposits : null))
+                .ForMember(dest => dest.DepositInvoices, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.DepositInvoices : null))
+                .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<OneRelationship, Order>()
                 .ConstructUsing((src, context) => context.Mapper.Map<Order>(src.Data))

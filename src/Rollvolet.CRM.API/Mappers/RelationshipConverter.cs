@@ -5,6 +5,7 @@ using Rollvolet.CRM.APIContracts.DTO.Buildings;
 using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
+using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.DTO.Visits;
@@ -21,7 +22,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Request, RequestRelationshipsDto>,
                                             ITypeConverter<Visit, VisitRelationshipsDto>,
                                             ITypeConverter<Offer, OfferRelationshipsDto>,
-                                            ITypeConverter<Order, OrderDto.RelationshipsDto>,
+                                            ITypeConverter<Order, OrderRelationshipsDto>,
                                             ITypeConverter<Invoice, InvoiceDto.RelationshipsDto>,
                                             ITypeConverter<DepositInvoice, DepositInvoiceDto.RelationshipsDto>,
                                             ITypeConverter<Deposit, DepositDto.RelationshipsDto>,
@@ -115,9 +116,9 @@ namespace Rollvolet.CRM.API.Mappers
             return relationships;
         }
 
-        OrderDto.RelationshipsDto ITypeConverter<Order, OrderDto.RelationshipsDto>.Convert(Order source, OrderDto.RelationshipsDto destination, ResolutionContext context)
+        OrderRelationshipsDto ITypeConverter<Order, OrderRelationshipsDto>.Convert(Order source, OrderRelationshipsDto destination, ResolutionContext context)
         {
-            var relationships = new OrderDto.RelationshipsDto();
+            var relationships = new OrderRelationshipsDto();
             relationships.Offer = GetOneRelationship<Offer>("orders", source.Id, "offer", source.Offer, context);
             relationships.Invoice = GetOneRelationship<Invoice>("orders", source.Id, "invoice", source.Invoice, context);
             relationships.Customer = GetOneRelationship<Customer>("orders", source.Id, "customer", source.Customer, context);
