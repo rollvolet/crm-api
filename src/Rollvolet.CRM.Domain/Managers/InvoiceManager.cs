@@ -20,7 +20,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _invoiceDataProvider = invoiceDataProvider;
             _logger = logger;
         }
-        
+
         public async Task<Paged<Invoice>> GetAllAsync(QuerySet query)
         {
             if (query.Sort.Field == null)
@@ -46,6 +46,11 @@ namespace Rollvolet.CRM.Domain.Managers
             }
 
             return await _invoiceDataProvider.GetAllByCustomerIdAsync(customerId, query);
+        }
+
+        public async Task<Invoice> GetByOrderIdAsync(int orderId, QuerySet query = null)
+        {
+            return await _invoiceDataProvider.GetByOrderIdAsync(orderId);
         }
     }
 }

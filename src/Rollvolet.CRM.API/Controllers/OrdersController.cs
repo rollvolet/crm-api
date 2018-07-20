@@ -11,6 +11,7 @@ using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
 using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Exceptions;
@@ -25,6 +26,8 @@ namespace Rollvolet.CRM.API.Controllers
     public class OrdersController : Controller
     {
         private readonly IOrderManager _orderManager;
+        private readonly IOfferManager _offerManager;
+        private readonly IInvoiceManager _invoiceManager;
         private readonly IDepositManager _depositManager;
         private readonly IDepositInvoiceManager _depositInvoiceManager;
         private readonly IVatRateManager _vatRateManager;
@@ -32,11 +35,13 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public OrdersController(IOrderManager orderManager, IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager,
-                                IVatRateManager vatRateManager,
+        public OrdersController(IOrderManager orderManager, IOfferManager offerManager, IInvoiceManager invoiceManager,
+                                IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager, IVatRateManager vatRateManager,
                                 IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _orderManager = orderManager;
+            _offerManager = offerManager;
+            _invoiceManager = invoiceManager;
             _depositManager = depositManager;
             _depositInvoiceManager = depositInvoiceManager;
             _vatRateManager = vatRateManager;
@@ -72,6 +77,44 @@ namespace Rollvolet.CRM.API.Controllers
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path, querySet);
 
             return Ok(new ResourceResponse() { Links = links, Data = orderDto, Included = included });
+        }
+
+        [HttpGet("{orderId}/offer")]
+        [HttpGet("{orderId}/links/offer")]
+        public async Task<IActionResult> GetRelatedOfferById(int orderId)
+        {
+            OfferDto offerDto;
+            try
+            {
+                var offer = await _offerManager.GetByOrderIdAsync(orderId);
+                offerDto = _mapper.Map<OfferDto>(offer);
+            }
+            catch (EntityNotFoundException)
+            {
+                offerDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = offerDto });
+        }
+
+        [HttpGet("{orderId}/invoice")]
+        [HttpGet("{orderId}/links/invoice")]
+        public async Task<IActionResult> GetRelatedInvoiceById(int orderId)
+        {
+            InvoiceDto invoiceDto;
+            try
+            {
+                var invoice = await _invoiceManager.GetByOrderIdAsync(orderId);
+                invoiceDto = _mapper.Map<InvoiceDto>(invoice);
+            }
+            catch (EntityNotFoundException)
+            {
+                invoiceDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = invoiceDto });
         }
 
         [HttpGet("{orderId}/deposits")]
