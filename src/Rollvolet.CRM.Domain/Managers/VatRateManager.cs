@@ -26,9 +26,14 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _vatRateDataProvider.GetAll();
         }
 
-        public async Task<VatRate> GetByOfferIdAsync(int id)
+        public async Task<VatRate> GetByOfferIdAsync(int offerId)
         {
-            return await _vatRateDataProvider.GetByOfferIdAsync(id);
+            return await _vatRateDataProvider.GetByOfferIdAsync(offerId);
+        }
+
+        public async Task<VatRate> GetByOrderIdAsync(int orderId)
+        {
+            return await _vatRateDataProvider.GetByOrderIdAsync(orderId);
         }
     }
 }

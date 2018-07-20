@@ -13,6 +13,7 @@ using Rollvolet.CRM.API.Collectors;
 using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.JsonApi;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -26,16 +27,19 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IOrderManager _orderManager;
         private readonly IDepositManager _depositManager;
         private readonly IDepositInvoiceManager _depositInvoiceManager;
+        private readonly IVatRateManager _vatRateManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
         public OrdersController(IOrderManager orderManager, IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager,
+                                IVatRateManager vatRateManager,
                                 IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _orderManager = orderManager;
             _depositManager = depositManager;
             _depositInvoiceManager = depositInvoiceManager;
+            _vatRateManager = vatRateManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -101,6 +105,25 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedInvoices);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = depositInvoiceDtos, Included = included });
+        }
+
+        [HttpGet("{orderId}/vat-rate")]
+        [HttpGet("{orderId}/links/vat-rate")]
+        public async Task<IActionResult> GetRelatedVatRateById(int orderId)
+        {
+            VatRateDto vatRateDto;
+            try
+            {
+                var vatRate = await _vatRateManager.GetByOrderIdAsync(orderId);
+                vatRateDto = _mapper.Map<VatRateDto>(vatRate);
+            }
+            catch (EntityNotFoundException)
+            {
+                vatRateDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = vatRateDto });
         }
     }
 }
