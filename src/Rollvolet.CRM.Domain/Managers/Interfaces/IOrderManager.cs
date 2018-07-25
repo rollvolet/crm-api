@@ -11,5 +11,8 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<Order> GetByIdAsync(int id, QuerySet query);
         Task<Paged<Order>> GetAllByCustomerIdAsync(int customerId, QuerySet query);
         Task<Order> GetByOfferIdAsync(int offerId, QuerySet query = null);
+        Task<Order> CreateAsync(Order order);
+        Task<Order> UpdateAsync(Order order);
+        Task DeleteAsync(int id);
     }
 }

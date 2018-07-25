@@ -89,6 +89,45 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Links = links, Data = orderDto, Included = included });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] ResourceRequest<OrderRequestDto> resource)
+        {
+            if (resource.Data.Type != "orders") return StatusCode(409);
+
+            var order = _mapper.Map<Order>(resource.Data);
+
+            order = await _orderManager.CreateAsync(order);
+            var orderDto = _mapper.Map<OrderDto>(order);
+
+            var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, orderDto.Id);
+
+            return Created(links.Self, new ResourceResponse() { Links = links, Data = orderDto });
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<OrderRequestDto> resource)
+        {
+            if (resource.Data.Type != "orders" || resource.Data.Id != id) return StatusCode(409);
+
+            var order = _mapper.Map<Order>(resource.Data);
+
+            order = await _orderManager.UpdateAsync(order);
+
+            var orderDto = _mapper.Map<OrderDto>(order);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = orderDto });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _orderManager.DeleteAsync(id);
+
+            return NoContent();
+        }
+
+
         [HttpGet("{orderId}/customer")]
         [HttpGet("{orderId}/links/customer")]
         public async Task<IActionResult> GetRelatedCustomerById(int orderId)

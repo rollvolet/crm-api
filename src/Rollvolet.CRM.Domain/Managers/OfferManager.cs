@@ -109,24 +109,24 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] { "customer", "building", "contact", "request", "submission-type", "vat-rate" };
-            var existingRequest = await _offerDataProvider.GetByIdAsync(offer.Id, query);
+            var existingOffer = await _offerDataProvider.GetByIdAsync(offer.Id, query);
 
-            if (offer.Id != existingRequest.Id)
+            if (offer.Id != existingOffer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", "Offer id cannot be updated.");
-            if (offer.Number != existingRequest.Number)
+            if (offer.Number != existingOffer.Number)
                 throw new IllegalArgumentException("IllegalAttribute", "Offer number cannot be updated.");
-            if (offer.SequenceNumber != existingRequest.SequenceNumber)
+            if (offer.SequenceNumber != existingOffer.SequenceNumber)
                 throw new IllegalArgumentException("IllegalAttribute", "Offer sequence-number cannot be updated.");
             if (offer.OfferDate == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Offer-date is required.");
             if (offer.Order != null)
             {
-                var message = "Order cannot be changed during request update.";
+                var message = "Order cannot be changed during offer update.";
                 _logger.LogDebug(message);
                 throw new IllegalArgumentException("IllegalAttribute", message);
             }
 
-            await EmbedRelations(offer, existingRequest);
+            await EmbedRelations(offer, existingOffer);
 
             if (offer.Customer == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
@@ -199,7 +199,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 else
                     offer.Customer = await _customerDataProvider.GetByNumberAsync(offer.Customer.Id);
 
-                // Request cannot be updated. Take customer of oldOffer on update.
+                // Request cannot be updated. Take request of oldOffer on update.
                 if (oldOffer != null)
                     offer.Request = oldOffer.Request;
                 else

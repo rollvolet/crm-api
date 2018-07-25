@@ -94,6 +94,70 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Order>(order);
         }
 
+        public async Task<Order> CreateAsync(Order order)
+        {
+            // Order has already been created by EF Core on creation of the offer since they share the same underlying SQL table
+            var existingOrderRecord = await _context.Orders.Where(o => o.Id == order.Id).IgnoreQueryFilters().FirstOrDefaultAsync();
+
+            if (existingOrderRecord == null) {
+                var message = $"Expected order {order.Id} to exist already in EF Core, but none was found.";
+                _logger.LogError(message);
+                throw new CodedException("InvalidState", "Unable to create order", message);
+            }
+
+            // Make it a valid order
+            existingOrderRecord.IsOrdered = true;
+            existingOrderRecord.Currency = "EUR";
+
+            _mapper.Map(order, existingOrderRecord);
+
+            _context.Orders.Update(existingOrderRecord);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Order>(existingOrderRecord);
+        }
+
+        public async Task<Order> UpdateAsync(Order order)
+        {
+            var orderRecord = await FindByIdAsync(order.Id);
+            _mapper.Map(order, orderRecord);
+
+            _context.Orders.Update(orderRecord);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Order>(orderRecord);
+        }
+
+        public async Task DeleteByIdAsync(int id)
+        {
+            var orderRecord = await FindByIdAsync(id);
+
+            if (orderRecord != null)
+            {
+                // Don't remove record, but only reset order-specific attributes because order and offer share the same underlying SQL table
+                orderRecord.OrderDate = null;
+                orderRecord.Amount = null;
+                orderRecord.DepositRequired = false;
+                orderRecord.HasProductionTicket = false;
+                orderRecord.MustBeInstalled = false;
+                orderRecord.MustBeDelivered = false;
+                orderRecord.IsReady = false;
+                orderRecord.ExpectedDate = null;
+                orderRecord.RequiredDate = null;
+                orderRecord.ScheduledHours = null;
+                orderRecord.ScheduledNbOfPersons = null;
+                orderRecord.InvoicableHours = null;
+                orderRecord.InvoicableNbOfPersons = null;
+                orderRecord.Canceled = false;
+                orderRecord.CancellationReason = null;
+                orderRecord.Currency = null;
+                orderRecord.IsOrdered = false;
+
+                _context.Orders.Update(orderRecord);
+                await _context.SaveChangesAsync();
+           }
+        }
+
         private async Task<DataProvider.Models.Order> FindByIdAsync(int id, QuerySet query = null)
         {
             return await FindWhereAsync(c => c.Id == id, query);
