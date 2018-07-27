@@ -7,6 +7,7 @@ using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Buildings;
 using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
+using Rollvolet.CRM.APIContracts.DTO.Deposits;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
@@ -682,12 +683,21 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
-            CreateMap<Deposit, DepositDto.AttributesDto>();
+            CreateMap<Deposit, DepositAttributesDto>().ReverseMap();
 
-            CreateMap<Deposit, DepositDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+            CreateMap<Deposit, DepositRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<Deposit, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("deposits"));
+
+            CreateMap<DepositRequestDto, Deposit>()
+                .ConstructUsing((src, context) => context.Mapper.Map<Deposit>(src.Attributes))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Customer : null))
+                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Order : null))
+                .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Invoice : null))
+                .ForMember(dest => dest.Payment, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Payment : null))
+                .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<OneRelationship, Deposit>()
                 .ConstructUsing((src, context) => context.Mapper.Map<Deposit>(src.Data))

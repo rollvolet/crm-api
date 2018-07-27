@@ -97,13 +97,15 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<Order> CreateAsync(Order order)
         {
             // Order has already been created by EF Core on creation of the offer since they share the same underlying SQL table
-            var existingOrderRecord = await _context.Orders.Where(o => o.Id == order.Id).IgnoreQueryFilters().FirstOrDefaultAsync();
+            var existingOrderRecord = await _context.Orders.Where(o => o.Id == order.Offer.Id).IgnoreQueryFilters().FirstOrDefaultAsync();
 
             if (existingOrderRecord == null) {
                 var message = $"Expected order {order.Id} to exist already in EF Core, but none was found.";
                 _logger.LogError(message);
                 throw new CodedException("InvalidState", "Unable to create order", message);
             }
+
+            order.Id = existingOrderRecord.Id; // Set existing id on the new incoming order. Id of the incoming order is null.
 
             // Make it a valid order
             existingOrderRecord.IsOrdered = true;

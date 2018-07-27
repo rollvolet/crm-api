@@ -184,7 +184,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 if (oldOrder != null)
                     order.Offer = oldOrder.Offer;
                 else
-                    order.Offer = await _offerDataProvider.GetByIdAsync(order.Id);
+                    order.Offer = await _offerDataProvider.GetByIdAsync(order.Offer.Id);
             }
             catch (EntityNotFoundException)
             {
