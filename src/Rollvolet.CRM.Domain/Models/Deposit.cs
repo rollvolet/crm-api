@@ -5,7 +5,7 @@ namespace Rollvolet.CRM.Domain.Models
 {
     public class Deposit
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public Customer Customer { get; set; }
         public Order Order { get; set; }
         public Invoice Invoice { get; set; }
@@ -13,6 +13,6 @@ namespace Rollvolet.CRM.Domain.Models
         public double? Amount { get; set; }
         public DateTime PaymentDate { get; set; }
         public Payment Payment { get; set; }
-        
+
     }
 }

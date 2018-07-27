@@ -51,7 +51,7 @@ namespace Rollvolet.CRM.DataProviders
             };
         }
 
-        public async Task<Invoice> GetByIdAsync(int id, QuerySet query)
+        public async Task<Invoice> GetByIdAsync(int id, QuerySet query = null)
         {
             var invoice = await FindByIdAsync(id, query);
 

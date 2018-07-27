@@ -240,6 +240,14 @@ namespace Rollvolet.CRM.DataProvider.Mappers
             CreateMap<Models.Deposit, Domain.Models.Deposit>()
                 .PreserveReferences()
                 .ReverseMap()
+                .ForMember(dest => dest.Customer, opt => opt.Ignore())
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
+                .ForMember(dest => dest.Order, opt => opt.Ignore())
+                .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.Order.Id))
+                .ForMember(dest => dest.Invoice, opt => opt.Ignore())
+                .ForMember(dest => dest.InvoiceId, opt => opt.MapFrom(src => src.Invoice.Id))
+                .ForMember(dest => dest.Payment, opt => opt.Ignore())
+                .ForMember(dest => dest.PaymentId, opt => opt.MapFrom(src => src.Payment.Id))
                 .PreserveReferences();
 
             CreateMap<Models.Employee, Domain.Models.Employee>()

@@ -38,6 +38,12 @@ namespace Rollvolet.CRM.DataProviders
             return (Int16) (count + 1);
         }
 
+        public async Task<short> GetNextDepositSequenceNumber(int orderId)
+        {
+            var count = await _context.Deposits.Where(x => x.OrderId == orderId).CountAsync();
+            return (Int16) (count + 1);
+        }
+
         public async Task<int> GetNextRelativeContactNumber(int customerId)
         {
             var count = await _context.Contacts.Where(x => x.CustomerId == customerId).CountAsync();
