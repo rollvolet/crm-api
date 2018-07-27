@@ -153,6 +153,8 @@ namespace Rollvolet.CRM.API
             services.AddTransient<ILanguageManager, LanguageManager>();
             services.AddTransient<IPostalCodeDataProvider, PostalCodeDataProvider>();
             services.AddTransient<IPostalCodeManager, PostalCodeManager>();
+            services.AddTransient<IPaymentDataProvider, PaymentDataProvider>();
+            services.AddTransient<IPaymentManager, PaymentManager>();
             services.AddTransient<IWorkingHourManager, WorkingHourManager>();
             services.AddTransient<IWorkingHourDataProvider, WorkingHourDataProvider>();
             services.AddTransient<IVatRateManager, VatRateManager>();
