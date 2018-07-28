@@ -23,5 +23,10 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             return await _paymentDataProvider.GetAll();
         }
+
+        public async Task<Payment> GetByDepositIdAsync(int depositId)
+        {
+            return await _paymentDataProvider.GetByDepositIdAsync(depositId);
+        }
     }
 }

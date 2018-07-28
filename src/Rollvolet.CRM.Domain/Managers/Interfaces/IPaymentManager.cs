@@ -7,5 +7,6 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
     public interface IPaymentManager
     {
         Task<IEnumerable<Payment>> GetAllAsync();
+        Task<Payment> GetByDepositIdAsync(int depositId);
     }
 }

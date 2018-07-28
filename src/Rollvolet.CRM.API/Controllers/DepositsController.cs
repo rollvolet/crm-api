@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
+using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Deposits;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Exceptions;
@@ -24,15 +25,17 @@ namespace Rollvolet.CRM.API.Controllers
     public class DepositsController : Controller
     {
         private readonly IDepositManager _depositManager;
+        private readonly IPaymentManager _paymentManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
         private readonly ILogger _logger;
 
-        public DepositsController(IDepositManager depositManager, IIncludedCollector includedCollector, IMapper mapper,
-                                    IJsonApiBuilder jsonApiBuilder, ILogger<OffersController> logger)
+        public DepositsController(IDepositManager depositManager, IPaymentManager paymentManager, IIncludedCollector includedCollector,
+                                    IMapper mapper, IJsonApiBuilder jsonApiBuilder, ILogger<OffersController> logger)
         {
             _depositManager = depositManager;
+            _paymentManager = paymentManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -75,6 +78,25 @@ namespace Rollvolet.CRM.API.Controllers
             await _depositManager.DeleteAsync(id);
 
             return NoContent();
+        }
+
+        [HttpGet("{depositId}/payment")]
+        [HttpGet("{depositId}/links/payment")]
+        public async Task<IActionResult> GetRelatedPaymentById(int depositId)
+        {
+            PaymentDto paymentDto;
+            try
+            {
+                var payment = await _paymentManager.GetByDepositIdAsync(depositId);
+                paymentDto = _mapper.Map<PaymentDto>(payment);
+            }
+            catch (EntityNotFoundException)
+            {
+                paymentDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = paymentDto });
         }
     }
 }

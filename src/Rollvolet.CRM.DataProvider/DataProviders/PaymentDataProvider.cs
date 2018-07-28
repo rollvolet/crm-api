@@ -48,5 +48,18 @@ namespace Rollvolet.CRM.DataProviders
 
             return _mapper.Map<Payment>(payment);
         }
+
+        public async Task<Payment> GetByDepositIdAsync(int depositId)
+        {
+            var payment = await _context.Deposits.Where(c => c.Id == depositId).Select(c => c.Payment).FirstOrDefaultAsync();
+
+            if (payment == null)
+            {
+                _logger.LogError($"No payment found for deposit with id {depositId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Payment>(payment);
+        }
     }
 }

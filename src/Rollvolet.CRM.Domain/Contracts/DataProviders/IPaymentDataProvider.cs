@@ -8,5 +8,6 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     {
         Task<Payment> GetByIdAsync(string id);
         Task<IEnumerable<Payment>> GetAll();
+        Task<Payment> GetByDepositIdAsync(int depositId);
     }
 }
