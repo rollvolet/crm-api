@@ -8,6 +8,7 @@ using Rollvolet.CRM.APIContracts.DTO.Buildings;
 using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.Deposits;
+using Rollvolet.CRM.APIContracts.DTO.Offerlines;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
@@ -490,6 +491,41 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<RelatedResource, Offer>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+
+            // Offerline mappings
+
+            CreateMap<Offerline, OfferlineDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("offerlines"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<Offerline, OfferlineAttributesDto>().ReverseMap();
+
+            CreateMap<Offerline, OfferlineRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<Offerline, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("offerlines"));
+
+            CreateMap<OfferlineRequestDto, Offerline>()
+                .ConstructUsing((src, context) => context.Mapper.Map<Offerline>(src.Attributes))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Offer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Offer : null))
+                .ForMember(dest => dest.VatRate, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.VatRate : null))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<OneRelationship, Offerline>()
+                .ConstructUsing((src, context) => context.Mapper.Map<Offerline>(src.Data))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<ManyRelationship, IEnumerable<Offerline>>()
+                .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<Offerline>>(src.Data))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<RelatedResource, Offerline>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForAllOtherMembers(opt => opt.Ignore());
 

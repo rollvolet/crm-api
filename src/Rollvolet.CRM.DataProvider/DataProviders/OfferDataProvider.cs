@@ -109,6 +109,19 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Offer>(offer);
         }
 
+        public async Task<Offer> GetByOfferlineIdAsync(int offerlineId, QuerySet query = null)
+        {
+            var offer = await _context.Offerlines.Where(o => o.Id == offerlineId).Select(o => o.Offer).FirstOrDefaultAsync();
+
+            if (offer == null)
+            {
+                _logger.LogError($"No offer found for offerline-id {offerlineId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Offer>(offer);
+        }
+
         public async Task<Offer> CreateAsync(Offer offer)
         {
             var offerRecord = _mapper.Map<DataProvider.Models.Offer>(offer);

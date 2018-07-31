@@ -9,5 +9,6 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<IEnumerable<VatRate>> GetAllAsync();
         Task<VatRate> GetByOfferIdAsync(int offerId);
         Task<VatRate> GetByOrderIdAsync(int orderId);
+        Task<VatRate> GetByOfferlineIdAsync(int offerlineId);
     }
 }

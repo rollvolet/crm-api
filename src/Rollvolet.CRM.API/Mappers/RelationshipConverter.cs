@@ -5,6 +5,7 @@ using Rollvolet.CRM.APIContracts.DTO.Buildings;
 using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.Deposits;
+using Rollvolet.CRM.APIContracts.DTO.Offerlines;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
@@ -23,6 +24,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Request, RequestRelationshipsDto>,
                                             ITypeConverter<Visit, VisitRelationshipsDto>,
                                             ITypeConverter<Offer, OfferRelationshipsDto>,
+                                            ITypeConverter<Offerline, OfferlineRelationshipsDto>,
                                             ITypeConverter<Order, OrderRelationshipsDto>,
                                             ITypeConverter<Invoice, InvoiceDto.RelationshipsDto>,
                                             ITypeConverter<DepositInvoice, DepositInvoiceDto.RelationshipsDto>,
@@ -114,6 +116,15 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Contact = GetOneRelationship<Contact>("offers", source.Id, "contact", source.Contact, context);
             relationships.VatRate = GetOneRelationship<VatRate>("offers", source.Id, "vat-rate", source.VatRate, context);
             relationships.SubmissionType = GetOneRelationship<SubmissionType>("offers", source.Id, "submission-type", source.SubmissionType, context);
+            relationships.Offerlines = GetManyRelationship<Offerline>("offers", source.Id, "offerlines", source.Offerlines, context);
+            return relationships;
+        }
+
+        OfferlineRelationshipsDto ITypeConverter<Offerline, OfferlineRelationshipsDto>.Convert(Offerline source, OfferlineRelationshipsDto destination, ResolutionContext context)
+        {
+            var relationships = new OfferlineRelationshipsDto();
+            relationships.Offer = GetOneRelationship<Offer>("offerlines", source.Id, "offer", source.Offer, context);
+            relationships.VatRate = GetOneRelationship<VatRate>("offerlines", source.Id, "vat-rate", source.VatRate, context);
             return relationships;
         }
 

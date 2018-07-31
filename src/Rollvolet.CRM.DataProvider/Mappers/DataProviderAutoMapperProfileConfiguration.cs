@@ -172,6 +172,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Request, opt => opt.Ignore())
                 .ForMember(dest => dest.RequestId, opt => opt.MapFrom(src => src.Request.Id))
                 .ForMember(dest => dest.Order, opt => opt.Ignore())
+                .ForMember(dest => dest.Offerlines, opt => opt.Ignore())
                 .PreserveReferences();
 
             CreateMap<Models.Offer, Models.Order>()
@@ -184,6 +185,15 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.VatRateId, opt => opt.MapFrom(src => src.VatRateId))
                 .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
                 .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<Models.Offerline, Domain.Models.Offerline>()
+                .PreserveReferences()
+                .ReverseMap()
+                .ForMember(dest => dest.Offer, opt => opt.Ignore())
+                .ForMember(dest => dest.OfferId, opt => opt.MapFrom(src => src.Offer.Id))
+                .ForMember(dest => dest.VatRate, opt => opt.Ignore())
+                .ForMember(dest => dest.VatRateId, opt => opt.MapFrom(src => src.VatRate != null ? src.VatRate.Id : null))
+                .PreserveReferences();
 
             CreateMap<Models.SubmissionType, Domain.Models.SubmissionType>()
                 .PreserveReferences()

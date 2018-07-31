@@ -12,13 +12,13 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("AanvraagId")]
         public int? RequestId { get; set; }
-        
+
         [Column("KlantID")]
         public int? CustomerId { get; set; }
-        
+
         [Column("GebouwID")]
         public int? RelativeBuildingId { get; set; }
-        
+
         [Column("ContactID")]
         public int? RelativeContactId { get; set; }
 
@@ -27,7 +27,7 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("VolgNummer")]
         public short SequenceNumber { get; set; }
-        
+
         [Column("Offertedatum")]
         public DateTime? OfferDate { get; set; }
 
@@ -50,7 +50,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public float? ForeseenNbOfPersons { get; set; }
 
         [Column("Opmerking")]
-        public string Comment { get; set; } 
+        public string Comment { get; set; }
 
         [Column("Referentie")]
         public string Reference { get; set; }
@@ -65,8 +65,8 @@ namespace Rollvolet.CRM.DataProvider.Models
         public VatRate VatRate { get; set; }
         public SubmissionType SubmissionType { get; set; }
         public Order Order { get; set; }
-        
-        
+        public IEnumerable<Offerline> Offerlines { get; set; }
+
 
         // Manually included resources
         [NotMapped]
@@ -77,7 +77,7 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         // Embedded properties
         [Column("Gemeente")]
-        public string EmbeddedCity { get; set; }  
+        public string EmbeddedCity { get; set; }
 
     }
 }
