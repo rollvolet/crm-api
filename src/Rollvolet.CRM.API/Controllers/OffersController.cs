@@ -39,6 +39,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IVatRateManager _vatRateManager;
         private readonly ISubmissionTypeManager _submissionTypeManager;
         private readonly IOfferlineManager _offerlineManager;
+        private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
@@ -47,8 +48,8 @@ namespace Rollvolet.CRM.API.Controllers
         public OffersController(IOfferManager offerManager, IRequestManager requestManager, IOrderManager orderManager,
                                     ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
                                     IVatRateManager vatRateManager, ISubmissionTypeManager submissionTypeManager, IOfferlineManager offerlineManager,
-                                    IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder,
-                                    ILogger<OffersController> logger)
+                                    IDocumentGenerationManager documentGenerationManager, IIncludedCollector includedCollector,
+                                    IMapper mapper, IJsonApiBuilder jsonApiBuilder, ILogger<OffersController> logger)
         {
             _offerManager = offerManager;
             _customerManager = customerManager;
@@ -59,6 +60,7 @@ namespace Rollvolet.CRM.API.Controllers
             _vatRateManager = vatRateManager;
             _submissionTypeManager = submissionTypeManager;
             _offerlineManager = offerlineManager;
+            _documentGenerationManager = documentGenerationManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -130,6 +132,16 @@ namespace Rollvolet.CRM.API.Controllers
             await _offerManager.DeleteAsync(id);
 
             return NoContent();
+        }
+
+        [HttpPost("{id}/documents")]
+        public async Task<IActionResult> CreateOfferDocument(int id)
+        {
+            var stream = await _documentGenerationManager.CreateAndStoreOfferDocument(id);
+
+            var file = new FileStreamResult(stream, "application/pdf");
+            file.FileDownloadName = $"offerte-{id}.pdf";
+            return file;
         }
 
         [HttpGet("{offerId}/customer")]

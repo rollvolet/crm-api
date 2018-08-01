@@ -17,13 +17,17 @@ namespace Rollvolet.CRM.Domain.Managers
     public class DocumentGenerationManager : IDocumentGenerationManager
     {
         private readonly IRequestDataProvider _requestDataProvider;
+        private readonly IOfferDataProvider _offerDataProvider;
+        private readonly HttpClient _httpClient;
         private readonly DocumentGenerationConfiguration _documentGenerationConfig;
         private readonly ILogger _logger;
 
-        public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IOptions<DocumentGenerationConfiguration> documentGenerationConfiguration,
-                                          ILogger<DocumentGenerationManager> logger)
+        public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IOfferDataProvider offerDataProvider,
+                                         IOptions<DocumentGenerationConfiguration> documentGenerationConfiguration,                ILogger<DocumentGenerationManager> logger)
         {
             _requestDataProvider = requestDataProvider;
+            _offerDataProvider = offerDataProvider;
+            _httpClient = new HttpClient();
             _documentGenerationConfig = documentGenerationConfiguration.Value;
             _logger = logger;
         }
@@ -43,9 +47,8 @@ namespace Rollvolet.CRM.Domain.Managers
             });
             _logger.LogDebug("JSON to send to document generation service at {0}: {1}", url, json);
 
-            var httpClient = new HttpClient(); // TODO cache httpClient ?
             var body = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await httpClient.PostAsync(url, body);
+            var response = await _httpClient.PostAsync(url, body);
 
             try
             {
@@ -55,6 +58,37 @@ namespace Rollvolet.CRM.Domain.Managers
             catch (Exception e)
             {
                 _logger.LogWarning("Something went wrong while generating the visit report of request {0}: {1}", requestId, e.Message);
+                throw e;
+            }
+        }
+
+        public async Task<Stream> CreateAndStoreOfferDocument(int offerId)
+        {
+            var query = new QuerySet();
+            query.Include.Fields = new string[] {
+                "offerlines", "offerlines.vat-rate", "customer", "customer.honorific-prefix", "contact", "building"
+            };
+            var offer = await _offerDataProvider.GetByIdAsync(offerId, query);
+
+            var url = $"{_documentGenerationConfig.BaseUrl}/documents/offer";
+            var json = JsonConvert.SerializeObject(offer, new JsonSerializerSettings {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
+            _logger.LogDebug("JSON to send to document generation service at {0}: {1}", url, json);
+
+            var body = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(url, body);
+
+            try
+            {
+                response.EnsureSuccessStatusCode();
+                // TODO save file on disk
+                return await response.Content.ReadAsStreamAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning("Something went wrong while generating the offer document of offer {0}: {1}", offerId, e.Message);
                 throw e;
             }
         }
