@@ -30,6 +30,9 @@ namespace Rollvolet.CRM.Domain.Managers
             _httpClient = new HttpClient();
             _documentGenerationConfig = documentGenerationConfiguration.Value;
             _logger = logger;
+
+            if (_documentGenerationConfig.OfferStorageLocation != null)
+                Directory.CreateDirectory(_documentGenerationConfig.OfferStorageLocation);
         }
 
         public async Task<Stream> CreateVisitReport(int requestId)
@@ -83,8 +86,32 @@ namespace Rollvolet.CRM.Domain.Managers
             try
             {
                 response.EnsureSuccessStatusCode();
-                // TODO save file on disk
-                return await response.Content.ReadAsStreamAsync();
+
+                var inputStream = await response.Content.ReadAsStreamAsync();
+                var storageLocation = _documentGenerationConfig.OfferStorageLocation;
+
+                if (storageLocation != null)
+                {
+                    if (!storageLocation.EndsWith(Path.DirectorySeparatorChar))
+                        storageLocation += Path.DirectorySeparatorChar;
+
+                    var number = offer.Number.Replace("/", "_");
+                    storageLocation += $"{number}-offerte.pdf";
+
+                    using (var fileStream = File.Create(storageLocation))
+                    {
+                        inputStream.Seek(0, SeekOrigin.Begin);
+                        inputStream.CopyTo(fileStream);
+                    }
+
+                    inputStream.Seek(0, SeekOrigin.Begin);
+                }
+                else
+                {
+                    _logger.LogInformation($"No DocumentGeneration.OfferStorageLocation configured. Not persisting offer document {offerId} to disk.");
+                }
+
+                return inputStream;
             }
             catch (Exception e)
             {

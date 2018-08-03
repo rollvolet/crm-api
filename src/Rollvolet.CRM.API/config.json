@@ -14,6 +14,7 @@
     "PlanningCalendarId": ""
   },
   "DocumentGeneration": {
-    "BaseUrl": ""
+    "BaseUrl": "",
+    "OfferStorageLocation": ""
   }
 }
