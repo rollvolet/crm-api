@@ -132,7 +132,7 @@ namespace Rollvolet.CRM.DataProviders
             var date = DateTime.Now;
             var number = await _sequenceDataProvider.GetNextOfferSequenceNumber(date);
             offerRecord.SequenceNumber = number;
-            var offerNumber = $"{(date.Year + 10).ToString().Substring(2, 2)}/{date.ToString("MM")}/{date.ToString("dd")}/{number}";
+            var offerNumber = $"{(date.Year + 10).ToString().Substring(2, 2)}/{date.ToString("MM")}/{date.ToString("dd")}/{number.ToString("D2")}";
             offerRecord.Number = offerNumber;
 
             _context.Offers.Add(offerRecord);
