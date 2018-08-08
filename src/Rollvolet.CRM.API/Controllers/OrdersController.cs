@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -38,6 +40,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IDepositManager _depositManager;
         private readonly IDepositInvoiceManager _depositInvoiceManager;
         private readonly IVatRateManager _vatRateManager;
+        private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
@@ -45,7 +48,8 @@ namespace Rollvolet.CRM.API.Controllers
         public OrdersController(IOrderManager orderManager, IOfferManager offerManager, IInvoiceManager invoiceManager,
                                 ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
                                 IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager, IVatRateManager vatRateManager,
-                                IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+                                IDocumentGenerationManager documentGenerationManager, IIncludedCollector includedCollector,
+                                IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _orderManager = orderManager;
             _customerManager = customerManager;
@@ -56,6 +60,7 @@ namespace Rollvolet.CRM.API.Controllers
             _depositManager = depositManager;
             _depositInvoiceManager = depositInvoiceManager;
             _vatRateManager = vatRateManager;
+            _documentGenerationManager = documentGenerationManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -128,6 +133,30 @@ namespace Rollvolet.CRM.API.Controllers
             return NoContent();
         }
 
+        [HttpPost("{orderId}/production-ticket")]
+        public async Task<IActionResult> UploadProductionTicket(int orderId, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                throw new IllegalArgumentException("InvalidFile", "File cannot be empty");
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                await _documentGenerationManager.UploadProductionTicket(orderId, stream);
+            }
+
+            return NoContent();
+        }
+
+        [HttpGet("{orderId}/production-ticket")]
+        public async Task<IActionResult> DownloadProductionTicket(int orderId)
+        {
+            var fileStream = await _documentGenerationManager.DownloadProductionTicket(orderId);
+
+            var file = new FileStreamResult(fileStream, "application/pdf");
+            file.FileDownloadName = fileStream.Name;
+            return file;
+        }
 
         [HttpGet("{orderId}/customer")]
         [HttpGet("{orderId}/links/customer")]

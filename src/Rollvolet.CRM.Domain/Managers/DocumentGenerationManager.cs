@@ -18,21 +18,33 @@ namespace Rollvolet.CRM.Domain.Managers
     {
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
+        private readonly IOrderDataProvider _orderDataProvider;
         private readonly HttpClient _httpClient;
         private readonly DocumentGenerationConfiguration _documentGenerationConfig;
+        private readonly string _offerStorageLocation;
+        private readonly string _productionTicketStorageLocation;
         private readonly ILogger _logger;
 
-        public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IOfferDataProvider offerDataProvider,
-                                         IOptions<DocumentGenerationConfiguration> documentGenerationConfiguration,                ILogger<DocumentGenerationManager> logger)
+        public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IOfferDataProvider offerDataProvider, IOrderDataProvider orderDataProvider,
+                                         IOptions<DocumentGenerationConfiguration> documentGenerationConfiguration,
+                                         ILogger<DocumentGenerationManager> logger)
         {
             _requestDataProvider = requestDataProvider;
             _offerDataProvider = offerDataProvider;
+            _orderDataProvider = orderDataProvider;
             _httpClient = new HttpClient();
             _documentGenerationConfig = documentGenerationConfiguration.Value;
             _logger = logger;
 
-            if (_documentGenerationConfig.OfferStorageLocation != null)
-                Directory.CreateDirectory(_documentGenerationConfig.OfferStorageLocation);
+            _offerStorageLocation = _documentGenerationConfig.OfferStorageLocation;
+            if (!_offerStorageLocation.EndsWith(Path.DirectorySeparatorChar))
+                _offerStorageLocation += Path.DirectorySeparatorChar;
+            Directory.CreateDirectory(_offerStorageLocation);
+
+            _productionTicketStorageLocation = _documentGenerationConfig.ProductionTicketStorageLocation;
+            if (!_productionTicketStorageLocation.EndsWith(Path.DirectorySeparatorChar))
+                _productionTicketStorageLocation += Path.DirectorySeparatorChar;
+            Directory.CreateDirectory(_productionTicketStorageLocation);
         }
 
         public async Task<Stream> CreateVisitReport(int requestId)
@@ -118,6 +130,37 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogWarning("Something went wrong while generating the offer document of offer {0}: {1}", offerId, e.Message);
                 throw e;
             }
+        }
+
+        public async Task UploadProductionTicket(int orderId, Stream content)
+        {
+            var filePath = await ConstructProductionTicketFilePath(orderId);
+            _logger.LogDebug($"Uploading production ticket to {filePath}");
+
+            using (var fileStream = File.Create(filePath))
+            {
+                content.Seek(0, SeekOrigin.Begin);
+                content.CopyTo(fileStream);
+            }
+        }
+
+        public async Task<FileStream> DownloadProductionTicket(int orderId)
+        {
+            var filePath = await ConstructProductionTicketFilePath(orderId);
+
+            var stream = new MemoryStream();
+            return new FileStream(filePath, FileMode.Open);
+        }
+
+        private async Task<string> ConstructProductionTicketFilePath(int orderId)
+        {
+            var query = new QuerySet();
+            query.Include.Fields = new string[] { "customer" };
+            var order = await _orderDataProvider.GetByIdAsync(orderId, query);
+
+            var number = order.OfferNumber.Replace("/", "");
+
+            return $"{_productionTicketStorageLocation}{number}_{order.Customer.Name}.pdf";
         }
     }
 }

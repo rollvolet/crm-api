@@ -7,5 +7,7 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
     {
         Task<Stream> CreateVisitReport(int requestId);
         Task<Stream> CreateAndStoreOfferDocument(int offerId);
+        Task UploadProductionTicket(int orderId, Stream content);
+        Task<FileStream> DownloadProductionTicket(int orderId);
     }
 }

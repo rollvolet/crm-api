@@ -15,6 +15,7 @@
   },
   "DocumentGeneration": {
     "BaseUrl": "",
-    "OfferStorageLocation": ""
+    "OfferStorageLocation": "",
+    "ProductionTicketStorageLocation": ""
   }
 }
