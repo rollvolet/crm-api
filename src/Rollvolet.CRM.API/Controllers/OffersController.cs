@@ -144,6 +144,16 @@ namespace Rollvolet.CRM.API.Controllers
             return file;
         }
 
+        [HttpGet("{offerId}/document")]
+        public async Task<IActionResult> DownloadProductionTicket(int offerId)
+        {
+            var fileStream = await _documentGenerationManager.DownloadOfferDocument(offerId);
+
+            var file = new FileStreamResult(fileStream, "application/pdf");
+            file.FileDownloadName = fileStream.Name;
+            return file;
+        }
+
         [HttpGet("{offerId}/customer")]
         [HttpGet("{offerId}/links/customer")]
         public async Task<IActionResult> GetRelatedCustomerById(int offerId)

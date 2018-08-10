@@ -100,28 +100,15 @@ namespace Rollvolet.CRM.Domain.Managers
                 response.EnsureSuccessStatusCode();
 
                 var inputStream = await response.Content.ReadAsStreamAsync();
-                var storageLocation = _documentGenerationConfig.OfferStorageLocation;
+                var number = offer.Number.Replace("/", "");
 
-                if (storageLocation != null)
+                using (var fileStream = File.Create($"{_documentGenerationConfig.OfferStorageLocation}{number}-offerte.pdf"))
                 {
-                    if (!storageLocation.EndsWith(Path.DirectorySeparatorChar))
-                        storageLocation += Path.DirectorySeparatorChar;
-
-                    var number = offer.Number.Replace("/", "_");
-                    storageLocation += $"{number}-offerte.pdf";
-
-                    using (var fileStream = File.Create(storageLocation))
-                    {
-                        inputStream.Seek(0, SeekOrigin.Begin);
-                        inputStream.CopyTo(fileStream);
-                    }
-
                     inputStream.Seek(0, SeekOrigin.Begin);
+                    inputStream.CopyTo(fileStream);
                 }
-                else
-                {
-                    _logger.LogInformation($"No DocumentGeneration.OfferStorageLocation configured. Not persisting offer document {offerId} to disk.");
-                }
+
+                inputStream.Seek(0, SeekOrigin.Begin);
 
                 return inputStream;
             }
@@ -130,6 +117,16 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogWarning("Something went wrong while generating the offer document of offer {0}: {1}", offerId, e.Message);
                 throw e;
             }
+        }
+
+        public async Task<FileStream> DownloadOfferDocument(int offerId)
+        {
+            var offer = await _offerDataProvider.GetByIdAsync(offerId);
+            var number = offer.Number.Replace("/", "");
+            var filePath = $"{_documentGenerationConfig.OfferStorageLocation}{number}-offerte.pdf";
+
+            var stream = new MemoryStream();
+            return new FileStream(filePath, FileMode.Open);
         }
 
         public async Task UploadProductionTicket(int orderId, Stream content)
