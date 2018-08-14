@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Rollvolet.CRM.Domain.Configuration;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models.Query;
 
@@ -126,7 +127,16 @@ namespace Rollvolet.CRM.Domain.Managers
             var filePath = $"{_documentGenerationConfig.OfferStorageLocation}{number}-offerte.pdf";
 
             var stream = new MemoryStream();
-            return new FileStream(filePath, FileMode.Open);
+
+            try
+            {
+                return new FileStream(filePath, FileMode.Open);
+            }
+            catch (FileNotFoundException)
+            {
+                _logger.LogWarning("Cannot find document for offer {0} at {1}", offerId, filePath);
+                throw new EntityNotFoundException();
+            }
         }
 
         public async Task UploadProductionTicket(int orderId, Stream content)
@@ -146,7 +156,16 @@ namespace Rollvolet.CRM.Domain.Managers
             var filePath = await ConstructProductionTicketFilePath(orderId);
 
             var stream = new MemoryStream();
-            return new FileStream(filePath, FileMode.Open);
+
+            try
+            {
+                return new FileStream(filePath, FileMode.Open);
+            }
+            catch (FileNotFoundException)
+            {
+                _logger.LogWarning("Cannot find production ticket for order {0} at {1}", orderId, filePath);
+                throw new EntityNotFoundException();
+            }
         }
 
         private async Task<string> ConstructProductionTicketFilePath(int orderId)
