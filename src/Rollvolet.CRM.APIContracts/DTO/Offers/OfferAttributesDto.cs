@@ -11,8 +11,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Offers
         [JsonProperty("offer-date")]
         public DateTime OfferDate { get; set; }
         public double? Amount { get; set; }
-        [JsonProperty("submission-date")]
-        public DateTime? SubmissionDate { get; set; }
         [JsonProperty("foreseen-hours")]
         public double? ForeseenHours { get; set; }
         [JsonProperty("foreseen-nb-of-persons")]

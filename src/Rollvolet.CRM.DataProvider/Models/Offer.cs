@@ -40,9 +40,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("VerzondenVia")]
         public string SubmissionTypeId { get; set; }
 
-        [Column("VerzendDatum")]
-        public DateTime? SubmissionDate { get; set; }
-
         [Column("UrenVoorzien")]
         public float? ForeseenHours { get; set; }
 

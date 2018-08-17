@@ -19,7 +19,6 @@ namespace Rollvolet.CRM.Domain.Models
         public int SequenceNumber { get; set; }
         public DateTime OfferDate { get; set; }
         public double? Amount { get; set; }
-        public DateTime? SubmissionDate { get; set; }
         public double? ForeseenHours { get; set; }
         public double? ForeseenNbOfPersons { get; set; }
         public string Comment { get; set; }
