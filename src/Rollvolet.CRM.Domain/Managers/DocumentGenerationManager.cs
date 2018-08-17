@@ -82,7 +82,7 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] {
-                "offerlines", "offerlines.vat-rate", "customer", "customer.honorific-prefix", "contact", "building"
+                "offerlines", "offerlines.vat-rate", "customer", "customer.honorific-prefix", "request", "contact", "building"
             };
             var offer = await _offerDataProvider.GetByIdAsync(offerId, query);
 
