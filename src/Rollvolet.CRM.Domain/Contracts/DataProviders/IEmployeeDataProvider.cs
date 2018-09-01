@@ -8,5 +8,6 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     public interface IEmployeeDataProvider
     {
         Task<IEnumerable<Employee>> GetAll();
+        Task<Employee> GetByFirstName(string name);
     }
 }

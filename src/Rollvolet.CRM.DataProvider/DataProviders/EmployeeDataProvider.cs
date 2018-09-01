@@ -30,5 +30,18 @@ namespace Rollvolet.CRM.DataProviders
 
             return _mapper.Map<IEnumerable<Employee>>(employees);
         }
+
+        public async Task<Employee> GetByFirstName(string name)
+        {
+            var employee = await _context.Employees.Where(c => c.FirstName == name).FirstOrDefaultAsync();
+
+            if (employee == null)
+            {
+                _logger.LogError($"No employee found with first-name {name}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Employee>(employee);
+        }
     }
 }

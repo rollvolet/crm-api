@@ -1,4 +1,5 @@
 using System;
+using System.Dynamic;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -21,6 +22,8 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IOrderDataProvider _orderDataProvider;
         private readonly ITelephoneDataProvider _telephoneDataProvider;
+        private readonly IVisitDataProvider _visitDataProvider;
+        private readonly IEmployeeDataProvider _employeeDataProvider;
         private readonly HttpClient _httpClient;
         private readonly DocumentGenerationConfiguration _documentGenerationConfig;
         private readonly string _offerStorageLocation;
@@ -29,6 +32,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IOfferDataProvider offerDataProvider,
                                          IOrderDataProvider orderDataProvider, ITelephoneDataProvider telephoneDataProvider,
+                                         IVisitDataProvider visitDataProvider, IEmployeeDataProvider employeeDataProvider,
                                          IOptions<DocumentGenerationConfiguration> documentGenerationConfiguration,
                                          ILogger<DocumentGenerationManager> logger)
         {
@@ -36,6 +40,8 @@ namespace Rollvolet.CRM.Domain.Managers
             _offerDataProvider = offerDataProvider;
             _orderDataProvider = orderDataProvider;
             _telephoneDataProvider = telephoneDataProvider;
+            _visitDataProvider = visitDataProvider;
+            _employeeDataProvider = employeeDataProvider;
             _httpClient = new HttpClient();
             _documentGenerationConfig = documentGenerationConfiguration.Value;
             _logger = logger;
@@ -106,8 +112,29 @@ namespace Rollvolet.CRM.Domain.Managers
                 offer.Contact.Telephones = telephones.Items;
             }
 
+            string visitorInitials = null;
+            if (offer.Request != null)
+            {
+                try
+                {
+                    var visit = await _visitDataProvider.GetByRequestIdAsync(offer.Request.Id);
+                    offer.Request.Visit = visit;
+
+                    var visitor = await _employeeDataProvider.GetByFirstName(visit.Visitor);
+                    visitorInitials = visitor.Initials;
+                }
+                catch (EntityNotFoundException)
+                {
+                    // No visit related to the request. Nothing must happen here.
+                }
+            }
+
+            dynamic documentData = new ExpandoObject();
+            documentData.Offer = offer;
+            documentData.Visitor = visitorInitials;
+
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/offer";
-            var json = JsonConvert.SerializeObject(offer, new JsonSerializerSettings {
+            var json = (string) JsonConvert.SerializeObject(documentData, new JsonSerializerSettings {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 ContractResolver = new CamelCasePropertyNamesContractResolver()
             });
