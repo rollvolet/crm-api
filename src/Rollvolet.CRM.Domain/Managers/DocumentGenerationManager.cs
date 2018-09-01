@@ -21,6 +21,8 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IOrderDataProvider _orderDataProvider;
+        private readonly ICustomerDataProvider _customerDataProvider;
+        private readonly IContactDataProvider _contactDataProvider;
         private readonly ITelephoneDataProvider _telephoneDataProvider;
         private readonly IVisitDataProvider _visitDataProvider;
         private readonly IEmployeeDataProvider _employeeDataProvider;
@@ -31,6 +33,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly ILogger _logger;
 
         public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IOfferDataProvider offerDataProvider,
+                                         ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
                                          IOrderDataProvider orderDataProvider, ITelephoneDataProvider telephoneDataProvider,
                                          IVisitDataProvider visitDataProvider, IEmployeeDataProvider employeeDataProvider,
                                          IOptions<DocumentGenerationConfiguration> documentGenerationConfiguration,
@@ -39,6 +42,8 @@ namespace Rollvolet.CRM.Domain.Managers
             _requestDataProvider = requestDataProvider;
             _offerDataProvider = offerDataProvider;
             _orderDataProvider = orderDataProvider;
+            _customerDataProvider = customerDataProvider;
+            _contactDataProvider = contactDataProvider;
             _telephoneDataProvider = telephoneDataProvider;
             _visitDataProvider = visitDataProvider;
             _employeeDataProvider = employeeDataProvider;
@@ -91,7 +96,7 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
-                "offerlines", "offerlines.vat-rate", "customer", "customer.honorific-prefix", "request", "contact", "building"
+                "offerlines", "offerlines.vat-rate", "customer", "request", "contact", "building"
             };
             var offer = await _offerDataProvider.GetByIdAsync(offerId, includeQuery);
 
@@ -102,12 +107,20 @@ namespace Rollvolet.CRM.Domain.Managers
 
             if (offer.Customer != null)
             {
+                var customerIncludeQuery = new QuerySet();
+                customerIncludeQuery.Include.Fields = new string[] { "honorific-prefix", "language" };
+                offer.Customer = await _customerDataProvider.GetByNumberAsync(offer.Customer.Number, customerIncludeQuery);
+                
                 var telephones = await _telephoneDataProvider.GetAllByCustomerIdAsync(offer.Customer.Id, telephoneQuery);
                 offer.Customer.Telephones = telephones.Items;
             }
 
             if (offer.Contact != null)
             {
+                var contactIncludeQuery = new QuerySet();
+                contactIncludeQuery.Include.Fields = new string[] { "honorific-prefix", "language" };
+                offer.Contact = await _contactDataProvider.GetByIdAsync(offer.Contact.Id, contactIncludeQuery);
+
                 var telephones = await _telephoneDataProvider.GetAllByContactIdAsync(offer.Contact.Id, telephoneQuery);
                 offer.Contact.Telephones = telephones.Items;
             }

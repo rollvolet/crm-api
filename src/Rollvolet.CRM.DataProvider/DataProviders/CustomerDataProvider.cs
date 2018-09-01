@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -187,19 +188,18 @@ namespace Rollvolet.CRM.DataProviders
 
         private async Task<DataProvider.Models.Customer> FindByNumberAsync(int number, QuerySet query = null)
         {
-            var source = BaseQuery()
-                            .Where(c => c.Number == number);
-
-            if (query != null)
-                source = source.Include(query);
-
-            return await source.FirstOrDefaultAsync();
+            return await FindWhereAsync(c => c.Number == number, query);
         }
 
         private async Task<DataProvider.Models.Customer> FindByDataIdAsync(int id, QuerySet query = null)
         {
-            var source = BaseQuery()
-                            .Where(c => c.DataId == id);
+            return await FindWhereAsync(c => c.DataId == id, query);
+        }
+
+        private async Task<DataProvider.Models.Customer> FindWhereAsync(Expression<Func<DataProvider.Models.Customer, bool>> where,
+                                                                        QuerySet query = null)
+        {
+            var source = BaseQuery().Where(where);
 
             if (query != null)
                 source = source.Include(query);
