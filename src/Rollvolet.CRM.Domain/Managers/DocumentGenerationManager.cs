@@ -20,19 +20,22 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IOrderDataProvider _orderDataProvider;
+        private readonly ITelephoneDataProvider _telephoneDataProvider;
         private readonly HttpClient _httpClient;
         private readonly DocumentGenerationConfiguration _documentGenerationConfig;
         private readonly string _offerStorageLocation;
         private readonly string _productionTicketStorageLocation;
         private readonly ILogger _logger;
 
-        public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IOfferDataProvider offerDataProvider, IOrderDataProvider orderDataProvider,
+        public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IOfferDataProvider offerDataProvider,
+                                         IOrderDataProvider orderDataProvider, ITelephoneDataProvider telephoneDataProvider,
                                          IOptions<DocumentGenerationConfiguration> documentGenerationConfiguration,
                                          ILogger<DocumentGenerationManager> logger)
         {
             _requestDataProvider = requestDataProvider;
             _offerDataProvider = offerDataProvider;
             _orderDataProvider = orderDataProvider;
+            _telephoneDataProvider = telephoneDataProvider;
             _httpClient = new HttpClient();
             _documentGenerationConfig = documentGenerationConfiguration.Value;
             _logger = logger;
@@ -80,11 +83,28 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<Stream> CreateAndStoreOfferDocument(int offerId)
         {
-            var query = new QuerySet();
-            query.Include.Fields = new string[] {
+            var includeQuery = new QuerySet();
+            includeQuery.Include.Fields = new string[] {
                 "offerlines", "offerlines.vat-rate", "customer", "customer.honorific-prefix", "request", "contact", "building"
             };
-            var offer = await _offerDataProvider.GetByIdAsync(offerId, query);
+            var offer = await _offerDataProvider.GetByIdAsync(offerId, includeQuery);
+
+            var telephoneQuery = new QuerySet();
+            telephoneQuery.Sort.Field = "order";
+            telephoneQuery.Sort.Order = SortQuery.ORDER_ASC;
+            telephoneQuery.Include.Fields = new string[] { "country", "telephone-type" };
+
+            if (offer.Customer != null)
+            {
+                var telephones = await _telephoneDataProvider.GetAllByCustomerIdAsync(offer.Customer.Id, telephoneQuery);
+                offer.Customer.Telephones = telephones.Items;
+            }
+
+            if (offer.Contact != null)
+            {
+                var telephones = await _telephoneDataProvider.GetAllByContactIdAsync(offer.Contact.Id, telephoneQuery);
+                offer.Contact.Telephones = telephones.Items;
+            }
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/offer";
             var json = JsonConvert.SerializeObject(offer, new JsonSerializerSettings {
