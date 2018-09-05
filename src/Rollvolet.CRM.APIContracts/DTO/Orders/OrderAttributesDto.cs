@@ -36,5 +36,9 @@ namespace Rollvolet.CRM.APIContracts.DTO.Orders
         public bool Canceled { get; set; }
         [JsonProperty("cancellation-reason")]
         public string CancellationReason { get; set; }
+        [JsonProperty("planning-id")]
+        public string PlanningId { get; set; }
+        [JsonProperty("planning-ms-object-id")]
+        public string PlanningMsObjectId { get; set; }
     }
 }

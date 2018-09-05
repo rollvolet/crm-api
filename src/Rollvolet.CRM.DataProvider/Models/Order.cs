@@ -9,16 +9,16 @@ namespace Rollvolet.CRM.DataProvider.Models
     {
         [Column("OfferteID")]
         public int Id { get; set; }  // Offer and Order have the same ID column
-        
+
         [Column("KlantID")]
         public int? CustomerId { get; set; }
-        
+
         [Column("GebouwID")]
         public int? RelativeBuildingId { get; set; }
-        
+
         [Column("ContactID")]
         public int? RelativeContactId { get; set; }
-        
+
         [Column("BestelDatum")]
         public DateTime? OrderDate { get; set; }
 
@@ -45,10 +45,10 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("TeLeveren")]
         public bool MustBeDelivered { get; set; }
-        
+
         [Column("VerwachteDatum")]
         public string ExpectedDate { get; set; }
-        
+
         [Column("VereisteDatum")]
         public string RequiredDate { get; set; }
 
@@ -56,28 +56,34 @@ namespace Rollvolet.CRM.DataProvider.Models
         public float? ScheduledHours { get; set; }
 
         [Column("ManGepland")]
-        public float? ScheduledNbOfPersons { get; set; }  
+        public float? ScheduledNbOfPersons { get; set; }
 
         [Column("UrenGerekend")]
         public float? InvoicableHours { get; set; }
 
         [Column("ManGerekend")]
-        public float? InvoicableNbOfPersons { get; set; }  
+        public float? InvoicableNbOfPersons { get; set; }
 
         [Column("Opmerking")]
-        public string Comment { get; set; }                 
+        public string Comment { get; set; }
 
         [Column("AfgeslotenBestelling")]
         public bool Canceled { get; set; }
 
         [Column("RedenAfsluiten")]
-        public string CancellationReason { get; set; } 
+        public string CancellationReason { get; set; }
 
         [Column("MuntBestel")]
         public string Currency { get; set; }
 
-        [Column("Besteld")]      
-        public bool IsOrdered { get; set; }  
+        [Column("Besteld")]
+        public bool IsOrdered { get; set; }
+
+        [Column("PlanningId")]
+        public string PlanningId { get; set; }
+
+        [Column("PlanningMsObjectId")]
+        public string PlanningMsObjectId { get; set; }
 
 
         // Include resources
@@ -89,12 +95,12 @@ namespace Rollvolet.CRM.DataProvider.Models
         public IEnumerable<DepositInvoiceHub> DepositInvoicesHubs { get; set; }
 
         // TODO add calendar event
-        
+
 
         // Manually included resources
         [NotMapped]
         public Building Building { get; set; }
         [NotMapped]
-        public Contact Contact { get; set; }        
+        public Contact Contact { get; set; }
     }
 }

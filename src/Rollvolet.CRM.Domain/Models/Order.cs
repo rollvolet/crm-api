@@ -14,11 +14,9 @@ namespace Rollvolet.CRM.Domain.Models
         public VatRate VatRate { get; set; }
         public IEnumerable<Deposit> Deposits { get; set; }
         public IEnumerable<DepositInvoice> DepositInvoices { get; set; }
-        
-        // TODO add calendar event
-        
+
         public DateTime? OrderDate { get; set; }
-        public string OfferNumber { get; set; }        
+        public string OfferNumber { get; set; }
         public double? Amount { get; set; }
         public bool DepositRequired { get; set; }
         public bool HasProductionTicket { get; set; }
@@ -28,11 +26,13 @@ namespace Rollvolet.CRM.Domain.Models
         public DateTime? ExpectedDate { get; set; }
         public DateTime? RequiredDate { get; set; }
         public float? ScheduledHours { get; set; }
-        public float? ScheduledNbOfPersons { get; set; }  
+        public float? ScheduledNbOfPersons { get; set; }
         public float? InvoicableHours { get; set; }
-        public float? InvoicableNbOfPersons { get; set; }  
-        public string Comment { get; set; }                 
+        public float? InvoicableNbOfPersons { get; set; }
+        public string Comment { get; set; }
         public bool Canceled { get; set; }
-        public string CancellationReason { get; set; } 
+        public string CancellationReason { get; set; }
+        public string PlanningId { get; set; }
+        public string PlanningMsObjectId { get; set; }
     }
 }
