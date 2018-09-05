@@ -110,7 +110,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 var customerIncludeQuery = new QuerySet();
                 customerIncludeQuery.Include.Fields = new string[] { "honorific-prefix", "language" };
                 offer.Customer = await _customerDataProvider.GetByNumberAsync(offer.Customer.Number, customerIncludeQuery);
-                
+
                 var telephones = await _telephoneDataProvider.GetAllByCustomerIdAsync(offer.Customer.Id, telephoneQuery);
                 offer.Customer.Telephones = telephones.Items;
             }

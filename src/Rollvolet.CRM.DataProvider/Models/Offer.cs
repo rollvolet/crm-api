@@ -52,6 +52,12 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Referentie")]
         public string Reference { get; set; }
 
+        [Column("DocumentIntro")]
+        public string DocumentIntro { get; set; }
+
+        [Column("DocumentOutro")]
+        public string DocumentOutro { get; set; }
+
         [Column("MuntOfferte")]
         public string Currency { get; set; }
 

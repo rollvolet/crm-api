@@ -17,5 +17,9 @@ namespace Rollvolet.CRM.APIContracts.DTO.Offers
         public double? ForeseenNbOfPersons { get; set; }
         public string Comment { get; set; }
         public string Reference { get; set; }
+        [JsonProperty("document-intro")]
+        public string DocumentIntro { get; set; }
+        [JsonProperty("document-outro")]
+        public string DocumentOutro { get; set; }
     }
 }
