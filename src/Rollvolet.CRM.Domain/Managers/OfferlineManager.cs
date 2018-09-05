@@ -49,8 +49,15 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Offerline cannot have an id on create.");
             if (offerline.Offer == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Offer is required on offerline creation.");
+            if (offerline.Amount == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Amount is required on offerline creation.");
 
             await EmbedRelations(offerline);
+
+            if (offerline.Offer == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Offer is required.");
+            if (offerline.VatRate == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Vat-rate is required.");
 
             return await _offerlineDataProvider.CreateAsync(offerline);
         }
@@ -63,11 +70,15 @@ namespace Rollvolet.CRM.Domain.Managers
 
             if (offerline.Id != existingOfferline.Id)
                 throw new IllegalArgumentException("IllegalAttribute", "Offerline id cannot be updated.");
+            if (offerline.Amount == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Amount is required on offerline.");
 
             await EmbedRelations(offerline, existingOfferline);
 
             if (offerline.Offer == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Offer is required.");
+            if (offerline.VatRate == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Vat-rate is required.");
 
             return await _offerlineDataProvider.UpdateAsync(offerline);
         }
