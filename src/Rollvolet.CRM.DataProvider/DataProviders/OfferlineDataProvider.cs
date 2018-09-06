@@ -62,6 +62,26 @@ namespace Rollvolet.CRM.DataProviders
             };
         }
 
+        public async Task<Paged<Offerline>> GetOrderedByOrderIdAsync(int orderId, QuerySet query)
+        {
+            var source = _context.Offerlines
+                            .Where(o => o.OfferId == orderId && o.IsOrdered)
+                            .Include(query)
+                            .Sort(query);
+
+            var offerlines = source.ForPage(query).AsEnumerable();
+            var mappedOfferlines = _mapper.Map<IEnumerable<Offerline>>(offerlines);
+
+            var count = await source.CountAsync();
+
+            return new Paged<Offerline>() {
+                Items = mappedOfferlines,
+                Count = count,
+                PageNumber = query.Page.Number,
+                PageSize = query.Page.Size
+            };
+        }
+
         public async Task<Offerline> CreateAsync(Offerline offerline)
         {
             var offerlineRecord = _mapper.Map<DataProvider.Models.Offerline>(offerline);

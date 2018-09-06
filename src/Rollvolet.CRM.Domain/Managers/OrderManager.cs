@@ -19,13 +19,15 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IInvoiceDataProvider _invoiceDataProvider;
+        private readonly IOfferlineDataProvider _offerlineDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
         private readonly ILogger _logger;
 
         public OrderManager(IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDataProvider,
                                 ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
                                 IBuildingDataProvider buildingDataProvider, IOfferDataProvider offerDataProvider,
-                                IVatRateDataProvider vatRateDataProvider, ILogger<OrderManager> logger)
+                                IOfferlineDataProvider offerlineDataProvider, IVatRateDataProvider vatRateDataProvider,
+                                ILogger<OrderManager> logger)
         {
             _orderDataProvider = orderDataProvider;
             _customerDataProvider = customerDataProvider;
@@ -33,6 +35,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _buildingDataProvider = buildingDataProvider;
             _offerDataProvider = offerDataProvider;
             _invoiceDataProvider = invoiceDataProvider;
+            _offerlineDataProvider = offerlineDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
             _logger = logger;
         }
@@ -139,6 +142,15 @@ namespace Rollvolet.CRM.Domain.Managers
             }
             catch(EntityNotFoundException)
             {
+                var pageQuery = new QuerySet();
+                pageQuery.Page.Size = 1;
+                var offerlines = await _offerlineDataProvider.GetOrderedByOrderIdAsync(id, pageQuery);
+                if (offerlines.Count > 0)
+                {
+                    _logger.LogError($"Order {id} cannot be deleted because {offerlines.Count} ordered offerlines are attached to it.");
+                    throw new InvalidOperationException($"Order {id} cannot be deleted because {offerlines.Count} ordered offerlines are attached to it.");
+                }
+
                 await _orderDataProvider.DeleteByIdAsync(id);
             }
         }

@@ -9,6 +9,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     {
         Task<Offerline> GetByIdAsync(int id, QuerySet query = null);
         Task<Paged<Offerline>> GetAllByOfferIdAsync(int offerId, QuerySet query);
+        Task<Paged<Offerline>> GetOrderedByOrderIdAsync(int orderId, QuerySet query);
         Task<Offerline> CreateAsync(Offerline offerline);
         Task<Offerline> UpdateAsync(Offerline offerline);
         Task DeleteByIdAsync(int id);
