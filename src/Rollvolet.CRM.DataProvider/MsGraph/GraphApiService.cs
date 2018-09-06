@@ -178,14 +178,14 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return order;
         }
 
-        public async Task<string> GetSubject(string msObjectId)
+        public async Task<string> GetVisitSubject(string msObjectId)
         {
-            var calendarEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[msObjectId].Request().GetAsync();
+            return await GetSubject(_calendarConfig.KlantenbezoekCalendarId, msObjectId);
+        }
 
-            if (calendarEvent != null)
-                return calendarEvent.Subject;
-            else
-                throw new EntityNotFoundException();
+        public async Task<string> GetPlanningSubject(string msObjectId)
+        {
+            return await GetSubject(_calendarConfig.PlanningCalendarId, msObjectId);
         }
 
         private Event CreateVisitEvent(Visit visit, CustomerEntity customerEntity)
@@ -254,6 +254,16 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                 Start = start,
                 End = end
             };
+        }
+
+        private async Task<string> GetSubject(string calendarId, string msObjectId)
+        {
+            var calendarEvent = await _client.Users[calendarId].Calendar.Events[msObjectId].Request().GetAsync();
+
+            if (calendarEvent != null)
+                return calendarEvent.Subject;
+            else
+                throw new EntityNotFoundException();
         }
 
         private string GetPeriodMessage(string period, string from, string until)

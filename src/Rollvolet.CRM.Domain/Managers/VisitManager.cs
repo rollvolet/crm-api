@@ -169,7 +169,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         private async Task<Visit> SyncSubjectAndPeriod(Visit visit)
         {
-            var subject = await _graphApiService.GetSubject(visit.MsObjectId);
+            var subject = await _graphApiService.GetVisitSubject(visit.MsObjectId);
 
             if (visit.CalendarSubject != subject)
             {

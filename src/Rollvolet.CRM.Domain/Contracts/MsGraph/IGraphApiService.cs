@@ -12,6 +12,7 @@ namespace Rollvolet.CRM.Domain.Contracts.MsGraph
         Task<Order> CreateCalendarEventForPlanning(Order order);
         Task<Order> UpdateCalendarEventForPlanning(Order order);
         Task<Order> DeleteCalendarEventForPlanning(Order order);
-        Task<string> GetSubject(string msObjectId);
+        Task<string> GetVisitSubject(string msObjectId);
+        Task<string> GetPlanningSubject(string msObjectId);
     }
 }
