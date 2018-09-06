@@ -31,8 +31,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Offertedatum")]
         public DateTime? OfferDate { get; set; }
 
-        [Column("OfferteBedrag")]
-        public double? Amount { get; set; }
+        // DEPRECATED
+        // [Column("OfferteBedrag")]
+        // public double? Amount { get; set; }
 
         [Column("BtwId")]
         public int? VatRateId { get; set; }
