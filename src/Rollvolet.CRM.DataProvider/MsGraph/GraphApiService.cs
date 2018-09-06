@@ -38,7 +38,15 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             if (visit.VisitDate != null)
             {
                 var calendarEvent = CreateVisitEvent(visit, customerEntity);
-                calendarEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events.Request().AddAsync(calendarEvent);
+
+                try
+                {
+                    calendarEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events.Request().AddAsync(calendarEvent);
+                }
+                catch (Exception)
+                {
+                    _logger.LogWarning("Something went wrong while creating calendar event for visit {1}.", visit.Id);
+                }
 
                 visit.MsObjectId = calendarEvent.Id;
                 visit.CalendarSubject = calendarEvent.Subject;
@@ -59,8 +67,16 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                 if (visit.VisitDate != null)
                 {
                     var updatedEvent = CreateVisitEvent(visit, customerEntity);
-                    updatedEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[visit.MsObjectId]
+                    try
+                    {
+                        updatedEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[visit.MsObjectId]
                                     .Request().UpdateAsync(updatedEvent);
+                    }
+                    catch (Exception)
+                    {
+                        _logger.LogWarning("Something went wrong while updating calendar event {0} for visit {1}. Event will be decoupled.", visit.MsObjectId, visit.Id);
+                        return await DeleteCalendarEventForVisit(visit);
+                    }
 
                     visit.CalendarSubject = updatedEvent.Subject;
 
