@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
+using Rollvolet.CRM.Domain.Contracts.MsGraph;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
@@ -21,13 +22,14 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IInvoiceDataProvider _invoiceDataProvider;
         private readonly IOfferlineDataProvider _offerlineDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
+        private readonly IGraphApiService _graphApiService;
         private readonly ILogger _logger;
 
         public OrderManager(IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDataProvider,
                                 ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
                                 IBuildingDataProvider buildingDataProvider, IOfferDataProvider offerDataProvider,
                                 IOfferlineDataProvider offerlineDataProvider, IVatRateDataProvider vatRateDataProvider,
-                                ILogger<OrderManager> logger)
+                                IGraphApiService graphApiService, ILogger<OrderManager> logger)
         {
             _orderDataProvider = orderDataProvider;
             _customerDataProvider = customerDataProvider;
@@ -37,6 +39,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _invoiceDataProvider = invoiceDataProvider;
             _offerlineDataProvider = offerlineDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
+            _graphApiService = graphApiService;
             _logger = logger;
         }
 
@@ -88,6 +91,8 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogDebug(message);
                 throw new IllegalArgumentException("IllegalAttribute", message);
             }
+            if (order.PlanningMsObjectId != null)
+                throw new IllegalArgumentException("IllegalAttribute", "Calendar properties cannot be set.");
 
             await EmbedRelations(order);
 
@@ -117,6 +122,8 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogDebug(message);
                 throw new IllegalArgumentException("IllegalAttribute", message);
             }
+            if (order.PlanningMsObjectId != existingOrder.PlanningMsObjectId)
+                throw new IllegalArgumentException("IllegalAttribute", "Calendar properties cannot be updated.");
 
             await EmbedRelations(order, existingOrder);
 
@@ -128,6 +135,21 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", $"Contact is not attached to customer {order.Contact.Id}.");
             if (order.Building != null && order.Building.Customer.Id != order.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {order.Customer.Id}.");
+
+
+            if (order.PlanningMsObjectId != null && order.PlanningDate == null)
+            {
+                order = await _graphApiService.DeleteCalendarEventForPlanning(order);
+            }
+            else if (order.PlanningMsObjectId != null && order.PlanningDate != existingOrder.PlanningDate)
+            {
+                // TODO check on other properties than date only whether event must be updated
+                order = await _graphApiService.UpdateCalendarEventForPlanning(order);
+            }
+            else if (order.PlanningMsObjectId == null && order.PlanningDate != null)
+            {
+                order = await _graphApiService.CreateCalendarEventForPlanning(order);
+            }
 
             return await _orderDataProvider.UpdateAsync(order);
         }
@@ -150,6 +172,8 @@ namespace Rollvolet.CRM.Domain.Managers
                     _logger.LogError($"Order {id} cannot be deleted because {offerlines.Count} ordered offerlines are attached to it.");
                     throw new InvalidOperationException($"Order {id} cannot be deleted because {offerlines.Count} ordered offerlines are attached to it.");
                 }
+
+                // TODO delete planning event if there is one
 
                 await _orderDataProvider.DeleteByIdAsync(id);
             }

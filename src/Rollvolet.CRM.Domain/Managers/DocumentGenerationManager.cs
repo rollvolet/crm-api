@@ -130,10 +130,7 @@ namespace Rollvolet.CRM.Domain.Managers
             {
                 try
                 {
-                    var visit = await _visitDataProvider.GetByRequestIdAsync(offer.Request.Id);
-                    offer.Request.Visit = visit;
-
-                    var visitor = await _employeeDataProvider.GetByFirstName(visit.Visitor);
+                    var visitor = await _employeeDataProvider.GetVisitorByOfferId(offer.Id);
                     visitorInitials = visitor.Initials;
                 }
                 catch (EntityNotFoundException)

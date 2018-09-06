@@ -46,9 +46,11 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("TeLeveren")]
         public bool MustBeDelivered { get; set; }
 
+        // TODO convert to DateTime
         [Column("VerwachteDatum")]
         public string ExpectedDate { get; set; }
 
+        // TODO convert to DateTime
         [Column("VereisteDatum")]
         public string RequiredDate { get; set; }
 
@@ -78,6 +80,10 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("Besteld")]
         public bool IsOrdered { get; set; }
+
+        // TODO convert to DateTime
+        [Column("VastgelegdeDatum")]
+        public string PlanningDate { get; set; }
 
         [Column("PlanningId")]
         public string PlanningId { get; set; }

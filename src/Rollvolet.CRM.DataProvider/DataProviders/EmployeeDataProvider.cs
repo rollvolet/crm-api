@@ -43,5 +43,32 @@ namespace Rollvolet.CRM.DataProviders
 
             return _mapper.Map<Employee>(employee);
         }
+
+        public async Task<Employee> GetVisitorByOfferId(int offerId)
+        {
+            var visit = await _context.Offers.Where(o => o.Id == offerId).Take(1).Select(o => o.Request).Select(r => r.Visit).FirstOrDefaultAsync();
+
+            if (visit == null)
+            {
+                _logger.LogError($"No employee found for order {offerId}");
+                throw new EntityNotFoundException();
+            }
+
+            return await GetByFirstName(visit.Visitor);
+        }
+
+        public async Task<Employee> GetVisitorByOrderId(int orderId)
+        {
+            var visit = await _context.Orders.Where(o => o.Id == orderId).Take(1)
+                                .Select(o => o.Offer).Select(o => o.Request).Select(r => r.Visit).FirstOrDefaultAsync();
+
+            if (visit == null)
+            {
+                _logger.LogError($"No employee found for order {orderId}");
+                throw new EntityNotFoundException();
+            }
+
+            return await GetByFirstName(visit.Visitor);
+        }
     }
 }

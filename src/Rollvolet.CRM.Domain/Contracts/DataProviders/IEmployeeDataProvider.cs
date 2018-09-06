@@ -9,5 +9,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     {
         Task<IEnumerable<Employee>> GetAll();
         Task<Employee> GetByFirstName(string name);
+        Task<Employee> GetVisitorByOfferId(int offerId);
+        Task<Employee> GetVisitorByOrderId(int offerId);
     }
 }

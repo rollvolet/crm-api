@@ -154,6 +154,8 @@ namespace Rollvolet.CRM.DataProviders
                 orderRecord.CancellationReason = null;
                 orderRecord.Currency = null;
                 orderRecord.IsOrdered = false;
+                orderRecord.PlanningDate = null;
+                orderRecord.PlanningMsObjectId = null;
 
                 _context.Orders.Update(orderRecord);
                 await _context.SaveChangesAsync();
