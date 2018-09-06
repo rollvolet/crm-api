@@ -18,6 +18,10 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Technieker")]
         public string EmployeeName { get; set; }
 
+        // DEPRECATED
+        // [Column("Uren")]
+
+
         // Included resources
         public Invoice Invoice { get; set; }
         public Employee Employee { get; set; }

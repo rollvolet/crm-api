@@ -31,10 +31,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Offertedatum")]
         public DateTime? OfferDate { get; set; }
 
-        // DEPRECATED
-        // [Column("OfferteBedrag")]
-        // public double? Amount { get; set; }
-
         [Column("BtwId")]
         public int? VatRateId { get; set; }
 
@@ -61,6 +57,20 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("MuntOfferte")]
         public string Currency { get; set; }
+
+        // DEPRECATED
+        // [Column("OfferteBedrag")]
+        // public double? Amount { get; set; }
+
+        // DEPRECATED
+        // [Column("VerzendDatum")]
+
+        // DEPRECATED
+        // [Column("Afgesloten")]
+
+        // DEPRECATED
+        // [Column("ProduktId")]
+
 
 
         // Include resources
