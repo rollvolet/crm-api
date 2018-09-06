@@ -51,6 +51,8 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Offer is required on offerline creation.");
             if (offerline.Amount == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Amount is required on offerline creation.");
+            if (offerline.IsOrdered)
+                throw new IllegalArgumentException("IllegalAttribute", "Offerline cannot be ordered on creation.");
 
             await EmbedRelations(offerline);
 

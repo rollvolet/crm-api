@@ -12,5 +12,6 @@ namespace Rollvolet.CRM.Domain.Models
         public int SequenceNumber { get; set; }
         public double? Amount { get; set; }
         public string Description { get; set; }
+        public bool IsOrdered { get; set; }
     }
 }

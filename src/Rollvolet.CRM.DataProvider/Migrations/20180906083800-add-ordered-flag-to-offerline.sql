@@ -1,0 +1,1 @@
+ALTER TABLE dbo.TblOfferline ADD IsOrdered bit DEFAULT ((0));

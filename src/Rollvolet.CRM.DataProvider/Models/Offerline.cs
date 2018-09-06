@@ -25,6 +25,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("OfferId")]
         public int OfferId { get; set; }
 
+        [Column("IsOrdered")]
+        public bool IsOrdered { get; set; }
+
         [Column("Currency")]
         public string Currency { get; set; }
 
