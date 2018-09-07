@@ -21,6 +21,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IInvoiceDataProvider _invoiceDataProvider;
         private readonly IOfferlineDataProvider _offerlineDataProvider;
+        private readonly IDepositDataProvider _depositDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
         private readonly IGraphApiService _graphApiService;
         private readonly ILogger _logger;
@@ -29,7 +30,7 @@ namespace Rollvolet.CRM.Domain.Managers
                                 ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
                                 IBuildingDataProvider buildingDataProvider, IOfferDataProvider offerDataProvider,
                                 IOfferlineDataProvider offerlineDataProvider, IVatRateDataProvider vatRateDataProvider,
-                                IGraphApiService graphApiService, ILogger<OrderManager> logger)
+                                IDepositDataProvider depositDataProvider, IGraphApiService graphApiService, ILogger<OrderManager> logger)
         {
             _orderDataProvider = orderDataProvider;
             _customerDataProvider = customerDataProvider;
@@ -38,6 +39,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _offerDataProvider = offerDataProvider;
             _invoiceDataProvider = invoiceDataProvider;
             _offerlineDataProvider = offerlineDataProvider;
+            _depositDataProvider = depositDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
             _graphApiService = graphApiService;
             _logger = logger;
@@ -166,11 +168,19 @@ namespace Rollvolet.CRM.Domain.Managers
             {
                 var pageQuery = new QuerySet();
                 pageQuery.Page.Size = 1;
+
                 var offerlines = await _offerlineDataProvider.GetOrderedByOrderIdAsync(id, pageQuery);
                 if (offerlines.Count > 0)
                 {
                     _logger.LogError($"Order {id} cannot be deleted because {offerlines.Count} ordered offerlines are attached to it.");
                     throw new InvalidOperationException($"Order {id} cannot be deleted because {offerlines.Count} ordered offerlines are attached to it.");
+                }
+
+                var deposits = await _depositDataProvider.GetAllByOrderIdAsync(id, pageQuery);
+                if (deposits.Count > 0)
+                {
+                    _logger.LogError($"Order {id} cannot be deleted because {deposits.Count} deposits are attached to it.");
+                    throw new InvalidOperationException($"Order {id} cannot be deleted because {deposits.Count} deposits are attached to it.");
                 }
 
                 // TODO delete planning event if there is one
