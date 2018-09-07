@@ -11,6 +11,7 @@ using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
 using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
@@ -28,7 +29,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public InvoicesController(IInvoiceManager invoiceManager, IWorkingHourManager workingHourManager, IIncludedCollector includedCollector, 
+        public InvoicesController(IInvoiceManager invoiceManager, IWorkingHourManager workingHourManager, IIncludedCollector includedCollector,
                                     IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _invoiceManager = invoiceManager;
@@ -65,7 +66,7 @@ namespace Rollvolet.CRM.API.Controllers
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path, querySet);
 
             return Ok(new ResourceResponse() { Links = links, Data = orderDto, Included = included });
-        }   
+        }
 
         [HttpGet("{invoiceId}/working-hours")]
         [HttpGet("{invoiceId}/links/working-hours")]
@@ -81,6 +82,6 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedWorkingHours);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = workingHourDtos, Included = included });
-        }  
+        }
     }
-} 
+}
