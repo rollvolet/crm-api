@@ -100,8 +100,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public IEnumerable<Deposit> Deposits { get; set; }
         public IEnumerable<DepositInvoiceHub> DepositInvoicesHubs { get; set; }
 
-        // TODO add calendar event
-
 
         // Manually included resources
         [NotMapped]

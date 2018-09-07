@@ -117,6 +117,7 @@ namespace Rollvolet.CRM.DataProviders
             customerRecord.Number = await _sequenceDataProvider.GetNextCustomerNumber();
             customerRecord.Created = DateTime.Now;
             customerRecord.SearchName = CalculateSearchName(customer.Name);
+            // customer name is already uppercased by the frontend
 
             await HydratePostalCode(customer, customerRecord);
 
@@ -139,6 +140,7 @@ namespace Rollvolet.CRM.DataProviders
             var memoRecord = customerRecord.Memo;
             _mapper.Map(customer, customerRecord);
             customerRecord.SearchName = CalculateSearchName(customer.Name);
+            // customer name is already uppercased by the frontend
 
             await HydratePostalCode(customer, customerRecord);
 

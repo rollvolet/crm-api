@@ -190,7 +190,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 if (oldRequest != null)
                     request.Offer = oldRequest.Offer;
                 else
-                    request.Offer = null; // should not be reached. Offer cannot be set on creation // TODO throw exception instead?
+                    request.Offer = await _offerDataProvider.GetByIdAsync(request.Offer.Id);
             }
             catch (EntityNotFoundException)
             {
