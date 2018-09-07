@@ -11,6 +11,7 @@ using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
 using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.DepositInvoices;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
@@ -62,6 +63,6 @@ namespace Rollvolet.CRM.API.Controllers
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path, querySet);
 
             return Ok(new ResourceResponse() { Links = links, Data = orderDto, Included = included });
-        }   
+        }
     }
-} 
+}

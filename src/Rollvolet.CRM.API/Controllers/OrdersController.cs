@@ -16,6 +16,7 @@ using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Buildings;
 using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
+using Rollvolet.CRM.APIContracts.DTO.DepositInvoices;
 using Rollvolet.CRM.APIContracts.DTO.Deposits;
 using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
