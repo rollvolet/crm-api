@@ -9,6 +9,7 @@ using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.Deposits;
 using Rollvolet.CRM.APIContracts.DTO.Invoices;
+using Rollvolet.CRM.APIContracts.DTO.InvoiceSupplements;
 using Rollvolet.CRM.APIContracts.DTO.Offerlines;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
@@ -706,12 +707,17 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
-            CreateMap<InvoiceSupplement, InvoiceSupplementDto.AttributesDto>();
+            CreateMap<InvoiceSupplement, InvoiceSupplementAttributesDto>().ReverseMap();
 
             CreateMap<InvoiceSupplement, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<InvoiceSupplement, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("invoice-supplements"));
+
+            CreateMap<InvoiceSupplementRequestDto, InvoiceSupplement>()
+                .ConstructUsing((src, context) => context.Mapper.Map<InvoiceSupplement>(src.Attributes))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<OneRelationship, InvoiceSupplement>()
                 .ConstructUsing((src, context) => context.Mapper.Map<InvoiceSupplement>(src.Data))
