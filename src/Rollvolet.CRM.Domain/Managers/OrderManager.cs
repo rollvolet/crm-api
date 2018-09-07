@@ -183,9 +183,16 @@ namespace Rollvolet.CRM.Domain.Managers
                     throw new InvalidOperationException($"Order {id} cannot be deleted because {deposits.Count} deposits are attached to it.");
                 }
 
-                // TODO delete planning event if there is one
-
-                await _orderDataProvider.DeleteByIdAsync(id);
+                try
+                {
+                    var order = await _orderDataProvider.GetByIdAsync(id);
+                    await _graphApiService.DeleteCalendarEventForPlanning(order);
+                    await _orderDataProvider.DeleteByIdAsync(id);
+                }
+                catch (EntityNotFoundException)
+                {
+                    // Order not found. Nothing should happen.
+                }
             }
         }
 
