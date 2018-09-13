@@ -144,6 +144,13 @@ namespace Rollvolet.CRM.DataProviders
 
             await HydratePostalCode(customer, customerRecord);
 
+            // Workaround constraints set on the database
+            if (string.IsNullOrEmpty(customer.Suffix))
+                customerRecord.Suffix = null;
+
+            if (string.IsNullOrEmpty(customer.Prefix))
+                customerRecord.Prefix = null;
+
             if (customer.Memo != null)
             {
                 if (memoRecord != null)  // update existing memo

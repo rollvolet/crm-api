@@ -149,6 +149,13 @@ namespace Rollvolet.CRM.DataProviders
 
             await HydratePostalCode(contact, contactRecord);
 
+            // Workaround constraints set on the database
+            if (string.IsNullOrEmpty(contact.Suffix))
+                contactRecord.Suffix = null;
+
+            if (string.IsNullOrEmpty(contact.Prefix))
+                contactRecord.Prefix = null;
+
             _context.Contacts.Update(contactRecord);
             await _context.SaveChangesAsync();
 
