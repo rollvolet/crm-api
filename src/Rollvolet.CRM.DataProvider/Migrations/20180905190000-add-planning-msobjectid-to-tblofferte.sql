@@ -1,1 +1,0 @@
-ALTER TABLE dbo.tblOfferte ADD PlanningMsObjectId VARCHAR(250);
