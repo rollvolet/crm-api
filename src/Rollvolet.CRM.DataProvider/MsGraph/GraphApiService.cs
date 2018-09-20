@@ -248,7 +248,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                 // No employee found. Nothing should happen.
             }
 
-            var subject = $"{order.Customer.Name} - {address} ** {order.OfferNumber} - ({visitorInitials}) - {order.ScheduledHours}*{order.ScheduledNbOfPersons}";
+            var subject = $"{order.Customer.Name} - {address} ** AD{order.RequestNumber} - ({visitorInitials}) - {order.ScheduledHours}*{order.ScheduledNbOfPersons}";
 
             var planningDate = (DateTime) order.PlanningDate;
             var year = planningDate.Year + 1; // TODO remove +1
