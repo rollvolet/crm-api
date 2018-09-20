@@ -18,7 +18,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Technieker")]
         public string EmployeeName { get; set; }
 
-        // DEPRECATED
+        // @Deprecated
         // [Column("Uren")]
 
 

@@ -37,12 +37,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("VerzondenVia")]
         public string SubmissionTypeId { get; set; }
 
-        [Column("UrenVoorzien")]
-        public float? ForeseenHours { get; set; }
-
-        [Column("ManVoorzien")]
-        public float? ForeseenNbOfPersons { get; set; }
-
         [Column("Opmerking")]
         public string Comment { get; set; }
 
@@ -58,17 +52,25 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("MuntOfferte")]
         public string Currency { get; set; }
 
-        // DEPRECATED
+        // @Deprecated Needs to be moved to offerline
+        // [Column("UrenVoorzien")]
+        // public float? ForeseenHours { get; set; }
+
+        // @Deprecated Needs to be moved to offerline
+        // [Column("ManVoorzien")]
+        // public float? ForeseenNbOfPersons { get; set; }
+
+        // @Deprecated
         // [Column("OfferteBedrag")]
         // public double? Amount { get; set; }
 
-        // DEPRECATED
+        // @Deprecated
         // [Column("VerzendDatum")]
 
-        // DEPRECATED
+        // @Deprecated
         // [Column("Afgesloten")]
 
-        // DEPRECATED
+        // @Deprecated
         // [Column("ProduktId")]
 
 

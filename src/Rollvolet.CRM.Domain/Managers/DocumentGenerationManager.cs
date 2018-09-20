@@ -232,6 +232,7 @@ namespace Rollvolet.CRM.Domain.Managers
             var order = await _orderDataProvider.GetByIdAsync(orderId, query);
 
             var number = order.OfferNumber.Replace("/", "");
+            // TODO replace spaces with underscores in filename
 
             return $"{_productionTicketStorageLocation}{number}_{order.Customer.Name}.pdf";
         }

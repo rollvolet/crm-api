@@ -10,10 +10,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Offers
         public int SequenceNumber { get; set; }
         [JsonProperty("offer-date")]
         public DateTime OfferDate { get; set; }
-        [JsonProperty("foreseen-hours")]
-        public double? ForeseenHours { get; set; }
-        [JsonProperty("foreseen-nb-of-persons")]
-        public double? ForeseenNbOfPersons { get; set; }
         public string Comment { get; set; }
         public string Reference { get; set; }
         [JsonProperty("document-intro")]

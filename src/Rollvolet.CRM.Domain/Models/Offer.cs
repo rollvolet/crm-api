@@ -18,8 +18,6 @@ namespace Rollvolet.CRM.Domain.Models
         public string Number { get; set; }
         public int SequenceNumber { get; set; }
         public DateTime OfferDate { get; set; }
-        public double? ForeseenHours { get; set; }
-        public double? ForeseenNbOfPersons { get; set; }
         public string Comment { get; set; }
         public string Reference { get; set; }
         public string DocumentIntro { get; set; }
