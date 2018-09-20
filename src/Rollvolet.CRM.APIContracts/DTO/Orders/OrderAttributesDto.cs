@@ -28,10 +28,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Orders
         public float? ScheduledHours { get; set; }
         [JsonProperty("scheduled-nb-of-persons")]
         public float? ScheduledNbOfPersons { get; set; }
-        [JsonProperty("invoicable-hours")]
-        public float? InvoicableHours { get; set; }
-        [JsonProperty("invoicable-nb-of-persons")]
-        public float? InvoicableNbOfPersons { get; set; }
         public string Comment { get; set; }
         public bool Canceled { get; set; }
         [JsonProperty("cancellation-reason")]

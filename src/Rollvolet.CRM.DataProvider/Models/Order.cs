@@ -60,12 +60,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("ManGepland")]
         public float? ScheduledNbOfPersons { get; set; }
 
-        [Column("UrenGerekend")]
-        public float? InvoicableHours { get; set; }
-
-        [Column("ManGerekend")]
-        public float? InvoicableNbOfPersons { get; set; }
-
         [Column("Opmerking")]
         public string Comment { get; set; }
 
@@ -91,6 +85,13 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("PlanningMsObjectId")]
         public string PlanningMsObjectId { get; set; }
 
+        // @Deprecated
+        // [Column("UrenGerekend")]
+        // public float? InvoicableHours { get; set; }
+
+        // @Deprecated
+        // [Column("ManGerekend")]
+        // public float? InvoicableNbOfPersons { get; set; }
 
         // Include resources
         public Offer Offer { get; set; }

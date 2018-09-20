@@ -27,8 +27,6 @@ namespace Rollvolet.CRM.Domain.Models
         public DateTime? RequiredDate { get; set; }
         public float? ScheduledHours { get; set; }
         public float? ScheduledNbOfPersons { get; set; }
-        public float? InvoicableHours { get; set; }
-        public float? InvoicableNbOfPersons { get; set; }
         public string Comment { get; set; }
         public bool Canceled { get; set; }
         public string CancellationReason { get; set; }

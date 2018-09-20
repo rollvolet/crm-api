@@ -148,8 +148,6 @@ namespace Rollvolet.CRM.DataProviders
                 orderRecord.RequiredDate = null;
                 orderRecord.ScheduledHours = null;
                 orderRecord.ScheduledNbOfPersons = null;
-                orderRecord.InvoicableHours = null;
-                orderRecord.InvoicableNbOfPersons = null;
                 orderRecord.Canceled = false;
                 orderRecord.CancellationReason = null;
                 orderRecord.Currency = null;
