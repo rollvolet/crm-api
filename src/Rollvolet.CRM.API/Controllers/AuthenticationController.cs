@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -22,6 +21,7 @@ using Rollvolet.CRM.API.Configuration;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
+using System.Net.Http;
 
 namespace Rollvolet.CRM.API.Controllers
 {
@@ -30,9 +30,9 @@ namespace Rollvolet.CRM.API.Controllers
         private AuthenticationConfiguration _authenticationConfiguration;
         private readonly ILogger _logger;
         private HttpClient _httpClient;
-        
-        public AuthenticationController(IOptions<AuthenticationConfiguration> authenticationConfiguration, 
-            IHttpClientFactory httpClientFactory, ILogger<AuthenticationController> logger)
+
+        public AuthenticationController(IOptions<AuthenticationConfiguration> authenticationConfiguration,
+            Narato.Correlations.Http.Interfaces.IHttpClientFactory httpClientFactory, ILogger<AuthenticationController> logger)
         {
             _authenticationConfiguration = authenticationConfiguration.Value;
             _httpClient = httpClientFactory.Create();
@@ -57,7 +57,7 @@ namespace Rollvolet.CRM.API.Controllers
             var response = await _httpClient.SendAsync(request);
             var responseString = await response.Content.ReadAsStringAsync();
 
-            _logger.LogDebug("Token response received: [{statusCode}] {message}", response.StatusCode, responseString);            
+            _logger.LogDebug("Token response received: [{statusCode}] {message}", response.StatusCode, responseString);
 
             response.EnsureSuccessStatusCode();
 
@@ -68,8 +68,8 @@ namespace Rollvolet.CRM.API.Controllers
             else
             {
                 return Ok(JsonConvert.DeserializeObject<AuthenticationTokenResponseDto>(responseString));
-            } 
-            
+            }
+
         }
 
         [HttpPost("authentication/refresh-token")]
@@ -91,7 +91,7 @@ namespace Rollvolet.CRM.API.Controllers
             var responseString = await response.Content.ReadAsStringAsync();
 
             _logger.LogDebug("Refresh token response received: [{statusCode}] {message}", response.StatusCode, responseString);
-            
+
             response.EnsureSuccessStatusCode();
 
             if (string.IsNullOrEmpty(responseString))
@@ -105,4 +105,4 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
     }
-} 
+}
