@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
@@ -87,6 +88,9 @@ namespace Rollvolet.CRM.Domain.Managers
 
             await EmbedRelations(building);
 
+            if (building.City != null)
+                building.City = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(building.City.ToLower());
+
             return await _buildingDataProvider.CreateAsync(building);
         }
 
@@ -114,6 +118,9 @@ namespace Rollvolet.CRM.Domain.Managers
             }
 
             await EmbedRelations(building, existingBuilding);
+
+            if (building.City != null)
+                building.City = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(building.City.ToLower());
 
             return await _buildingDataProvider.UpdateAsync(building);
         }
