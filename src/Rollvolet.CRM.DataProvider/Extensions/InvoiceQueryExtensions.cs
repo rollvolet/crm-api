@@ -14,7 +14,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 {
     public static class InvoiceQueryExtensions
     {
-        public static IQueryable<Invoice> Filter(this IQueryable<Invoice> source, QuerySet querySet, CrmContext context, bool isDepositInvoice = false)  
+        public static IQueryable<Invoice> Filter(this IQueryable<Invoice> source, QuerySet querySet, CrmContext context, bool isDepositInvoice = false)
         {
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
@@ -53,10 +53,46 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                     source = source.Where(c => EF.Functions.Like(c.MainInvoiceHub.Order.OfferNumber, filterValue));
             }
 
+            if (querySet.Filter.Fields.ContainsKey("offer.request-number"))
+            {
+                var filterValue = querySet.Filter.Fields["offer.request-number"];
+                int number;
+                if (Int32.TryParse(filterValue, out number)) {
+                    if (isDepositInvoice)
+                    {
+                        var predicate = PredicateBuilder.New<Invoice>(x => x.MainInvoiceHub.Order.RequestId == number);
+                        var i = 10;
+                        while (i * number < 1000000) {
+                            var from = i * number;
+                            var to = i * (number + 1);
+                            predicate.Or(c => c.MainInvoiceHub.Order.RequestId >= from && c.MainInvoiceHub.Order.RequestId <= to);
+                            i = i * 10;
+                        }
+                        source = source.Where(predicate);
+                    }
+                    else
+                    {
+                        var predicate = PredicateBuilder.New<Invoice>(x => x.Order.RequestId == number);
+                        var i = 10;
+                        while (i * number < 1000000) {
+                            var from = i * number;
+                            var to = i * (number + 1);
+                            predicate.Or(c => c.Order.RequestId >= from && c.Order.RequestId <= to);
+                            i = i * 10;
+                        }
+                        source = source.Where(predicate);
+                    }
+                }
+                else
+                {
+                    throw new IllegalArgumentException("IllegalFilter", "Request number filter must be a integer.");
+                }
+            }
+
             source = source.FilterCase(querySet, context);
 
-            return source; 
-        }      
+            return source;
+        }
 
         public static IQueryable<Invoice> Include(this IQueryable<Invoice> source, QuerySet querySet, bool isDepositInvoice = false)
         {
@@ -73,25 +109,25 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             if (!isDepositInvoice) // only available on normal invoices
             {
-                if (querySet.Include.Fields.Contains("deposit-invoices"))                
+                if (querySet.Include.Fields.Contains("deposit-invoices"))
                     source = source.Include(c => c.DepositInvoiceHubs).ThenInclude(d => d.DepositInvoice);
-                if (querySet.Include.Fields.Contains("working-hours.employee"))                
+                if (querySet.Include.Fields.Contains("working-hours.employee"))
                     source = source.Include(c => c.WorkingHours).ThenInclude(h => h.Employee);
-    
+
                 selectors.Add("order", c => c.Order);
                 selectors.Add("supplements", c => c.Supplements);
                 selectors.Add("deposits", c => c.Deposits);
                 selectors.Add("working-hours", c => c.WorkingHours);
 
-                selectors.Add("deposit-invoices", null); 
-                selectors.Add("working-hours.employee", null);     
+                selectors.Add("deposit-invoices", null);
+                selectors.Add("working-hours.employee", null);
             }
-            else 
+            else
             {
-                if (querySet.Include.Fields.Contains("order"))                
+                if (querySet.Include.Fields.Contains("order"))
                     source = source.Include(c => c.MainInvoiceHub).ThenInclude(d => d.Order);
             }
-            
+
             // The selectors below won't work since we're not able to define the relationship in CrmContext
             // They are manually mapped in the DataProvider
             // selectors.Add("building", c => c.Building);
