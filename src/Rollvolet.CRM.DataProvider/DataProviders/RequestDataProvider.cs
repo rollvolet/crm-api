@@ -91,6 +91,12 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Request>(request);
         }
 
+        public async Task<Request> GetByOrderIdAsync(int orderId)
+        {
+            return await GetByOfferIdAsync(orderId);
+        }
+
+
         public async Task<Request> CreateAsync(Request request)
         {
             var requestRecord = _mapper.Map<DataProvider.Models.Request>(request);

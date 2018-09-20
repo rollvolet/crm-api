@@ -116,6 +116,8 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Order id cannot be updated.");
             if (order.OfferNumber != existingOrder.OfferNumber)
                 throw new IllegalArgumentException("IllegalAttribute", "Offer number cannot be updated.");
+            if (order.RequestNumber != existingOrder.RequestNumber)
+                throw new IllegalArgumentException("IllegalAttribute", "Request number cannot be updated.");
             if (order.OrderDate == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Order-date is required.");
             if (order.Invoice != null)

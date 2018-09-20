@@ -10,6 +10,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("OfferteID")]
         public int Id { get; set; }  // Offer and Order have the same ID column
 
+        [Column("AanvraagId")]
+        public int? RequestId { get; set; } // Only for performance reasons to search by RequestId quickly
+
         [Column("KlantID")]
         public int? CustomerId { get; set; }
 

@@ -157,6 +157,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences();
 
             CreateMap<Models.Offer, Domain.Models.Offer>()
+                .ForMember(dest => dest.RequestNumber, opt => opt.MapFrom(src => src.RequestId))
                 .PreserveReferences()
                 .ReverseMap()
                 .ForMember(dest => dest.Customer, opt => opt.Ignore())
@@ -182,6 +183,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.RelativeBuildingId, opt => opt.MapFrom(src => src.RelativeBuildingId))
                 .ForMember(dest => dest.RelativeContactId, opt => opt.MapFrom(src => src.RelativeContactId))
                 .ForMember(dest => dest.OfferNumber, opt => opt.MapFrom(src => src.Number))
+                .ForMember(dest => dest.RequestId, opt => opt.MapFrom(src => src.RequestId))
                 .ForMember(dest => dest.VatRateId, opt => opt.MapFrom(src => src.VatRateId))
                 .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
                 .ForAllOtherMembers(opt => opt.Ignore());
@@ -206,6 +208,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences();
 
             CreateMap<Models.Order, Domain.Models.Order>()
+                .ForMember(dest => dest.RequestNumber, opt => opt.MapFrom(src => src.RequestId))
                 .ForMember(dest => dest.ExpectedDate, opt => opt.MapFrom(src => ParseDate(src.ExpectedDate)))
                 .ForMember(dest => dest.RequiredDate, opt => opt.MapFrom(src => ParseDate(src.RequiredDate)))
                 .ForMember(dest => dest.PlanningDate, opt => opt.MapFrom(src => ParseDate(src.PlanningDate)))

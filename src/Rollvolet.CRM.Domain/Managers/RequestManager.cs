@@ -71,6 +71,11 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _requestDataProvider.GetByOfferIdAsync(offerId);
         }
 
+        public async Task<Request> GetByOrderIdAsync(int orderId)
+        {
+            return await _requestDataProvider.GetByOrderIdAsync(orderId);
+        }
+
         public async Task<Request> CreateAsync(Request request)
         {
             if (request.Id != 0)

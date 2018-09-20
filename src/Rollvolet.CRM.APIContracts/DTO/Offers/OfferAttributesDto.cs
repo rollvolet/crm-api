@@ -8,6 +8,8 @@ namespace Rollvolet.CRM.APIContracts.DTO.Offers
         public string Number { get; set; }
         [JsonProperty("sequence-number")]
         public int SequenceNumber { get; set; }
+        [JsonProperty("request-number")]
+        public int? RequestNumber { get; set; }
         [JsonProperty("offer-date")]
         public DateTime OfferDate { get; set; }
         public string Comment { get; set; }

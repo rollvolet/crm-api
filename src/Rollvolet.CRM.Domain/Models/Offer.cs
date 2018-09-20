@@ -16,6 +16,7 @@ namespace Rollvolet.CRM.Domain.Models
         public IEnumerable<Offerline> Offerlines { get; set; }
 
         public string Number { get; set; }
+        public int? RequestNumber { get; set; }
         public int SequenceNumber { get; set; }
         public DateTime OfferDate { get; set; }
         public string Comment { get; set; }

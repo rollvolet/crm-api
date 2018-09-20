@@ -16,6 +16,7 @@ namespace Rollvolet.CRM.Domain.Models
         public IEnumerable<DepositInvoice> DepositInvoices { get; set; }
 
         public DateTime? OrderDate { get; set; }
+        public int? RequestNumber { get; set; }
         public string OfferNumber { get; set; }
         public double? Amount { get; set; }
         public bool DepositRequired { get; set; }
