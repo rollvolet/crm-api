@@ -12,6 +12,7 @@ using Rollvolet.CRM.Domain.Configuration;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
+using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.Domain.Managers
@@ -158,9 +159,9 @@ namespace Rollvolet.CRM.Domain.Managers
                 response.EnsureSuccessStatusCode();
 
                 var inputStream = await response.Content.ReadAsStreamAsync();
-                var number = offer.Number.Replace("/", "");
+                var filePath = ConstructOfferDocumentFilePath(offer);
 
-                using (var fileStream = File.Create($"{_documentGenerationConfig.OfferStorageLocation}{number}-offerte.pdf"))
+                using (var fileStream = File.Create(filePath))
                 {
                     inputStream.Seek(0, SeekOrigin.Begin);
                     inputStream.CopyTo(fileStream);
@@ -180,9 +181,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<FileStream> DownloadOfferDocument(int offerId)
         {
             var offer = await _offerDataProvider.GetByIdAsync(offerId);
-            var number = offer.Number.Replace("/", "");
-            var filePath = $"{_documentGenerationConfig.OfferStorageLocation}{number}-offerte.pdf";
-
+            var filePath = ConstructOfferDocumentFilePath(offer);
             var stream = new MemoryStream();
 
             try
@@ -223,6 +222,13 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogWarning("Cannot find production ticket for order {0} at {1}", orderId, filePath);
                 throw new EntityNotFoundException();
             }
+        }
+
+        private string ConstructOfferDocumentFilePath(Offer offer)
+        {
+            var number = offer.Number.Replace("/", "");
+            var version = offer.DocumentVersion;
+            return $"{_documentGenerationConfig.OfferStorageLocation}{number}_offerte_{version}.pdf";
         }
 
         private async Task<string> ConstructProductionTicketFilePath(int orderId)

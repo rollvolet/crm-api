@@ -18,5 +18,7 @@ namespace Rollvolet.CRM.APIContracts.DTO.Offers
         public string DocumentIntro { get; set; }
         [JsonProperty("document-outro")]
         public string DocumentOutro { get; set; }
+        [JsonProperty("document-version")]
+        public string DocumentVersion { get; set; }
     }
 }

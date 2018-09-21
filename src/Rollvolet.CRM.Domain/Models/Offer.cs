@@ -23,5 +23,6 @@ namespace Rollvolet.CRM.Domain.Models
         public string Reference { get; set; }
         public string DocumentIntro { get; set; }
         public string DocumentOutro { get; set; }
+        public string DocumentVersion { get; set; }
     }
 }

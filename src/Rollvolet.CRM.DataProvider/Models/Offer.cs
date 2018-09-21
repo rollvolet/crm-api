@@ -49,6 +49,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("DocumentOutro")]
         public string DocumentOutro { get; set; }
 
+        [Column("DocumentVersion")]
+        public string DocumentVersion { get; set; }
+
         [Column("MuntOfferte")]
         public string Currency { get; set; }
 
