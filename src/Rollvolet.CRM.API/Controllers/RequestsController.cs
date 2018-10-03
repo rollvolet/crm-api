@@ -132,7 +132,7 @@ namespace Rollvolet.CRM.API.Controllers
             var stream = await _documentGenerationManager.CreateVisitReport(id);
 
             var file = new FileStreamResult(stream, "application/pdf");
-            file.FileDownloadName = $"bezoekrapport-{id}.pdf";
+            file.FileDownloadName = $"AD{id}_bezoekrapport.pdf";
             return file;
         }
 

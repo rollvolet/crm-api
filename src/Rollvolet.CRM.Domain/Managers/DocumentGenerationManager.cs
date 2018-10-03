@@ -3,6 +3,7 @@ using System.Dynamic;
 using System.IO;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,6 +20,7 @@ namespace Rollvolet.CRM.Domain.Managers
 {
     public class DocumentGenerationManager : IDocumentGenerationManager
     {
+        private readonly Regex _onlyAlphaNumeric = new Regex("[^a-zA-Z0-9_]");
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IOrderDataProvider _orderDataProvider;
@@ -93,7 +95,7 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
-        public async Task<Stream> CreateAndStoreOfferDocument(int offerId)
+        public async Task<FileStream> CreateAndStoreOfferDocument(int offerId)
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
@@ -158,18 +160,19 @@ namespace Rollvolet.CRM.Domain.Managers
             {
                 response.EnsureSuccessStatusCode();
 
-                var inputStream = await response.Content.ReadAsStreamAsync();
                 var filePath = ConstructOfferDocumentFilePath(offer);
 
-                using (var fileStream = File.Create(filePath))
+                using (var inputStream = await response.Content.ReadAsStreamAsync())
                 {
-                    inputStream.Seek(0, SeekOrigin.Begin);
-                    inputStream.CopyTo(fileStream);
+
+                    using (var fileStream = File.Create(filePath))
+                    {
+                        inputStream.Seek(0, SeekOrigin.Begin);
+                        inputStream.CopyTo(fileStream);
+                    }
                 }
 
-                inputStream.Seek(0, SeekOrigin.Begin);
-
-                return inputStream;
+                return new FileStream(filePath, FileMode.Open);
             }
             catch (Exception e)
             {

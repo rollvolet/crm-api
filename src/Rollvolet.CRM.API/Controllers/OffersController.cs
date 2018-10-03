@@ -137,15 +137,15 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost("{id}/documents")]
         public async Task<IActionResult> CreateOfferDocument(int id)
         {
-            var stream = await _documentGenerationManager.CreateAndStoreOfferDocument(id);
+            var fileStream = await _documentGenerationManager.CreateAndStoreOfferDocument(id);
 
-            var file = new FileStreamResult(stream, "application/pdf");
-            file.FileDownloadName = $"offerte-{id}.pdf";
+            var file = new FileStreamResult(fileStream, "application/pdf");
+            file.FileDownloadName = fileStream.Name;
             return file;
         }
 
         [HttpGet("{offerId}/document")]
-        public async Task<IActionResult> DownloadProductionTicket(int offerId)
+        public async Task<IActionResult> DownloadOfferDocument(int offerId)
         {
             var fileStream = await _documentGenerationManager.DownloadOfferDocument(offerId);
 
