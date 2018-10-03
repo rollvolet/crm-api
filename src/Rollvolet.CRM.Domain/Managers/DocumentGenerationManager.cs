@@ -226,9 +226,15 @@ namespace Rollvolet.CRM.Domain.Managers
 
         private string ConstructOfferDocumentFilePath(Offer offer)
         {
-            var number = offer.Number.Replace("/", "");
-            var version = offer.DocumentVersion;
-            return $"{_documentGenerationConfig.OfferStorageLocation}{number}_offerte_{version}.pdf";
+            // Parse year from the offernumber, since the offerdate changes on each document generation
+            // This will only work until 2099
+            var year = $"20{int.Parse(offer.Number.Substring(0, 2)) - 10}";
+            var directory = $"{_offerStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);
+
+            var filename = _onlyAlphaNumeric.Replace($"{offer.Number}_offerte_{offer.DocumentVersion}", "");
+
+            return $"{directory}{filename}.pdf";
         }
 
         private async Task<string> ConstructProductionTicketFilePath(int orderId)
@@ -237,10 +243,15 @@ namespace Rollvolet.CRM.Domain.Managers
             query.Include.Fields = new string[] { "customer" };
             var order = await _orderDataProvider.GetByIdAsync(orderId, query);
 
-            var number = order.OfferNumber.Replace("/", "");
-            // TODO replace spaces with underscores in filename
+            // Parse year from the offernumber, since the offerdate changes on each document generation
+            // This will only work until 2099
+            var year = $"20{int.Parse(order.OfferNumber.Substring(0, 2)) - 10}";
+            var directory = $"{_productionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);
 
-            return $"{_productionTicketStorageLocation}{number}_{order.Customer.Name}.pdf";
+            var filename = _onlyAlphaNumeric.Replace($"{order.OfferNumber}_productiebon_{order.Customer.Name}".Replace(" ", "_"), "");
+
+            return $"{directory}{filename}.pdf";
         }
     }
 }
