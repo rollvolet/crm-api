@@ -63,7 +63,8 @@ namespace Rollvolet.CRM.DataProvider.Models
         // [Column("ManVoorzien")]
         // public float? ForeseenNbOfPersons { get; set; }
 
-        // @Deprecated
+        // TODO recalculate and persist in DB for reporting purposes?
+        // @Deprecated Calculated based on the sum of the offerlines
         // [Column("OfferteBedrag")]
         // public double? Amount { get; set; }
 
