@@ -40,7 +40,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -55,7 +55,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAysnc(int id)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -68,9 +68,47 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Links = links, Data = orderDto, Included = included });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateAsync([FromBody] ResourceRequest<InvoiceRequestDto> resource)
+        {
+            if (resource.Data.Type != "invoices") return StatusCode(409);
+
+            var invoice = _mapper.Map<Invoice>(resource.Data);
+
+            invoice = await _invoiceManager.CreateAsync(invoice);
+            var invoiceDto = _mapper.Map<InvoiceDto>(invoice);
+
+            var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, invoiceDto.Id);
+
+            return Created(links.Self, new ResourceResponse() { Links = links, Data = invoiceDto });
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateAsync(string id, [FromBody] ResourceRequest<InvoiceRequestDto> resource)
+        {
+            if (resource.Data.Type != "invoices" || resource.Data.Id != id) return StatusCode(409);
+
+            var invoice = _mapper.Map<Invoice>(resource.Data);
+
+            invoice = await _invoiceManager.UpdateAsync(invoice);
+
+            var invoiceDto = _mapper.Map<InvoiceDto>(invoice);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = invoiceDto });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            await _invoiceManager.DeleteAsync(id);
+
+            return NoContent();
+        }
+
         [HttpGet("{invoiceId}/working-hours")]
         [HttpGet("{invoiceId}/links/working-hours")]
-        public async Task<IActionResult> GetRelatedWorkingHoursByInvoiceId(int invoiceId)
+        public async Task<IActionResult> GetRelatedWorkingHoursByInvoiceIdAsync(int invoiceId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 

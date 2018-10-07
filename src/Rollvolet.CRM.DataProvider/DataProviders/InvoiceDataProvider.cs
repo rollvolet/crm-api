@@ -18,10 +18,12 @@ namespace Rollvolet.CRM.DataProviders
 {
     public class InvoiceDataProvider : CaseRelatedDataProvider<DataProvider.Models.Invoice>, IInvoiceDataProvider
     {
+        private readonly ISequenceDataProvider _sequenceDataProvider;
 
-        public InvoiceDataProvider(CrmContext context, IMapper mapper, ILogger<InvoiceDataProvider> logger) : base(context, mapper, logger)
+        public InvoiceDataProvider(ISequenceDataProvider sequenceDataProvider, CrmContext context,
+                                    IMapper mapper, ILogger<InvoiceDataProvider> logger) : base(context, mapper, logger)
         {
-
+            _sequenceDataProvider = sequenceDataProvider;
         }
 
         private IQueryable<DataProvider.Models.Invoice> BaseQuery() {
@@ -99,6 +101,47 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Invoice>(invoice);
         }
 
+        public async Task<Invoice> CreateAsync(Invoice invoice)
+        {
+            var invoiceRecord = _mapper.Map<DataProvider.Models.Invoice>(invoice);
+
+            invoiceRecord.Number = await _sequenceDataProvider.GetNextInvoiceNumber();
+            invoiceRecord.Currency = "EUR";
+            invoiceRecord.Year = (short) new DateTime().Year;
+
+            await EmbedCustomerAttributes(invoiceRecord);
+
+            _context.Invoices.Add(invoiceRecord);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Invoice>(invoiceRecord);
+        }
+
+        public async Task<Invoice> UpdateAsync(Invoice invoice)
+        {
+            var invoiceRecord = await FindByIdAsync(invoice.Id);
+            _mapper.Map(invoice, invoiceRecord);
+
+            invoiceRecord.Currency = "EUR";
+            await EmbedCustomerAttributes(invoiceRecord);
+
+            _context.Invoices.Update(invoiceRecord);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Invoice>(invoiceRecord);
+        }
+
+        public async Task DeleteByIdAsync(int id)
+        {
+            var invoice = await FindByIdAsync(id);
+
+            if (invoice != null)
+            {
+                _context.Invoices.Remove(invoice);
+                await _context.SaveChangesAsync();
+           }
+        }
+
         private async Task<DataProvider.Models.Invoice> FindByIdAsync(int id, QuerySet query = null)
         {
             return await FindWhereAsync(c => c.Id == id, query);
@@ -117,6 +160,65 @@ namespace Rollvolet.CRM.DataProviders
             else
             {
                 return await source.FirstOrDefaultAsync();
+            }
+        }
+
+        private async Task EmbedCustomerAttributes(DataProvider.Models.Invoice invoice)
+        {
+            var customer = await _context.Customers.Where(c => c.Number == invoice.CustomerId).FirstOrDefaultAsync();
+            invoice.CustomerName = customer.Name;
+            invoice.CustomerAddress1 = customer.Address1;
+            invoice.CustomerAddress2 = customer.Address2;
+            invoice.CustomerAddress3 = customer.Address3;
+            invoice.CustomerPostalCodeId = customer.PostalCodeId;
+            invoice.CustomerPostalCode = customer.EmbeddedPostalCode;
+            invoice.CustomerCity = customer.EmbeddedCity;
+            invoice.CustomerLanguageId = customer.LanguageId;
+            invoice.CustomerCountryId = customer.CountryId;
+            invoice.CustomerHonorificPrefixId = customer.HonorificPrefixId;
+            invoice.CustomerPrefix = customer.Prefix;
+            invoice.CustomerSuffix = customer.Suffix;
+            invoice.CustomerIsCompany = customer.IsCompany;
+            invoice.CustomerVatNumber = customer.VatNumber;
+            // TODO embed phone, mobile and fax number
+            invoice.CustomerSearchName = customer.SearchName;
+
+            if (invoice.RelativeBuildingId != null)
+            {
+                var building = await _context.Buildings.
+                                        Where(b => b.CustomerId == invoice.CustomerId && b.Number == invoice.RelativeBuildingId).FirstOrDefaultAsync();
+                invoice.BuildingName = building.Name;
+                invoice.BuildingAddress1 = building.Address1;
+                invoice.BuildingAddress2 = building.Address2;
+                invoice.BuildingAddress3 = building.Address3;
+                invoice.BuildingPostalCodeId = building.PostalCodeId;
+                invoice.BuildingPostalCode = building.EmbeddedPostalCode;
+                invoice.BuildingCity = building.EmbeddedCity;
+                invoice.BuildingCountryId = building.CountryId != null ? building.CountryId : customer.CountryId; // not-NULL DB contstraint
+                invoice.BuildingPrefix = building.Prefix;
+                invoice.BuildingSuffix = building.Suffix;
+                // TODO embed phone, mobile and fax number
+                invoice.BuildingSearchName = building.SearchName;
+            }
+
+            if (invoice.RelativeContactId != null)
+            {
+                var contact = await _context.Contacts.
+                                        Where(b => b.CustomerId == invoice.CustomerId && b.Number == invoice.RelativeContactId).FirstOrDefaultAsync();
+                invoice.ContactName = contact.Name;
+                invoice.ContactAddress1 = contact.Address1;
+                invoice.ContactAddress2 = contact.Address2;
+                invoice.ContactAddress3 = contact.Address3;
+                invoice.ContactPostalCodeId = contact.PostalCodeId;
+                invoice.ContactPostalCode = contact.EmbeddedPostalCode;
+                invoice.ContactCity = contact.EmbeddedCity;
+                invoice.ContactLanguageId = contact.LanguageId;
+                invoice.ContactCountryId = contact.CountryId != null ? contact.CountryId : customer.CountryId; // not-NULL DB contstraint
+                invoice.ContactHonorificPrefixId = contact.HonorificPrefixId;
+                invoice.ContactPrefix = contact.Prefix;
+                invoice.ContactSuffix = contact.Suffix;
+                // TODO embed phone, mobile and fax number
+                invoice.ContactSearchName = contact.SearchName;
             }
         }
     }

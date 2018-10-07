@@ -29,6 +29,15 @@ namespace Rollvolet.CRM.DataProviders
             return _customerNumber;
         }
 
+        public async Task<int> GetNextInvoiceNumber()
+        {
+            // Not working with a local cached number because invoice numbers need to be sequential
+            // TODO take year into account?
+            var number = (int) await _context.Invoices.Where(i => i.Number != null).MaxAsync(c => c.Number);
+            number++;
+            return number;
+        }
+
         public async Task<short> GetNextOfferSequenceNumber(DateTime date)
         {
             var dateAtMidnight = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
