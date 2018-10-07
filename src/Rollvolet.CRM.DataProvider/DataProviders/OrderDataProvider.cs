@@ -94,6 +94,34 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Order>(order);
         }
 
+
+        public async Task<Offer> GetByRequestIdAsync(int requestId, QuerySet query = null)
+        {
+            var offer = await FindWhereAsync(r => r.RequestId == requestId, query);
+
+            if (offer == null)
+            {
+                _logger.LogError($"No offer found for request-id {requestId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Offer>(offer);
+        }
+
+        public async Task<Order> GetByInvoiceIdAsync(int invoiceId, QuerySet query = null)
+        {
+            var invoice = await _context.Invoices.Where(i => i.Id == invoiceId).FirstOrDefaultAsync();
+            var orderId = invoice.OrderId;
+
+            if (orderId == null)
+            {
+                _logger.LogError($"No order found for invoice-id {invoiceId}");
+                throw new EntityNotFoundException();
+            }
+
+            return await GetByIdAsync((int) orderId, query);
+        }
+
         public async Task<Order> CreateAsync(Order order)
         {
             // Order has already been created by EF Core on creation of the offer since they share the same underlying SQL table

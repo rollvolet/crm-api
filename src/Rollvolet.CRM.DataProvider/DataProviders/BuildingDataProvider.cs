@@ -77,7 +77,7 @@ namespace Rollvolet.CRM.DataProviders
 
             DataProvider.Models.Building building = null;
             if (request != null)
-                building = await _context.Buildings.Where(c => c.CustomerId == request.CustomerId && c.Number == request.RelativeContactId).FirstOrDefaultAsync();
+                building = await _context.Buildings.Where(c => c.CustomerId == request.CustomerId && c.Number == request.RelativeBuildingId).FirstOrDefaultAsync();
 
             if (building == null)
             {
@@ -94,7 +94,7 @@ namespace Rollvolet.CRM.DataProviders
 
             DataProvider.Models.Building building = null;
             if (offer != null)
-                building = await _context.Buildings.Where(c => c.CustomerId == offer.CustomerId && c.Number == offer.RelativeContactId).FirstOrDefaultAsync();
+                building = await _context.Buildings.Where(c => c.CustomerId == offer.CustomerId && c.Number == offer.RelativeBuildingId).FirstOrDefaultAsync();
 
             if (building == null)
             {
@@ -111,11 +111,28 @@ namespace Rollvolet.CRM.DataProviders
 
             DataProvider.Models.Building building = null;
             if (order != null)
-                building = await _context.Buildings.Where(c => c.CustomerId == order.CustomerId && c.Number == order.RelativeContactId).FirstOrDefaultAsync();
+                building = await _context.Buildings.Where(c => c.CustomerId == order.CustomerId && c.Number == order.RelativeBuildingId).FirstOrDefaultAsync();
 
             if (building == null)
             {
                 _logger.LogError($"No building found for order id {orderId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Building>(building);
+        }
+
+        public async Task<Building> GetByInvoiceIdAsync(int invoiceId)
+        {
+            var invoice = await _context.Invoices.Where(r => r.Id == invoiceId).FirstOrDefaultAsync();
+
+            DataProvider.Models.Building building = null;
+            if (invoice != null)
+                building = await _context.Buildings.Where(c => c.CustomerId == invoice.CustomerId && c.Number == invoice.RelativeBuildingId).FirstOrDefaultAsync();
+
+            if (building == null)
+            {
+                _logger.LogError($"No building found for invoice id {invoiceId}");
                 throw new EntityNotFoundException();
             }
 

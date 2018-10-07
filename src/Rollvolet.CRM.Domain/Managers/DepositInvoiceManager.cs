@@ -20,7 +20,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _logger = logger;
         }
-        
+
         public async Task<Paged<DepositInvoice>> GetAllAsync(QuerySet query)
         {
             if (query.Sort.Field == null)
@@ -57,6 +57,16 @@ namespace Rollvolet.CRM.Domain.Managers
             }
 
             return await _depositInvoiceDataProvider.GetAllByOrderIdAsync(orderId, query);
+        }
+
+        public async Task<Paged<DepositInvoice>> GetAllByInvoiceIdAsync(int invoiceId, QuerySet query)
+        {
+            if (query.Sort.Field == null) {
+                query.Sort.Order = SortQuery.ORDER_DESC;
+                query.Sort.Field = "payment-date";
+            }
+
+            return await _depositInvoiceDataProvider.GetAllByInvoiceIdAsync(invoiceId, query);
         }
     }
 }

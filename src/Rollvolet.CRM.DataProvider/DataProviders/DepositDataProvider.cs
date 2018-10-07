@@ -65,6 +65,28 @@ namespace Rollvolet.CRM.DataProviders
             };
         }
 
+        public async Task<Paged<Deposit>> GetAllByInvoiceIdAsync(int invoiceId, QuerySet query)
+        {
+            var source = _context.Deposits
+                            .Where(c => c.InvoiceId == invoiceId)
+                            .Include(query)
+                            .Sort(query)
+                            .Filter(query);
+
+            var deposits = source.ForPage(query).AsEnumerable();
+
+            var count = await source.CountAsync();
+
+            var mappedDeposits = _mapper.Map<IEnumerable<Deposit>>(deposits);
+
+            return new Paged<Deposit>() {
+                Items = mappedDeposits,
+                Count = count,
+                PageNumber = query.Page.Number,
+                PageSize = query.Page.Size
+            };
+        }
+
         public async Task<Deposit> CreateAsync(Deposit deposit)
         {
             var depositRecord = _mapper.Map<DataProvider.Models.Deposit>(deposit);

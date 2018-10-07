@@ -123,6 +123,23 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Contact>(contact);
         }
 
+        public async Task<Contact> GetByInvoiceIdAsync(int invoiceId)
+        {
+            var invoice = await _context.Invoices.Where(r => r.Id == invoiceId).FirstOrDefaultAsync();
+
+            DataProvider.Models.Contact contact = null;
+            if (invoice != null)
+                contact = await _context.Contacts.Where(c => c.CustomerId == invoice.CustomerId && c.Number == invoice.RelativeContactId).FirstOrDefaultAsync();
+
+            if (contact == null)
+            {
+                _logger.LogError($"No contact found for invoice id {invoiceId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Contact>(contact);
+        }
+
         public async Task<Contact> CreateAsync(Contact contact)
         {
             var contactRecord = _mapper.Map<DataProvider.Models.Contact>(contact);

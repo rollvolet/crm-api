@@ -13,6 +13,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
         Task<Building> GetByRequestIdAsync(int requestId);
         Task<Building> GetByOfferIdAsync(int offerId);
         Task<Building> GetByOrderIdAsync(int orderId);
+        Task<Building> GetByInvoiceIdAsync(int invoiceId);
         Task<Building> CreateAsync(Building building);
         Task<Building> UpdateAsync(Building building);
         Task DeleteByIdAsync(int id);

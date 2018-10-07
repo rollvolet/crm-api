@@ -11,8 +11,16 @@ using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
 using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.Buildings;
+using Rollvolet.CRM.APIContracts.DTO.Contacts;
+using Rollvolet.CRM.APIContracts.DTO.Customers;
+using Rollvolet.CRM.APIContracts.DTO.DepositInvoices;
+using Rollvolet.CRM.APIContracts.DTO.Deposits;
 using Rollvolet.CRM.APIContracts.DTO.Invoices;
+using Rollvolet.CRM.APIContracts.DTO.InvoiceSupplements;
+using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.JsonApi;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -24,15 +32,32 @@ namespace Rollvolet.CRM.API.Controllers
     public class InvoicesController : Controller
     {
         private readonly IInvoiceManager _invoiceManager;
+        private readonly ICustomerManager _customerManager;
+        private readonly IContactManager _contactManager;
+        private readonly IBuildingManager _buildingManager;
+        private readonly IOrderManager _orderManager;
+        private readonly IVatRateManager _vatRateManager;
         private readonly IWorkingHourManager _workingHourManager;
+        private readonly IDepositManager _depositManager;
+        private readonly IDepositInvoiceManager _depositInvoiceManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public InvoicesController(IInvoiceManager invoiceManager, IWorkingHourManager workingHourManager, IIncludedCollector includedCollector,
+        public InvoicesController(IInvoiceManager invoiceManager, ICustomerManager customerManager, IContactManager contactManager,
+                                    IBuildingManager buildingManager, IOrderManager orderManager, IVatRateManager vatRateManager,
+                                    IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager,
+                                    IWorkingHourManager workingHourManager, IIncludedCollector includedCollector,
                                     IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _invoiceManager = invoiceManager;
+            _customerManager = customerManager;
+            _contactManager = contactManager;
+            _buildingManager = buildingManager;
+            _orderManager = orderManager;
+            _vatRateManager = vatRateManager;
+            _depositManager = depositManager;
+            _depositInvoiceManager = depositInvoiceManager;
             _workingHourManager = workingHourManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
@@ -106,11 +131,109 @@ namespace Rollvolet.CRM.API.Controllers
             return NoContent();
         }
 
+        [HttpGet("{invoiceId}/customer")]
+        [HttpGet("{invoiceId}/links/customer")]
+        public async Task<IActionResult> GetRelatedCustomerById(int invoiceId)
+        {
+            CustomerDto customerDto;
+            try
+            {
+                var customer = await _customerManager.GetByInvoiceIdAsync(invoiceId);
+                customerDto = _mapper.Map<CustomerDto>(customer);
+            }
+            catch (EntityNotFoundException)
+            {
+                customerDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = customerDto });
+        }
+
+        [HttpGet("{invoiceId}/contact")]
+        [HttpGet("{invoiceId}/links/contact")]
+        public async Task<IActionResult> GetRelatedContactById(int invoiceId)
+        {
+            ContactDto contactDto;
+            try
+            {
+                var contact = await _contactManager.GetByOfferIdAsync(invoiceId);
+                contactDto = _mapper.Map<ContactDto>(contact);
+            }
+            catch (EntityNotFoundException)
+            {
+                contactDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = contactDto });
+        }
+
+        [HttpGet("{invoiceId}/building")]
+        [HttpGet("{invoiceId}/links/building")]
+        public async Task<IActionResult> GetRelatedBuildingById(int invoiceId)
+        {
+            BuildingDto buildingDto;
+            try
+            {
+                var building = await _buildingManager.GetByOfferIdAsync(invoiceId);
+                buildingDto = _mapper.Map<BuildingDto>(building);
+            }
+            catch (EntityNotFoundException)
+            {
+                buildingDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = buildingDto });
+        }
+
+        [HttpGet("{invoiceId}/order")]
+        [HttpGet("{invoiceId}/links/order")]
+        public async Task<IActionResult> GetRelatedOrderById(int invoiceId)
+        {
+            OrderDto orderDto;
+            try
+            {
+                var order = await _orderManager.GetByInvoiceIdAsync(invoiceId);
+                orderDto = _mapper.Map<OrderDto>(order);
+            }
+            catch (EntityNotFoundException)
+            {
+                orderDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = orderDto });
+        }
+
+        [HttpGet("{invoiceId}/vat-rate")]
+        [HttpGet("{invoiceId}/links/vat-rate")]
+        public async Task<IActionResult> GetRelatedVatRateById(int invoiceId)
+        {
+            VatRateDto vatRateDto;
+            try
+            {
+                var vatRate = await _vatRateManager.GetByInvoiceIdAsync(invoiceId);
+                vatRateDto = _mapper.Map<VatRateDto>(vatRate);
+            }
+            catch (EntityNotFoundException)
+            {
+                vatRateDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = vatRateDto });
+        }
+
         [HttpGet("{invoiceId}/working-hours")]
         [HttpGet("{invoiceId}/links/working-hours")]
         public async Task<IActionResult> GetRelatedWorkingHoursByInvoiceIdAsync(int invoiceId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            // TODO add endpoint to get employee of working-hour
+            querySet.Include.Fields = querySet.Include.Fields.Append("employee").ToArray();
 
             var pagedWorkingHours = await _workingHourManager.GetAllByInvoiceIdAsync(invoiceId, querySet);
 
@@ -121,5 +244,39 @@ namespace Rollvolet.CRM.API.Controllers
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = workingHourDtos, Included = included });
         }
+
+        [HttpGet("{invoiceId}/deposits")]
+        [HttpGet("{invoiceId}/links/deposits")]
+        public async Task<IActionResult> GetRelatedDepositsByInvoiceIdAsync(int invoiceId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedDeposits = await _depositManager.GetAllByInvoiceIdAsync(invoiceId, querySet);
+
+            var depositDtos = _mapper.Map<IEnumerable<DepositDto>>(pagedDeposits.Items, opt => opt.Items["include"] = querySet.Include);
+            var included = _includedCollector.CollectIncluded(pagedDeposits.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedDeposits);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedDeposits);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = depositDtos, Included = included });
+        }
+
+        [HttpGet("{invoiceId}/deposit-invoices")]
+        [HttpGet("{invoiceId}/links/deposit-invoices")]
+        public async Task<IActionResult> GetRelatedDepositInvoicesByInvoiceIdAsync(int invoiceId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedDeposits = await _depositInvoiceManager.GetAllByInvoiceIdAsync(invoiceId, querySet);
+
+            var depositInvoiceDtos = _mapper.Map<IEnumerable<DepositInvoiceDto>>(pagedDeposits.Items, opt => opt.Items["include"] = querySet.Include);
+            var included = _includedCollector.CollectIncluded(pagedDeposits.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedDeposits);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedDeposits);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = depositInvoiceDtos, Included = included });
+        }
+
+        // TODO add endpoint GET {invoiceId}/supplements
     }
 }

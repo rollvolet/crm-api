@@ -14,7 +14,7 @@ using System;
 using Rollvolet.CRM.Domain.Exceptions;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class DepositInvoiceDataProvider : CaseRelatedDataProvider<DataProvider.Models.Invoice>, IDepositInvoiceDataProvider
     {
         public DepositInvoiceDataProvider(CrmContext context, IMapper mapper, ILogger<DepositInvoiceDataProvider> logger) : base(context, mapper, logger)
@@ -25,7 +25,7 @@ namespace Rollvolet.CRM.DataProviders
         private IQueryable<DataProvider.Models.Invoice> BaseQuery() {
             return _context.Invoices
                             .Where(i => i.MainInvoiceHub != null); // only deposit invoices
-        }      
+        }
 
 
         public async Task<Paged<DepositInvoice>> GetAllAsync(QuerySet query)
@@ -87,7 +87,7 @@ namespace Rollvolet.CRM.DataProviders
                 Count = count,
                 PageNumber = query.Page.Number,
                 PageSize = query.Page.Size
-            };            
+            };
         }
 
         public async Task<Paged<DepositInvoice>> GetAllByOrderIdAsync(int orderId, QuerySet query)
@@ -99,8 +99,31 @@ namespace Rollvolet.CRM.DataProviders
                             .Filter(query, _context, true);
 
             // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-            var invoices = QueryListWithManualInclude(source, query);                     
-            
+            var invoices = QueryListWithManualInclude(source, query);
+
+            var mappedInvoices = _mapper.Map<IEnumerable<DepositInvoice>>(invoices);
+
+            var count = await source.CountAsync();
+
+            return new Paged<DepositInvoice>() {
+                Items = mappedInvoices,
+                Count = count,
+                PageNumber = query.Page.Number,
+                PageSize = query.Page.Size
+            };
+        }
+
+        public async Task<Paged<DepositInvoice>> GetAllByInvoiceIdAsync(int invoiceId, QuerySet query)
+        {
+            var source = BaseQuery()
+                            .Where(i => i.MainInvoiceHub.InvoiceId == invoiceId)
+                            .Include(query, true)
+                            .Sort(query, true)
+                            .Filter(query, _context, true);
+
+            // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
+            var invoices = QueryListWithManualInclude(source, query);
+
             var mappedInvoices = _mapper.Map<IEnumerable<DepositInvoice>>(invoices);
 
             var count = await source.CountAsync();

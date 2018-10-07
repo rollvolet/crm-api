@@ -40,6 +40,16 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _depositDataProvider.GetAllByOrderIdAsync(orderId, query);
         }
 
+        public async Task<Paged<Deposit>> GetAllByInvoiceIdAsync(int invoiceId, QuerySet query)
+        {
+            if (query.Sort.Field == null) {
+                query.Sort.Order = SortQuery.ORDER_DESC;
+                query.Sort.Field = "payment-date";
+            }
+
+            return await _depositDataProvider.GetAllByInvoiceIdAsync(invoiceId, query);
+        }
+
         public async Task<Deposit> CreateAsync(Deposit deposit)
         {
             if (deposit.Id != 0)
