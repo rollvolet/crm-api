@@ -17,19 +17,16 @@ namespace Rollvolet.CRM.Domain.Models
         public Contact Contact { get; set; }
         public Order Order { get; set; }
         public VatRate VatRate { get; set; }
-        public double? BaseAmount { get; set; }     
-        public double? Amount { get; set; } 
-        public double? Vat { get; set; }   
-        public double? TotalAmount { get; set; }   
-        public bool IsPaidInCash { get; set; }  
-        public bool CertificateRequired { get; set; }  
-        public bool CertificateReceived { get; set; }  
-        public bool CertificateClosed { get; set; }  
-        public bool IsCreditNote { get; set; }  
+        public double? BaseAmount { get; set; }
+        public bool IsPaidInCash { get; set; }
+        public bool CertificateRequired { get; set; }
+        public bool CertificateReceived { get; set; }
+        public bool CertificateClosed { get; set; }
+        public bool IsCreditNote { get; set; }
         public bool HasProductionTicket { get; set; }
-        public string CertificateUrl { get; set; } 
-        public string Comment { get; set; } 
-        public string Qualification { get; set; } 
+        public string CertificateUrl { get; set; }
+        public string Comment { get; set; }
+        public string Qualification { get; set; }
         public string Reference { get; set; }
 
 
@@ -53,7 +50,7 @@ namespace Rollvolet.CRM.Domain.Models
         public string CustomerFaxNumber { get; set; }
         public string CustomerSearchName { get; set; }
 
-        // Embedded Building properties        
+        // Embedded Building properties
         public string BuildingName { get; set; }
         public string BuildingAddress1 { get; set; }
         public string BuildingAddress2 { get; set; }
@@ -68,8 +65,8 @@ namespace Rollvolet.CRM.Domain.Models
         public string BuildingMobileNumber { get; set; }
         public string BuildingFaxNumber { get; set; }
         public string BuildingSearchName { get; set; }
-        
-        // Embedded Contact properties        
+
+        // Embedded Contact properties
         public string ContactName { get; set; }
         public string ContactAddress1 { get; set; }
         public string ContactAddress2 { get; set; }
@@ -85,6 +82,6 @@ namespace Rollvolet.CRM.Domain.Models
         public string ContactPhoneNumber { get; set; }
         public string ContactMobileNumber { get; set; }
         public string ContactFaxNumber { get; set; }
-        public string ContactSearchName { get; set; }    
+        public string ContactSearchName { get; set; }
     }
 }

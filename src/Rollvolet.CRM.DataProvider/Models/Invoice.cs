@@ -11,8 +11,8 @@ namespace Rollvolet.CRM.DataProvider.Models
         public int Id { get; set; }
 
         [Column("Jaar")]
-        public short Year { get; set; }    
-        
+        public short Year { get; set; }
+
         [Column("Nummer")]
         public int? Number { get; set; }
 
@@ -30,13 +30,13 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("Afgesloten")]
         public DateTime? CancellationDate { get; set; }
-        
+
         [Column("KlantID")]
         public int? CustomerId { get; set; }
-        
+
         [Column("GebouwID")]
         public int? RelativeBuildingId { get; set; }
-        
+
         [Column("ContactID")]
         public int? RelativeContactId { get; set; }
 
@@ -47,43 +47,43 @@ namespace Rollvolet.CRM.DataProvider.Models
         public int? VatRateId { get; set; }
 
         [Column("BasisBedrag")]
-        public double? BaseAmount { get; set; }     
+        public double? BaseAmount { get; set; } // sum of all offerlines (in Access amount is copied from order)
 
         [Column("Bedrag")]
-        public double? Amount { get; set; } 
+        public double? Amount { get; set; }  // baseAmount + all InvoiceSupplements - all DepositInvoices
 
         [Column("BTWBedrag")]
-        public double? Vat { get; set; }   
+        public double? Vat { get; set; } // VAT calculated on Amount
 
         [Column("Totaal")]
-        public double? TotalAmount { get; set; }   
+        public double? TotalAmount { get; set; } // gross price: amount + vat
 
-        [Column("Kontant")]      
-        public bool IsPaidInCash { get; set; }  
+        [Column("Kontant")]
+        public bool IsPaidInCash { get; set; }
 
-        [Column("Attest")]      
-        public bool CertificateRequired { get; set; }  
+        [Column("Attest")]
+        public bool CertificateRequired { get; set; }
 
-        [Column("AttestTerug")]      
-        public bool CertificateReceived { get; set; }  
+        [Column("AttestTerug")]
+        public bool CertificateReceived { get; set; }
 
-        [Column("AttestAfgesloten")]      
-        public bool CertificateClosed { get; set; }  
+        [Column("AttestAfgesloten")]
+        public bool CertificateClosed { get; set; }
 
-        [Column("CreditNota")]      
-        public bool IsCreditNote { get; set; }  
+        [Column("CreditNota")]
+        public bool IsCreditNote { get; set; }
 
         [Column("Produktiebon")]
         public bool? HasProductionTicket { get; set; }
 
         [Column("AttestLink")]
-        public string CertificateUrl { get; set; } 
+        public string CertificateUrl { get; set; }
 
         [Column("Opmerking")]
-        public string Comment { get; set; } 
+        public string Comment { get; set; }
 
         [Column("Hoedanigheid")]
-        public string Qualification { get; set; } 
+        public string Qualification { get; set; }
 
         [Column("Referentie")]
         public string Reference { get; set; }
@@ -97,7 +97,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Order Order { get; set; }
         public VatRate VatRate { get; set; }
         public IEnumerable<InvoiceSupplement> Supplements { get; set; }
-        public IEnumerable<Deposit> Deposits { get; set; } 
+        public IEnumerable<Deposit> Deposits { get; set; }
         public IEnumerable<WorkingHour> WorkingHours { get; set; }
         public IEnumerable<DepositInvoiceHub> DepositInvoiceHubs { get; set; } // only set on normal invoices
         public DepositInvoiceHub MainInvoiceHub { get; set; } // only set on deposit invoices
@@ -116,19 +116,19 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("KlantNaam")]
         public string CustomerName { get; set; }
-        
+
         [Column("KlantAdres1")]
         public string CustomerAddress1 { get; set; }
-        
+
         [Column("KlantAdres2")]
         public string CustomerAddress2 { get; set; }
-        
+
         [Column("KlantAdres3")]
         public string CustomerAddress3 { get; set; }
-        
+
         [Column("KlantPostcodeID")]
         public int? CustomerPostalCodeId { get; set; }
-        
+
         [Column("KlantPostcode")]
         public string CustomerPostalCode { get; set; }
 
@@ -137,7 +137,7 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("KlantTaalID")]
         public int? CustomerLanguageId { get; set; }
-        
+
         [Column("KlantLandId")]
         public int? CustomerCountryId { get; set; }
 
@@ -164,33 +164,33 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("KlantFax")]
         public string CustomerFaxNumber { get; set; }
-        
+
         [Column("KlantZoekNaam")]
         public string CustomerSearchName { get; set; }
 
-        // Embedded Building properties        
-        
+        // Embedded Building properties
+
         [Column("GebouwNaam")]
         public string BuildingName { get; set; }
-        
+
         [Column("GebouwAdres1")]
         public string BuildingAddress1 { get; set; }
-        
+
         [Column("GebouwAdres2")]
         public string BuildingAddress2 { get; set; }
-        
+
         [Column("GebouwAdres3")]
         public string BuildingAddress3 { get; set; }
-        
+
         [Column("GebouwPostcodeID")]
         public int? BuildingPostalCodeId { get; set; }
-        
+
         [Column("GebouwPostcode")]
         public string BuildingPostalCode { get; set; }
 
         [Column("GebouwGemeente")]
         public string BuildingCity { get; set; }
-        
+
         [Column("GebouwLandId")]
         public int? BuildingCountryId { get; set; }
 
@@ -208,42 +208,42 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("GebouwFax")]
         public string BuildingFaxNumber { get; set; }
-        
+
         [Column("GebouwZoekNaam")]
         public string BuildingSearchName { get; set; }
-        
-        // Embedded Contact properties        
-        
+
+        // Embedded Contact properties
+
         [Column("ContactNaam")]
         public string ContactName { get; set; }
-        
+
         [Column("ContactAdres1")]
         public string ContactAddress1 { get; set; }
-        
+
         [Column("ContactAdres2")]
         public string ContactAddress2 { get; set; }
-        
+
         [Column("ContactAdres3")]
         public string ContactAddress3 { get; set; }
-        
+
         [Column("ContactPostcodeID")]
         public int? ContactPostalCodeId { get; set; }
-        
+
         [Column("ContactPostcode")]
         public string ContactPostalCode { get; set; }
 
         [Column("ContactGemeente")]
         public string ContactCity { get; set; }
-        
+
         [Column("ContactLandId")]
         public int? ContactCountryId { get; set; }
 
         [Column("ContactTaalID")]
         public int? ContactLanguageId { get; set; }
-        
+
         [Column("ContactAanspreekID")]
         public int? ContactHonorificPrefixId { get; set; }
-        
+
         [Column("ContactPrefix")]
         public string ContactPrefix { get; set; }
 
@@ -258,9 +258,9 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("ContactFax")]
         public string ContactFaxNumber { get; set; }
-        
+
         [Column("ContactZoekNaam")]
         public string ContactSearchName { get; set; }
-        
+
     }
 }

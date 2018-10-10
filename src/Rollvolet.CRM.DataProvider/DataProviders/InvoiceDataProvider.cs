@@ -109,7 +109,8 @@ namespace Rollvolet.CRM.DataProviders
             invoiceRecord.Currency = "EUR";
             invoiceRecord.Year = (short) new DateTime().Year;
 
-            await EmbedCustomerAttributes(invoiceRecord);
+            await EmbedCustomerAttributesAsync(invoiceRecord);
+            await CalculateAmountAndVat(invoiceRecord);
 
             _context.Invoices.Add(invoiceRecord);
             await _context.SaveChangesAsync();
@@ -123,7 +124,8 @@ namespace Rollvolet.CRM.DataProviders
             _mapper.Map(invoice, invoiceRecord);
 
             invoiceRecord.Currency = "EUR";
-            await EmbedCustomerAttributes(invoiceRecord);
+            await EmbedCustomerAttributesAsync(invoiceRecord);
+            await CalculateAmountAndVat(invoiceRecord); // TODO only recalculate if necessary
 
             _context.Invoices.Update(invoiceRecord);
             await _context.SaveChangesAsync();
@@ -163,7 +165,15 @@ namespace Rollvolet.CRM.DataProviders
             }
         }
 
-        private async Task EmbedCustomerAttributes(DataProvider.Models.Invoice invoice)
+        private async Task CalculateAmountAndVat(DataProvider.Models.Invoice invoice)
+        {
+            // TODO calculate amount, vat and totalAmount
+            // amount = baseAmount + all InvoiceSupplements - all DepositInvoices
+            // vat = vat calculated on amount
+            // total amount = gross price: amount + vat
+        }
+
+        private async Task EmbedCustomerAttributesAsync(DataProvider.Models.Invoice invoice)
         {
             var customer = await _context.Customers.Where(c => c.Number == invoice.CustomerId).FirstOrDefaultAsync();
             invoice.CustomerName = customer.Name;
