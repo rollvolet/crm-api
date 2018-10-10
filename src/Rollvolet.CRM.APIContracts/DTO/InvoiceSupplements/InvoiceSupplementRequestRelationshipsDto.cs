@@ -2,7 +2,8 @@ using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.APIContracts.DTO.InvoiceSupplements
 {
-    public class InvoiceSupplementDto : Resource<InvoiceSupplementAttributesDto, InvoiceSupplementRelationshipsDto>
+    public class InvoiceSupplementRequestRelationshipsDto
     {
+        public OneRelationship Invoice { get; set; }
     }
 }

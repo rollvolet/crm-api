@@ -40,6 +40,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IWorkingHourManager _workingHourManager;
         private readonly IDepositManager _depositManager;
         private readonly IDepositInvoiceManager _depositInvoiceManager;
+        private readonly IInvoiceSupplementManager _invoiceSupplementManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
@@ -47,8 +48,8 @@ namespace Rollvolet.CRM.API.Controllers
         public InvoicesController(IInvoiceManager invoiceManager, ICustomerManager customerManager, IContactManager contactManager,
                                     IBuildingManager buildingManager, IOrderManager orderManager, IVatRateManager vatRateManager,
                                     IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager,
-                                    IWorkingHourManager workingHourManager, IIncludedCollector includedCollector,
-                                    IMapper mapper, IJsonApiBuilder jsonApiBuilder)
+                                    IInvoiceSupplementManager invoiceSupplementManager, IWorkingHourManager workingHourManager,
+                                    IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _invoiceManager = invoiceManager;
             _customerManager = customerManager;
@@ -58,6 +59,7 @@ namespace Rollvolet.CRM.API.Controllers
             _vatRateManager = vatRateManager;
             _depositManager = depositManager;
             _depositInvoiceManager = depositInvoiceManager;
+            _invoiceSupplementManager = invoiceSupplementManager;
             _workingHourManager = workingHourManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
@@ -267,16 +269,30 @@ namespace Rollvolet.CRM.API.Controllers
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
-            var pagedDeposits = await _depositInvoiceManager.GetAllByInvoiceIdAsync(invoiceId, querySet);
+            var pagedDepositInvoices = await _depositInvoiceManager.GetAllByInvoiceIdAsync(invoiceId, querySet);
 
-            var depositInvoiceDtos = _mapper.Map<IEnumerable<DepositInvoiceDto>>(pagedDeposits.Items, opt => opt.Items["include"] = querySet.Include);
-            var included = _includedCollector.CollectIncluded(pagedDeposits.Items, querySet.Include);
-            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedDeposits);
-            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedDeposits);
+            var depositInvoiceDtos = _mapper.Map<IEnumerable<DepositInvoiceDto>>(pagedDepositInvoices.Items, opt => opt.Items["include"] = querySet.Include);
+            var included = _includedCollector.CollectIncluded(pagedDepositInvoices.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedDepositInvoices);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedDepositInvoices);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = depositInvoiceDtos, Included = included });
         }
 
-        // TODO add endpoint GET {invoiceId}/supplements
+        [HttpGet("{invoiceId}/supplements")]
+        [HttpGet("{invoiceId}/links/supplements")]
+        public async Task<IActionResult> GetRelatedSupplementsByInvoiceIdAsync(int invoiceId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedSupplements = await _invoiceSupplementManager.GetAllByInvoiceIdAsync(invoiceId, querySet);
+
+            var supplementDtos = _mapper.Map<IEnumerable<InvoiceSupplementDto>>(pagedSupplements.Items, o => o.Items["include"] = querySet.Include);
+            var included = _includedCollector.CollectIncluded(pagedSupplements.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedSupplements);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedSupplements);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = supplementDtos, Included = included });
+        }
     }
 }

@@ -720,7 +720,7 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<InvoiceSupplement, InvoiceSupplementAttributesDto>().ReverseMap();
 
-            CreateMap<InvoiceSupplement, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+            CreateMap<InvoiceSupplement, InvoiceSupplementRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<InvoiceSupplement, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("invoice-supplements"));
@@ -728,6 +728,7 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<InvoiceSupplementRequestDto, InvoiceSupplement>()
                 .ConstructUsing((src, context) => context.Mapper.Map<InvoiceSupplement>(src.Attributes))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Invoice : null))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<OneRelationship, InvoiceSupplement>()

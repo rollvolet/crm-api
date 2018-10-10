@@ -453,6 +453,27 @@ namespace Rollvolet.CRM.API.Collectors
 
             return included;
         }
+
+        public IEnumerable<IResource> CollectIncluded(InvoiceSupplement invoiceSupplement, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+
+            // one-relations
+            if (includeQuery.Contains("invoice") && invoiceSupplement.Invoice != null)
+                included.Add(_mapper.Map<InvoiceDto>(invoiceSupplement.Invoice));
+
+            return included;
+        }
+
+        public IEnumerable<IResource> CollectIncluded(IEnumerable<InvoiceSupplement> invoiceSupplements, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+
+            foreach (var invoiceSupplement in invoiceSupplements)
+                included.UnionWith(CollectIncluded(invoiceSupplement, includeQuery));
+
+            return included;
+        }
     }
 
 }

@@ -8,27 +8,27 @@ namespace Rollvolet.CRM.DataProvider.Models
     {
         [Column("FactuurExtraID")]
         public int Id { get; set; }
-        
+
         [Column("FactuurID")]
         public int? InvoiceId { get; set; }
 
         [Column("VolgNummer")]
-        public short SequenceNumber { get; set; } 
+        public short SequenceNumber { get; set; }
 
         [Column("Aantal")]
-        public double? NbOfPieces { get; set; } 
+        public double? NbOfPieces { get; set; }
 
         [Column("NettoBedrag")]
-        public double? Amount { get; set; } 
+        public double? Amount { get; set; }
 
         [Column("Omschrijving")]
-        public string Description { get; set; }    
+        public string Description { get; set; }
 
         [Column("MuntEenheid")]
-        public string Currency { get; set; }      
+        public string Currency { get; set; }
 
 
         // Include resources
-        public Invoice Invoice { get; set; }         
+        public Invoice Invoice { get; set; }
     }
 }

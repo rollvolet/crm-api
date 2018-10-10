@@ -26,6 +26,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Deposit> Deposits { get; set; }
         public DbSet<DepositInvoiceHub> DepositInvoices { get; set; }
         public DbSet<WorkingHour> WorkingHours { get; set; }
+        public DbSet<InvoiceSupplement> InvoiceSupplements { get; set; }
         public DbSet<VatRate> VatRates { get; set; }
         public DbSet<SubmissionType> SubmissionTypes { get; set; }
         public DbSet<Employee> Employees { get; set; }

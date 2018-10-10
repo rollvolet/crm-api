@@ -169,6 +169,7 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IWayOfEntryDataProvider, WayOfEntryDataProvider>();
             services.AddTransient<IVisitManager, VisitManager>();
             services.AddTransient<IVisitDataProvider, VisitDataProvider>();
+            services.AddTransient<IInvoiceSupplementManager, InvoiceSupplementManager>();            services.AddTransient<IInvoiceSupplementDataProvider, InvoiceSupplementDataProvider>();
             services.AddTransient<IDocumentGenerationManager, DocumentGenerationManager>();
             services.AddTransient<IGraphApiService, GraphApiService>();
             services.AddTransient<ISequenceDataProvider, SequenceDataProvider>();
