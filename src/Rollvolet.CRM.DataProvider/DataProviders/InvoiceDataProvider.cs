@@ -126,11 +126,19 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<Invoice> UpdateAsync(Invoice invoice)
         {
             var invoiceRecord = await FindByIdAsync(invoice.Id);
+
+            // compare old and new attribute values before merging the changes in the invoiceRecord
+            var requiresRecalculation = invoice.BaseAmount != invoiceRecord.BaseAmount || int.Parse(invoice.VatRate.Id) != invoiceRecord.VatRateId;
+
             _mapper.Map(invoice, invoiceRecord);
 
             invoiceRecord.Currency = "EUR";
             await EmbedCustomerAttributesAsync(invoiceRecord);
-            await CalculateAmountAndVatAsync(invoiceRecord); // TODO only recalculate if necessary
+
+            // Only a change of the baseAmount or vatRate trigger a recalculation.
+            // Updates by a change in other resources (e.g. invoice supplements) are triggered through SyncAmountAndVatAsync
+            if (requiresRecalculation)
+                await CalculateAmountAndVatAsync(invoiceRecord);
 
             _context.Invoices.Update(invoiceRecord);
             await _context.SaveChangesAsync();
@@ -187,6 +195,7 @@ namespace Rollvolet.CRM.DataProviders
 
         private async Task CalculateAmountAndVatAsync(DataProvider.Models.Invoice invoice)
         {
+            _logger.LogDebug("Recalculating amount and VAT of invoice {0}", invoice.Id);
             var query = new QuerySet();
             var invoiceSupplements = await _invoiceSupplementDataProvider.GetAllByInvoiceIdAsync(invoice.Id, query);
             var invoiceSupplementsTotal = invoiceSupplements.Items.Select(s => s.Total).Sum();
