@@ -78,6 +78,8 @@ namespace Rollvolet.CRM.Domain.Managers
             if (invoice.Customer == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer is required on request creation.");
 
+            // Order cannot be required to support the creation of isolated invoices
+
             // Embedded values cannot be set since they are not exposed in the DTO
 
             await EmbedRelationsAsync(invoice);
@@ -116,6 +118,8 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", $"Contact is not attached to customer {invoice.Contact.Id}.");
             if (invoice.Building != null && invoice.Building.Customer.Id != invoice.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {invoice.Customer.Id}.");
+
+            // Order cannot be required to support the creation of isolated invoices
 
             return await _invoiceDataProvider.UpdateAsync(invoice);
         }
@@ -180,7 +184,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 // Order cannot be updated. Take order of oldRequest on update.
                 if (oldInvoice != null)
                     invoice.Order = oldInvoice.Order;
-                else
+                else if (invoice.Order != null) // isolated invoice doesn't have an order attached
                     invoice.Order = await _orderDataProvider.GetByIdAsync(invoice.Order.Id);
             }
             catch (EntityNotFoundException)

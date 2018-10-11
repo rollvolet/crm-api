@@ -198,8 +198,9 @@ namespace Rollvolet.CRM.DataProviders
             _logger.LogDebug("Recalculating amount and VAT of invoice {0}", invoice.Id);
             var query = new QuerySet();
             var invoiceSupplements = await _invoiceSupplementDataProvider.GetAllByInvoiceIdAsync(invoice.Id, query);
-            var invoiceSupplementsTotal = invoiceSupplements.Items.Select(s => s.Total).Sum();
-            var amount = (double) (invoice.BaseAmount + invoiceSupplementsTotal); // TODO minus all deposit invoices
+            var invoiceSupplementsTotal = invoiceSupplements.Items.Select(s => s.Total).Sum() ?? 0.0;
+            var baseAmount = invoice.BaseAmount ?? 0.0;
+            var amount = baseAmount + invoiceSupplementsTotal; // TODO minus all deposit invoices
 
             var vat = 0.0;
             if (invoice.VatRateId != null)
@@ -245,7 +246,7 @@ namespace Rollvolet.CRM.DataProviders
                 invoice.BuildingPostalCodeId = building.PostalCodeId;
                 invoice.BuildingPostalCode = building.EmbeddedPostalCode;
                 invoice.BuildingCity = building.EmbeddedCity;
-                invoice.BuildingCountryId = building.CountryId != null ? building.CountryId : customer.CountryId; // not-NULL DB contstraint
+                invoice.BuildingCountryId = building.CountryId;
                 invoice.BuildingPrefix = building.Prefix;
                 invoice.BuildingSuffix = building.Suffix;
                 // TODO embed phone, mobile and fax number
@@ -264,13 +265,18 @@ namespace Rollvolet.CRM.DataProviders
                 invoice.ContactPostalCode = contact.EmbeddedPostalCode;
                 invoice.ContactCity = contact.EmbeddedCity;
                 invoice.ContactLanguageId = contact.LanguageId;
-                invoice.ContactCountryId = contact.CountryId != null ? contact.CountryId : customer.CountryId; // not-NULL DB contstraint
+                invoice.ContactCountryId = contact.CountryId;
                 invoice.ContactHonorificPrefixId = contact.HonorificPrefixId;
                 invoice.ContactPrefix = contact.Prefix;
                 invoice.ContactSuffix = contact.Suffix;
                 // TODO embed phone, mobile and fax number
                 invoice.ContactSearchName = contact.SearchName;
             }
+
+            if (invoice.BuildingCountryId == null)
+                invoice.BuildingCountryId = customer.CountryId; // not-NULL DB contstraint
+            if (invoice.ContactCountryId == null)
+                invoice.ContactCountryId = customer.CountryId; // not-NULL DB contstraint
         }
     }
 }
