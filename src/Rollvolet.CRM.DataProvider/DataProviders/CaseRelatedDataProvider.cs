@@ -47,7 +47,11 @@ namespace Rollvolet.CRM.DataProviders
             {
                 var joinedSource = JoinBuildingAndContact(source);
                 var triplet = await joinedSource.FirstOrDefaultAsync();
-                return EmbedBuildingAndContact(triplet);
+
+                if (triplet != null)
+                    return EmbedBuildingAndContact(triplet);
+                else
+                    return default(T);
             }
             else
             {
