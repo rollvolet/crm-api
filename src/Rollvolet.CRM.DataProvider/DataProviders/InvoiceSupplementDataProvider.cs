@@ -47,9 +47,10 @@ namespace Rollvolet.CRM.DataProviders
                             .Where(s => s.InvoiceId == invoiceId)
                             .Include(query)
                             .Sort(query)
-                            .Filter(query);
+                            .Filter(query)
+                            .ForPage(query);
 
-            var invoiceSupplements = source.ForPage(query).AsEnumerable();
+            var invoiceSupplements = source.AsEnumerable();
 
             var count = await source.CountAsync();
 

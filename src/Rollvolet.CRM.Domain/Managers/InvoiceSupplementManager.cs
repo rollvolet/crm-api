@@ -38,7 +38,11 @@ namespace Rollvolet.CRM.Domain.Managers
 
             await EmbedRelationsAsync(invoiceSupplement);
 
-            return await _invoiceSupplementDataProvider.CreateAsync(invoiceSupplement);
+            invoiceSupplement = await _invoiceSupplementDataProvider.CreateAsync(invoiceSupplement);
+
+            await _invoiceDataProvider.SyncAmountAndVatAsync(invoiceSupplement.Invoice.Id);
+
+            return invoiceSupplement;
         }
 
         public async Task<InvoiceSupplement> UpdateAsync(InvoiceSupplement invoiceSupplement)
@@ -57,12 +61,23 @@ namespace Rollvolet.CRM.Domain.Managers
             if (invoiceSupplement.Invoice == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Invoice is required.");
 
-            return await _invoiceSupplementDataProvider.UpdateAsync(invoiceSupplement);
+            invoiceSupplement = await _invoiceSupplementDataProvider.UpdateAsync(invoiceSupplement);
+
+            await _invoiceDataProvider.SyncAmountAndVatAsync(invoiceSupplement.Invoice.Id);
+
+            return invoiceSupplement;
         }
 
         public async Task DeleteAsync(int id)
         {
+            var query = new QuerySet();
+            query.Include.Fields = new string[] { "invoice" };
+            var invoiceSupplement = await _invoiceSupplementDataProvider.GetByIdAsync(id, query);
+            var invoiceId = invoiceSupplement.Invoice.Id;
+
             await _invoiceSupplementDataProvider.DeleteByIdAsync(id);
+
+            await _invoiceDataProvider.SyncAmountAndVatAsync(invoiceId);
         }
 
         // Embed relations in invoice supplement resource: reuse old relation if there is one and it hasn't changed

@@ -12,5 +12,13 @@ namespace Rollvolet.CRM.Domain.Models
         public string Description { get; set; }
 
         public Invoice Invoice { get; set; }
+
+        public double? Total {
+            get {
+                var number = this.NbOfPieces != null ? this.NbOfPieces : 1.0;
+                var amount = this.Amount != null ? this.Amount : 0.0;
+                return number * amount;
+            }
+        }
     }
 }

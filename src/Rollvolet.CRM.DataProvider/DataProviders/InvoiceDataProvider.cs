@@ -19,11 +19,16 @@ namespace Rollvolet.CRM.DataProviders
     public class InvoiceDataProvider : CaseRelatedDataProvider<DataProvider.Models.Invoice>, IInvoiceDataProvider
     {
         private readonly ISequenceDataProvider _sequenceDataProvider;
+        private readonly IInvoiceSupplementDataProvider _invoiceSupplementDataProvider;
+        private readonly IVatRateDataProvider _vatRateDataProvider;
 
-        public InvoiceDataProvider(ISequenceDataProvider sequenceDataProvider, CrmContext context,
-                                    IMapper mapper, ILogger<InvoiceDataProvider> logger) : base(context, mapper, logger)
+        public InvoiceDataProvider(ISequenceDataProvider sequenceDataProvider, IInvoiceSupplementDataProvider invoiceSupplementDataProvider,
+                                    IVatRateDataProvider vatRateDataProvider,
+                                    CrmContext context, IMapper mapper, ILogger<InvoiceDataProvider> logger) : base(context, mapper, logger)
         {
             _sequenceDataProvider = sequenceDataProvider;
+            _invoiceSupplementDataProvider = invoiceSupplementDataProvider;
+            _vatRateDataProvider = vatRateDataProvider;
         }
 
         private IQueryable<DataProvider.Models.Invoice> BaseQuery() {
@@ -110,7 +115,7 @@ namespace Rollvolet.CRM.DataProviders
             invoiceRecord.Year = (short) new DateTime().Year;
 
             await EmbedCustomerAttributesAsync(invoiceRecord);
-            await CalculateAmountAndVat(invoiceRecord);
+            await CalculateAmountAndVatAsync(invoiceRecord);
 
             _context.Invoices.Add(invoiceRecord);
             await _context.SaveChangesAsync();
@@ -125,7 +130,7 @@ namespace Rollvolet.CRM.DataProviders
 
             invoiceRecord.Currency = "EUR";
             await EmbedCustomerAttributesAsync(invoiceRecord);
-            await CalculateAmountAndVat(invoiceRecord); // TODO only recalculate if necessary
+            await CalculateAmountAndVatAsync(invoiceRecord); // TODO only recalculate if necessary
 
             _context.Invoices.Update(invoiceRecord);
             await _context.SaveChangesAsync();
@@ -142,6 +147,21 @@ namespace Rollvolet.CRM.DataProviders
                 _context.Invoices.Remove(invoice);
                 await _context.SaveChangesAsync();
            }
+        }
+
+        public async Task SyncAmountAndVatAsync(int id)
+        {
+            _logger.LogDebug("Recalculation of amount and VAT of invoice {0} triggered", id);
+
+            var invoiceRecord = await FindByIdAsync(id);
+
+            if (invoiceRecord != null)
+            {
+                await CalculateAmountAndVatAsync(invoiceRecord);
+                _context.Invoices.Update(invoiceRecord);
+                await _context.SaveChangesAsync();
+                _logger.LogDebug("Successfully recalculated amount and VAT of invoice {0}", id);
+            }
         }
 
         private async Task<DataProvider.Models.Invoice> FindByIdAsync(int id, QuerySet query = null)
@@ -165,12 +185,24 @@ namespace Rollvolet.CRM.DataProviders
             }
         }
 
-        private async Task CalculateAmountAndVat(DataProvider.Models.Invoice invoice)
+        private async Task CalculateAmountAndVatAsync(DataProvider.Models.Invoice invoice)
         {
-            // TODO calculate amount, vat and totalAmount
-            // amount = baseAmount + all InvoiceSupplements - all DepositInvoices
-            // vat = vat calculated on amount
-            // total amount = gross price: amount + vat
+            var query = new QuerySet();
+            var invoiceSupplements = await _invoiceSupplementDataProvider.GetAllByInvoiceIdAsync(invoice.Id, query);
+            var invoiceSupplementsTotal = invoiceSupplements.Items.Select(s => s.Total).Sum();
+            var amount = (double) (invoice.BaseAmount + invoiceSupplementsTotal); // TODO minus all deposit invoices
+
+            var vat = 0.0;
+            if (invoice.VatRateId != null)
+            {
+                // don't GetByInvoiceId because invoice might not be persisted yet
+                var vatRate = await _vatRateDataProvider.GetByIdAsync((int) invoice.VatRateId);
+                vat = amount * (vatRate.Rate / 100.0);
+            }
+
+            invoice.Amount = amount; // sum of base amount + all invoice supplements - all deposit invoices
+            invoice.Vat = vat; // vat calculated on amount
+            invoice.TotalAmount = amount + vat; // gross amount
         }
 
         private async Task EmbedCustomerAttributesAsync(DataProvider.Models.Invoice invoice)
