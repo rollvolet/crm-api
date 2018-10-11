@@ -260,6 +260,8 @@ namespace Rollvolet.CRM.DataProvider.Mappers
             CreateMap<Models.InvoiceSupplement, Domain.Models.InvoiceSupplement>()
                 .PreserveReferences()
                 .ReverseMap()
+                .ForMember(dest => dest.Invoice, opt => opt.Ignore())
+                .ForMember(dest => dest.InvoiceId, opt => opt.MapFrom(src => src.Invoice != null ? src.Invoice.Id : (int?) null))
                 .PreserveReferences();
 
             CreateMap<Models.Deposit, Domain.Models.Deposit>()

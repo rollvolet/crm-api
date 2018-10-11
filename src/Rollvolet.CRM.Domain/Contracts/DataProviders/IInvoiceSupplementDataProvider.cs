@@ -7,6 +7,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
 {
     public interface IInvoiceSupplementDataProvider
     {
+        Task<InvoiceSupplement> GetByIdAsync(int id, QuerySet query = null);
         Task<Paged<InvoiceSupplement>> GetAllByInvoiceIdAsync(int invoiceId, QuerySet query);
         Task<InvoiceSupplement> CreateAsync(InvoiceSupplement invoiceSupplement);
         Task<InvoiceSupplement> UpdateAsync(InvoiceSupplement invoiceSupplement);

@@ -19,8 +19,9 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IPaymentDataProvider _paymentDataProvider;
         private readonly ILogger _logger;
 
-        public DepositManager(IDepositDataProvider depositDataProvider, ICustomerDataProvider customerDataProvider, IOrderDataProvider orderDataProvider,
-                                IInvoiceDataProvider invoiceDataProvider, IPaymentDataProvider paymentDataProvider, ILogger<DepositManager> logger)
+        public DepositManager(IDepositDataProvider depositDataProvider, ICustomerDataProvider customerDataProvider,
+                                IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDataProvider,
+                                IPaymentDataProvider paymentDataProvider, ILogger<DepositManager> logger)
         {
             _depositDataProvider = depositDataProvider;
             _customerDataProvider = customerDataProvider;
@@ -99,7 +100,7 @@ namespace Rollvolet.CRM.Domain.Managers
             await _depositDataProvider.DeleteByIdAsync(id);
         }
 
-        // Embed relations in request resource: reuse old relation if there is one and it hasn't changed
+        // Embed relations in deposit resource: reuse old relation if there is one and it hasn't changed
         private async Task EmbedRelations(Deposit deposit, Deposit oldDeposit = null)
         {
             try {
