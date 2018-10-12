@@ -18,8 +18,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Technieker")]
         public string EmployeeName { get; set; }
 
-        // @Deprecated
-        // [Column("Uren")]
+        // @Deprecated   TODO remove not-NULL constraint in DB and deprecate this property
+        [Column("Uren")]
+        public decimal Hours { get; set; }
 
 
         // Included resources

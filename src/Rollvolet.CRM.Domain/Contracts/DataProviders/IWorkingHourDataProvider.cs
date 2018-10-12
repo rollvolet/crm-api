@@ -7,6 +7,10 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
 {
     public interface IWorkingHourDataProvider
     {
-        Task<Paged<WorkingHour>> GetAllByInvoiceIdAsync(int invoiceId, QuerySet query);
+        Task<WorkingHour> GetByIdAsync(int id, QuerySet query = null);
+        Task<Paged<WorkingHour>> GetAllByInvoiceIdAsync(int workingHourId, QuerySet query);
+        Task<WorkingHour> CreateAsync(WorkingHour workingHour);
+        Task<WorkingHour> UpdateAsync(WorkingHour workingHour);
+        Task DeleteByIdAsync(int id);
     }
 }

@@ -21,14 +21,14 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [Route("invoice-supplements")]
     [Authorize]
-    public class InvoiceSupplementssController : Controller
+    public class InvoiceSupplementsController : Controller
     {
         private readonly IInvoiceSupplementManager _invoiceSupplementManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public InvoiceSupplementssController(IInvoiceSupplementManager invoiceSupplementManager,
+        public InvoiceSupplementsController(IInvoiceSupplementManager invoiceSupplementManager,
                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _invoiceSupplementManager = invoiceSupplementManager;

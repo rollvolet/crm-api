@@ -17,6 +17,7 @@ using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.DTO.Visits;
+using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 
@@ -818,12 +819,19 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
-            CreateMap<WorkingHour, WorkingHourDto.AttributesDto>();
+            CreateMap<WorkingHour, WorkingHourAttributesDto>().ReverseMap();
 
-            CreateMap<WorkingHour, WorkingHourDto.RelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+            CreateMap<WorkingHour, WorkingHourRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
             CreateMap<WorkingHour, RelatedResource>()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("working-hours"));
+
+            CreateMap<WorkingHourRequestDto, WorkingHour>()
+                .ConstructUsing((src, context) => context.Mapper.Map<WorkingHour>(src.Attributes))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Invoice : null))
+                .ForMember(dest => dest.Employee, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Employee : null))
+                .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<OneRelationship, WorkingHour>()
                 .ConstructUsing((src, context) => context.Mapper.Map<WorkingHour>(src.Data))

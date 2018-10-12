@@ -285,6 +285,10 @@ namespace Rollvolet.CRM.DataProvider.Mappers
             CreateMap<Models.WorkingHour, Domain.Models.WorkingHour>()
                 .PreserveReferences()
                 .ReverseMap()
+                .ForMember(dest => dest.Invoice, opt => opt.Ignore())
+                .ForMember(dest => dest.InvoiceId, opt => opt.MapFrom(src => src.Invoice.Id))
+                .ForMember(dest => dest.Employee, opt => opt.Ignore())
+                .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee.FirstName))
                 .PreserveReferences();
 
             CreateMap<Models.Payment, Domain.Models.Payment>()

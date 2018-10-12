@@ -116,5 +116,5 @@ namespace Rollvolet.CRM.DataProviders
 
             return await source.FirstOrDefaultAsync();
         }
-  }
+    }
 }

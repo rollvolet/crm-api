@@ -14,6 +14,7 @@ using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.DTO.Visits;
+using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -32,7 +33,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Invoice, InvoiceRelationshipsDto>,
                                             ITypeConverter<DepositInvoice, DepositInvoiceRelationshipsDto>,
                                             ITypeConverter<Deposit, DepositRelationshipsDto>,
-                                            ITypeConverter<WorkingHour, WorkingHourDto.RelationshipsDto>,
+                                            ITypeConverter<WorkingHour, WorkingHourRelationshipsDto>,
                                             ITypeConverter<InvoiceSupplement, InvoiceSupplementRelationshipsDto>,
                                             ITypeConverter<Country, EmptyRelationshipsDto>,
                                             ITypeConverter<Language, EmptyRelationshipsDto>,
@@ -181,9 +182,9 @@ namespace Rollvolet.CRM.API.Mappers
             return relationships;
         }
 
-        WorkingHourDto.RelationshipsDto ITypeConverter<WorkingHour, WorkingHourDto.RelationshipsDto>.Convert(WorkingHour source, WorkingHourDto.RelationshipsDto destination, ResolutionContext context)
+        WorkingHourRelationshipsDto ITypeConverter<WorkingHour, WorkingHourRelationshipsDto>.Convert(WorkingHour source, WorkingHourRelationshipsDto destination, ResolutionContext context)
         {
-            var relationships = new WorkingHourDto.RelationshipsDto();
+            var relationships = new WorkingHourRelationshipsDto();
             relationships.Employee = GetOneRelationship<Employee>("working-hours", source.Id, "employee", source.Employee, context);
             relationships.Invoice = GetOneRelationship<Invoice>("working-hours", source.Id, "invoice", source.Invoice, context);
             return relationships;
