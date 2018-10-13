@@ -81,7 +81,7 @@ namespace Rollvolet.CRM.Domain.Managers
             if (invoice.InvoiceDate == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Invoice-date is required.");
             if (invoice.Customer == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Customer is required on request creation.");
+                throw new IllegalArgumentException("IllegalAttribute", "Customer is required on invoice creation.");
 
             // Order cannot be required to support the creation of isolated invoices
 

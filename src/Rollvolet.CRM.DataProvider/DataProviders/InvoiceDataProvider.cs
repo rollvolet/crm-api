@@ -16,22 +16,19 @@ using System.Linq.Expressions;
 
 namespace Rollvolet.CRM.DataProviders
 {
-    public class InvoiceDataProvider : CaseRelatedDataProvider<DataProvider.Models.Invoice>, IInvoiceDataProvider
+    public class InvoiceDataProvider : BaseInvoiceDataProvider, IInvoiceDataProvider
     {
-        private readonly ISequenceDataProvider _sequenceDataProvider;
         private readonly IInvoiceSupplementDataProvider _invoiceSupplementDataProvider;
-        private readonly IVatRateDataProvider _vatRateDataProvider;
 
-        public InvoiceDataProvider(ISequenceDataProvider sequenceDataProvider, IInvoiceSupplementDataProvider invoiceSupplementDataProvider,
-                                    IVatRateDataProvider vatRateDataProvider,
-                                    CrmContext context, IMapper mapper, ILogger<InvoiceDataProvider> logger) : base(context, mapper, logger)
+        public InvoiceDataProvider(IInvoiceSupplementDataProvider invoiceSupplementDataProvider,
+                                    ISequenceDataProvider sequenceDataProvider, IVatRateDataProvider vatRateDataProvider,
+                                    CrmContext context, IMapper mapper, ILogger<InvoiceDataProvider> logger)
+                                    : base(sequenceDataProvider, vatRateDataProvider, context, mapper, logger)
         {
-            _sequenceDataProvider = sequenceDataProvider;
             _invoiceSupplementDataProvider = invoiceSupplementDataProvider;
-            _vatRateDataProvider = vatRateDataProvider;
         }
 
-        private IQueryable<DataProvider.Models.Invoice> BaseQuery() {
+        private new IQueryable<DataProvider.Models.Invoice> BaseQuery() {
             return _context.Invoices
                             .Where(i => i.MainInvoiceHub == null); // exclude deposit invoices
         }
@@ -125,7 +122,7 @@ namespace Rollvolet.CRM.DataProviders
 
             invoiceRecord.Number = await _sequenceDataProvider.GetNextInvoiceNumber();
             invoiceRecord.Currency = "EUR";
-            invoiceRecord.Year = (short) new DateTime().Year;
+            invoiceRecord.Year = (short) DateTime.Now.Year;
 
             await EmbedCustomerAttributesAsync(invoiceRecord);
             await CalculateAmountAndVatAsync(invoiceRecord);
@@ -185,27 +182,6 @@ namespace Rollvolet.CRM.DataProviders
             }
         }
 
-        private async Task<DataProvider.Models.Invoice> FindByIdAsync(int id, QuerySet query = null)
-        {
-            return await FindWhereAsync(c => c.Id == id, query);
-        }
-
-        private async Task<DataProvider.Models.Invoice> FindWhereAsync(Expression<Func<DataProvider.Models.Invoice, bool>> where, QuerySet query = null)
-        {
-            var source = _context.Invoices.Where(where);
-
-            if (query != null)
-            {
-                source = source.Include(query);
-                // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-                return await QueryWithManualIncludeAsync(source, query);
-            }
-            else
-            {
-                return await source.FirstOrDefaultAsync();
-            }
-        }
-
         private async Task CalculateAmountAndVatAsync(DataProvider.Models.Invoice invoice)
         {
             _logger.LogDebug("Recalculating amount and VAT of invoice {0}", invoice.Id);
@@ -226,70 +202,6 @@ namespace Rollvolet.CRM.DataProviders
             invoice.Amount = amount; // sum of base amount + all invoice supplements - all deposit invoices
             invoice.Vat = vat; // vat calculated on amount
             invoice.TotalAmount = amount + vat; // gross amount
-        }
-
-        private async Task EmbedCustomerAttributesAsync(DataProvider.Models.Invoice invoice)
-        {
-            var customer = await _context.Customers.Where(c => c.Number == invoice.CustomerId).FirstOrDefaultAsync();
-            invoice.CustomerName = customer.Name;
-            invoice.CustomerAddress1 = customer.Address1;
-            invoice.CustomerAddress2 = customer.Address2;
-            invoice.CustomerAddress3 = customer.Address3;
-            invoice.CustomerPostalCodeId = customer.PostalCodeId;
-            invoice.CustomerPostalCode = customer.EmbeddedPostalCode;
-            invoice.CustomerCity = customer.EmbeddedCity;
-            invoice.CustomerLanguageId = customer.LanguageId;
-            invoice.CustomerCountryId = customer.CountryId;
-            invoice.CustomerHonorificPrefixId = customer.HonorificPrefixId;
-            invoice.CustomerPrefix = customer.Prefix;
-            invoice.CustomerSuffix = customer.Suffix;
-            invoice.CustomerIsCompany = customer.IsCompany;
-            invoice.CustomerVatNumber = customer.VatNumber;
-            // TODO embed phone, mobile and fax number
-            invoice.CustomerSearchName = customer.SearchName;
-
-            if (invoice.RelativeBuildingId != null)
-            {
-                var building = await _context.Buildings.
-                                        Where(b => b.CustomerId == invoice.CustomerId && b.Number == invoice.RelativeBuildingId).FirstOrDefaultAsync();
-                invoice.BuildingName = building.Name;
-                invoice.BuildingAddress1 = building.Address1;
-                invoice.BuildingAddress2 = building.Address2;
-                invoice.BuildingAddress3 = building.Address3;
-                invoice.BuildingPostalCodeId = building.PostalCodeId;
-                invoice.BuildingPostalCode = building.EmbeddedPostalCode;
-                invoice.BuildingCity = building.EmbeddedCity;
-                invoice.BuildingCountryId = building.CountryId;
-                invoice.BuildingPrefix = building.Prefix;
-                invoice.BuildingSuffix = building.Suffix;
-                // TODO embed phone, mobile and fax number
-                invoice.BuildingSearchName = building.SearchName;
-            }
-
-            if (invoice.RelativeContactId != null)
-            {
-                var contact = await _context.Contacts.
-                                        Where(b => b.CustomerId == invoice.CustomerId && b.Number == invoice.RelativeContactId).FirstOrDefaultAsync();
-                invoice.ContactName = contact.Name;
-                invoice.ContactAddress1 = contact.Address1;
-                invoice.ContactAddress2 = contact.Address2;
-                invoice.ContactAddress3 = contact.Address3;
-                invoice.ContactPostalCodeId = contact.PostalCodeId;
-                invoice.ContactPostalCode = contact.EmbeddedPostalCode;
-                invoice.ContactCity = contact.EmbeddedCity;
-                invoice.ContactLanguageId = contact.LanguageId;
-                invoice.ContactCountryId = contact.CountryId;
-                invoice.ContactHonorificPrefixId = contact.HonorificPrefixId;
-                invoice.ContactPrefix = contact.Prefix;
-                invoice.ContactSuffix = contact.Suffix;
-                // TODO embed phone, mobile and fax number
-                invoice.ContactSearchName = contact.SearchName;
-            }
-
-            if (invoice.BuildingCountryId == null)
-                invoice.BuildingCountryId = customer.CountryId; // not-NULL DB contstraint
-            if (invoice.ContactCountryId == null)
-                invoice.ContactCountryId = customer.CountryId; // not-NULL DB contstraint
         }
     }
 }

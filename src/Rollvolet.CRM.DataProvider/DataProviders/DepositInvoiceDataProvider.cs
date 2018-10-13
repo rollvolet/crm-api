@@ -12,17 +12,20 @@ using Microsoft.Extensions.Logging;
 using LinqKit;
 using System;
 using Rollvolet.CRM.Domain.Exceptions;
+using Rollvolet.CRM.DataProvider.Models;
 
 namespace Rollvolet.CRM.DataProviders
 {
-    public class DepositInvoiceDataProvider : CaseRelatedDataProvider<DataProvider.Models.Invoice>, IDepositInvoiceDataProvider
+    public class DepositInvoiceDataProvider : BaseInvoiceDataProvider, IDepositInvoiceDataProvider
     {
-        public DepositInvoiceDataProvider(CrmContext context, IMapper mapper, ILogger<DepositInvoiceDataProvider> logger) : base(context, mapper, logger)
+        public DepositInvoiceDataProvider(ISequenceDataProvider sequenceDataProvider, IVatRateDataProvider vatRateDataProvider,
+                                            CrmContext context, IMapper mapper, ILogger<DepositInvoiceDataProvider> logger)
+                                            : base(sequenceDataProvider, vatRateDataProvider, context, mapper, logger)
         {
 
         }
 
-        private IQueryable<DataProvider.Models.Invoice> BaseQuery() {
+        private new IQueryable<DataProvider.Models.Invoice> BaseQuery() {
             return _context.Invoices
                             .Where(i => i.MainInvoiceHub != null); // only deposit invoices
         }
@@ -50,14 +53,9 @@ namespace Rollvolet.CRM.DataProviders
             };
         }
 
-        public async Task<DepositInvoice> GetByIdAsync(int id, QuerySet query)
+        public async Task<DepositInvoice> GetByIdAsync(int id, QuerySet query = null)
         {
-            var source = BaseQuery()
-                            .Where(c => c.Id == id)
-                            .Include(query, true);
-
-            // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-            var invoice = await QueryWithManualIncludeAsync(source, query);
+            var invoice = await FindByIdAsync(id, query, true);
 
             if (invoice == null)
             {
@@ -134,6 +132,93 @@ namespace Rollvolet.CRM.DataProviders
                 PageNumber = query.Page.Number,
                 PageSize = query.Page.Size
             };
+        }
+
+        public async Task<DepositInvoice> CreateAsync(DepositInvoice depositInvoice)
+        {
+            // TODO wrap both save operations in a transaction?
+
+            var depositInvoiceRecord = _mapper.Map<DataProvider.Models.Invoice>(depositInvoice);
+
+            depositInvoiceRecord.Number = await _sequenceDataProvider.GetNextInvoiceNumber();
+            depositInvoiceRecord.Currency = "EUR";
+            depositInvoiceRecord.Year = (short) DateTime.Now.Year;
+
+            await EmbedCustomerAttributesAsync(depositInvoiceRecord);
+            await CalculateAmountAndVatAsync(depositInvoiceRecord);
+
+            _context.Invoices.Add(depositInvoiceRecord);
+            await _context.SaveChangesAsync();
+
+            var depositInvoiceHub = new DepositInvoiceHub();
+            depositInvoiceHub.CustomerId = depositInvoice.Customer.Id;
+            depositInvoiceHub.OrderId = depositInvoice.Order.Id;
+            depositInvoiceHub.Date = DateTime.Now;
+            depositInvoiceHub.DepositInvoiceId = depositInvoiceRecord.Id;
+            // TODO set invoice id if order has an invoice already?
+
+            _context.DepositInvoices.Add(depositInvoiceHub);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<DepositInvoice>(depositInvoiceRecord);
+        }
+
+        public async Task<DepositInvoice> UpdateAsync(DepositInvoice depositInvoice)
+        {
+            var depositInvoiceRecord = await FindByIdAsync(depositInvoice.Id);
+
+            // compare old and new attribute values before merging the changes in the invoiceRecord
+            var requiresRecalculation = depositInvoice.BaseAmount != depositInvoiceRecord.BaseAmount
+                                            || int.Parse(depositInvoice.VatRate.Id) != depositInvoiceRecord.VatRateId;
+
+            _mapper.Map(depositInvoice, depositInvoiceRecord);
+
+            await EmbedCustomerAttributesAsync(depositInvoiceRecord);
+
+            // Only a change of the baseAmount or vatRate trigger a recalculation.
+            if (requiresRecalculation)
+                await CalculateAmountAndVatAsync(depositInvoiceRecord);
+
+            _context.Invoices.Update(depositInvoiceRecord);
+            await _context.SaveChangesAsync();
+
+            // Deposit invoice hub doesn't need to be updated since none of the attributes can change
+
+            return _mapper.Map<DepositInvoice>(depositInvoiceRecord);
+        }
+
+        public async Task DeleteByIdAsync(int id)
+        {
+            var depositInvoiceHub = await _context.DepositInvoices.Where(h => h.DepositInvoiceId == id).FirstOrDefaultAsync();
+
+            if (depositInvoiceHub != null)
+                _context.DepositInvoices.Remove(depositInvoiceHub);
+
+            var invoice = await FindByIdAsync(id);
+
+            if (invoice != null)
+                _context.Invoices.Remove(invoice);
+
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task CalculateAmountAndVatAsync(DataProvider.Models.Invoice depositInvoice)
+        {
+            _logger.LogDebug("Recalculating amount and VAT of deposit invoice {0}", depositInvoice.Id);
+            var query = new QuerySet();
+            var amount = depositInvoice.BaseAmount ?? 0.0;
+
+            var vat = 0.0;
+            if (depositInvoice.VatRateId != null)
+            {
+                // don't GetByInvoiceId because invoice might not be persisted yet
+                var vatRate = await _vatRateDataProvider.GetByIdAsync((int) depositInvoice.VatRateId);
+                vat = amount * (vatRate.Rate / 100.0);
+            }
+
+            depositInvoice.Amount = amount; // base amount
+            depositInvoice.Vat = vat; // vat calculated on amount
+            depositInvoice.TotalAmount = amount + vat; // gross amount
         }
     }
 }

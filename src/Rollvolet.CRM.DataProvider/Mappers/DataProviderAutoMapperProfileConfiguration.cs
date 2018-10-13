@@ -247,14 +247,28 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.VatRateId, opt => opt.MapFrom(src => src.VatRate != null ? src.VatRate.Id : null))
                 .ForMember(dest => dest.Order, opt => opt.Ignore())
                 .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.Order != null ? src.Order.Id : (int?) null))
-                 // TODO add reverse mapping for deposit invoices
+                .ForMember(dest => dest.Deposits, opt => opt.Ignore())
+                .ForMember(dest => dest.Supplements, opt => opt.Ignore())
+                .ForMember(dest => dest.DepositInvoiceHubs, opt => opt.Ignore())
                 .PreserveReferences();
 
             CreateMap<Models.Invoice, Domain.Models.DepositInvoice>()
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.MainInvoiceHub != null ? src.MainInvoiceHub.Order : null))
                 .PreserveReferences()
                 .ReverseMap()
-                // TODO add reverse mapping for order
+                .ForMember(dest => dest.Customer, opt => opt.Ignore())
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
+                .ForMember(dest => dest.Contact, opt => opt.Ignore())
+                .ForMember(dest => dest.RelativeContactId, opt => opt.MapFrom(src => src.Contact != null ? src.Contact.Number : (int?) null))
+                .ForMember(dest => dest.Building, opt => opt.Ignore())
+                .ForMember(dest => dest.RelativeBuildingId, opt => opt.MapFrom(src => src.Building != null ? src.Building.Number : (int?) null))
+                .ForMember(dest => dest.VatRate, opt => opt.Ignore())
+                .ForMember(dest => dest.VatRateId, opt => opt.MapFrom(src => src.VatRate != null ? src.VatRate.Id : null))
+                .ForMember(dest => dest.Order, opt => opt.Ignore())
+                .ForMember(dest => dest.OrderId, opt => opt.Ignore()) // order id is not set on invoice record, but on deposit invoice hub record
+                .ForMember(dest => dest.Deposits, opt => opt.Ignore())
+                .ForMember(dest => dest.Supplements, opt => opt.Ignore())
+                .ForMember(dest => dest.DepositInvoiceHubs, opt => opt.Ignore())
                 .PreserveReferences();
 
             CreateMap<Models.InvoiceSupplement, Domain.Models.InvoiceSupplement>()

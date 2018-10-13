@@ -64,5 +64,43 @@ namespace Rollvolet.CRM.API.Controllers
 
             return Ok(new ResourceResponse() { Links = links, Data = orderDto, Included = included });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateAsync([FromBody] ResourceRequest<DepositInvoiceRequestDto> resource)
+        {
+            if (resource.Data.Type != "deposit-invoices") return StatusCode(409);
+
+            var depositInvoice = _mapper.Map<DepositInvoice>(resource.Data);
+
+            depositInvoice = await _depositInvoiceManager.CreateAsync(depositInvoice);
+            var depositInvoiceDto = _mapper.Map<DepositInvoiceDto>(depositInvoice);
+
+            var links = _jsonApiBuilder.BuildNewSingleResourceLinks(HttpContext.Request.Path, depositInvoiceDto.Id);
+
+            return Created(links.Self, new ResourceResponse() { Links = links, Data = depositInvoiceDto });
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateAsync(string id, [FromBody] ResourceRequest<DepositInvoiceRequestDto> resource)
+        {
+            if (resource.Data.Type != "deposit-invoices" || resource.Data.Id != id) return StatusCode(409);
+
+            var depositInvoice = _mapper.Map<DepositInvoice>(resource.Data);
+
+            depositInvoice = await _depositInvoiceManager.UpdateAsync(depositInvoice);
+
+            var depositInvoiceDto = _mapper.Map<DepositInvoiceDto>(depositInvoice);
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+
+            return Ok(new ResourceResponse() { Links = links, Data = depositInvoiceDto });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            await _depositInvoiceManager.DeleteAsync(id);
+
+            return NoContent();
+        }
     }
 }
