@@ -64,7 +64,12 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<Invoice> GetByOrderIdAsync(int orderId, QuerySet query = null)
         {
-            return await _invoiceDataProvider.GetByOrderIdAsync(orderId);
+            return await _invoiceDataProvider.GetByOrderIdAsync(orderId, query);
+        }
+
+        public async Task<Invoice> GetByWorkingHourIdAsync(int workingHourId)
+        {
+            return await _invoiceDataProvider.GetByWorkingHourIdAsync(workingHourId);
         }
 
         public async Task<Invoice> CreateAsync(Invoice invoice)

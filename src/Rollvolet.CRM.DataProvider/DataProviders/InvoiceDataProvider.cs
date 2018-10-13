@@ -106,6 +106,19 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Invoice>(invoice);
         }
 
+        public async Task<Invoice> GetByWorkingHourIdAsync(int workingHourId)
+        {
+            var invoice = await _context.WorkingHours.Where(w => w.Id == workingHourId).Select(w => w.Invoice).FirstOrDefaultAsync();
+
+            if (invoice == null)
+            {
+                _logger.LogError($"No invoice found for working-hour-id {workingHourId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Invoice>(invoice);
+        }
+
         public async Task<Invoice> CreateAsync(Invoice invoice)
         {
             var invoiceRecord = _mapper.Map<DataProvider.Models.Invoice>(invoice);
