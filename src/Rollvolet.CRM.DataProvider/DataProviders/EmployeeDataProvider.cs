@@ -83,5 +83,18 @@ namespace Rollvolet.CRM.DataProviders
 
             return await GetByFirstName(visit.Visitor);
         }
+
+        public async Task<Employee> GetByWorkingHourIdAsync(int workingHourId)
+        {
+            var employee = await _context.WorkingHours.Where(w => w.Id == workingHourId).Select(w => w.Employee).FirstOrDefaultAsync();
+
+            if (employee == null)
+            {
+                _logger.LogError($"No employee found for working-hour-id {workingHourId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Employee>(employee);
+        }
     }
 }

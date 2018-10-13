@@ -8,5 +8,6 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
     public interface IEmployeeManager
     {
         Task<IEnumerable<Employee>> GetAllAsync();
+        Task<Employee> GetByWorkingHourIdAsync(int workingHourId);
     }
 }

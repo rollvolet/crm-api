@@ -235,9 +235,6 @@ namespace Rollvolet.CRM.API.Controllers
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
-            // TODO add endpoint to get employee of working-hour
-            querySet.Include.Fields = querySet.Include.Fields.Append("employee").ToArray();
-
             var pagedWorkingHours = await _workingHourManager.GetAllByInvoiceIdAsync(invoiceId, querySet);
 
             var workingHourDtos = _mapper.Map<IEnumerable<WorkingHourDto>>(pagedWorkingHours.Items, opt => opt.Items["include"] = querySet.Include);
