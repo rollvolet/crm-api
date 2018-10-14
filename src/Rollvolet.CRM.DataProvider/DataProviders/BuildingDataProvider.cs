@@ -139,6 +139,11 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Building>(building);
         }
 
+        public async Task<Building> GetByDepositInvoiceIdAsync(int depositInvoiceId)
+        {
+            return await GetByInvoiceIdAsync(depositInvoiceId);
+        }
+
         public async Task<Building> CreateAsync(Building building)
         {
             var buildingRecord = _mapper.Map<DataProvider.Models.Building>(building);

@@ -122,6 +122,11 @@ namespace Rollvolet.CRM.DataProviders
             return await GetByIdAsync((int) orderId, query);
         }
 
+        public async Task<Order> GetByDepositInvoiceIdAsync(int invoiceId, QuerySet query = null)
+        {
+            return await GetByInvoiceIdAsync(invoiceId, query);
+        }
+
         public async Task<Order> CreateAsync(Order order)
         {
             // Order has already been created by EF Core on creation of the offer since they share the same underlying SQL table

@@ -140,6 +140,11 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Contact>(contact);
         }
 
+        public async Task<Contact> GetByDepositInvoiceIdAsync(int depositInvoiceId)
+        {
+            return await GetByInvoiceIdAsync(depositInvoiceId);
+        }
+
         public async Task<Contact> CreateAsync(Contact contact)
         {
             var contactRecord = _mapper.Map<DataProvider.Models.Contact>(contact);

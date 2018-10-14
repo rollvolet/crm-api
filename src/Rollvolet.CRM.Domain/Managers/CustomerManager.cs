@@ -71,6 +71,11 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _customerDataProvider.GetByInvoiceIdAsync(invoiceId);
         }
 
+        public async Task<Customer> GetByDepositInvoiceIdAsync(int depositInvoiceId)
+        {
+            return await _customerDataProvider.GetByDepositInvoiceIdAsync(depositInvoiceId);
+        }
+
         public async Task<Customer> CreateAsync(Customer customer)
         {
             if (customer.DataId != 0)

@@ -82,6 +82,12 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _orderDataProvider.GetByInvoiceIdAsync(invoiceId, query);
         }
 
+        public async Task<Order> GetByDepositInvoiceIdAsync(int depositInvoiceId, QuerySet query = null)
+        {
+            return await _orderDataProvider.GetByDepositInvoiceIdAsync(depositInvoiceId, query);
+        }
+
+
         public async Task<Order> CreateAsync(Order order)
         {
             if (order.Id != 0)

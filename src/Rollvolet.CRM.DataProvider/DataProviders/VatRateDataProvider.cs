@@ -95,5 +95,10 @@ namespace Rollvolet.CRM.DataProviders
 
             return _mapper.Map<VatRate>(vatRate);
         }
+
+        public async Task<VatRate> GetByDepositInvoiceIdAsync(int depositInvoiceId)
+        {
+            return await GetByInvoiceIdAsync(depositInvoiceId);
+        }
     }
 }
