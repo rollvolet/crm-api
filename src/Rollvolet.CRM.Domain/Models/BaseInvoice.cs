@@ -18,7 +18,6 @@ namespace Rollvolet.CRM.Domain.Models
         public Order Order { get; set; }
         public VatRate VatRate { get; set; }
         public double? BaseAmount { get; set; }
-        public bool IsPaidInCash { get; set; }
         public bool CertificateRequired { get; set; }
         public bool CertificateReceived { get; set; }
         public bool CertificateClosed { get; set; }

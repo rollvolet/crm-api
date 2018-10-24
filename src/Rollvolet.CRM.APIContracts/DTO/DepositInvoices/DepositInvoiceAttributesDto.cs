@@ -23,8 +23,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.DepositInvoices
         public double? Vat { get; set; }
         [JsonProperty("total-amount")]
         public double? TotalAmount { get; set; }
-        [JsonProperty("is-paid-in-cash")]
-        public bool IsPaidInCash { get; set; }
         [JsonProperty("certificate-required")]
         public bool CertificateRequired { get; set; }
         [JsonProperty("certificate-received")]

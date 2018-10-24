@@ -19,8 +19,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Invoices
         public DateTime? CancellationDate { get; set; }
         [JsonProperty("base-amount")]
         public double? BaseAmount { get; set; }
-        [JsonProperty("is-paid-in-cash")]
-        public bool IsPaidInCash { get; set; }
         [JsonProperty("certificate-required")]
         public bool CertificateRequired { get; set; }
         [JsonProperty("certificate-received")]

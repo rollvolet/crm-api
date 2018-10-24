@@ -58,8 +58,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Totaal")]
         public double? TotalAmount { get; set; } // gross price: amount + vat
 
-        [Column("Kontant")]
-        public bool IsPaidInCash { get; set; }
+        // @Deprecated
+        // [Column("Kontant")]
+        // public bool IsPaidInCash { get; set; }
 
         [Column("Attest")]
         public bool CertificateRequired { get; set; }
