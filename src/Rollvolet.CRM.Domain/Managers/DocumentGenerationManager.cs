@@ -14,6 +14,7 @@ using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
+using Rollvolet.CRM.Domain.Models.Interfaces;
 using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.Domain.Managers
@@ -24,6 +25,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IOrderDataProvider _orderDataProvider;
+        private readonly IInvoiceDataProvider _invoiceDateProvider;
         private readonly ICustomerDataProvider _customerDataProvider;
         private readonly IContactDataProvider _contactDataProvider;
         private readonly ITelephoneDataProvider _telephoneDataProvider;
@@ -32,12 +34,14 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly HttpClient _httpClient;
         private readonly DocumentGenerationConfiguration _documentGenerationConfig;
         private readonly string _offerStorageLocation;
+        private readonly string _invoiceStorageLocation;
         private readonly string _productionTicketStorageLocation;
         private readonly ILogger _logger;
 
         public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IOfferDataProvider offerDataProvider,
                                          ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
-                                         IOrderDataProvider orderDataProvider, ITelephoneDataProvider telephoneDataProvider,
+                                         IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDateProvider,
+                                         ITelephoneDataProvider telephoneDataProvider,
                                          IVisitDataProvider visitDataProvider, IEmployeeDataProvider employeeDataProvider,
                                          IOptions<DocumentGenerationConfiguration> documentGenerationConfiguration,
                                          ILogger<DocumentGenerationManager> logger)
@@ -45,6 +49,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _requestDataProvider = requestDataProvider;
             _offerDataProvider = offerDataProvider;
             _orderDataProvider = orderDataProvider;
+            _invoiceDateProvider = invoiceDateProvider;
             _customerDataProvider = customerDataProvider;
             _contactDataProvider = contactDataProvider;
             _telephoneDataProvider = telephoneDataProvider;
@@ -58,6 +63,11 @@ namespace Rollvolet.CRM.Domain.Managers
             if (!_offerStorageLocation.EndsWith(Path.DirectorySeparatorChar))
                 _offerStorageLocation += Path.DirectorySeparatorChar;
             Directory.CreateDirectory(_offerStorageLocation);
+
+            _invoiceStorageLocation = _documentGenerationConfig.InvoiceStorageLocation;
+            if (!_invoiceStorageLocation.EndsWith(Path.DirectorySeparatorChar))
+                _invoiceStorageLocation += Path.DirectorySeparatorChar;
+            Directory.CreateDirectory(_invoiceStorageLocation);
 
             _productionTicketStorageLocation = _documentGenerationConfig.ProductionTicketStorageLocation;
             if (!_productionTicketStorageLocation.EndsWith(Path.DirectorySeparatorChar))
@@ -74,13 +84,8 @@ namespace Rollvolet.CRM.Domain.Managers
             var request = await _requestDataProvider.GetByIdAsync(requestId, query);
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/visit-report";
-            var json = JsonConvert.SerializeObject(request, new JsonSerializerSettings {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            });
-            _logger.LogDebug("JSON to send to document generation service at {0}: {1}", url, json);
-
-            var body = new StringContent(json, Encoding.UTF8, "application/json");
+            var body = GenerateJsonBody(request);
+            _logger.LogDebug("Send request to document generation service at {0}", url);
             var response = await _httpClient.PostAsync(url, body);
 
             try
@@ -103,30 +108,7 @@ namespace Rollvolet.CRM.Domain.Managers
             };
             var offer = await _offerDataProvider.GetByIdAsync(offerId, includeQuery);
 
-            var telephoneQuery = new QuerySet();
-            telephoneQuery.Sort.Field = "order";
-            telephoneQuery.Sort.Order = SortQuery.ORDER_ASC;
-            telephoneQuery.Include.Fields = new string[] { "country", "telephone-type" };
-
-            if (offer.Customer != null)
-            {
-                var customerIncludeQuery = new QuerySet();
-                customerIncludeQuery.Include.Fields = new string[] { "honorific-prefix", "language" };
-                offer.Customer = await _customerDataProvider.GetByNumberAsync(offer.Customer.Number, customerIncludeQuery);
-
-                var telephones = await _telephoneDataProvider.GetAllByCustomerIdAsync(offer.Customer.Id, telephoneQuery);
-                offer.Customer.Telephones = telephones.Items;
-            }
-
-            if (offer.Contact != null)
-            {
-                var contactIncludeQuery = new QuerySet();
-                contactIncludeQuery.Include.Fields = new string[] { "honorific-prefix", "language" };
-                offer.Contact = await _contactDataProvider.GetByIdAsync(offer.Contact.Id, contactIncludeQuery);
-
-                var telephones = await _telephoneDataProvider.GetAllByContactIdAsync(offer.Contact.Id, telephoneQuery);
-                offer.Contact.Telephones = telephones.Items;
-            }
+            await EmbedCustomerAndContactTelephonesAsync(offer);
 
             string visitorInitials = null;
             if (offer.Request != null)
@@ -147,60 +129,55 @@ namespace Rollvolet.CRM.Domain.Managers
             documentData.Visitor = visitorInitials;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/offer";
-            var json = (string) JsonConvert.SerializeObject(documentData, new JsonSerializerSettings {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            });
-            _logger.LogDebug("JSON to send to document generation service at {0}: {1}", url, json);
+            var filePath = ConstructOfferDocumentFilePath(offer);
 
-            var body = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(url, body);
-
-            try
-            {
-                response.EnsureSuccessStatusCode();
-
-                var filePath = ConstructOfferDocumentFilePath(offer);
-
-                using (var inputStream = await response.Content.ReadAsStreamAsync())
-                {
-
-                    using (var fileStream = File.Create(filePath))
-                    {
-                        inputStream.Seek(0, SeekOrigin.Begin);
-                        inputStream.CopyTo(fileStream);
-                    }
-                }
-
-                return new FileStream(filePath, FileMode.Open);
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning("Something went wrong while generating the offer document of offer {0}: {1}", offerId, e.Message);
-                throw e;
-            }
+            return await GenerateAndStoreDocumentAsync(url, documentData, filePath);
         }
 
         public async Task<FileStream> DownloadOfferDocument(int offerId)
         {
             var offer = await _offerDataProvider.GetByIdAsync(offerId);
             var filePath = ConstructOfferDocumentFilePath(offer);
-            var stream = new MemoryStream();
+            return DownloadDcument(filePath);
+        }
 
-            try
+        public async Task<FileStream> CreateAndStoreInvoiceDocumentAsync(int invoiceId)
+        {
+            var includeQuery = new QuerySet();
+            includeQuery.Include.Fields = new string[] {
+                "customer", "contact", "building", "order", "vat-rate", "supplements", "deposits", "deposit-invoices"
+            };
+            var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId, includeQuery);
+
+            if (invoice.Order != null)
             {
-                return new FileStream(filePath, FileMode.Open);
+                var orderIncludeQuery = new QuerySet();
+                includeQuery.Include.Fields = new string[] { "offerlines", "offerlines.vat-rate" };
+                var order = await _orderDataProvider.GetByIdAsync(invoice.Order.Id);
+                invoice.Order = order;
             }
-            catch (FileNotFoundException)
-            {
-                _logger.LogWarning("Cannot find document for offer {0} at {1}", offerId, filePath);
-                throw new EntityNotFoundException();
-            }
+
+            await EmbedCustomerAndContactTelephonesAsync(invoice);
+
+            dynamic documentData = new ExpandoObject();
+            documentData.Invoice = invoice;
+
+            var url = $"{_documentGenerationConfig.BaseUrl}/documents/invoice";
+            var filePath = ConstructInvoiceDocumentFilePath(invoice);
+
+            return await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+        }
+
+        public async Task<FileStream> DownloadInvoiceDocumentAsync(int invoiceId)
+        {
+            var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
+            var filePath = ConstructInvoiceDocumentFilePath(invoice);
+            return DownloadDcument(filePath);
         }
 
         public async Task UploadProductionTicket(int orderId, Stream content)
         {
-            var filePath = await ConstructProductionTicketFilePath(orderId);
+            var filePath = await ConstructProductionTicketFilePathAsync(orderId);
             _logger.LogDebug($"Uploading production ticket to {filePath}");
 
             using (var fileStream = File.Create(filePath))
@@ -212,19 +189,8 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<FileStream> DownloadProductionTicket(int orderId)
         {
-            var filePath = await ConstructProductionTicketFilePath(orderId);
-
-            var stream = new MemoryStream();
-
-            try
-            {
-                return new FileStream(filePath, FileMode.Open);
-            }
-            catch (FileNotFoundException)
-            {
-                _logger.LogWarning("Cannot find production ticket for order {0} at {1}", orderId, filePath);
-                throw new EntityNotFoundException();
-            }
+            var filePath = await ConstructProductionTicketFilePathAsync(orderId);
+            return DownloadDcument(filePath);
         }
 
         private string ConstructOfferDocumentFilePath(Offer offer)
@@ -240,7 +206,19 @@ namespace Rollvolet.CRM.Domain.Managers
             return $"{directory}{filename}.pdf";
         }
 
-        private async Task<string> ConstructProductionTicketFilePath(int orderId)
+        private string ConstructInvoiceDocumentFilePath(Invoice invoice)
+        {
+            var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
+
+            var directory = $"{_invoiceStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);
+
+            var filename = _onlyAlphaNumeric.Replace($"{invoice.Number}_factuur", "");
+
+            return $"{directory}{filename}.pdf";
+        }
+
+        private async Task<string> ConstructProductionTicketFilePathAsync(int orderId)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] { "customer" };
@@ -255,6 +233,90 @@ namespace Rollvolet.CRM.Domain.Managers
             var filename = _onlyAlphaNumeric.Replace($"{order.OfferNumber}_productiebon_{order.Customer.Name}".Replace(" ", "_"), "");
 
             return $"{directory}{filename}.pdf";
+        }
+
+        private async Task EmbedCustomerAndContactTelephonesAsync(ICaseRelated resource)
+        {
+            var telephoneQuery = new QuerySet();
+            telephoneQuery.Sort.Field = "order";
+            telephoneQuery.Sort.Order = SortQuery.ORDER_ASC;
+            telephoneQuery.Include.Fields = new string[] { "country", "telephone-type" };
+
+            if (resource.Customer != null)
+            {
+                var customerIncludeQuery = new QuerySet();
+                customerIncludeQuery.Include.Fields = new string[] { "honorific-prefix", "language" };
+                resource.Customer = await _customerDataProvider.GetByNumberAsync(resource.Customer.Number, customerIncludeQuery);
+
+                var telephones = await _telephoneDataProvider.GetAllByCustomerIdAsync(resource.Customer.Id, telephoneQuery);
+                resource.Customer.Telephones = telephones.Items;
+            }
+
+            if (resource.Contact != null)
+            {
+                var contactIncludeQuery = new QuerySet();
+                contactIncludeQuery.Include.Fields = new string[] { "honorific-prefix", "language" };
+                resource.Contact = await _contactDataProvider.GetByIdAsync(resource.Contact.Id, contactIncludeQuery);
+
+                var telephones = await _telephoneDataProvider.GetAllByContactIdAsync(resource.Contact.Id, telephoneQuery);
+                resource.Contact.Telephones = telephones.Items;
+            }
+        }
+
+        private async Task<FileStream> GenerateAndStoreDocumentAsync(string url, Object data, string filePath)
+        {
+            var body = GenerateJsonBody(data);
+            _logger.LogDebug("Send request to document generation service at {0}", url);
+
+            var response = await _httpClient.PostAsync(url, body);
+
+            try
+            {
+                response.EnsureSuccessStatusCode();
+
+                using (var inputStream = await response.Content.ReadAsStreamAsync())
+                {
+
+                    using (var fileStream = File.Create(filePath))
+                    {
+                        inputStream.Seek(0, SeekOrigin.Begin);
+                        inputStream.CopyTo(fileStream);
+                    }
+                }
+
+                return new FileStream(filePath, FileMode.Open);
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning("Something went wrong while generating and storing the document at {0}: {1}", filePath, e.Message);
+                throw e;
+            }
+        }
+
+        private FileStream DownloadDcument(string filePath)
+        {
+            var stream = new MemoryStream();
+
+            try
+            {
+                return new FileStream(filePath, FileMode.Open);
+            }
+            catch (FileNotFoundException)
+            {
+                _logger.LogWarning("Cannot find document at {1}", filePath);
+                throw new EntityNotFoundException();
+            }
+        }
+
+        private HttpContent GenerateJsonBody(Object data)
+        {
+            var json = (string) JsonConvert.SerializeObject(data, new JsonSerializerSettings {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
+            _logger.LogDebug("Generated JSON for request body: {0}", json);
+
+            return new StringContent(json, Encoding.UTF8, "application/json");
         }
     }
 }

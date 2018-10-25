@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Rollvolet.CRM.Domain.Models.Interfaces;
 
 namespace Rollvolet.CRM.Domain.Models
 {
-    public class Request
+    public class Request : ICaseRelated
     {
         public int Id { get; set; }
         public Customer Customer { get; set; }

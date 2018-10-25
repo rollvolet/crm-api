@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Rollvolet.CRM.Domain.Models.Interfaces
 {
     public interface IPaged
@@ -13,6 +11,6 @@ namespace Rollvolet.CRM.Domain.Models.Interfaces
         int Last { get; }
         int Prev { get; }
         int Next { get; }
-        
+
     }
 }
