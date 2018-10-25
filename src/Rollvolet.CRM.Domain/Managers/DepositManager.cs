@@ -75,7 +75,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Deposit> UpdateAsync(Deposit deposit)
         {
             var query = new QuerySet();
-            query.Include.Fields = new string[] { "customer", "order" };
+            query.Include.Fields = new string[] { "customer", "order", "invoice" };
             var existingDeposit = await _depositDataProvider.GetByIdAsync(deposit.Id, query);
 
             if (deposit.Id != existingDeposit.Id)
@@ -133,6 +133,11 @@ namespace Rollvolet.CRM.Domain.Managers
                     deposit.Order = oldDeposit.Order;
                 else
                     deposit.Order = await _orderDataProvider.GetByIdAsync(deposit.Order.Id, includeCustomer);
+
+                // Invoice cannot be updated. Take invoice of oldDeposit on update.
+                // On create the invoice is set by the dataprovider
+                if (oldDeposit != null)
+                    deposit.Invoice = oldDeposit.Invoice;
             }
             catch (EntityNotFoundException)
             {

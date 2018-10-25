@@ -92,7 +92,14 @@ namespace Rollvolet.CRM.DataProviders
             var depositRecord = _mapper.Map<DataProvider.Models.Deposit>(deposit);
 
             if (depositRecord.OrderId != null)
+            {
                 depositRecord.SequenceNumber = await _sequenceDataProvider.GetNextDepositSequenceNumber((int) depositRecord.OrderId);
+
+                var invoice = await _context.Orders.Where(o => o.Id == depositRecord.OrderId).Select(o => o.Invoice).FirstOrDefaultAsync();
+
+                if (invoice != null)
+                    depositRecord.InvoiceId = invoice.Id;
+            }
 
             depositRecord.Currency = "EUR";
             depositRecord.IsDeposit = true; // should be set to false if created while an invoice is already attached?

@@ -155,7 +155,10 @@ namespace Rollvolet.CRM.DataProviders
             depositInvoiceHub.OrderId = depositInvoice.Order.Id;
             depositInvoiceHub.Date = DateTime.Now;
             depositInvoiceHub.DepositInvoiceId = depositInvoiceRecord.Id;
-            // TODO set invoice id if order has an invoice already?
+
+            var invoice = await _context.Orders.Where(o => o.Id == depositInvoice.Order.Id).Select(o => o.Invoice).FirstOrDefaultAsync();
+            if (invoice != null)
+                depositInvoiceHub.InvoiceId = invoice.Id;
 
             _context.DepositInvoices.Add(depositInvoiceHub);
             await _context.SaveChangesAsync();

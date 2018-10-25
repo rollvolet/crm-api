@@ -13,6 +13,7 @@ using LinqKit;
 using System;
 using Rollvolet.CRM.Domain.Exceptions;
 using System.Linq.Expressions;
+using Z.EntityFramework.Plus;
 
 namespace Rollvolet.CRM.DataProviders
 {
@@ -130,6 +131,15 @@ namespace Rollvolet.CRM.DataProviders
             _context.Invoices.Add(invoiceRecord);
             await _context.SaveChangesAsync();
 
+            if (invoiceRecord.OrderId != null)
+            {
+                // Attach all deposits and deposit invoices of the order to the new invoice
+                _context.DepositInvoices.Where(hub => hub.OrderId == invoiceRecord.OrderId)
+                                        .Update(h => new DataProvider.Models.DepositInvoiceHub() { InvoiceId = invoiceRecord.Id });
+                _context.Deposits.Where(d => d.OrderId == invoiceRecord.OrderId)
+                                        .Update(d => new DataProvider.Models.Deposit() { InvoiceId = invoiceRecord.Id });
+            }
+
             return _mapper.Map<Invoice>(invoiceRecord);
         }
 
@@ -161,7 +171,13 @@ namespace Rollvolet.CRM.DataProviders
             var invoice = await FindByIdAsync(id);
 
             if (invoice != null)
-            {
+        {
+                // Detach all deposits and deposit invoices. They are still attached to the order
+                _context.DepositInvoices.Where(hub => hub.InvoiceId == invoice.Id)
+                                        .Update(h => new DataProvider.Models.DepositInvoiceHub() { InvoiceId = null });
+                _context.Deposits.Where(d => d.InvoiceId == invoice.Id)
+                                        .Update(d => new DataProvider.Models.Deposit() { InvoiceId = null });
+
                 _context.Invoices.Remove(invoice);
                 await _context.SaveChangesAsync();
            }
