@@ -113,15 +113,7 @@ namespace Rollvolet.CRM.Domain.Managers
             string visitorInitials = null;
             if (offer.Request != null)
             {
-                try
-                {
-                    var visitor = await _employeeDataProvider.GetVisitorByOfferId(offer.Id);
-                    visitorInitials = visitor.Initials;
-                }
-                catch (EntityNotFoundException)
-                {
-                    // No visit related to the request. Nothing must happen here.
-                }
+                visitorInitials = await GetVisitorInitialsByOfferIdAsync(offer.Id);
             }
 
             dynamic documentData = new ExpandoObject();
@@ -149,18 +141,37 @@ namespace Rollvolet.CRM.Domain.Managers
             };
             var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId, includeQuery);
 
+            string visitorInitials = null;
             if (invoice.Order != null)
             {
-                var orderIncludeQuery = new QuerySet();
-                includeQuery.Include.Fields = new string[] { "offerlines", "offerlines.vat-rate" };
-                var order = await _orderDataProvider.GetByIdAsync(invoice.Order.Id);
-                invoice.Order = order;
+                var offerIncludeQuery = new QuerySet();
+                offerIncludeQuery.Include.Fields = new string[] { "offerlines", "offerlines.vat-rate" };
+                var offer = await _offerDataProvider.GetByIdAsync(invoice.Order.Id, offerIncludeQuery); // offer and order have the same id
+                invoice.Order.Offer = offer;
+
+                visitorInitials = await GetVisitorInitialsByOfferIdAsync(offer.Id);
+
+                // Remove duplicated nested data before sending
+                invoice.Order.Customer = null;
+                invoice.Order.Contact = null;
+                invoice.Order.Building = null;
+                invoice.Order.Deposits = null;
+                invoice.Order.DepositInvoices = null;
+                invoice.Order.Offer.Customer = null;
+                invoice.Order.Offer.Contact = null;
+                invoice.Order.Offer.Building = null;
+                invoice.Order.Offer.Order = null;
             }
+
+            // Remove duplicated nested data before sending
+            invoice.Customer.Offers = null;
+            invoice.Customer.Orders = null;
 
             await EmbedCustomerAndContactTelephonesAsync(invoice);
 
             dynamic documentData = new ExpandoObject();
             documentData.Invoice = invoice;
+            documentData.Visitor = visitorInitials;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/invoice";
             var filePath = ConstructInvoiceDocumentFilePath(invoice);
@@ -213,7 +224,7 @@ namespace Rollvolet.CRM.Domain.Managers
             var directory = $"{_invoiceStorageLocation}{year}{Path.DirectorySeparatorChar}";
             Directory.CreateDirectory(directory);
 
-            var filename = _onlyAlphaNumeric.Replace($"{invoice.Number}_factuur", "");
+            var filename = _onlyAlphaNumeric.Replace($"F{invoice.Number}", "");
 
             return $"{directory}{filename}.pdf";
         }
@@ -260,6 +271,19 @@ namespace Rollvolet.CRM.Domain.Managers
 
                 var telephones = await _telephoneDataProvider.GetAllByContactIdAsync(resource.Contact.Id, telephoneQuery);
                 resource.Contact.Telephones = telephones.Items;
+            }
+        }
+
+        private async Task<string> GetVisitorInitialsByOfferIdAsync(int offerId)
+        {
+            try
+            {
+                var visitor = await _employeeDataProvider.GetVisitorByOfferId(offerId);
+                return visitor.Initials;
+            }
+            catch (EntityNotFoundException)
+            {
+                return null;
             }
         }
 
