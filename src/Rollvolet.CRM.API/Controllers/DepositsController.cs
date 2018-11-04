@@ -43,7 +43,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ResourceRequest<DepositRequestDto> resource)
+        public async Task<IActionResult> CreateAsync([FromBody] ResourceRequest<DepositRequestDto> resource)
         {
             if (resource.Data.Type != "deposits") return StatusCode(409);
 
@@ -58,7 +58,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<DepositRequestDto> resource)
+        public async Task<IActionResult> UpdateAsync(string id, [FromBody] ResourceRequest<DepositRequestDto> resource)
         {
             if (resource.Data.Type != "deposits" || resource.Data.Id != id) return StatusCode(409);
 
@@ -73,7 +73,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             await _depositManager.DeleteAsync(id);
 
@@ -82,7 +82,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{depositId}/payment")]
         [HttpGet("{depositId}/links/payment")]
-        public async Task<IActionResult> GetRelatedPaymentById(int depositId)
+        public async Task<IActionResult> GetRelatedPaymentByIdAsync(int depositId)
         {
             PaymentDto paymentDto;
             try

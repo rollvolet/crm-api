@@ -44,7 +44,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] ResourceRequest<WorkingHourRequestDto> resource)
+        public async Task<IActionResult> CreateAsyncAsync([FromBody] ResourceRequest<WorkingHourRequestDto> resource)
         {
             if (resource.Data.Type != "working-hours") return StatusCode(409);
 
@@ -59,7 +59,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateAsync(string id, [FromBody] ResourceRequest<WorkingHourRequestDto> resource)
+        public async Task<IActionResult> UpdateAsyncAsync(string id, [FromBody] ResourceRequest<WorkingHourRequestDto> resource)
         {
             if (resource.Data.Type != "working-hours" || resource.Data.Id != id) return StatusCode(409);
 

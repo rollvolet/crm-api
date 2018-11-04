@@ -34,7 +34,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ResourceRequest<VisitRequestDto> resource)
+        public async Task<IActionResult> CreateAsync([FromBody] ResourceRequest<VisitRequestDto> resource)
         {
             if (resource.Data.Type != "visits") return StatusCode(409);
 
@@ -49,7 +49,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<VisitRequestDto> resource)
+        public async Task<IActionResult> UpdateAsync(string id, [FromBody] ResourceRequest<VisitRequestDto> resource)
         {
             if (resource.Data.Type != "visits" || resource.Data.Id != id) return StatusCode(409);
 
@@ -64,7 +64,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             await _visitManager.DeleteAsync(id);
 

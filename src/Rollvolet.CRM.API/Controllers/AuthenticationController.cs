@@ -41,7 +41,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpPost("authentication/token")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetToken([FromBody] AuthenticationTokenRequestDto requestDto)
+        public async Task<IActionResult> GetTokenAsync([FromBody] AuthenticationTokenRequestDto requestDto)
         {
             var path = $"{_authenticationConfiguration.BaseUri}/{_authenticationConfiguration.TenantId}/oauth2/v2.0/token";
             var form = new Dictionary<string, string>();
@@ -74,7 +74,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpPost("authentication/refresh-token")]
         [AllowAnonymous]
-        public async Task<IActionResult> RefreshToken([FromBody] AuthenticationTokenRefreshRequestDto requestDto)
+        public async Task<IActionResult> RefreshTokenAsync([FromBody] AuthenticationTokenRefreshRequestDto requestDto)
         {
             var path = $"{_authenticationConfiguration.BaseUri}/{_authenticationConfiguration.TenantId}/oauth2/v2.0/token";
             var form = new Dictionary<string, string>();

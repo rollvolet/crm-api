@@ -55,7 +55,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -70,7 +70,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -84,7 +84,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] ResourceRequest<DepositInvoiceRequestDto> resource)
+        public async Task<IActionResult> CreateAsyncAsync([FromBody] ResourceRequest<DepositInvoiceRequestDto> resource)
         {
             if (resource.Data.Type != "deposit-invoices") return StatusCode(409);
 
@@ -99,7 +99,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateAsync(string id, [FromBody] ResourceRequest<DepositInvoiceRequestDto> resource)
+        public async Task<IActionResult> UpdateAsyncAsync(string id, [FromBody] ResourceRequest<DepositInvoiceRequestDto> resource)
         {
             if (resource.Data.Type != "deposit-invoices" || resource.Data.Id != id) return StatusCode(409);
 
@@ -123,7 +123,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{invoiceId}/customer")]
         [HttpGet("{invoiceId}/links/customer")]
-        public async Task<IActionResult> GetRelatedCustomerById(int invoiceId)
+        public async Task<IActionResult> GetRelatedCustomerByIdAsync(int invoiceId)
         {
             CustomerDto customerDto;
             try
@@ -142,7 +142,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{invoiceId}/contact")]
         [HttpGet("{invoiceId}/links/contact")]
-        public async Task<IActionResult> GetRelatedContactById(int invoiceId)
+        public async Task<IActionResult> GetRelatedContactByIdAsync(int invoiceId)
         {
             ContactDto contactDto;
             try
@@ -161,7 +161,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{invoiceId}/building")]
         [HttpGet("{invoiceId}/links/building")]
-        public async Task<IActionResult> GetRelatedBuildingById(int invoiceId)
+        public async Task<IActionResult> GetRelatedBuildingByIdAsync(int invoiceId)
         {
             BuildingDto buildingDto;
             try
@@ -180,7 +180,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{invoiceId}/order")]
         [HttpGet("{invoiceId}/links/order")]
-        public async Task<IActionResult> GetRelatedOrderById(int invoiceId)
+        public async Task<IActionResult> GetRelatedOrderByIdAsync(int invoiceId)
         {
             OrderDto orderDto;
             try
@@ -199,7 +199,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{invoiceId}/vat-rate")]
         [HttpGet("{invoiceId}/links/vat-rate")]
-        public async Task<IActionResult> GetRelatedVatRateById(int invoiceId)
+        public async Task<IActionResult> GetRelatedVatRateByIdAsync(int invoiceId)
         {
             VatRateDto vatRateDto;
             try

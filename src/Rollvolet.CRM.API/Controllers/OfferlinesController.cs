@@ -52,7 +52,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -66,7 +66,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ResourceRequest<OfferlineRequestDto> resource)
+        public async Task<IActionResult> CreateAsync([FromBody] ResourceRequest<OfferlineRequestDto> resource)
         {
             if (resource.Data.Type != "offerlines") return StatusCode(409);
 
@@ -81,7 +81,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<OfferlineRequestDto> resource)
+        public async Task<IActionResult> UpdateAsync(string id, [FromBody] ResourceRequest<OfferlineRequestDto> resource)
         {
             if (resource.Data.Type != "offerlines" || resource.Data.Id != id) return StatusCode(409);
 
@@ -96,7 +96,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             await _offerlineManager.DeleteAsync(id);
 
@@ -105,7 +105,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{offerlineId}/offer")]
         [HttpGet("{offerlineId}/links/offer")]
-        public async Task<IActionResult> GetRelatedOfferById(int offerlineId)
+        public async Task<IActionResult> GetRelatedOfferByIdAsync(int offerlineId)
         {
             OfferDto offerDto;
             try
@@ -124,7 +124,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{offerlineId}/vat-rate")]
         [HttpGet("{offerlineId}/links/vat-rate")]
-        public async Task<IActionResult> GetRelatedVatRateById(int offerlineId)
+        public async Task<IActionResult> GetRelatedVatRateByIdAsync(int offerlineId)
         {
             VatRateDto vatRateDto;
             try

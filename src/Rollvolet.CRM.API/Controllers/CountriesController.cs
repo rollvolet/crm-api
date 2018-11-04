@@ -29,7 +29,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var countries = await _countryManager.GetAllAsync();
 

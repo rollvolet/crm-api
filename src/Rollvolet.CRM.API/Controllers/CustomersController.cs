@@ -75,7 +75,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -90,7 +90,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -104,7 +104,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ResourceRequest<CustomerRequestDto> resource)
+        public async Task<IActionResult> CreateAsync([FromBody] ResourceRequest<CustomerRequestDto> resource)
         {
             if (resource.Data.Type != "customers") return StatusCode(409);
 
@@ -119,7 +119,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<CustomerRequestDto> resource)
+        public async Task<IActionResult> UpdateAsync(string id, [FromBody] ResourceRequest<CustomerRequestDto> resource)
         {
             if (resource.Data.Type != "customers" || resource.Data.Id != id) return StatusCode(409);
 
@@ -134,7 +134,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             await _customerManager.DeleteAsync(id);
 
@@ -143,7 +143,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{customerId}/contacts")]
         [HttpGet("{customerId}/links/contacts")]
-        public async Task<IActionResult> GetRelatedContactsByCustomerId(int customerId)
+        public async Task<IActionResult> GetRelatedContactsByCustomerIdAsync(int customerId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -159,7 +159,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{customerId}/buildings")]
         [HttpGet("{customerId}/links/buildings")]
-        public async Task<IActionResult> GetRelatedBuildingsById(int customerId)
+        public async Task<IActionResult> GetRelatedBuildingsByIdAsync(int customerId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -175,7 +175,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{customerId}/telephones")]
         [HttpGet("{customerId}/links/telephones")]
-        public async Task<IActionResult> GetRelatedTelephonesById(int customerId)
+        public async Task<IActionResult> GetRelatedTelephonesByIdAsync(int customerId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
             querySet.Include.Fields = new string[] {"country", "telephone-type"};
@@ -192,7 +192,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{customerId}/requests")]
         [HttpGet("{customerId}/links/requests")]
-        public async Task<IActionResult> GetRelatedRequestsById(int customerId)
+        public async Task<IActionResult> GetRelatedRequestsByIdAsync(int customerId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -208,7 +208,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{customerId}/offers")]
         [HttpGet("{customerId}/links/offers")]
-        public async Task<IActionResult> GetRelatedOffersById(int customerId)
+        public async Task<IActionResult> GetRelatedOffersByIdAsync(int customerId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -224,7 +224,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{customerId}/orders")]
         [HttpGet("{customerId}/links/orders")]
-        public async Task<IActionResult> GetRelatedOrdersById(int customerId)
+        public async Task<IActionResult> GetRelatedOrdersByIdAsync(int customerId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -240,7 +240,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{customerId}/deposit-invoices")]
         [HttpGet("{customerId}/links/deposit-invoices")]
-        public async Task<IActionResult> GetRelatedDepositInvoicesById(int customerId)
+        public async Task<IActionResult> GetRelatedDepositInvoicesByIdAsync(int customerId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -256,7 +256,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{customerId}/invoices")]
         [HttpGet("{customerId}/links/invoices")]
-        public async Task<IActionResult> GetRelatedInvoicesById(int customerId)
+        public async Task<IActionResult> GetRelatedInvoicesByIdAsync(int customerId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -272,7 +272,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{customerId}/tags")]
         [HttpGet("{customerId}/links/tags")]
-        public async Task<IActionResult> GetRelatedTagsById(int customerId)
+        public async Task<IActionResult> GetRelatedTagsByIdAsync(int customerId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -288,7 +288,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{customerId}/country")]
         [HttpGet("{customerId}/links/country")]
-        public async Task<IActionResult> GetRelatedCountryById(int customerId)
+        public async Task<IActionResult> GetRelatedCountryByIdAsync(int customerId)
         {
             CountryDto countryDto;
             try
@@ -307,7 +307,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{customerId}/language")]
         [HttpGet("{customerId}/links/language")]
-        public async Task<IActionResult> GetRelatedLanguageById(int customerId)
+        public async Task<IActionResult> GetRelatedLanguageByIdAsync(int customerId)
         {
             LanguageDto languageDto;
             try
@@ -326,7 +326,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{customerId}/honorific-prefix")]
         [HttpGet("{customerId}/links/honorific-prefix")]
-        public async Task<IActionResult> GetRelatedHonorificPrefixById(int customerId)
+        public async Task<IActionResult> GetRelatedHonorificPrefixByIdAsync(int customerId)
         {
             HonorificPrefixDto honorificPrefixDto;
             try

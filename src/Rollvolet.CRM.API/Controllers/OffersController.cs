@@ -68,7 +68,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -83,7 +83,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -97,7 +97,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ResourceRequest<OfferRequestDto> resource)
+        public async Task<IActionResult> CreateAsync([FromBody] ResourceRequest<OfferRequestDto> resource)
         {
             if (resource.Data.Type != "offers") return StatusCode(409);
 
@@ -112,7 +112,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<OfferRequestDto> resource)
+        public async Task<IActionResult> UpdateAsync(string id, [FromBody] ResourceRequest<OfferRequestDto> resource)
         {
             if (resource.Data.Type != "offers" || resource.Data.Id != id) return StatusCode(409);
 
@@ -127,7 +127,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             await _offerManager.DeleteAsync(id);
 
@@ -135,7 +135,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost("{id}/documents")]
-        public async Task<IActionResult> CreateOfferDocument(int id)
+        public async Task<IActionResult> CreateOfferDocumentAsync(int id)
         {
             var fileStream = await _documentGenerationManager.CreateAndStoreOfferDocument(id);
 
@@ -145,7 +145,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("{offerId}/document")]
-        public async Task<IActionResult> DownloadOfferDocument(int offerId)
+        public async Task<IActionResult> DownloadOfferDocumentAsync(int offerId)
         {
             var fileStream = await _documentGenerationManager.DownloadOfferDocument(offerId);
 
@@ -156,7 +156,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{offerId}/customer")]
         [HttpGet("{offerId}/links/customer")]
-        public async Task<IActionResult> GetRelatedCustomerById(int offerId)
+        public async Task<IActionResult> GetRelatedCustomerByIdAsync(int offerId)
         {
             CustomerDto customerDto;
             try
@@ -175,7 +175,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{offerId}/contact")]
         [HttpGet("{offerId}/links/contact")]
-        public async Task<IActionResult> GetRelatedContactById(int offerId)
+        public async Task<IActionResult> GetRelatedContactByIdAsync(int offerId)
         {
             ContactDto contactDto;
             try
@@ -194,7 +194,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{offerId}/building")]
         [HttpGet("{offerId}/links/building")]
-        public async Task<IActionResult> GetRelatedBuildingById(int offerId)
+        public async Task<IActionResult> GetRelatedBuildingByIdAsync(int offerId)
         {
             BuildingDto buildingDto;
             try
@@ -213,7 +213,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{offerId}/request")]
         [HttpGet("{offerId}/links/request")]
-        public async Task<IActionResult> GetRelatedRequestById(int offerId)
+        public async Task<IActionResult> GetRelatedRequestByIdAsync(int offerId)
         {
             RequestDto requestDto;
             try
@@ -232,7 +232,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{offerId}/order")]
         [HttpGet("{offerId}/links/order")]
-        public async Task<IActionResult> GetRelatedOrderById(int offerId)
+        public async Task<IActionResult> GetRelatedOrderByIdAsync(int offerId)
         {
             OrderDto orderDto;
             try
@@ -251,7 +251,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{offerId}/vat-rate")]
         [HttpGet("{offerId}/links/vat-rate")]
-        public async Task<IActionResult> GetRelatedVatRateById(int offerId)
+        public async Task<IActionResult> GetRelatedVatRateByIdAsync(int offerId)
         {
             VatRateDto vatRateDto;
             try
@@ -270,7 +270,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{offerId}/submission-type")]
         [HttpGet("{offerId}/links/submission-type")]
-        public async Task<IActionResult> GetRelatedSubmissionTypeById(int offerId)
+        public async Task<IActionResult> GetRelatedSubmissionTypeByIdAsync(int offerId)
         {
             SubmissionTypeDto submissionTypeDto;
             try
@@ -289,7 +289,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{offerId}/offerlines")]
         [HttpGet("{offerId}/links/offerlines")]
-        public async Task<IActionResult> GetRelatedOfferlinesByOfferId(int offerId)
+        public async Task<IActionResult> GetRelatedOfferlinesByOfferIdAsync(int offerId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
             querySet.Include.Fields = querySet.Include.Fields.Concat(new string[] { "vat-rate" }).ToArray();

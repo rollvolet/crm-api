@@ -18,7 +18,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("planning/{msObjectId}/subject")]
-        public async Task<IActionResult> GetPlanningSubject(string msObjectId)
+        public async Task<IActionResult> GetPlanningSubjectAsync(string msObjectId)
         {
             try
             {

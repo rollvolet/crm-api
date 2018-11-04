@@ -32,7 +32,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var postalCodes = await _postalCodeManager.GetAllAsync();
 

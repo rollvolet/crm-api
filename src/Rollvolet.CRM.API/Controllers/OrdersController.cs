@@ -69,7 +69,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -84,7 +84,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -98,7 +98,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ResourceRequest<OrderRequestDto> resource)
+        public async Task<IActionResult> CreateAsync([FromBody] ResourceRequest<OrderRequestDto> resource)
         {
             if (resource.Data.Type != "orders") return StatusCode(409);
 
@@ -113,7 +113,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<OrderRequestDto> resource)
+        public async Task<IActionResult> UpdateAsync(string id, [FromBody] ResourceRequest<OrderRequestDto> resource)
         {
             if (resource.Data.Type != "orders" || resource.Data.Id != id) return StatusCode(409);
 
@@ -128,7 +128,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             await _orderManager.DeleteAsync(id);
 
@@ -136,7 +136,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost("{orderId}/production-ticket")]
-        public async Task<IActionResult> UploadProductionTicket(int orderId, IFormFile file)
+        public async Task<IActionResult> UploadProductionTicketAsync(int orderId, IFormFile file)
         {
             if (file == null || file.Length == 0)
                 throw new IllegalArgumentException("InvalidFile", "File cannot be empty");
@@ -151,7 +151,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("{orderId}/production-ticket")]
-        public async Task<IActionResult> DownloadProductionTicket(int orderId)
+        public async Task<IActionResult> DownloadProductionTicketAsync(int orderId)
         {
             var fileStream = await _documentGenerationManager.DownloadProductionTicket(orderId);
 
@@ -162,7 +162,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{orderId}/customer")]
         [HttpGet("{orderId}/links/customer")]
-        public async Task<IActionResult> GetRelatedCustomerById(int orderId)
+        public async Task<IActionResult> GetRelatedCustomerByIdAsync(int orderId)
         {
             CustomerDto customerDto;
             try
@@ -181,7 +181,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{orderId}/contact")]
         [HttpGet("{orderId}/links/contact")]
-        public async Task<IActionResult> GetRelatedContactById(int orderId)
+        public async Task<IActionResult> GetRelatedContactByIdAsync(int orderId)
         {
             ContactDto contactDto;
             try
@@ -200,7 +200,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{orderId}/building")]
         [HttpGet("{orderId}/links/building")]
-        public async Task<IActionResult> GetRelatedBuildingById(int orderId)
+        public async Task<IActionResult> GetRelatedBuildingByIdAsync(int orderId)
         {
             BuildingDto buildingDto;
             try
@@ -219,7 +219,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{orderId}/offer")]
         [HttpGet("{orderId}/links/offer")]
-        public async Task<IActionResult> GetRelatedOfferById(int orderId)
+        public async Task<IActionResult> GetRelatedOfferByIdAsync(int orderId)
         {
             OfferDto offerDto;
             try
@@ -238,7 +238,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{orderId}/invoice")]
         [HttpGet("{orderId}/links/invoice")]
-        public async Task<IActionResult> GetRelatedInvoiceById(int orderId)
+        public async Task<IActionResult> GetRelatedInvoiceByIdAsync(int orderId)
         {
             InvoiceDto invoiceDto;
             try
@@ -257,7 +257,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{orderId}/deposits")]
         [HttpGet("{orderId}/links/deposits")]
-        public async Task<IActionResult> GetRelatedDepositsByOrderId(int orderId)
+        public async Task<IActionResult> GetRelatedDepositsByOrderIdAsync(int orderId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
             querySet.Include.Fields = querySet.Include.Fields.Concat(new string[] { "payment" }).ToArray();
@@ -274,7 +274,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{orderId}/deposit-invoices")]
         [HttpGet("{orderId}/links/deposit-invoices")]
-        public async Task<IActionResult> GetRelatedDepositInvoicesByOrderId(int orderId)
+        public async Task<IActionResult> GetRelatedDepositInvoicesByOrderIdAsync(int orderId)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -290,7 +290,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{orderId}/vat-rate")]
         [HttpGet("{orderId}/links/vat-rate")]
-        public async Task<IActionResult> GetRelatedVatRateById(int orderId)
+        public async Task<IActionResult> GetRelatedVatRateByIdAsync(int orderId)
         {
             VatRateDto vatRateDto;
             try

@@ -60,7 +60,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -75,7 +75,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
             var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
 
@@ -89,7 +89,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ResourceRequest<RequestRequestDto> resource)
+        public async Task<IActionResult> CreateAsync([FromBody] ResourceRequest<RequestRequestDto> resource)
         {
             if (resource.Data.Type != "requests") return StatusCode(409);
 
@@ -104,7 +104,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] ResourceRequest<RequestRequestDto> resource)
+        public async Task<IActionResult> UpdateAsync(string id, [FromBody] ResourceRequest<RequestRequestDto> resource)
         {
             if (resource.Data.Type != "requests" || resource.Data.Id != id) return StatusCode(409);
 
@@ -119,7 +119,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             await _requestManager.DeleteAsync(id);
 
@@ -127,7 +127,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost("{id}/reports")]
-        public async Task<IActionResult> CreateVisitReport(int id)
+        public async Task<IActionResult> CreateVisitReportAsync(int id)
         {
             var stream = await _documentGenerationManager.CreateVisitReport(id);
 
@@ -138,7 +138,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{requestId}/customer")]
         [HttpGet("{requestId}/links/customer")]
-        public async Task<IActionResult> GetRelatedCustomerById(int requestId)
+        public async Task<IActionResult> GetRelatedCustomerByIdAsync(int requestId)
         {
             CustomerDto customerDto;
             try
@@ -157,7 +157,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{requestId}/contact")]
         [HttpGet("{requestId}/links/contact")]
-        public async Task<IActionResult> GetRelatedContactById(int requestId)
+        public async Task<IActionResult> GetRelatedContactByIdAsync(int requestId)
         {
             ContactDto contactDto;
             try
@@ -176,7 +176,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{requestId}/building")]
         [HttpGet("{requestId}/links/building")]
-        public async Task<IActionResult> GetRelatedBuildingById(int requestId)
+        public async Task<IActionResult> GetRelatedBuildingByIdAsync(int requestId)
         {
             BuildingDto buildingDto;
             try
@@ -195,7 +195,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{requestId}/offer")]
         [HttpGet("{requestId}/links/offer")]
-        public async Task<IActionResult> GetRelatedOfferById(int requestId)
+        public async Task<IActionResult> GetRelatedOfferByIdAsync(int requestId)
         {
             OfferDto offerDto;
             try
@@ -214,7 +214,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{requestId}/way-of-entry")]
         [HttpGet("{requestId}/links/way-of-entry")]
-        public async Task<IActionResult> GetRelatedWayOfEntryById(int requestId)
+        public async Task<IActionResult> GetRelatedWayOfEntryByIdAsync(int requestId)
         {
             WayOfEntryDto wayOfEntryDto;
             try
@@ -233,7 +233,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{requestId}/visit")]
         [HttpGet("{requestId}/links/visit")]
-        public async Task<IActionResult> GetRelatedVisitById(int requestId)
+        public async Task<IActionResult> GetRelatedVisitByIdAsync(int requestId)
         {
             VisitDto visitDto;
             try

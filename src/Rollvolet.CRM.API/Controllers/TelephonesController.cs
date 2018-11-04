@@ -49,7 +49,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ResourceRequest<TelephoneRequestDto> resource)
+        public async Task<IActionResult> CreateAsync([FromBody] ResourceRequest<TelephoneRequestDto> resource)
         {
             if (resource.Data.Type != "telephones") return StatusCode(409);
 
@@ -70,7 +70,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> DeleteAsync(string id)
         {
             await _telephoneManager.DeleteAsync(id);
 
@@ -79,7 +79,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{telephoneId}/country")]
         [HttpGet("{telephoneId}/links/country")]
-        public async Task<IActionResult> GetRelatedCountryById(string telephoneId)
+        public async Task<IActionResult> GetRelatedCountryByIdAsync(string telephoneId)
         {
             CountryDto countryDto;
             try
@@ -98,7 +98,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{telephoneId}/telephone-type")]
         [HttpGet("{telephoneId}/links/telephone-type")]
-        public async Task<IActionResult> GetRelatedTelephoneTypeById(string telephoneId)
+        public async Task<IActionResult> GetRelatedTelephoneTypeByIdAsync(string telephoneId)
         {
             TelephoneTypeDto telephoneTypeDto;
             try
@@ -117,7 +117,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{telephoneId}/customer")]
         [HttpGet("{telephoneId}/links/customer")]
-        public async Task<IActionResult> GetRelatedCustomerById(string telephoneId)
+        public async Task<IActionResult> GetRelatedCustomerByIdAsync(string telephoneId)
         {
             CustomerDto customerDto;
             try
@@ -136,7 +136,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{telephoneId}/contact")]
         [HttpGet("{telephoneId}/links/contact")]
-        public async Task<IActionResult> GetRelatedContactById(string telephoneId)
+        public async Task<IActionResult> GetRelatedContactByIdAsync(string telephoneId)
         {
             ContactDto contactDto;
             try
@@ -155,7 +155,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         [HttpGet("{telephoneId}/building")]
         [HttpGet("{telephoneId}/links/building")]
-        public async Task<IActionResult> GetRelatedBuildingById(string telephoneId)
+        public async Task<IActionResult> GetRelatedBuildingByIdAsync(string telephoneId)
         {
             BuildingDto buildingDto;
             try
