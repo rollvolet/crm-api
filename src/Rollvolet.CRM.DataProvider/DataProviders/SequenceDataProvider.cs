@@ -17,7 +17,7 @@ namespace Rollvolet.CRM.DataProviders
             _context = context;
         }
 
-        public async Task<int> GetNextCustomerNumber()
+        public async Task<int> GetNextCustomerNumberAsync()
         {
             if (_customerNumber == 0)
             {
@@ -29,7 +29,7 @@ namespace Rollvolet.CRM.DataProviders
             return _customerNumber;
         }
 
-        public async Task<int> GetNextInvoiceNumber()
+        public async Task<int> GetNextInvoiceNumberAsync()
         {
             // Not working with a local cached number because invoice numbers need to be sequential
             // TODO take year into account?
@@ -38,7 +38,7 @@ namespace Rollvolet.CRM.DataProviders
             return number;
         }
 
-        public async Task<short> GetNextOfferSequenceNumber(DateTime date)
+        public async Task<short> GetNextOfferSequenceNumberAsync(DateTime date)
         {
             var dateAtMidnight = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
             var tomorrowAtMidnight = dateAtMidnight.AddDays(1);
@@ -47,19 +47,19 @@ namespace Rollvolet.CRM.DataProviders
             return (Int16) (count + 1);
         }
 
-        public async Task<short> GetNextDepositSequenceNumber(int orderId)
+        public async Task<short> GetNextDepositSequenceNumberAsync(int orderId)
         {
             var count = await _context.Deposits.Where(x => x.OrderId == orderId).CountAsync();
             return (Int16) (count + 1);
         }
 
-        public async Task<int> GetNextRelativeContactNumber(int customerId)
+        public async Task<int> GetNextRelativeContactNumberAsync(int customerId)
         {
             var count = await _context.Contacts.Where(x => x.CustomerId == customerId).CountAsync();
             return count + 1;
         }
 
-        public async Task<int> GetNextRelativeBuildingNumber(int customerId)
+        public async Task<int> GetNextRelativeBuildingNumberAsync(int customerId)
         {
             var count = await _context.Buildings.Where(x => x.CustomerId == customerId).CountAsync();
             return count + 1;

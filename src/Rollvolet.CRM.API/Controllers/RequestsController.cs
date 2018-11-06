@@ -129,7 +129,7 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost("{id}/reports")]
         public async Task<IActionResult> CreateVisitReportAsync(int id)
         {
-            var stream = await _documentGenerationManager.CreateVisitReport(id);
+            var stream = await _documentGenerationManager.CreateVisitReportAsync(id);
 
             var file = new FileStreamResult(stream, "application/pdf");
             file.FileDownloadName = $"AD{id}_bezoekrapport.pdf";

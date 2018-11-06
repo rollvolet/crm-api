@@ -93,7 +93,7 @@ namespace Rollvolet.CRM.DataProviders
 
             if (depositRecord.OrderId != null)
             {
-                depositRecord.SequenceNumber = await _sequenceDataProvider.GetNextDepositSequenceNumber((int) depositRecord.OrderId);
+                depositRecord.SequenceNumber = await _sequenceDataProvider.GetNextDepositSequenceNumberAsync((int) depositRecord.OrderId);
 
                 var invoice = await _context.Orders.Where(o => o.Id == depositRecord.OrderId).Select(o => o.Invoice).FirstOrDefaultAsync();
 

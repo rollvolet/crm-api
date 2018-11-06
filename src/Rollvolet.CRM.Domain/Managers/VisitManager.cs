@@ -87,7 +87,7 @@ namespace Rollvolet.CRM.Domain.Managers
             try
             {
                 var customerEntity = await GetRelatedCustomerEntity(visit);
-                visit = await _graphApiService.CreateCalendarEventForVisit(visit, customerEntity);
+                visit = await _graphApiService.CreateCalendarEventForVisitAsync(visit, customerEntity);
 
                 return await _visitDataProvider.UpdateAsync(visit);
             }
@@ -130,7 +130,7 @@ namespace Rollvolet.CRM.Domain.Managers
             if(RequiresCalendarEventUpdate(existingVisit, visit))
             {
                 var customerEntity = await GetRelatedCustomerEntity(visit);
-                visit = await _graphApiService.UpdateCalendarEventForVisit(visit, customerEntity);
+                visit = await _graphApiService.UpdateCalendarEventForVisitAsync(visit, customerEntity);
             }
 
             return await _visitDataProvider.UpdateAsync(visit);
@@ -140,7 +140,7 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var visit = await _visitDataProvider.GetByIdAsync(id);
 
-            await _graphApiService.DeleteCalendarEventForVisit(visit);
+            await _graphApiService.DeleteCalendarEventForVisitAsync(visit);
             await _visitDataProvider.DeleteByIdAsync(id);
         }
 
@@ -169,7 +169,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         private async Task<Visit> SyncSubjectAndPeriod(Visit visit)
         {
-            var subject = await _graphApiService.GetVisitSubject(visit.MsObjectId);
+            var subject = await _graphApiService.GetVisitSubjectAsync(visit.MsObjectId);
 
             if (visit.CalendarSubject != subject)
             {

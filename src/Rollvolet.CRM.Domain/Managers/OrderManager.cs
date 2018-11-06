@@ -154,16 +154,16 @@ namespace Rollvolet.CRM.Domain.Managers
 
             if (order.PlanningMsObjectId != null && order.PlanningDate == null)
             {
-                order = await _graphApiService.DeleteCalendarEventForPlanning(order);
+                order = await _graphApiService.DeleteCalendarEventForPlanningAsync(order);
             }
             else if (order.PlanningMsObjectId != null && order.PlanningDate != existingOrder.PlanningDate)
             {
                 // TODO check on other properties than date only whether event must be updated
-                order = await _graphApiService.UpdateCalendarEventForPlanning(order);
+                order = await _graphApiService.UpdateCalendarEventForPlanningAsync(order);
             }
             else if (order.PlanningMsObjectId == null && order.PlanningDate != null)
             {
-                order = await _graphApiService.CreateCalendarEventForPlanning(order);
+                order = await _graphApiService.CreateCalendarEventForPlanningAsync(order);
             }
 
             return await _orderDataProvider.UpdateAsync(order);
@@ -199,7 +199,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 try
                 {
                     var order = await _orderDataProvider.GetByIdAsync(id);
-                    await _graphApiService.DeleteCalendarEventForPlanning(order);
+                    await _graphApiService.DeleteCalendarEventForPlanningAsync(order);
                     await _orderDataProvider.DeleteByIdAsync(id);
                 }
                 catch (EntityNotFoundException)

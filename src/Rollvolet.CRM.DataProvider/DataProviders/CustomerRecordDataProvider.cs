@@ -34,7 +34,7 @@ namespace Rollvolet.CRM.DataProviders
 
         // The domain's contact.postalCode maps to the dataprovider's embeddedPostalCode property.
         // We need to set the related postal code record manually.
-        protected async Task HydratePostalCode(CustomerEntity customerEntity, CustomerRecord customerRecord)
+        protected async Task HydratePostalCodeAsync(CustomerEntity customerEntity, CustomerRecord customerRecord)
         {
             if (customerEntity.PostalCode != null)
             {

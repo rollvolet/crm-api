@@ -6,13 +6,13 @@ namespace Rollvolet.CRM.Domain.Contracts.MsGraph
 {
     public interface IGraphApiService
     {
-        Task<Visit> CreateCalendarEventForVisit(Visit visit, CustomerEntity customerEntity);
-        Task<Visit> UpdateCalendarEventForVisit(Visit visit, CustomerEntity customerEntity);
-        Task<Visit> DeleteCalendarEventForVisit(Visit visit);
-        Task<Order> CreateCalendarEventForPlanning(Order order);
-        Task<Order> UpdateCalendarEventForPlanning(Order order);
-        Task<Order> DeleteCalendarEventForPlanning(Order order);
-        Task<string> GetVisitSubject(string msObjectId);
-        Task<string> GetPlanningSubject(string msObjectId);
+        Task<Visit> CreateCalendarEventForVisitAsync(Visit visit, CustomerEntity customerEntity);
+        Task<Visit> UpdateCalendarEventForVisitAsync(Visit visit, CustomerEntity customerEntity);
+        Task<Visit> DeleteCalendarEventForVisitAsync(Visit visit);
+        Task<Order> CreateCalendarEventForPlanningAsync(Order order);
+        Task<Order> UpdateCalendarEventForPlanningAsync(Order order);
+        Task<Order> DeleteCalendarEventForPlanningAsync(Order order);
+        Task<string> GetVisitSubjectAsync(string msObjectId);
+        Task<string> GetPlanningSubjectAsync(string msObjectId);
     }
 }

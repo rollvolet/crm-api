@@ -150,12 +150,12 @@ namespace Rollvolet.CRM.DataProviders
             var contactRecord = _mapper.Map<DataProvider.Models.Contact>(contact);
 
             var customerId = contact.Customer.Id;
-            contactRecord.Number = await _sequenceDataProvider.GetNextRelativeContactNumber(customerId);
+            contactRecord.Number = await _sequenceDataProvider.GetNextRelativeContactNumberAsync(customerId);
             contactRecord.CustomerId = customerId;
             contactRecord.Created = DateTime.Now;
             contactRecord.SearchName = CalculateSearchName(contact.Name);
 
-            await HydratePostalCode(contact, contactRecord);
+            await HydratePostalCodeAsync(contact, contactRecord);
 
             _context.Contacts.Add(contactRecord);
             await _context.SaveChangesAsync();
@@ -169,7 +169,7 @@ namespace Rollvolet.CRM.DataProviders
             _mapper.Map(contact, contactRecord);
             contactRecord.SearchName = CalculateSearchName(contact.Name);
 
-            await HydratePostalCode(contact, contactRecord);
+            await HydratePostalCodeAsync(contact, contactRecord);
 
             // Workaround constraints set on the database
             if (string.IsNullOrEmpty(contact.Suffix))

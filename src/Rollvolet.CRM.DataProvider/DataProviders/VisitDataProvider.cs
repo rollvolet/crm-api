@@ -56,7 +56,7 @@ namespace Rollvolet.CRM.DataProviders
         {
             var visitRecord = _mapper.Map<DataProvider.Models.Visit>(visit);
 
-            await CopyFieldsOfRequest(visitRecord, visit.Request.Id);
+            await CopyFieldsOfRequestAsync(visitRecord, visit.Request.Id);
 
             _context.Visits.Add(visitRecord);
             await _context.SaveChangesAsync();
@@ -74,7 +74,7 @@ namespace Rollvolet.CRM.DataProviders
             var visitRecord = await FindByIdAsync(visit.Id);
             _mapper.Map(visit, visitRecord);
 
-            await CopyFieldsOfRequest(visitRecord, visit.Request.Id);
+            await CopyFieldsOfRequestAsync(visitRecord, visit.Request.Id);
 
             _context.Visits.Update(visitRecord);
             await _context.SaveChangesAsync();
@@ -109,7 +109,7 @@ namespace Rollvolet.CRM.DataProviders
             return await source.FirstOrDefaultAsync();
         }
 
-        private async Task CopyFieldsOfRequest(DataProvider.Models.Visit visitRecord, int requestId)
+        private async Task CopyFieldsOfRequestAsync(DataProvider.Models.Visit visitRecord, int requestId)
         {
             var requestRecord = await _context.Requests.Where(r => r.Id == requestId).FirstOrDefaultAsync();
             if (requestRecord != null)

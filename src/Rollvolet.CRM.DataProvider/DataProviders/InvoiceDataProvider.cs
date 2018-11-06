@@ -121,7 +121,7 @@ namespace Rollvolet.CRM.DataProviders
         {
             var invoiceRecord = _mapper.Map<DataProvider.Models.Invoice>(invoice);
 
-            invoiceRecord.Number = await _sequenceDataProvider.GetNextInvoiceNumber();
+            invoiceRecord.Number = await _sequenceDataProvider.GetNextInvoiceNumberAsync();
             invoiceRecord.Currency = "EUR";
             invoiceRecord.Year = (short) DateTime.Now.Year;
 

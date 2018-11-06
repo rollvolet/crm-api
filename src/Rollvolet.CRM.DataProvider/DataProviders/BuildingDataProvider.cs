@@ -149,12 +149,12 @@ namespace Rollvolet.CRM.DataProviders
             var buildingRecord = _mapper.Map<DataProvider.Models.Building>(building);
 
             var customerId = building.Customer.Id;
-            buildingRecord.Number = await _sequenceDataProvider.GetNextRelativeBuildingNumber(customerId);
+            buildingRecord.Number = await _sequenceDataProvider.GetNextRelativeBuildingNumberAsync(customerId);
             buildingRecord.CustomerId = customerId;
             buildingRecord.Created = DateTime.Now;
             buildingRecord.SearchName = CalculateSearchName(building.Name);
 
-            await HydratePostalCode(building, buildingRecord);
+            await HydratePostalCodeAsync(building, buildingRecord);
 
             _context.Buildings.Add(buildingRecord);
             await _context.SaveChangesAsync();
@@ -168,7 +168,7 @@ namespace Rollvolet.CRM.DataProviders
             _mapper.Map(building, buildingRecord);
             buildingRecord.SearchName = CalculateSearchName(building.Name);
 
-            await HydratePostalCode(building, buildingRecord);
+            await HydratePostalCodeAsync(building, buildingRecord);
 
             // Workaround constraints set on the database
             if (string.IsNullOrEmpty(building.Suffix))

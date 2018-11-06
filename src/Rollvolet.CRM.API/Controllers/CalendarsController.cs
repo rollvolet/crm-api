@@ -22,7 +22,7 @@ namespace Rollvolet.CRM.API.Controllers
         {
             try
             {
-                var subject = await _graphApiService.GetPlanningSubject(msObjectId);
+                var subject = await _graphApiService.GetPlanningSubjectAsync(msObjectId);
                 return Ok(new { Subject = subject });
             }
             catch (EntityNotFoundException)

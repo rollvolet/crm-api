@@ -44,7 +44,7 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Employee>(employee);
         }
 
-        public async Task<Employee> GetByFirstName(string name)
+        public async Task<Employee> GetByFirstNameAsync(string name)
         {
             var employee = await _context.Employees.Where(c => c.FirstName == name).FirstOrDefaultAsync();
 
@@ -57,7 +57,7 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Employee>(employee);
         }
 
-        public async Task<Employee> GetVisitorByOfferId(int offerId)
+        public async Task<Employee> GetVisitorByOfferIdAsync(int offerId)
         {
             var visit = await _context.Offers.Where(o => o.Id == offerId).Take(1).Select(o => o.Request).Select(r => r.Visit).FirstOrDefaultAsync();
 
@@ -67,10 +67,10 @@ namespace Rollvolet.CRM.DataProviders
                 throw new EntityNotFoundException();
             }
 
-            return await GetByFirstName(visit.Visitor);
+            return await GetByFirstNameAsync(visit.Visitor);
         }
 
-        public async Task<Employee> GetVisitorByOrderId(int orderId)
+        public async Task<Employee> GetVisitorByOrderIdAsync(int orderId)
         {
             var visit = await _context.Orders.Where(o => o.Id == orderId).Take(1)
                                 .Select(o => o.Offer).Select(o => o.Request).Select(r => r.Visit).FirstOrDefaultAsync();
@@ -81,7 +81,7 @@ namespace Rollvolet.CRM.DataProviders
                 throw new EntityNotFoundException();
             }
 
-            return await GetByFirstName(visit.Visitor);
+            return await GetByFirstNameAsync(visit.Visitor);
         }
 
         public async Task<Employee> GetByWorkingHourIdAsync(int workingHourId)

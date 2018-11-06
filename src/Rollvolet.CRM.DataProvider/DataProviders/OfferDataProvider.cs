@@ -126,11 +126,11 @@ namespace Rollvolet.CRM.DataProviders
         {
             var offerRecord = _mapper.Map<DataProvider.Models.Offer>(offer);
 
-            await EmbedCity(offerRecord);
+            await EmbedCityAsync(offerRecord);
             offerRecord.Currency = "EUR";
 
             var date = DateTime.Now;
-            var number = await _sequenceDataProvider.GetNextOfferSequenceNumber(date);
+            var number = await _sequenceDataProvider.GetNextOfferSequenceNumberAsync(date);
             offerRecord.SequenceNumber = number;
             var offerNumber = $"{(date.Year + 10).ToString().Substring(2, 2)}/{date.ToString("MM")}/{date.ToString("dd")}/{number.ToString("D2")}";
             offerRecord.Number = offerNumber;
@@ -149,7 +149,7 @@ namespace Rollvolet.CRM.DataProviders
             var offerRecord = await FindByIdAsync(offer.Id);
             _mapper.Map(offer, offerRecord);
 
-            await EmbedCity(offerRecord);
+            await EmbedCityAsync(offerRecord);
             offerRecord.Currency = "EUR";
 
             _context.Offers.Update(offerRecord);
@@ -194,7 +194,7 @@ namespace Rollvolet.CRM.DataProviders
             }
         }
 
-        private async Task EmbedCity(DataProvider.Models.Offer offer)
+        private async Task EmbedCityAsync(DataProvider.Models.Offer offer)
         {
             if (offer.CustomerId != null)
             {

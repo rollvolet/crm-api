@@ -144,7 +144,7 @@ namespace Rollvolet.CRM.API.Controllers
             using (var stream = new MemoryStream())
             {
                 await file.CopyToAsync(stream);
-                await _documentGenerationManager.UploadProductionTicket(orderId, stream);
+                await _documentGenerationManager.UploadProductionTicketAsync(orderId, stream);
             }
 
             return NoContent();
@@ -153,7 +153,7 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpGet("{orderId}/production-ticket")]
         public async Task<IActionResult> DownloadProductionTicketAsync(int orderId)
         {
-            var fileStream = await _documentGenerationManager.DownloadProductionTicket(orderId);
+            var fileStream = await _documentGenerationManager.DownloadProductionTicketAsync(orderId);
 
             var file = new FileStreamResult(fileStream, "application/pdf");
             file.FileDownloadName = fileStream.Name;

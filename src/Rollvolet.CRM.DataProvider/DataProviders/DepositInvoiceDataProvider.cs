@@ -140,7 +140,7 @@ namespace Rollvolet.CRM.DataProviders
 
             var depositInvoiceRecord = _mapper.Map<DataProvider.Models.Invoice>(depositInvoice);
 
-            depositInvoiceRecord.Number = await _sequenceDataProvider.GetNextInvoiceNumber();
+            depositInvoiceRecord.Number = await _sequenceDataProvider.GetNextInvoiceNumberAsync();
             depositInvoiceRecord.Currency = "EUR";
             depositInvoiceRecord.Year = (short) DateTime.Now.Year;
 

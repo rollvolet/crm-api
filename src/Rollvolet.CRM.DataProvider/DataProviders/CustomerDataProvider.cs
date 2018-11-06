@@ -132,12 +132,12 @@ namespace Rollvolet.CRM.DataProviders
         {
             var customerRecord = _mapper.Map<DataProvider.Models.Customer>(customer);
 
-            customerRecord.Number = await _sequenceDataProvider.GetNextCustomerNumber();
+            customerRecord.Number = await _sequenceDataProvider.GetNextCustomerNumberAsync();
             customerRecord.Created = DateTime.Now;
             customerRecord.SearchName = CalculateSearchName(customer.Name);
             // customer name is already uppercased by the frontend
 
-            await HydratePostalCode(customer, customerRecord);
+            await HydratePostalCodeAsync(customer, customerRecord);
 
             if (customer.Memo != null)
             {
@@ -160,7 +160,7 @@ namespace Rollvolet.CRM.DataProviders
             customerRecord.SearchName = CalculateSearchName(customer.Name);
             // customer name is already uppercased by the frontend
 
-            await HydratePostalCode(customer, customerRecord);
+            await HydratePostalCodeAsync(customer, customerRecord);
 
             // Workaround constraints set on the database
             if (string.IsNullOrEmpty(customer.Suffix))

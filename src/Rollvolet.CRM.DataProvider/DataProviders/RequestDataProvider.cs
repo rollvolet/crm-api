@@ -101,7 +101,7 @@ namespace Rollvolet.CRM.DataProviders
         {
             var requestRecord = _mapper.Map<DataProvider.Models.Request>(request);
 
-            await EmbedCity(requestRecord);
+            await EmbedCityAsync(requestRecord);
 
             _context.Requests.Add(requestRecord);
             await _context.SaveChangesAsync();
@@ -114,7 +114,7 @@ namespace Rollvolet.CRM.DataProviders
             var requestRecord = await FindByIdAsync(request.Id);
             _mapper.Map(request, requestRecord);
 
-            await EmbedCity(requestRecord);
+            await EmbedCityAsync(requestRecord);
 
             _context.Requests.Update(requestRecord);
             await _context.SaveChangesAsync();
@@ -149,7 +149,7 @@ namespace Rollvolet.CRM.DataProviders
             }
         }
 
-        private async Task EmbedCity(DataProvider.Models.Request request)
+        private async Task EmbedCityAsync(DataProvider.Models.Request request)
         {
             if (request.CustomerId != null)
             {

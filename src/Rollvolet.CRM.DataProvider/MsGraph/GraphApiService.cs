@@ -33,7 +33,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             _logger = logger;
         }
 
-        public async Task<Visit> CreateCalendarEventForVisit(Visit visit, CustomerEntity customerEntity)
+        public async Task<Visit> CreateCalendarEventForVisitAsync(Visit visit, CustomerEntity customerEntity)
         {
             if (visit.VisitDate != null)
             {
@@ -60,7 +60,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return visit;
         }
 
-        public async Task<Visit> UpdateCalendarEventForVisit(Visit visit, CustomerEntity customerEntity)
+        public async Task<Visit> UpdateCalendarEventForVisitAsync(Visit visit, CustomerEntity customerEntity)
         {
             if (visit.MsObjectId != null)
             {
@@ -75,7 +75,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                     catch (Exception)
                     {
                         _logger.LogWarning("Something went wrong while updating calendar event {0} for visit {1}. Event will be decoupled.", visit.MsObjectId, visit.Id);
-                        return await DeleteCalendarEventForVisit(visit);
+                        return await DeleteCalendarEventForVisitAsync(visit);
                     }
 
                     visit.CalendarSubject = updatedEvent.Subject;
@@ -95,7 +95,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return visit;
         }
 
-        public async Task<Visit> DeleteCalendarEventForVisit(Visit visit)
+        public async Task<Visit> DeleteCalendarEventForVisitAsync(Visit visit)
         {
             if (visit.MsObjectId != null)
             {
@@ -113,11 +113,11 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return visit;
         }
 
-        public async Task<Order> CreateCalendarEventForPlanning(Order order)
+        public async Task<Order> CreateCalendarEventForPlanningAsync(Order order)
         {
             if (order.PlanningDate != null)
             {
-                var calendarEvent = await CreatePlanningEvent(order);
+                var calendarEvent = await CreatePlanningEventAsync(order);
                 try
                 {
                     calendarEvent = await _client.Users[_calendarConfig.PlanningCalendarId].Calendar.Events.Request().AddAsync(calendarEvent);
@@ -138,13 +138,13 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return order;
         }
 
-        public async Task<Order> UpdateCalendarEventForPlanning(Order order)
+        public async Task<Order> UpdateCalendarEventForPlanningAsync(Order order)
         {
             if (order.PlanningMsObjectId != null)
             {
                 if (order.PlanningDate != null)
                 {
-                    var updatedEvent = await CreatePlanningEvent(order);
+                    var updatedEvent = await CreatePlanningEventAsync(order);
                     try
                     {
                         updatedEvent = await _client.Users[_calendarConfig.PlanningCalendarId].Calendar.Events[order.PlanningMsObjectId]
@@ -153,7 +153,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                     catch (Exception)
                     {
                         _logger.LogWarning("Something went wrong while updating planning event {0} for order {1}. Event will be decoupled.", order.PlanningMsObjectId, order.Id);
-                        return await DeleteCalendarEventForPlanning(order);
+                        return await DeleteCalendarEventForPlanningAsync(order);
                     }
 
                     _logger.LogDebug("Updated planning event in calendar {0} with id {1}", _calendarConfig.PlanningCalendarId, updatedEvent.Id);
@@ -171,7 +171,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return order;
         }
 
-        public async Task<Order> DeleteCalendarEventForPlanning(Order order)
+        public async Task<Order> DeleteCalendarEventForPlanningAsync(Order order)
         {
             if (order.PlanningMsObjectId != null)
             {
@@ -194,14 +194,14 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return order;
         }
 
-        public async Task<string> GetVisitSubject(string msObjectId)
+        public async Task<string> GetVisitSubjectAsync(string msObjectId)
         {
-            return await GetSubject(_calendarConfig.KlantenbezoekCalendarId, msObjectId);
+            return await GetSubjectAsync(_calendarConfig.KlantenbezoekCalendarId, msObjectId);
         }
 
-        public async Task<string> GetPlanningSubject(string msObjectId)
+        public async Task<string> GetPlanningSubjectAsync(string msObjectId)
         {
-            return await GetSubject(_calendarConfig.PlanningCalendarId, msObjectId);
+            return await GetSubjectAsync(_calendarConfig.PlanningCalendarId, msObjectId);
         }
 
         private Event CreateVisitEvent(Visit visit, CustomerEntity customerEntity)
@@ -231,7 +231,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             };
         }
 
-        private async Task<Event> CreatePlanningEvent(Order order)
+        private async Task<Event> CreatePlanningEventAsync(Order order)
         {
             var entity = order.Building != null ? (CustomerEntity) order.Building : order.Customer;
             var addressLines = string.Join(",", new string[3] { entity.Address1, entity.Address2, entity.Address3 }.Where(a => !String.IsNullOrEmpty(a)));
@@ -240,7 +240,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             var visitorInitials = "";
             try
             {
-                var visitor = await _employeeDataProvider.GetVisitorByOrderId(order.Id);
+                var visitor = await _employeeDataProvider.GetVisitorByOrderIdAsync(order.Id);
                 visitorInitials = visitor.Initials;
             }
             catch (EntityNotFoundException)
@@ -272,7 +272,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             };
         }
 
-        private async Task<string> GetSubject(string calendarId, string msObjectId)
+        private async Task<string> GetSubjectAsync(string calendarId, string msObjectId)
         {
             var calendarEvent = await _client.Users[calendarId].Calendar.Events[msObjectId].Request().GetAsync();
 

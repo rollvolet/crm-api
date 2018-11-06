@@ -5,11 +5,11 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
 {
     public interface ISequenceDataProvider
     {
-        Task<int> GetNextCustomerNumber();
-        Task<int> GetNextInvoiceNumber();
-        Task<int> GetNextRelativeContactNumber(int customerId);
-        Task<int> GetNextRelativeBuildingNumber(int customerId);
-        Task<short> GetNextOfferSequenceNumber(DateTime date);
-        Task<short> GetNextDepositSequenceNumber(int orderId);
+        Task<int> GetNextCustomerNumberAsync();
+        Task<int> GetNextInvoiceNumberAsync();
+        Task<int> GetNextRelativeContactNumberAsync(int customerId);
+        Task<int> GetNextRelativeBuildingNumberAsync(int customerId);
+        Task<short> GetNextOfferSequenceNumberAsync(DateTime date);
+        Task<short> GetNextDepositSequenceNumberAsync(int orderId);
     }
 }

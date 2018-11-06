@@ -75,7 +75,7 @@ namespace Rollvolet.CRM.Domain.Managers
             Directory.CreateDirectory(_productionTicketStorageLocation);
         }
 
-        public async Task<Stream> CreateVisitReport(int requestId)
+        public async Task<Stream> CreateVisitReportAsync(int requestId)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] {
@@ -100,7 +100,7 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
-        public async Task<FileStream> CreateAndStoreOfferDocument(int offerId)
+        public async Task<FileStream> CreateAndStoreOfferDocumentAsync(int offerId)
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
@@ -186,7 +186,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task<Stream> CreateCertificate(int invoiceId)
+        public async Task<Stream> CreateCertificateAsync(int invoiceId)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] {
@@ -229,7 +229,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task UploadProductionTicket(int orderId, Stream content)
+        public async Task UploadProductionTicketAsync(int orderId, Stream content)
         {
             var filePath = await ConstructProductionTicketFilePathAsync(orderId);
             _logger.LogDebug($"Uploading production ticket to {filePath}");
@@ -241,7 +241,7 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
-        public async Task<FileStream> DownloadProductionTicket(int orderId)
+        public async Task<FileStream> DownloadProductionTicketAsync(int orderId)
         {
             var filePath = await ConstructProductionTicketFilePathAsync(orderId);
             return DownloadDcument(filePath);
@@ -335,7 +335,7 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             try
             {
-                var visitor = await _employeeDataProvider.GetVisitorByOfferId(offerId);
+                var visitor = await _employeeDataProvider.GetVisitorByOfferIdAsync(offerId);
                 return visitor.Initials;
             }
             catch (EntityNotFoundException)

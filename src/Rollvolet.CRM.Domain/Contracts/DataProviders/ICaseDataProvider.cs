@@ -7,9 +7,9 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
 {
     public interface ICaseDataProvider
     {
-        Task<Case> GetCaseByRequestId(int requestId);
-        Task<Case> GetCaseByOfferId(int offerId);
-        Task<Case> GetCaseByOrderId(int orderId);
-        Task<Case> GetCaseByInvoiceId(int invoice);      
+        Task<Case> GetCaseByRequestIdAsync(int requestId);
+        Task<Case> GetCaseByOfferIdAsync(int offerId);
+        Task<Case> GetCaseByOrderIdAsync(int orderId);
+        Task<Case> GetCaseByInvoiceIdAsync(int invoice);
     }
 }
