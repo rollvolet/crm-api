@@ -186,6 +186,49 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
+        public async Task<Stream> CreateCertificate(int invoiceId)
+        {
+            var query = new QuerySet();
+            query.Include.Fields = new string[] {
+                "customer", "customer.honorific-prefix", "customer.language", "building", "contact", "vat-rate"
+            };
+            var request = await _invoiceDateProvider.GetByIdAsync(invoiceId, query);
+
+            var url = $"{_documentGenerationConfig.BaseUrl}/documents/certificate";
+            var body = GenerateJsonBody(request);
+            _logger.LogDebug("Send request to document generation service at {0}", url);
+            var response = await _httpClient.PostAsync(url, body);
+
+            try
+            {
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStreamAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning("Something went wrong while generating the VAT certificate of invoice {0}: {1}", invoiceId, e.Message);
+                throw e;
+            }
+        }
+
+        public async Task UploadCertificateAsync(int invoiceId, Stream content)
+        {
+            var filePath = await ConstructCertificateFilePathAsync(invoiceId);
+            _logger.LogDebug($"Uploading certificate to {filePath}");
+
+            using (var fileStream = File.Create(filePath))
+            {
+                content.Seek(0, SeekOrigin.Begin);
+                content.CopyTo(fileStream);
+            }
+        }
+
+        public async Task<FileStream> DownloadCertificateAsync(int invoiceId)
+        {
+            var filePath = await ConstructCertificateFilePathAsync(invoiceId);
+            return DownloadDcument(filePath);
+        }
+
         public async Task UploadProductionTicket(int orderId, Stream content)
         {
             var filePath = await ConstructProductionTicketFilePathAsync(orderId);
@@ -242,6 +285,20 @@ namespace Rollvolet.CRM.Domain.Managers
             Directory.CreateDirectory(directory);
 
             var filename = _onlyAlphaNumeric.Replace($"{order.OfferNumber}_productiebon_{order.Customer.Name}".Replace(" ", "_"), "");
+
+            return $"{directory}{filename}.pdf";
+        }
+
+        private async Task<string> ConstructCertificateFilePathAsync(int invoiceId)
+        {
+            // TODO check current folder of VAT certificates
+            var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
+            var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
+
+            var directory = $"{_invoiceStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);
+
+            var filename = _onlyAlphaNumeric.Replace($"F{invoice.Number}-attest", "");
 
             return $"{directory}{filename}.pdf";
         }
