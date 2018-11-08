@@ -184,7 +184,7 @@ namespace Rollvolet.CRM.API.Controllers
             return NoContent();
         }
 
-        [HttpGet("{invoiceId}/production-ticket")]
+        [HttpGet("{invoiceId}/certificate")]
         public async Task<IActionResult> DownloadCertificateAsync(int invoiceId)
         {
             var fileStream = await _documentGenerationManager.DownloadCertificateAsync(invoiceId);

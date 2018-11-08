@@ -190,12 +190,12 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] {
-                "customer", "customer.honorific-prefix", "customer.language", "building", "contact", "vat-rate"
+                "customer", "customer.honorific-prefix", "customer.language", "building", "contact"
             };
-            var request = await _invoiceDateProvider.GetByIdAsync(invoiceId, query);
+            var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId, query);
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/certificate";
-            var body = GenerateJsonBody(request);
+            var body = GenerateJsonBody(invoice);
             _logger.LogDebug("Send request to document generation service at {0}", url);
             var response = await _httpClient.PostAsync(url, body);
 
@@ -298,7 +298,7 @@ namespace Rollvolet.CRM.Domain.Managers
             var directory = $"{_invoiceStorageLocation}{year}{Path.DirectorySeparatorChar}";
             Directory.CreateDirectory(directory);
 
-            var filename = _onlyAlphaNumeric.Replace($"F{invoice.Number}-attest", "");
+            var filename = _onlyAlphaNumeric.Replace($"F{invoice.Number}_attest", "");
 
             return $"{directory}{filename}.pdf";
         }
