@@ -131,12 +131,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Request number cannot be updated.");
             if (order.OrderDate == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Order-date is required.");
-            if (order.Invoice != null)
-            {
-                var message = "Invoice cannot be changed during order update.";
-                _logger.LogDebug(message);
-                throw new IllegalArgumentException("IllegalAttribute", message);
-            }
             if (order.PlanningMsObjectId != existingOrder.PlanningMsObjectId)
                 throw new IllegalArgumentException("IllegalAttribute", "Calendar properties cannot be updated.");
 
@@ -251,6 +245,12 @@ namespace Rollvolet.CRM.Domain.Managers
                     order.Offer = oldOrder.Offer;
                 else
                     order.Offer = await _offerDataProvider.GetByIdAsync(order.Offer.Id);
+
+                // Invoice cannot be updated. Take invoice of oldOrder on update.
+                if (oldOrder != null)
+                    order.Invoice = oldOrder.Invoice;
+                else
+                    order.Invoice = null;
             }
             catch (EntityNotFoundException)
             {

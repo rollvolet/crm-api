@@ -37,10 +37,10 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("VerzondenVia")]
         public string SubmissionTypeId { get; set; }
 
-        [Column("Opmerking")]
+        [Column("Opmerking")] // kept in sync with request comment in frontend
         public string Comment { get; set; }
 
-        [Column("Referentie")]
+        [Column("Referentie")] // kept in sync with invoice reference in frontend
         public string Reference { get; set; }
 
         [Column("DocumentIntro")]

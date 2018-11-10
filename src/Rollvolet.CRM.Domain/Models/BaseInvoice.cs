@@ -19,11 +19,15 @@ namespace Rollvolet.CRM.Domain.Models
         public Order Order { get; set; }
         public VatRate VatRate { get; set; }
         public double? BaseAmount { get; set; }
+        // TODO relevant for a Deposit Invoice?
         public bool CertificateRequired { get; set; }
+        // TODO relevant for a Deposit Invoice?
         public bool CertificateReceived { get; set; }
+        // TODO relevant for a Deposit Invoice?
         public bool CertificateClosed { get; set; }
         public bool IsCreditNote { get; set; }
         public bool HasProductionTicket { get; set; }
+        // TODO how must this be used?
         public string CertificateUrl { get; set; }
         public string Comment { get; set; }
         public string Qualification { get; set; }

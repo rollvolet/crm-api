@@ -80,13 +80,13 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("AttestLink")]
         public string CertificateUrl { get; set; }
 
-        [Column("Opmerking")]
+        [Column("Opmerking")] // kept in sync with order comment in frontend
         public string Comment { get; set; }
 
         [Column("Hoedanigheid")]
         public string Qualification { get; set; }
 
-        [Column("Referentie")]
+        [Column("Referentie")] // kept in sync with offer reference in frontend
         public string Reference { get; set; }
 
         [Column("MuntEenheid")]

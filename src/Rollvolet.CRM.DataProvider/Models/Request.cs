@@ -9,30 +9,30 @@ namespace Rollvolet.CRM.DataProvider.Models
     {
         [Column("AanvraagID")]
         public int Id { get; set; }
-        
+
         [Column("KlantID")]
         public int? CustomerId { get; set; }
-        
+
         [Column("GebouwID")]
         public int? RelativeBuildingId { get; set; }
-        
+
         [Column("ContactID")]
         public int? RelativeContactId { get; set; }
 
         [Column("Bezoek")]
         public bool RequiresVisit { get; set; }
-        
+
         [Column("AanmeldingID")]
         public int? WayOfEntryId { get; set; }
 
         [Column("Aanvraagdatum")]
         public DateTime RequestDate { get; set; }
 
-        [Column("Opmerking")]
-        public string Comment { get; set; }    
+        [Column("Opmerking")]  // kept in sync with offer comment in frontend
+        public string Comment { get; set; }
 
         [Column("Bediende")]
-        public string Employee { get; set; }    
+        public string Employee { get; set; }
 
 
         // Include resources
@@ -40,7 +40,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public WayOfEntry WayOfEntry { get; set; }
         public Visit Visit { get; set; }
         public Offer Offer { get; set; }
-        
+
 
         // Manually included resources
         [NotMapped]

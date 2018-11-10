@@ -65,7 +65,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("ManGepland")]
         public float? ScheduledNbOfPersons { get; set; }
 
-        [Column("Opmerking")]
+        [Column("Opmerking")] // kept in sync with invoice comment in frontend
         public string Comment { get; set; }
 
         [Column("AfgeslotenBestelling")]
