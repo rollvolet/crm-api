@@ -126,12 +126,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Request number cannot be updated.");
             if (offer.OfferDate == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Offer-date is required.");
-            if (offer.Order != null)
-            {
-                var message = "Order cannot be changed during offer update.";
-                _logger.LogDebug(message);
-                throw new IllegalArgumentException("IllegalAttribute", message);
-            }
 
             await EmbedRelations(offer, existingOffer);
 
@@ -211,6 +205,12 @@ namespace Rollvolet.CRM.Domain.Managers
                     offer.Request = oldOffer.Request;
                 else
                     offer.Request = await _requestDataProvider.GetByIdAsync(offer.Request.Id);
+
+                // Order cannot be updated. Take order of oldOffer on update.
+                if (oldOffer != null)
+                    offer.Order = oldOffer.Order;
+                else
+                    offer.Order = null;
             }
             catch (EntityNotFoundException)
             {
