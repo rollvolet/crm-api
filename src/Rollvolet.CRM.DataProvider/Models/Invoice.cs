@@ -68,6 +68,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("AttestTerug")]
         public bool CertificateReceived { get; set; }
 
+        // TODO what's the use of this field? wheter certificate may be reused on other invoices?
         [Column("AttestAfgesloten")]
         public bool CertificateClosed { get; set; }
 
@@ -77,12 +78,14 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Produktiebon")]
         public bool? HasProductionTicket { get; set; }
 
-        [Column("AttestLink")]
-        public string CertificateUrl { get; set; }
+        // @Deprecated Contained the invoice number of the invoice who's VAT certificate is reused. Same certificate needs to be re-uploaded now
+        // [Column("AttestLink")]
+        // public string CertificateUrl { get; set; }
 
         [Column("Opmerking")] // kept in sync with order comment in frontend
         public string Comment { get; set; }
 
+        // TODO what's the use of this field? How is it filled?
         [Column("Hoedanigheid")]
         public string Qualification { get; set; }
 

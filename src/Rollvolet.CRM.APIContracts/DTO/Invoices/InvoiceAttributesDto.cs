@@ -29,8 +29,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Invoices
         public bool IsCreditNote { get; set; }
         [JsonProperty("has-production-ticket")]
         public bool HasProductionTicket { get; set; }
-        [JsonProperty("certificate-url")]
-        public string CertificateUrl { get; set; }
         public string Comment { get; set; }
         public string Qualification { get; set; }
         public string Reference { get; set; }
