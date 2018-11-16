@@ -140,9 +140,9 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost("{id}/documents")]
-        public async Task<IActionResult> CreateInvoiceDocumentAsync(int id)
+        public async Task<IActionResult> CreateInvoiceDocumentAsync(int id, [FromQuery] string language)
         {
-            var fileStream = await _documentGenerationManager.CreateAndStoreInvoiceDocumentAsync(id);
+            var fileStream = await _documentGenerationManager.CreateAndStoreInvoiceDocumentAsync(id, language);
 
             var file = new FileStreamResult(fileStream, "application/pdf");
             file.FileDownloadName = fileStream.Name;
@@ -160,9 +160,9 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost("{invoiceId}/certificates")]
-        public async Task<IActionResult> CreateCertificateAsync(int invoiceId)
+        public async Task<IActionResult> CreateCertificateAsync(int invoiceId, [FromQuery] string language)
         {
-            var stream = await _documentGenerationManager.CreateCertificateAsync(invoiceId);
+            var stream = await _documentGenerationManager.CreateCertificateAsync(invoiceId, language);
 
             var file = new FileStreamResult(stream, "application/pdf");
             file.FileDownloadName = $"{invoiceId}_attest.pdf";

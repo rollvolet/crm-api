@@ -83,6 +83,8 @@ namespace Rollvolet.CRM.Domain.Managers
             };
             var request = await _requestDataProvider.GetByIdAsync(requestId, query);
 
+            await EmbedCustomerAndContactTelephonesAsync(request);
+
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/visit-report";
             var body = GenerateJsonBody(request);
             _logger.LogDebug("Send request to document generation service at {0}", url);
@@ -133,7 +135,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task<FileStream> CreateAndStoreInvoiceDocumentAsync(int invoiceId)
+        public async Task<FileStream> CreateAndStoreInvoiceDocumentAsync(int invoiceId, string language)
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
@@ -172,6 +174,7 @@ namespace Rollvolet.CRM.Domain.Managers
             dynamic documentData = new ExpandoObject();
             documentData.Invoice = invoice;
             documentData.Visitor = visitorInitials;
+            documentData.language = language;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/invoice";
             var filePath = ConstructInvoiceDocumentFilePath(invoice);
@@ -186,7 +189,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task<Stream> CreateCertificateAsync(int invoiceId)
+        public async Task<Stream> CreateCertificateAsync(int invoiceId, string language)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] {
@@ -194,26 +197,19 @@ namespace Rollvolet.CRM.Domain.Managers
             };
             var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId, query);
 
-            var url = $"{_documentGenerationConfig.BaseUrl}/documents/certificate";
-            var body = GenerateJsonBody(invoice);
-            _logger.LogDebug("Send request to document generation service at {0}", url);
-            var response = await _httpClient.PostAsync(url, body);
+            dynamic documentData = new ExpandoObject();
+            documentData.Invoice = invoice;
+            documentData.language = language;
 
-            try
-            {
-                response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsStreamAsync();
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning("Something went wrong while generating the VAT certificate of invoice {0}: {1}", invoiceId, e.Message);
-                throw e;
-            }
+            var url = $"{_documentGenerationConfig.BaseUrl}/documents/certificate";
+            var filePath = ConstructGeneratedCertificateFilePath(invoice);
+
+            return await GenerateAndStoreDocumentAsync(url, documentData, filePath);
         }
 
         public async Task UploadCertificateAsync(int invoiceId, Stream content)
         {
-            var filePath = await ConstructCertificateFilePathAsync(invoiceId);
+            var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId);
             _logger.LogDebug($"Uploading certificate to {filePath}");
 
             using (var fileStream = File.Create(filePath))
@@ -225,7 +221,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<FileStream> DownloadCertificateAsync(int invoiceId)
         {
-            var filePath = await ConstructCertificateFilePathAsync(invoiceId);
+            var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId);
             return DownloadDcument(filePath);
         }
 
@@ -289,16 +285,30 @@ namespace Rollvolet.CRM.Domain.Managers
             return $"{directory}{filename}.pdf";
         }
 
-        private async Task<string> ConstructCertificateFilePathAsync(int invoiceId)
+        private string ConstructGeneratedCertificateFilePath(Invoice invoice)
         {
-            // TODO check current folder of VAT certificates
-            var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
+            // TODO check current folder of received VAT certificates
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
 
             var directory = $"{_invoiceStorageLocation}{year}{Path.DirectorySeparatorChar}";
             Directory.CreateDirectory(directory);
 
-            var filename = _onlyAlphaNumeric.Replace($"F{invoice.Number}_attest", "");
+            var filename = _onlyAlphaNumeric.Replace($"A{invoice.Number}", "");
+
+            return $"{directory}{filename}.pdf";
+        }
+
+        private async Task<string> ConstructReceivedCertificateFilePathAsync(int invoiceId)
+        {
+            var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
+
+            // TODO check current folder of generated VAT certificates
+            var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
+
+            var directory = $"{_invoiceStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);
+
+            var filename = _onlyAlphaNumeric.Replace($"A{invoice.Number}", "");
 
             return $"{directory}{filename}.pdf";
         }
