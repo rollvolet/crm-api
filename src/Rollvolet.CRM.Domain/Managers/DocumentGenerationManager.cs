@@ -36,6 +36,8 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly string _offerStorageLocation;
         private readonly string _invoiceStorageLocation;
         private readonly string _productionTicketStorageLocation;
+        private readonly string _generatedCertificateStorageLocation;
+        private readonly string _receivedCertificateStorageLocation;
         private readonly ILogger _logger;
 
         public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IOfferDataProvider offerDataProvider,
@@ -59,20 +61,11 @@ namespace Rollvolet.CRM.Domain.Managers
             _documentGenerationConfig = documentGenerationConfiguration.Value;
             _logger = logger;
 
-            _offerStorageLocation = _documentGenerationConfig.OfferStorageLocation;
-            if (!_offerStorageLocation.EndsWith(Path.DirectorySeparatorChar))
-                _offerStorageLocation += Path.DirectorySeparatorChar;
-            Directory.CreateDirectory(_offerStorageLocation);
-
-            _invoiceStorageLocation = _documentGenerationConfig.InvoiceStorageLocation;
-            if (!_invoiceStorageLocation.EndsWith(Path.DirectorySeparatorChar))
-                _invoiceStorageLocation += Path.DirectorySeparatorChar;
-            Directory.CreateDirectory(_invoiceStorageLocation);
-
-            _productionTicketStorageLocation = _documentGenerationConfig.ProductionTicketStorageLocation;
-            if (!_productionTicketStorageLocation.EndsWith(Path.DirectorySeparatorChar))
-                _productionTicketStorageLocation += Path.DirectorySeparatorChar;
-            Directory.CreateDirectory(_productionTicketStorageLocation);
+            _offerStorageLocation = EnsureStorageDirectory(_documentGenerationConfig.OfferStorageLocation);
+            _invoiceStorageLocation = EnsureStorageDirectory(_documentGenerationConfig.InvoiceStorageLocation);
+            _productionTicketStorageLocation = EnsureStorageDirectory(_documentGenerationConfig.ProductionTicketStorageLocation);
+            _generatedCertificateStorageLocation = EnsureStorageDirectory(_documentGenerationConfig.GeneratedCertificateStorageLocation);
+            _receivedCertificateStorageLocation = EnsureStorageDirectory(_documentGenerationConfig.ReceivedCertificateStorageLocation);
         }
 
         public async Task<Stream> CreateVisitReportAsync(int requestId)
@@ -287,10 +280,9 @@ namespace Rollvolet.CRM.Domain.Managers
 
         private string ConstructGeneratedCertificateFilePath(Invoice invoice)
         {
-            // TODO check current folder of received VAT certificates
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
 
-            var directory = $"{_invoiceStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            var directory = $"{_generatedCertificateStorageLocation}{year}{Path.DirectorySeparatorChar}";
             Directory.CreateDirectory(directory);
 
             var filename = _onlyAlphaNumeric.Replace($"A{invoice.Number}", "");
@@ -302,13 +294,12 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
 
-            // TODO check current folder of generated VAT certificates
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
 
-            var directory = $"{_invoiceStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            var directory = $"{_receivedCertificateStorageLocation}{year}{Path.DirectorySeparatorChar}";
             Directory.CreateDirectory(directory);
 
-            var filename = _onlyAlphaNumeric.Replace($"A{invoice.Number}", "");
+            var filename = _onlyAlphaNumeric.Replace($"A{invoice.Number}_{invoice.CustomerName}", "");
 
             return $"{directory}{filename}.pdf";
         }
@@ -408,6 +399,14 @@ namespace Rollvolet.CRM.Domain.Managers
             _logger.LogDebug("Generated JSON for request body: {0}", json);
 
             return new StringContent(json, Encoding.UTF8, "application/json");
+        }
+
+        private string EnsureStorageDirectory(string path)
+        {
+            if (!path.EndsWith(Path.DirectorySeparatorChar))
+                path += Path.DirectorySeparatorChar;
+            Directory.CreateDirectory(path);
+            return path;
         }
     }
 }

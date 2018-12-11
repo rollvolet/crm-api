@@ -6,5 +6,7 @@ namespace Rollvolet.CRM.Domain.Configuration
         public string OfferStorageLocation { get; set; }
         public string InvoiceStorageLocation { get; set; }
         public string ProductionTicketStorageLocation { get; set; }
+        public string GeneratedCertificateStorageLocation { get; set; }
+        public string ReceivedCertificateStorageLocation { get; set; }
     }
 }

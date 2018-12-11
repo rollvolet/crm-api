@@ -17,6 +17,8 @@
     "BaseUrl": "",
     "OfferStorageLocation": "",
     "InvoiceStorageLocation": "",
-    "ProductionTicketStorageLocation": ""
+    "ProductionTicketStorageLocation": "",
+    "GeneratedCertificateStorageLocation": "",
+    "ReceivedCertificateStorageLocation": ""
   }
 }
