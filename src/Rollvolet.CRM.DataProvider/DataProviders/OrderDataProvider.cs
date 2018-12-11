@@ -171,7 +171,6 @@ namespace Rollvolet.CRM.DataProviders
             {
                 // Don't remove record, but only reset order-specific attributes because order and offer share the same underlying SQL table
                 orderRecord.OrderDate = null;
-                orderRecord.Amount = null;
                 orderRecord.DepositRequired = false;
                 orderRecord.HasProductionTicket = false;
                 orderRecord.MustBeInstalled = false;

@@ -28,10 +28,10 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("OfferteNr")]
         public string OfferNumber { get; set; }
 
-        // TODO deprecate this field similar to Amount in Offer. Frontend must calculate it on the fly based on the offerlines
         // TODO recalculate and persist in DB for reporting purposes?
-        [Column("BestelTotaal")]
-        public double? Amount { get; set; }
+        // @Deprecated Calculated based on the sum of the ordered offerlines
+        // [Column("BestelTotaal")]
+        // public double? Amount { get; set; }
 
         [Column("BtwId")]
         public int? VatRateId { get; set; }

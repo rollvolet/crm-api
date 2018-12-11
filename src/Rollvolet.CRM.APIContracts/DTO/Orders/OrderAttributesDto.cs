@@ -11,7 +11,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Orders
         public string OfferNumber { get; set; }
         [JsonProperty("request-number")]
         public int? RequestNumber { get; set; }
-        public double? Amount { get; set; }
         [JsonProperty("deposit-required")]
         public bool DepositRequired { get; set; }
         [JsonProperty("has-production-ticket")]
