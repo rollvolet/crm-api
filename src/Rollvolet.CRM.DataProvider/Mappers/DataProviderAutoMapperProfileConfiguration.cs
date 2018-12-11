@@ -256,6 +256,8 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.MainInvoiceHub != null ? src.MainInvoiceHub.Order : null))
                 .PreserveReferences()
                 .ReverseMap()
+                .ForMember(dest => dest.HasProductionTicket, opt => opt.UseValue(false))
+                .ForMember(dest => dest.IsCreditNote, opt => opt.UseValue(false))
                 .ForMember(dest => dest.Customer, opt => opt.Ignore())
                 .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
                 .ForMember(dest => dest.Contact, opt => opt.Ignore())

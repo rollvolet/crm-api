@@ -22,8 +22,6 @@ namespace Rollvolet.CRM.Domain.Models
         public bool CertificateRequired { get; set; }
         public bool CertificateReceived { get; set; }
         public bool CertificateClosed { get; set; }
-        public bool IsCreditNote { get; set; }
-        public bool HasProductionTicket { get; set; }
         public string Comment { get; set; }
         public string Qualification { get; set; }
         public string Reference { get; set; }

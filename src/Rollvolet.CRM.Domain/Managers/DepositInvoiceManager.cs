@@ -97,8 +97,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Customer is required on deposit invoice creation.");
             if (depositInvoice.Order == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Order is required on deposit invoice creation.");
-            if (depositInvoice.HasProductionTicket)
-                throw new IllegalArgumentException("IllegalAttribute", "Has-production-ticket cannot be set on a deposit invoice.");
 
             // Embedded values cannot be set since they are not exposed in the DTO
 
@@ -126,8 +124,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Base amount is required on deposit-invoice.");
             if (depositInvoice.InvoiceDate == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Invoice-date is required.");
-            if (depositInvoice.HasProductionTicket)
-                throw new IllegalArgumentException("IllegalAttribute", "Has-production-ticket cannot be set on a deposit invoice.");
 
             // Embedded values cannot be updated since they are not exposed in the DTO
 
