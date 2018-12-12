@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -137,6 +139,41 @@ namespace Rollvolet.CRM.API.Controllers
         public async Task<IActionResult> DownloadDepositInvoiceDocumentAsync(int invoiceId)
         {
             var fileStream = await _documentGenerationManager.DownloadDepositInvoiceDocumentAsync(invoiceId);
+
+            var file = new FileStreamResult(fileStream, "application/pdf");
+            file.FileDownloadName = fileStream.Name;
+            return file;
+        }
+
+        [HttpPost("{invoiceId}/certificates")]
+        public async Task<IActionResult> CreateCertificateAsync(int invoiceId, [FromQuery] string language)
+        {
+            var stream = await _documentGenerationManager.CreateCertificateForDepositInvoiceAsync(invoiceId, language);
+
+            var file = new FileStreamResult(stream, "application/pdf");
+            file.FileDownloadName = $"{invoiceId}_attest.pdf";
+            return file;
+        }
+
+        [HttpPost("{invoiceId}/certificate")]
+        public async Task<IActionResult> UploadCertificateAsync(int invoiceId, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                throw new IllegalArgumentException("InvalidFile", "File cannot be empty");
+
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                await _documentGenerationManager.UploadCertificateForDepositInvoiceAsync(invoiceId, stream);
+            }
+
+            return NoContent();
+        }
+
+        [HttpGet("{invoiceId}/certificate")]
+        public async Task<IActionResult> DownloadCertificateAsync(int invoiceId)
+        {
+            var fileStream = await _documentGenerationManager.DownloadCertificateForDepositInvoiceAsync(invoiceId);
 
             var file = new FileStreamResult(fileStream, "application/pdf");
             file.FileDownloadName = fileStream.Name;

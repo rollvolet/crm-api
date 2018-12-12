@@ -231,7 +231,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task<Stream> CreateCertificateAsync(int invoiceId, string language)
+        public async Task<Stream> CreateCertificateForInvoiceAsync(int invoiceId, string language)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] {
@@ -239,6 +239,61 @@ namespace Rollvolet.CRM.Domain.Managers
             };
             var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId, query);
 
+            return await CreateCertificateAsync(invoice, language);
+        }
+
+        public async Task UploadCertificateForInvoiceAsync(int invoiceId, Stream content)
+        {
+            var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId);
+            _logger.LogDebug($"Uploading certificate to {filePath}");
+            UploadDocument(filePath, content);
+        }
+
+        public async Task<FileStream> DownloadCertificateForInvoiceAsync(int invoiceId)
+        {
+            var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId);
+            return DownloadDcument(filePath);
+        }
+
+        public async Task<Stream> CreateCertificateForDepositInvoiceAsync(int invoiceId, string language)
+        {
+            var query = new QuerySet();
+            query.Include.Fields = new string[] {
+                "customer", "customer.honorific-prefix", "customer.language", "building", "contact"
+            };
+            var depositInvoice = await _depositInvoiceDateProvider.GetByIdAsync(invoiceId, query);
+
+            return await CreateCertificateAsync(depositInvoice, language);
+        }
+
+        public async Task UploadCertificateForDepositInvoiceAsync(int invoiceId, Stream content)
+        {
+            var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId, true);
+            _logger.LogDebug($"Uploading certificate to {filePath}");
+            UploadDocument(filePath, content);
+        }
+
+        public async Task<FileStream> DownloadCertificateForDepositInvoiceAsync(int invoiceId)
+        {
+            var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId, true);
+            return DownloadDcument(filePath);
+        }
+
+        public async Task UploadProductionTicketAsync(int orderId, Stream content)
+        {
+            var filePath = await ConstructProductionTicketFilePathAsync(orderId);
+            _logger.LogDebug($"Uploading production ticket to {filePath}");
+            UploadDocument(filePath, content);
+        }
+
+        public async Task<FileStream> DownloadProductionTicketAsync(int orderId)
+        {
+            var filePath = await ConstructProductionTicketFilePathAsync(orderId);
+            return DownloadDcument(filePath);
+        }
+
+        private async Task<Stream> CreateCertificateAsync(BaseInvoice invoice, string language)
+        {
             dynamic documentData = new ExpandoObject();
             documentData.Invoice = invoice;
             documentData.language = language;
@@ -247,42 +302,6 @@ namespace Rollvolet.CRM.Domain.Managers
             var filePath = ConstructGeneratedCertificateFilePath(invoice);
 
             return await GenerateAndStoreDocumentAsync(url, documentData, filePath);
-        }
-
-        public async Task UploadCertificateAsync(int invoiceId, Stream content)
-        {
-            var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId);
-            _logger.LogDebug($"Uploading certificate to {filePath}");
-
-            using (var fileStream = File.Create(filePath))
-            {
-                content.Seek(0, SeekOrigin.Begin);
-                content.CopyTo(fileStream);
-            }
-        }
-
-        public async Task<FileStream> DownloadCertificateAsync(int invoiceId)
-        {
-            var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId);
-            return DownloadDcument(filePath);
-        }
-
-        public async Task UploadProductionTicketAsync(int orderId, Stream content)
-        {
-            var filePath = await ConstructProductionTicketFilePathAsync(orderId);
-            _logger.LogDebug($"Uploading production ticket to {filePath}");
-
-            using (var fileStream = File.Create(filePath))
-            {
-                content.Seek(0, SeekOrigin.Begin);
-                content.CopyTo(fileStream);
-            }
-        }
-
-        public async Task<FileStream> DownloadProductionTicketAsync(int orderId)
-        {
-            var filePath = await ConstructProductionTicketFilePathAsync(orderId);
-            return DownloadDcument(filePath);
         }
 
         private string ConstructOfferDocumentFilePath(Offer offer)
@@ -327,7 +346,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return $"{directory}{filename}.pdf";
         }
 
-        private string ConstructGeneratedCertificateFilePath(Invoice invoice)
+        private string ConstructGeneratedCertificateFilePath(BaseInvoice invoice)
         {
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
 
@@ -339,9 +358,13 @@ namespace Rollvolet.CRM.Domain.Managers
             return $"{directory}{filename}.pdf";
         }
 
-        private async Task<string> ConstructReceivedCertificateFilePathAsync(int invoiceId)
+        private async Task<string> ConstructReceivedCertificateFilePathAsync(int invoiceId, bool isDeposit = false)
         {
-            var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
+            BaseInvoice invoice = null;
+            if (isDeposit)
+                invoice = await _depositInvoiceDateProvider.GetByIdAsync(invoiceId);
+            else
+                invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
 
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
 
@@ -407,12 +430,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
                 using (var inputStream = await response.Content.ReadAsStreamAsync())
                 {
-
-                    using (var fileStream = File.Create(filePath))
-                    {
-                        inputStream.Seek(0, SeekOrigin.Begin);
-                        inputStream.CopyTo(fileStream);
-                    }
+                    UploadDocument(filePath, inputStream);
                 }
 
                 return new FileStream(filePath, FileMode.Open);
@@ -421,6 +439,15 @@ namespace Rollvolet.CRM.Domain.Managers
             {
                 _logger.LogWarning("Something went wrong while generating and storing the document at {0}: {1}", filePath, e.Message);
                 throw e;
+            }
+        }
+
+        private void UploadDocument(string filePath, Stream content)
+        {
+            using (var fileStream = File.Create(filePath))
+            {
+                content.Seek(0, SeekOrigin.Begin);
+                content.CopyTo(fileStream);
             }
         }
 

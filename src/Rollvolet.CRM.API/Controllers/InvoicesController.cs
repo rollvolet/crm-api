@@ -162,7 +162,7 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost("{invoiceId}/certificates")]
         public async Task<IActionResult> CreateCertificateAsync(int invoiceId, [FromQuery] string language)
         {
-            var stream = await _documentGenerationManager.CreateCertificateAsync(invoiceId, language);
+            var stream = await _documentGenerationManager.CreateCertificateForInvoiceAsync(invoiceId, language);
 
             var file = new FileStreamResult(stream, "application/pdf");
             file.FileDownloadName = $"{invoiceId}_attest.pdf";
@@ -178,7 +178,7 @@ namespace Rollvolet.CRM.API.Controllers
             using (var stream = new MemoryStream())
             {
                 await file.CopyToAsync(stream);
-                await _documentGenerationManager.UploadCertificateAsync(invoiceId, stream);
+                await _documentGenerationManager.UploadCertificateForInvoiceAsync(invoiceId, stream);
             }
 
             return NoContent();
@@ -187,7 +187,7 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpGet("{invoiceId}/certificate")]
         public async Task<IActionResult> DownloadCertificateAsync(int invoiceId)
         {
-            var fileStream = await _documentGenerationManager.DownloadCertificateAsync(invoiceId);
+            var fileStream = await _documentGenerationManager.DownloadCertificateForInvoiceAsync(invoiceId);
 
             var file = new FileStreamResult(fileStream, "application/pdf");
             file.FileDownloadName = fileStream.Name;
