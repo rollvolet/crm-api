@@ -19,10 +19,7 @@ namespace Rollvolet.CRM.APIContracts.DTO.DepositInvoices
         public DateTime? CancellationDate { get; set; }
         [JsonProperty("base-amount")]
         public double? BaseAmount { get; set; }
-        public double? Amount { get; set; }
         public double? Vat { get; set; }
-        [JsonProperty("total-amount")]
-        public double? TotalAmount { get; set; }
         [JsonProperty("certificate-required")]
         public bool CertificateRequired { get; set; }
         [JsonProperty("certificate-received")]

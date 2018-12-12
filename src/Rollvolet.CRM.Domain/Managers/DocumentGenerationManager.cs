@@ -1,6 +1,7 @@
 using System;
 using System.Dynamic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -26,6 +27,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IOrderDataProvider _orderDataProvider;
         private readonly IInvoiceDataProvider _invoiceDateProvider;
+        private readonly IDepositInvoiceDataProvider _depositInvoiceDateProvider;
         private readonly ICustomerDataProvider _customerDataProvider;
         private readonly IContactDataProvider _contactDataProvider;
         private readonly ITelephoneDataProvider _telephoneDataProvider;
@@ -43,7 +45,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IOfferDataProvider offerDataProvider,
                                          ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
                                          IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDateProvider,
-                                         ITelephoneDataProvider telephoneDataProvider,
+                                         IDepositInvoiceDataProvider depositInvoiceDataProvider, ITelephoneDataProvider telephoneDataProvider,
                                          IVisitDataProvider visitDataProvider, IEmployeeDataProvider employeeDataProvider,
                                          IOptions<DocumentGenerationConfiguration> documentGenerationConfiguration,
                                          ILogger<DocumentGenerationManager> logger)
@@ -52,6 +54,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _offerDataProvider = offerDataProvider;
             _orderDataProvider = orderDataProvider;
             _invoiceDateProvider = invoiceDateProvider;
+            _depositInvoiceDateProvider = depositInvoiceDataProvider;
             _customerDataProvider = customerDataProvider;
             _contactDataProvider = contactDataProvider;
             _telephoneDataProvider = telephoneDataProvider;
@@ -147,20 +150,17 @@ namespace Rollvolet.CRM.Domain.Managers
                 visitorInitials = await GetVisitorInitialsByOfferIdAsync(offer.Id);
 
                 // Remove duplicated nested data before sending
-                invoice.Order.Customer = null;
-                invoice.Order.Contact = null;
-                invoice.Order.Building = null;
-                invoice.Order.Deposits = null;
-                invoice.Order.DepositInvoices = null;
-                invoice.Order.Offer.Customer = null;
-                invoice.Order.Offer.Contact = null;
-                invoice.Order.Offer.Building = null;
-                invoice.Order.Offer.Order = null;
+                invoice.Order.Customer = null; invoice.Order.Contact = null; invoice.Order.Building = null;
+                invoice.Order.Deposits = null; invoice.Order.DepositInvoices = null;
+                invoice.Order.Offer.Customer = null; invoice.Order.Offer.Contact = null;
+                invoice.Order.Offer.Building = null; invoice.Order.Offer.Order = null;
             }
 
             // Remove duplicated nested data before sending
-            invoice.Customer.Offers = null;
-            invoice.Customer.Orders = null;
+            foreach (var deposit in invoice.Deposits) { deposit.Customer = null; deposit.Order = null; }
+            foreach (var depositInvoice in invoice.DepositInvoices) { depositInvoice.Customer = null; depositInvoice.Order = null; }
+            invoice.Customer.Offers = Enumerable.Empty<Offer>();
+            invoice.Customer.Orders = Enumerable.Empty<Order>();
 
             await EmbedCustomerAndContactTelephonesAsync(invoice);
 
@@ -179,6 +179,55 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
             var filePath = ConstructInvoiceDocumentFilePath(invoice);
+            return DownloadDcument(filePath);
+        }
+
+        public async Task<FileStream> CreateAndStoreDepositInvoiceDocumentAsync(int depositInvoiceId, string language)
+        {
+            var includeQuery = new QuerySet();
+            includeQuery.Include.Fields = new string[] {
+                "customer", "contact", "building", "order", "vat-rate"
+            };
+            var depositInvoice = await _depositInvoiceDateProvider.GetByIdAsync(depositInvoiceId, includeQuery);
+
+            string visitorInitials = null;
+            if (depositInvoice.Order != null)
+            {
+                var offerIncludeQuery = new QuerySet();
+                offerIncludeQuery.Include.Fields = new string[] { "offerlines", "offerlines.vat-rate" };
+                var offer = await _offerDataProvider.GetByIdAsync(depositInvoice.Order.Id, offerIncludeQuery); // offer and order have the same id
+                depositInvoice.Order.Offer = offer;
+
+                visitorInitials = await GetVisitorInitialsByOfferIdAsync(offer.Id);
+
+                // Remove duplicated nested data before sending
+                depositInvoice.Order.Customer = null; depositInvoice.Order.Contact = null; depositInvoice.Order.Building = null;
+                depositInvoice.Order.Deposits = null; depositInvoice.Order.DepositInvoices = null;
+                depositInvoice.Order.Offer.Customer = null; depositInvoice.Order.Offer.Contact = null;
+                depositInvoice.Order.Offer.Building = null; depositInvoice.Order.Offer.Order = null;
+            }
+
+            // Remove duplicated nested data before sending
+            depositInvoice.Customer.Offers = Enumerable.Empty<Offer>();
+            depositInvoice.Customer.Orders = Enumerable.Empty<Order>();
+
+            await EmbedCustomerAndContactTelephonesAsync(depositInvoice);
+
+            dynamic documentData = new ExpandoObject();
+            documentData.Invoice = depositInvoice;
+            documentData.Visitor = visitorInitials;
+            documentData.language = language;
+
+            var url = $"{_documentGenerationConfig.BaseUrl}/documents/deposit-invoice";
+            var filePath = ConstructInvoiceDocumentFilePath(depositInvoice);
+
+            return await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+        }
+
+        public async Task<FileStream> DownloadDepositInvoiceDocumentAsync(int depositInvoiceId)
+        {
+            var depositInvoice = await _depositInvoiceDateProvider.GetByIdAsync(depositInvoiceId);
+            var filePath = ConstructInvoiceDocumentFilePath(depositInvoice);
             return DownloadDcument(filePath);
         }
 
@@ -249,7 +298,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return $"{directory}{filename}.pdf";
         }
 
-        private string ConstructInvoiceDocumentFilePath(Invoice invoice)
+        private string ConstructInvoiceDocumentFilePath(BaseInvoice invoice)
         {
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
 

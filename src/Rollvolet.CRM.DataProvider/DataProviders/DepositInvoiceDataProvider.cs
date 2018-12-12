@@ -170,17 +170,10 @@ namespace Rollvolet.CRM.DataProviders
         {
             var depositInvoiceRecord = await FindByIdAsync(depositInvoice.Id);
 
-            // compare old and new attribute values before merging the changes in the invoiceRecord
-            var requiresRecalculation = depositInvoice.BaseAmount != depositInvoiceRecord.BaseAmount
-                                            || int.Parse(depositInvoice.VatRate.Id) != depositInvoiceRecord.VatRateId;
-
             _mapper.Map(depositInvoice, depositInvoiceRecord);
 
             await EmbedCustomerAttributesAsync(depositInvoiceRecord);
-
-            // Only a change of the baseAmount or vatRate trigger a recalculation.
-            if (requiresRecalculation)
-                await CalculateAmountAndVatAsync(depositInvoiceRecord);
+            await CalculateAmountAndVatAsync(depositInvoiceRecord);
 
             _context.Invoices.Update(depositInvoiceRecord);
             await _context.SaveChangesAsync();
@@ -208,7 +201,6 @@ namespace Rollvolet.CRM.DataProviders
         private async Task CalculateAmountAndVatAsync(DataProvider.Models.Invoice depositInvoice)
         {
             _logger.LogDebug("Recalculating amount and VAT of deposit invoice {0}", depositInvoice.Id);
-            var query = new QuerySet();
             var amount = depositInvoice.BaseAmount ?? 0.0;
 
             var vat = 0.0;

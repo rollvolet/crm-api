@@ -9,7 +9,9 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<FileStream> CreateAndStoreOfferDocumentAsync(int offerId);
         Task<FileStream> DownloadOfferDocument(int offerId);
         Task<FileStream> CreateAndStoreInvoiceDocumentAsync(int invoiceId, string language);
-        Task<FileStream> DownloadInvoiceDocumentAsync(int offerId);
+        Task<FileStream> DownloadInvoiceDocumentAsync(int invoiceId);
+        Task<FileStream> CreateAndStoreDepositInvoiceDocumentAsync(int depositInvoiceId, string language);
+        Task<FileStream> DownloadDepositInvoiceDocumentAsync(int depositInvoiceId);
         Task<Stream> CreateCertificateAsync(int invoiceId, string language);
         Task UploadCertificateAsync(int invoiceId, Stream content);
         Task<FileStream> DownloadCertificateAsync(int invoiceId);

@@ -34,14 +34,15 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IBuildingManager _buildingManager;
         private readonly IOrderManager _orderManager;
         private readonly IVatRateManager _vatRateManager;
+        private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
         public DepositInvoicesController(IDepositInvoiceManager depositInvoiceManager, ICustomerManager customerManager,
                                     IContactManager contactManager, IBuildingManager buildingManager, IOrderManager orderManager,
-                                    IVatRateManager vatRateManager, IIncludedCollector includedCollector, IMapper mapper,
-                                    IJsonApiBuilder jsonApiBuilder)
+                                    IVatRateManager vatRateManager, IDocumentGenerationManager documentGenerationManager,
+                                    IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _depositInvoiceManager = depositInvoiceManager;
             _customerManager = customerManager;
@@ -49,6 +50,7 @@ namespace Rollvolet.CRM.API.Controllers
             _buildingManager = buildingManager;
             _orderManager = orderManager;
             _vatRateManager = vatRateManager;
+            _documentGenerationManager = documentGenerationManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -119,6 +121,26 @@ namespace Rollvolet.CRM.API.Controllers
             await _depositInvoiceManager.DeleteAsync(id);
 
             return NoContent();
+        }
+
+        [HttpPost("{id}/documents")]
+        public async Task<IActionResult> CreateDepositInvoiceDocumentAsync(int id, [FromQuery] string language)
+        {
+            var fileStream = await _documentGenerationManager.CreateAndStoreDepositInvoiceDocumentAsync(id, language);
+
+            var file = new FileStreamResult(fileStream, "application/pdf");
+            file.FileDownloadName = fileStream.Name;
+            return file;
+        }
+
+        [HttpGet("{invoiceId}/document")]
+        public async Task<IActionResult> DownloadDepositInvoiceDocumentAsync(int invoiceId)
+        {
+            var fileStream = await _documentGenerationManager.DownloadDepositInvoiceDocumentAsync(invoiceId);
+
+            var file = new FileStreamResult(fileStream, "application/pdf");
+            file.FileDownloadName = fileStream.Name;
+            return file;
         }
 
         [HttpGet("{invoiceId}/customer")]

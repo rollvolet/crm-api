@@ -147,18 +147,13 @@ namespace Rollvolet.CRM.DataProviders
         {
             var invoiceRecord = await FindByIdAsync(invoice.Id);
 
-            // compare old and new attribute values before merging the changes in the invoiceRecord
-            var requiresRecalculation = invoice.BaseAmount != invoiceRecord.BaseAmount || int.Parse(invoice.VatRate.Id) != invoiceRecord.VatRateId;
-
             _mapper.Map(invoice, invoiceRecord);
 
             invoiceRecord.Currency = "EUR";
             await EmbedCustomerAttributesAsync(invoiceRecord);
 
-            // Only a change of the baseAmount or vatRate trigger a recalculation.
             // Updates by a change in other resources (e.g. invoice supplements) are triggered through SyncAmountAndVatAsync
-            if (requiresRecalculation)
-                await CalculateAmountAndVatAsync(invoiceRecord);
+            await CalculateAmountAndVatAsync(invoiceRecord);
 
             _context.Invoices.Update(invoiceRecord);
             await _context.SaveChangesAsync();
