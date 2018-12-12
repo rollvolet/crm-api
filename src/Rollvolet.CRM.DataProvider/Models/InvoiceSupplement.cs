@@ -18,6 +18,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Aantal")]
         public double? NbOfPieces { get; set; }
 
+        [Column("Eenheid")]
+        public string Unit { get; set; }
+
         [Column("NettoBedrag")]
         public double? Amount { get; set; }
 
