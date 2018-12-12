@@ -185,7 +185,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.OfferNumber, opt => opt.MapFrom(src => src.Number))
                 .ForMember(dest => dest.RequestId, opt => opt.MapFrom(src => src.RequestId))
                 .ForMember(dest => dest.VatRateId, opt => opt.MapFrom(src => src.VatRateId))
-                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<Models.Offerline, Domain.Models.Offerline>()

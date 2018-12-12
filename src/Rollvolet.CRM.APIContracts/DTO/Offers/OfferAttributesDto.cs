@@ -12,7 +12,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Offers
         public int? RequestNumber { get; set; }
         [JsonProperty("offer-date")]
         public DateTime OfferDate { get; set; }
-        public string Comment { get; set; }
         public string Reference { get; set; }
         [JsonProperty("document-intro")]
         public string DocumentIntro { get; set; }
