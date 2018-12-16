@@ -186,51 +186,62 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var subject = visit.CalendarSubject;
 
-            if (subject.StartsWith("GD") || subject.StartsWith("VM") || subject.StartsWith("NM"))
+            if (subject != null)
             {
-                visit.Period = subject.Substring(0, 2);
-                visit.FromHour = null;
-                visit.UntilHour = null;
-            }
-            else if (subject.StartsWith("vanaf"))
-            {
-                visit.Period = "vanaf";
-                visit.FromHour = subject.Substring("vanaf".Length).Split("uur").FirstOrDefault().Trim();
-                visit.UntilHour = null;
-            }
-            else if (subject.StartsWith("rond"))
-            {
-                visit.Period = "benaderend uur";
-                visit.FromHour = subject.Substring("rond".Length).Split("uur").FirstOrDefault().Trim();
-                visit.UntilHour = null;
-            }
-            else if (periodStiptUur.IsMatch(subject))
-            {
-                visit.Period = "stipt uur";
-                visit.FromHour = subject.Split("uur").FirstOrDefault().Trim();
-                visit.UntilHour = null;
-            }
-            else if (periodBepaaldUur.IsMatch(subject))
-            {
-                visit.Period = "bepaald uur";
-                visit.FromHour = subject.Split("uur").FirstOrDefault().Trim();
-                visit.UntilHour = null;
-            }
-            else if (periodVanTot.IsMatch(subject))
-            {
-                visit.Period = "van-tot";
-                var timeRangeSeparatorIndex = subject.IndexOf('-');
-                visit.FromHour = subject.Substring(0, timeRangeSeparatorIndex).Trim();
-                var timeRangeEndIndex = subject.IndexOf(" ");
-                visit.UntilHour = subject.Substring(timeRangeSeparatorIndex + 1, timeRangeEndIndex - timeRangeSeparatorIndex);
+                if (subject.StartsWith("GD") || subject.StartsWith("VM") || subject.StartsWith("NM"))
+                {
+                    visit.Period = subject.Substring(0, 2);
+                    visit.FromHour = null;
+                    visit.UntilHour = null;
+                }
+                else if (subject.StartsWith("vanaf"))
+                {
+                    visit.Period = "vanaf";
+                    visit.FromHour = subject.Substring("vanaf".Length).Split("uur").FirstOrDefault().Trim();
+                    visit.UntilHour = null;
+                }
+                else if (subject.StartsWith("rond"))
+                {
+                    visit.Period = "benaderend uur";
+                    visit.FromHour = subject.Substring("rond".Length).Split("uur").FirstOrDefault().Trim();
+                    visit.UntilHour = null;
+                }
+                else if (periodStiptUur.IsMatch(subject))
+                {
+                    visit.Period = "stipt uur";
+                    visit.FromHour = subject.Split("uur").FirstOrDefault().Trim();
+                    visit.UntilHour = null;
+                }
+                else if (periodBepaaldUur.IsMatch(subject))
+                {
+                    visit.Period = "bepaald uur";
+                    visit.FromHour = subject.Split("uur").FirstOrDefault().Trim();
+                    visit.UntilHour = null;
+                }
+                else if (periodVanTot.IsMatch(subject))
+                {
+                    visit.Period = "van-tot";
+                    var timeRangeSeparatorIndex = subject.IndexOf('-');
+                    visit.FromHour = subject.Substring(0, timeRangeSeparatorIndex).Trim();
+                    var timeRangeEndIndex = subject.IndexOf(" ");
+                    visit.UntilHour = subject.Substring(timeRangeSeparatorIndex + 1, timeRangeEndIndex - timeRangeSeparatorIndex);
+                }
+                else
+                {
+                    _logger.LogWarning("Unable to parse period from subject {0} for visit {1} and event {2}", subject, visit.Id, visit.MsObjectId);
+                    visit.Period = null;
+                    visit.FromHour = null;
+                    visit.UntilHour = null;
+                }
             }
             else
             {
-                _logger.LogWarning("Unable to parse period from subject {0} for visit {1} and event {2}", subject, visit.Id, visit.MsObjectId);
+                _logger.LogWarning("Visit doesn't have a subject. Unable to parse period for visit {0} and event {1}", visit.Id, visit.MsObjectId);
                 visit.Period = null;
                 visit.FromHour = null;
                 visit.UntilHour = null;
             }
+
         }
 
         private bool RequiresCalendarEventUpdate(Visit existingVisit, Visit visit)
