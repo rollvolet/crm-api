@@ -82,8 +82,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Request cannot have an id on create.");
             if (request.RequestDate == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Request-date is required.");
-            if (request.Customer == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Customer is required on request creation.");
             if (request.Offer != null)
             {
                 var message = "Offer cannot be added to a request on creation.";
@@ -120,8 +118,8 @@ namespace Rollvolet.CRM.Domain.Managers
 
             await EmbedRelations(request, existingRequest);
 
-            if (request.Customer == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
+            if (request.Offer != null && request.Customer == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Customer is required if an offer is attached to the request.");
             if (request.Contact != null && request.Contact.Customer.Id != request.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Contact is not attached to customer {request.Contact.Id}.");
             if (request.Building != null && request.Building.Customer.Id != request.Customer.Id)
@@ -161,6 +159,14 @@ namespace Rollvolet.CRM.Domain.Managers
                         request.WayOfEntry = await _wayOfEntryDataProvider.GetByIdAsync(int.Parse(request.WayOfEntry.Id));
                 }
 
+                if (request.Customer != null)
+                {
+                    if (oldRequest != null && oldRequest.Customer != null && oldRequest.Customer.Id == request.Customer.Id)
+                        request.Customer = oldRequest.Customer;
+                    else
+                        request.Customer = await _customerDataProvider.GetByNumberAsync(request.Customer.Id);
+                }
+
                 if (request.Contact != null)
                 {
                     if (oldRequest != null && oldRequest.Contact != null && oldRequest.Contact.Id == request.Contact.Id)
@@ -184,12 +190,6 @@ namespace Rollvolet.CRM.Domain.Managers
                     else
                         request.Visit = await _visitDataProvider.GetByIdAsync(request.Visit.Id);
                 }
-
-                // Customer cannot be updated. Take customer of oldRequest on update.
-                if (oldRequest != null)
-                    request.Customer = oldRequest.Customer;
-                else
-                    request.Customer = await _customerDataProvider.GetByNumberAsync(request.Customer.Id);
 
                 // Offer cannot be updated. Take offer of oldRequest on update.
                 if (oldRequest != null)
