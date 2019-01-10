@@ -155,6 +155,7 @@ namespace Rollvolet.CRM.DataProviders
             buildingRecord.SearchName = CalculateSearchName(building.Name);
 
             await HydratePostalCodeAsync(building, buildingRecord);
+            ReplaceEmptyStringWithNull(building, buildingRecord);
 
             _context.Buildings.Add(buildingRecord);
             await _context.SaveChangesAsync();

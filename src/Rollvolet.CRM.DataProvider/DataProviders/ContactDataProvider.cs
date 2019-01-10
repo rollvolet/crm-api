@@ -156,6 +156,7 @@ namespace Rollvolet.CRM.DataProviders
             contactRecord.SearchName = CalculateSearchName(contact.Name);
 
             await HydratePostalCodeAsync(contact, contactRecord);
+            ReplaceEmptyStringWithNull(contact, contactRecord);
 
             _context.Contacts.Add(contactRecord);
             await _context.SaveChangesAsync();

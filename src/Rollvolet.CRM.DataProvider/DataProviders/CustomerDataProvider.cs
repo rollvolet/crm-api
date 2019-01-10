@@ -161,13 +161,7 @@ namespace Rollvolet.CRM.DataProviders
             // customer name is already uppercased by the frontend
 
             await HydratePostalCodeAsync(customer, customerRecord);
-
-            // Workaround constraints set on the database
-            if (string.IsNullOrEmpty(customer.Suffix))
-                customerRecord.Suffix = null;
-
-            if (string.IsNullOrEmpty(customer.Prefix))
-                customerRecord.Prefix = null;
+            ReplaceEmptyStringWithNull(customer, customerRecord);
 
             if (customer.Memo != null)
             {
