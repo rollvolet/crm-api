@@ -70,9 +70,21 @@ namespace Rollvolet.CRM.DataProviders
             var telephoneRecord = _mapper.Map<DataProvider.Models.Telephone>(telephone);
 
             _context.Telephones.Add(telephoneRecord);
-            await _context.SaveChangesAsync();
 
-            return _mapper.Map<Telephone>(telephoneRecord);
+            try
+            {
+                await _context.SaveChangesAsync();
+
+                return _mapper.Map<Telephone>(telephoneRecord);
+
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException e)
+            {
+                if (e.InnerException.Message.Contains("insert duplicate key in object"))
+                    throw new EntityAlreadyExistsException();
+                else
+                    throw e;
+            }
         }
 
         public async Task DeleteByIdAsync(string composedId)

@@ -29,6 +29,18 @@ namespace Rollvolet.CRM.API.Middleware.ExceptionHandling
                 return new NotFoundResult();
             }
 
+            if (ex is EntityAlreadyExistsException)
+            {
+                var error = new Error
+                {
+                    Code = "AlreadyExists",
+                    Status = "422",
+                    Title = "Entity already exists",
+                    Detail = "The entity to be created already exists."
+                };
+                return new ObjectResult(error) { StatusCode = StatusCodes.Status422UnprocessableEntity };
+            }
+
             if (ex is NotSupportedException)
             {
                 var error = new Error
