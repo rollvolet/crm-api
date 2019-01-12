@@ -60,10 +60,13 @@ namespace Rollvolet.CRM.DataProvider.Models
         // [Column("ManVoorzien")]
         // public float? ForeseenNbOfPersons { get; set; }
 
-        // TODO recalculate and persist in DB for reporting purposes?
-        // @Deprecated Calculated based on the sum of the offerlines
-        // [Column("OfferteBedrag")]
-        // public double? Amount { get; set; }
+        // Only set on offers created in Access
+        // For new offers the amount is calculated based on the sum of the offerlines
+        // TODO @Deprecated once Access is not used anymore
+        //      or maybe recalculate and persist in DB for reporting purposes?
+        // @Deprecated
+        [Column("OfferteBedrag")]
+        public double? Amount { get; set; }
 
         // @Deprecated
         // [Column("VerzendDatum")]
