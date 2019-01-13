@@ -28,10 +28,13 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("OfferteNr")]
         public string OfferNumber { get; set; }
 
-        // TODO recalculate and persist in DB for reporting purposes?
-        // @Deprecated Calculated based on the sum of the ordered offerlines
-        // [Column("BestelTotaal")]
-        // public double? Amount { get; set; }
+        // Only set on orders created in Access
+        // For new order the amount is calculated based on the sum of the ordered offerlines
+        // TODO @Deprecated once Access is not used anymore
+        //      or maybe recalculate and persist in DB for reporting purposes?
+        // @Deprecated
+        [Column("BestelTotaal")]
+        public double? Amount { get; set; }
 
         [Column("BtwId")]
         public int? VatRateId { get; set; }

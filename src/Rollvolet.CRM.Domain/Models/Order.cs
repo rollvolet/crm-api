@@ -19,6 +19,7 @@ namespace Rollvolet.CRM.Domain.Models
         public DateTime? OrderDate { get; set; }
         public int? RequestNumber { get; set; }
         public string OfferNumber { get; set; }
+        public double? Amount { get; set; }
         public bool DepositRequired { get; set; }
         public bool HasProductionTicket { get; set; }
         public bool MustBeInstalled { get; set; }
