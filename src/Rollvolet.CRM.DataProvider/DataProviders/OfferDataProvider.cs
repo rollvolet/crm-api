@@ -158,6 +158,18 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Offer>(offerRecord);
         }
 
+        public async Task<Offer> UpdateContactAndBuildingAsync(int id, int? relativeContactId, int? relativeBuildingId)
+        {
+            var offerRecord = await FindByIdAsync(id);
+            offerRecord.RelativeContactId = relativeContactId;
+            offerRecord.RelativeBuildingId = relativeBuildingId;
+
+            _context.Offers.Update(offerRecord);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Offer>(offerRecord);
+        }
+
         public async Task DeleteByIdAsync(int id)
         {
             var offer = await FindByIdAsync(id);

@@ -14,6 +14,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
         Task<Paged<DepositInvoice>> GetAllByInvoiceIdAsync(int invoiceId, QuerySet query);
         Task<DepositInvoice> CreateAsync(DepositInvoice depositInvoice);
         Task<DepositInvoice> UpdateAsync(DepositInvoice depositInvoice);
+        Task<DepositInvoice> UpdateContactAndBuildingAsync(int id, int? relativeContactId, int? relativeBuildingId);
         Task DeleteByIdAsync(int id);
     }
 }

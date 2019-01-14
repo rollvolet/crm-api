@@ -14,6 +14,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
         Task<Request> GetByOrderIdAsync(int orderId);
         Task<Request> CreateAsync(Request request);
         Task<Request> UpdateAsync(Request request);
+        Task<Request> UpdateContactAndBuildingAsync(int id, int? relativeContactId, int? relativeBuildingId);
         Task DeleteByIdAsync(int id);
     }
 }

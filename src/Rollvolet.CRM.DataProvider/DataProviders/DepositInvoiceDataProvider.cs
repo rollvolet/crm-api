@@ -183,6 +183,20 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<DepositInvoice>(depositInvoiceRecord);
         }
 
+        public async Task<DepositInvoice> UpdateContactAndBuildingAsync(int id, int? relativeContactId, int? relativeBuildingId)
+        {
+            var depositInvoiceRecord = await FindByIdAsync(id);
+            depositInvoiceRecord.RelativeContactId = relativeContactId;
+            depositInvoiceRecord.RelativeBuildingId = relativeBuildingId;
+
+            _context.Invoices.Update(depositInvoiceRecord);
+            await _context.SaveChangesAsync();
+
+            // Deposit invoice hub doesn't need to be updated since none of the attributes changes
+
+            return _mapper.Map<DepositInvoice>(depositInvoiceRecord);
+        }
+
         public async Task DeleteByIdAsync(int id)
         {
             var depositInvoiceHub = await _context.DepositInvoices.Where(h => h.DepositInvoiceId == id).FirstOrDefaultAsync();

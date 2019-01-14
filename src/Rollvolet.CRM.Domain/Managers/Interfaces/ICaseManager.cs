@@ -8,5 +8,6 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
     public interface ICaseManager
     {
         Task<Case> GetCase(int? requestId, int? offerId, int? orderId, int? invoiceId);
-    }  
+        Task UpdateContactAndBuilding(int? contactId, int? buildingId, int? requestId, int? offerId, int? orderId, int? invoiceId);
+    }
 }
