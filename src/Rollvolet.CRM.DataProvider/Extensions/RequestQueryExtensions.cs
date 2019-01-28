@@ -58,7 +58,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             selectors.Add("customer", c => c.Customer);
             selectors.Add("way-of-entry", c => c.WayOfEntry);
-            selectors.Add("visit", x => x.Visit);
+            selectors.Add("calendar-event", x => x.Visit);
             selectors.Add("offer", x => x.Offer);
 
             // dummy entries for resources that are already included

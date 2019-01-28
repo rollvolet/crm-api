@@ -20,13 +20,13 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IVisitDataProvider _visitDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IWayOfEntryDataProvider _wayOfEntryDataProvider;
-        private readonly IVisitManager _visitManager;
+        private readonly ICalendarEventManager _calendarEventManager;
         private readonly ILogger _logger;
 
         public RequestManager(IRequestDataProvider requestDataProvider, ICustomerDataProvider customerDataProvider,
                                 IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                                 IVisitDataProvider visitDataProvider, IOfferDataProvider offerDataProvider,
-                                IWayOfEntryDataProvider wayOfEntryDataProvider, IVisitManager visitManager, ILogger<RequestManager> logger)
+                                IWayOfEntryDataProvider wayOfEntryDataProvider, ICalendarEventManager calendarEventManager, ILogger<RequestManager> logger)
         {
             _requestDataProvider = requestDataProvider;
             _customerDataProvider = customerDataProvider;
@@ -35,7 +35,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _visitDataProvider = visitDataProvider;
             _offerDataProvider = offerDataProvider;
             _wayOfEntryDataProvider = wayOfEntryDataProvider;
-            _visitManager = visitManager;
+            _calendarEventManager = calendarEventManager;
             _logger = logger;
         }
 
@@ -88,12 +88,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogDebug(message);
                 throw new IllegalArgumentException("IllegalAttribute", message);
             }
-            if (request.Visit != null)
-            {
-                var message = "Visit cannot be added to a request on creation.";
-                _logger.LogDebug(message);
-                throw new IllegalArgumentException("IllegalAttribute", message);
-            }
 
             await EmbedRelations(request);
 
@@ -128,7 +122,7 @@ namespace Rollvolet.CRM.Domain.Managers
             request = await _requestDataProvider.UpdateAsync(request);
 
             if (request.Comment != existingRequest.Comment)
-                await SyncVisit(request);
+                await SyncCalendarEvent(request);
 
             return request;
         }
@@ -183,14 +177,6 @@ namespace Rollvolet.CRM.Domain.Managers
                         request.Building = await _buildingDataProvider.GetByIdAsync(request.Building.Id);
                 }
 
-                if (request.Visit != null)
-                {
-                    if (oldRequest != null && oldRequest.Visit != null && oldRequest.Visit.Id == request.Visit.Id)
-                        request.Visit = oldRequest.Visit;
-                    else
-                        request.Visit = await _visitDataProvider.GetByIdAsync(request.Visit.Id);
-                }
-
                 // Offer cannot be updated. Take offer of oldRequest on update.
                 if (oldRequest != null)
                     request.Offer = oldRequest.Offer;
@@ -204,16 +190,16 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
-        private async Task SyncVisit(Request request)
+        private async Task SyncCalendarEvent(Request request)
         {
             try
             {
-                var visit = await _visitManager.GetByRequestIdAsync(request.Id);
-                await _visitManager.UpdateAsync(visit);
+                var calendarEvent = await _calendarEventManager.GetByRequestIdAsync(request.Id);
+                await _calendarEventManager.UpdateAsync(calendarEvent);
             }
             catch(EntityNotFoundException)
             {
-                // No visit to update
+                // No calendar event to update
             }
         }
     }

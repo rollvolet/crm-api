@@ -11,5 +11,8 @@ namespace Rollvolet.CRM.APIContracts.DTO.Requests
         public bool RequiresVisit { get; set; }
         public string Comment { get; set; }
         public string Employee { get; set; }
+        [JsonProperty("offer-expected")]
+        public bool OfferExpected { get; set; }
+        public string Visitor { get; set; }
     }
 }

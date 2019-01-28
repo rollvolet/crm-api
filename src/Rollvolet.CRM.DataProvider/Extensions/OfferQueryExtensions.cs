@@ -64,7 +64,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Include.Fields.Contains("customer.honorific-prefix"))
                 source = source.Include(x => x.Customer).ThenInclude(x => x.HonorificPrefix);
 
-            if (querySet.Include.Fields.Contains("request.visit"))
+            if (querySet.Include.Fields.Contains("request") || querySet.Include.Fields.Contains("request.calendar-event"))
                 source = source.Include(x => x.Request).ThenInclude(x => x.Visit);
 
             if (querySet.Include.Fields.Contains("offerlines.vat-rate"))
@@ -73,14 +73,14 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             var selectors = new Dictionary<string, Expression<Func<Offer, object>>>();
 
             selectors.Add("customer", c => c.Customer);
-            selectors.Add("request", c => c.Request);
             selectors.Add("vat-rate", c => c.VatRate);
             selectors.Add("submission-type", c => c.SubmissionType);
             selectors.Add("offerlines", c => c.Offerlines);
 
             // dummy entries for resources that are already included
             selectors.Add("customer.honorific-prefix", null);
-            selectors.Add("request.visit", null);
+            selectors.Add("request", null);
+            selectors.Add("request.calendar-event", null);
             selectors.Add("offerlines.vat-rate", null);
 
             // The selectors below won't work since we're not able to define the relationship in CrmContext

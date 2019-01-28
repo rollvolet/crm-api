@@ -10,7 +10,8 @@ namespace Rollvolet.CRM.APIContracts.DTO.Requests
         public IRelationship Contact { get; set; }
         [JsonProperty("way-of-entry")]
         public IRelationship WayOfEntry { get; set; }
-        public IRelationship Visit { get; set; }
+        [JsonProperty("calendar-event")]
+        public IRelationship CalendarEvent { get; set; }
         public IRelationship Offer { get; set; }
     }
 }

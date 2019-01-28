@@ -13,7 +13,7 @@ using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
-using Rollvolet.CRM.APIContracts.DTO.Visits;
+using Rollvolet.CRM.APIContracts.DTO.CalendarEvents;
 using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
@@ -26,7 +26,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Building, BuildingRelationshipsDto>,
                                             ITypeConverter<Telephone, TelephoneRelationshipsDto>,
                                             ITypeConverter<Request, RequestRelationshipsDto>,
-                                            ITypeConverter<Visit, VisitRelationshipsDto>,
+                                            ITypeConverter<CalendarEvent, CalendarEventRelationshipsDto>,
                                             ITypeConverter<Offer, OfferRelationshipsDto>,
                                             ITypeConverter<Offerline, OfferlineRelationshipsDto>,
                                             ITypeConverter<Order, OrderRelationshipsDto>,
@@ -105,7 +105,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Building = GetOneRelationship<Building>("requests", source.Id, "building", source.Building, context);
             relationships.Contact = GetOneRelationship<Contact>("requests", source.Id, "contact", source.Contact, context);
             relationships.WayOfEntry = GetOneRelationship<WayOfEntry>("requests", source.Id, "way-of-entry", source.WayOfEntry, context);
-            relationships.Visit = GetOneRelationship<Visit>("requests", source.Id, "visit", source.Visit, context);
+            relationships.CalendarEvent = GetOneRelationship<CalendarEvent>("requests", source.Id, "calendar-event", source.CalendarEvent, context);
             relationships.Offer = GetOneRelationship<Offer>("requests", source.Id, "offer", source.Offer, context);
             return relationships;
         }
@@ -190,11 +190,11 @@ namespace Rollvolet.CRM.API.Mappers
             return relationships;
         }
 
-        VisitRelationshipsDto ITypeConverter<Visit, VisitRelationshipsDto>.Convert(Visit source, VisitRelationshipsDto destination, ResolutionContext context)
+        CalendarEventRelationshipsDto ITypeConverter<CalendarEvent, CalendarEventRelationshipsDto>.Convert(CalendarEvent source, CalendarEventRelationshipsDto destination, ResolutionContext context)
         {
-            var relationships = new VisitRelationshipsDto();
-            relationships.Customer = GetOneRelationship<Customer>("visits", source.Id, "customer", source.Customer, context);
-            relationships.Request = GetOneRelationship<Request>("visits", source.Id, "request", source.Request, context);
+            var relationships = new CalendarEventRelationshipsDto();
+            relationships.Customer = GetOneRelationship<Customer>("calendar-events", source.Id, "customer", source.Customer, context);
+            relationships.Request = GetOneRelationship<Request>("calendar-events", source.Id, "request", source.Request, context);
             return relationships;
         }
 

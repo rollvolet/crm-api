@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Rollvolet.CRM.APIContracts.JsonApi;
 
-namespace Rollvolet.CRM.APIContracts.DTO.Visits
+namespace Rollvolet.CRM.APIContracts.DTO.CalendarEvents
 {
-    public class VisitRequestRelationshipsDto
+    public class CalendarEventRequestRelationshipsDto
     {
         public OneRelationship Customer { get; set; }
         public OneRelationship Request { get; set; }

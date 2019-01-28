@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +28,7 @@ namespace Rollvolet.CRM.DataProviders
             _logger = logger;
         }
 
-        public async Task<Visit> GetByIdAsync(int id, QuerySet query = null)
+        public async Task<CalendarEvent> GetByIdAsync(int id, QuerySet query = null)
         {
             var visit = await FindByIdAsync(id, query);
 
@@ -36,10 +38,10 @@ namespace Rollvolet.CRM.DataProviders
                 throw new EntityNotFoundException();
             }
 
-            return _mapper.Map<Visit>(visit);
+            return _mapper.Map<CalendarEvent>(visit);
         }
 
-        public async Task<Visit> GetByRequestIdAsync(int id)
+        public async Task<CalendarEvent> GetByRequestIdAsync(int id)
         {
             var visit = await _context.Requests.Where(c => c.Id == id).Select(c => c.Visit).FirstOrDefaultAsync();
 
@@ -49,77 +51,52 @@ namespace Rollvolet.CRM.DataProviders
                 throw new EntityNotFoundException();
             }
 
-            return _mapper.Map<Visit>(visit);
+            return _mapper.Map<CalendarEvent>(visit);
         }
 
-        public async Task<Visit> CreateAsync(Visit visit)
+        // Creation of a Visit is handled by the RequestDataProvider
+        // Visit can only be created on creation of a new request
+
+        public async Task<CalendarEvent> UpdateAsync(CalendarEvent calendarEvent)
         {
-            var visitRecord = _mapper.Map<DataProvider.Models.Visit>(visit);
-
-            await CopyFieldsOfRequestAsync(visitRecord, visit.Request.Id);
-
-            _context.Visits.Add(visitRecord);
-            await _context.SaveChangesAsync();
-
-            var savedVisit = _mapper.Map<Visit>(visitRecord);
-            savedVisit.Period = visit.Period;
-            savedVisit.FromHour = visit.FromHour;
-            savedVisit.UntilHour = visit.UntilHour;
-
-            return savedVisit;
-        }
-
-        public async Task<Visit> UpdateAsync(Visit visit)
-        {
-            var visitRecord = await FindByIdAsync(visit.Id);
-            _mapper.Map(visit, visitRecord);
-
-            await CopyFieldsOfRequestAsync(visitRecord, visit.Request.Id);
+            DataProvider.Models.Visit visitRecord = null;
+            // calendar event doesn't necessarily have an id, since it may not be created yet (while the underlying visit record already exists)
+            if (calendarEvent.Id != 0)
+                visitRecord = await FindByIdAsync(calendarEvent.Id);
+            else
+                visitRecord = await FindWhereAsync(v => v.RequestId == calendarEvent.Request.Id);
+            _mapper.Map(calendarEvent, visitRecord);
 
             _context.Visits.Update(visitRecord);
             await _context.SaveChangesAsync();
 
-            var savedVisit = _mapper.Map<Visit>(visitRecord);
-            savedVisit.Period = visit.Period;
-            savedVisit.FromHour = visit.FromHour;
-            savedVisit.UntilHour = visit.UntilHour;
-
-            return savedVisit;
-        }
-
-
-        public async Task DeleteByIdAsync(int id)
-        {
-            var visit = await FindByIdAsync(id);
-
-            if (visit != null)
+            var savedCalendarEvent = _mapper.Map<CalendarEvent>(visitRecord);
+            if (savedCalendarEvent != null) // maybe null if the domain resource 'CalendarEvent' has been removed
             {
-                _context.Visits.Remove(visit);
-                await _context.SaveChangesAsync();
-           }
+                savedCalendarEvent.Period = calendarEvent.Period;
+                savedCalendarEvent.FromHour = calendarEvent.FromHour;
+                savedCalendarEvent.UntilHour = calendarEvent.UntilHour;
+            }
+
+            return savedCalendarEvent;
         }
 
-        private async Task<DataProvider.Models.Visit> FindByIdAsync(int? id, QuerySet query = null)
+        // Deletion of a Visit is handled by the RequestDataProvider
+        // Visit can only be deleted on deletion of the corresponding request
+
+        private async Task<DataProvider.Models.Visit> FindByIdAsync(int id, QuerySet query = null)
         {
-            var source = _context.Visits.Where(c => c.Id == id);
+            return await FindWhereAsync(c => c.Id == id, query);
+        }
+
+        private async Task<DataProvider.Models.Visit> FindWhereAsync(Expression<Func<DataProvider.Models.Visit, bool>> where, QuerySet query = null)
+        {
+            var source = (IQueryable<DataProvider.Models.Visit>) _context.Visits.Where(where);
 
             if (query != null)
                 source = source.Include(query);
 
             return await source.FirstOrDefaultAsync();
-        }
-
-        private async Task CopyFieldsOfRequestAsync(DataProvider.Models.Visit visitRecord, int requestId)
-        {
-            var requestRecord = await _context.Requests.Where(r => r.Id == requestId).FirstOrDefaultAsync();
-            if (requestRecord != null)
-            {
-                visitRecord.CustomerId = requestRecord.CustomerId;
-                visitRecord.RelativeContactId = requestRecord.RelativeContactId;
-                visitRecord.RelativeBuildingId = requestRecord.RelativeBuildingId;
-                visitRecord.Comment = requestRecord.Comment;
-                visitRecord.EmbeddedCity = requestRecord.EmbeddedCity;
-            }
         }
     }
 }

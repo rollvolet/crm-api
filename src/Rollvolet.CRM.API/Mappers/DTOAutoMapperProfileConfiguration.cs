@@ -16,7 +16,7 @@ using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
-using Rollvolet.CRM.APIContracts.DTO.Visits;
+using Rollvolet.CRM.APIContracts.DTO.CalendarEvents;
 using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
@@ -379,7 +379,7 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Contact, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Contact : null))
                 .ForMember(dest => dest.Building, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Building : null))
                 .ForMember(dest => dest.WayOfEntry, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.WayOfEntry : null))
-                .ForMember(dest => dest.Visit, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Visit : null))
+                .ForMember(dest => dest.CalendarEvent, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.CalendarEvent : null))
                 .ForMember(dest => dest.Offer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Offer : null))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
@@ -426,35 +426,35 @@ namespace Rollvolet.CRM.API.Mappers
 
             // Visit mappings
 
-            CreateMap<Visit, VisitDto>()
+            CreateMap<CalendarEvent, CalendarEventDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Type, opt => opt.UseValue("visits"))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("calendar-events"))
                 .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
-            CreateMap<Visit, VisitAttributesDto>().ReverseMap();
+            CreateMap<CalendarEvent, CalendarEventAttributesDto>().ReverseMap();
 
-            CreateMap<Visit, VisitRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+            CreateMap<CalendarEvent, CalendarEventRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
-            CreateMap<Visit, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.UseValue("visits"));
+            CreateMap<CalendarEvent, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("calendar-events"));
 
-            CreateMap<VisitRequestDto, Visit>()
-                .ConstructUsing((src, context) => context.Mapper.Map<Visit>(src.Attributes))
+            CreateMap<CalendarEventRequestDto, CalendarEvent>()
+                .ConstructUsing((src, context) => context.Mapper.Map<CalendarEvent>(src.Attributes))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Customer : null))
                 .ForMember(dest => dest.Request, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Request : null))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
-            CreateMap<OneRelationship, Visit>()
-                .ConstructUsing((src, context) => context.Mapper.Map<Visit>(src.Data))
+            CreateMap<OneRelationship, CalendarEvent>()
+                .ConstructUsing((src, context) => context.Mapper.Map<CalendarEvent>(src.Data))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
-            CreateMap<ManyRelationship, IEnumerable<Visit>>()
-                .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<Visit>>(src.Data))
+            CreateMap<ManyRelationship, IEnumerable<CalendarEvent>>()
+                .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<CalendarEvent>>(src.Data))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
-            CreateMap<RelatedResource, Visit>()
+            CreateMap<RelatedResource, CalendarEvent>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForAllOtherMembers(opt => opt.Ignore());
 

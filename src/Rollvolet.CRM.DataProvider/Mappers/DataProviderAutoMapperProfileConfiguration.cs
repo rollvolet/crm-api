@@ -123,6 +123,9 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences();
 
             CreateMap<Models.Request, Domain.Models.Request>()
+                .ForMember(dest => dest.Visitor, opt => opt.MapFrom(src => src.Visit != null ? src.Visit.Visitor : null))
+                .ForMember(dest => dest.OfferExpected, opt => opt.MapFrom(src => src.Visit != null ? src.Visit.OfferExpected : false))
+                .ForMember(dest => dest.CalendarEvent, opt => opt.MapFrom(src => src.Visit))
                 .PreserveReferences()
                 .ReverseMap()
                 .ForMember(dest => dest.Customer, opt => opt.Ignore())
@@ -142,19 +145,24 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ReverseMap()
                 .PreserveReferences();
 
-            CreateMap<Models.Visit, Domain.Models.Visit>()
-                .ForMember(dest => dest.Period, opt => opt.Ignore())
-                .ForMember(dest => dest.FromHour, opt => opt.Ignore())
-                .ForMember(dest => dest.UntilHour, opt => opt.Ignore())
-                .ForMember(dest => dest.Request, opt => opt.MapFrom(src => src.Request != null ? src.Request :
-                                                        (src.RequestId != null ? new Models.Request() { Id = (int) src.RequestId } : null)))
-                .PreserveReferences()
-                .ReverseMap()
-                .ForMember(dest => dest.Customer, opt => opt.Ignore())
-                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
-                .ForMember(dest => dest.Request, opt => opt.Ignore())
-                .ForMember(dest => dest.RequestId, opt => opt.MapFrom(src => src.Request.Id))
-                .PreserveReferences();
+            CreateMap<Models.Visit, Domain.Models.Request>()
+                // only merge the fields from visit that needs to be public in the request object
+                .ForMember(dest => dest.Visitor, opt => opt.MapFrom(src => src.Visitor))
+                .ForMember(dest => dest.OfferExpected, opt => opt.MapFrom(src => src.OfferExpected))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<Models.Visit, Domain.Models.CalendarEvent>()
+                .ConvertUsing(new VisitTypeConverter());
+
+            CreateMap<Domain.Models.CalendarEvent, Models.Visit>()
+                // don't map the Id, Request and Customer properties.
+                // They are managed by the RequestDataProvider which creates Visit records without using the mapper
+                .ForMember(dest => dest.VisitDate, opt => opt.MapFrom(src => src.VisitDate))
+                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
+                .ForMember(dest => dest.CalendarId, opt => opt.MapFrom(src => src.CalendarId))
+                .ForMember(dest => dest.MsObjectId, opt => opt.MapFrom(src => src.MsObjectId))
+                .ForMember(dest => dest.CalendarSubject, opt => opt.MapFrom(src => src.CalendarSubject))
+                .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<Models.Offer, Domain.Models.Offer>()
                 .ForMember(dest => dest.RequestNumber, opt => opt.MapFrom(src => src.RequestId))

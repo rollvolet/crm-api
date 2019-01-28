@@ -33,87 +33,98 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             _logger = logger;
         }
 
-        public async Task<Visit> CreateCalendarEventForVisitAsync(Visit visit, CustomerEntity customerEntity)
+        public async Task<CalendarEvent> CreateEventForRequestAsync(CalendarEvent calendarEvent, CustomerEntity customerEntity)
         {
-            if (visit.VisitDate != null)
+            if (calendarEvent.VisitDate != null)
             {
-                var calendarEvent = CreateVisitEvent(visit, customerEntity);
+                var msEvent = CreateRequestVisitEvent(calendarEvent, customerEntity);
 
                 try
                 {
-                    calendarEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events.Request().AddAsync(calendarEvent);
+                    msEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events.Request().AddAsync(msEvent);
                 }
                 catch (Exception)
                 {
-                    _logger.LogWarning("Something went wrong while creating calendar event for visit {1}.", visit.Id);
+                    _logger.LogWarning("Something went wrong while creating MS event for calendar event {1}.", calendarEvent.Id);
                 }
 
-                visit.MsObjectId = calendarEvent.Id;
-                visit.CalendarSubject = calendarEvent.Subject;
-                _logger.LogDebug("Created calendar event in calendar {0} with id {1}", _calendarConfig.KlantenbezoekCalendarId, calendarEvent.Id);
+                calendarEvent.MsObjectId = msEvent.Id;
+                calendarEvent.CalendarSubject = msEvent.Subject;
+                _logger.LogDebug("Created calendar event in calendar {0} with id {1}", _calendarConfig.KlantenbezoekCalendarId, msEvent.Id);
             }
             else
             {
-                _logger.LogWarning("Unable to create visit {0} in calendar. Visit date is missing.", visit.Id);
+                _logger.LogWarning("Unable to create visit {0} in calendar. Visit date is missing.", calendarEvent.Id);
             }
 
-            return visit;
+            return calendarEvent;
         }
 
-        public async Task<Visit> UpdateCalendarEventForVisitAsync(Visit visit, CustomerEntity customerEntity)
+        public async Task<CalendarEvent> UpdateEventForRequestAsync(CalendarEvent calendarEvent, CustomerEntity customerEntity)
         {
-            if (visit.MsObjectId != null)
+            if (calendarEvent.MsObjectId != null)
             {
-                if (visit.VisitDate != null)
+                if (calendarEvent.VisitDate != null)
                 {
-                    var updatedEvent = CreateVisitEvent(visit, customerEntity);
+                    var updatedMsEvent = CreateRequestVisitEvent(calendarEvent, customerEntity);
                     try
                     {
-                        updatedEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[visit.MsObjectId]
-                                    .Request().UpdateAsync(updatedEvent);
+                        updatedMsEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[calendarEvent.MsObjectId]
+                                    .Request().UpdateAsync(updatedMsEvent);
                     }
                     catch (Exception)
                     {
-                        _logger.LogWarning("Something went wrong while updating calendar event {0} for visit {1}. Event will be decoupled.", visit.MsObjectId, visit.Id);
-                        return await DeleteCalendarEventForVisitAsync(visit);
+                        _logger.LogWarning("Something went wrong while updating MS event {0} for calendar event {1}. Event will be decoupled.", calendarEvent.MsObjectId, calendarEvent.Id);
+                        return await DeleteEventForRequestAsync(calendarEvent);
                     }
 
-                    visit.CalendarSubject = updatedEvent.Subject;
+                    calendarEvent.CalendarSubject = updatedMsEvent.Subject;
 
-                    _logger.LogDebug("Updated calendar event in calendar {0} with id {1}", _calendarConfig.KlantenbezoekCalendarId, updatedEvent.Id);
+                    _logger.LogDebug("Updated MS event in calendar {0} with id {1}", _calendarConfig.KlantenbezoekCalendarId, updatedMsEvent.Id);
                 }
                 else
                 {
-                    _logger.LogWarning("Unable to update visit {0} in calendar. Visit date is missing.", visit.Id);
+                    _logger.LogWarning("Unable to update calendar event {0} in calendar. Visit date is missing.", calendarEvent.Id);
                 }
             }
             else
             {
-                _logger.LogWarning("Cannot update calendar event for visit {0} since ms-object-id is not set on the visit.", visit.Id);
+                _logger.LogWarning("Cannot update MS event for calendar event {0} since ms-object-id is not set on the calendar event.", calendarEvent.Id);
             }
 
-            return visit;
+            return calendarEvent;
         }
 
-        public async Task<Visit> DeleteCalendarEventForVisitAsync(Visit visit)
+        public async Task<CalendarEvent> DeleteEventForRequestAsync(CalendarEvent calendarEvent)
         {
-            if (visit.MsObjectId != null)
+            if (calendarEvent.MsObjectId != null)
             {
-                await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[visit.MsObjectId].Request().DeleteAsync();
-                _logger.LogDebug("Delete visit event in calendar {0} with id {1}", _calendarConfig.KlantenbezoekCalendarId, visit.MsObjectId);
-                visit.CalendarId = null;
-                visit.MsObjectId = null;
-                visit.CalendarSubject = null;
+                try
+                {
+                    await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[calendarEvent.MsObjectId].Request().DeleteAsync();
+                    _logger.LogDebug("Delete MS event in calendar {0} with id {1}", _calendarConfig.KlantenbezoekCalendarId, calendarEvent.MsObjectId);
+                }
+                catch (ServiceException e)
+                {
+                    if (e.IsMatch(GraphErrorCode.ItemNotFound.ToString()))
+                        _logger.LogDebug("MS event of calendar event {0} has already bee deleted.", calendarEvent.Id);
+                    else
+                        throw e;
+                }
+
+                calendarEvent.CalendarId = null;
+                calendarEvent.MsObjectId = null;
+                calendarEvent.CalendarSubject = null;
             }
             else
             {
-                _logger.LogWarning("Cannot delete calendar event for visit {0} since ms-object-id is not set on the visit.", visit.Id);
+                _logger.LogWarning("Cannot delete MS event for calendar event {0} since ms-object-id is not set on the visit.", calendarEvent.Id);
             }
 
-            return visit;
+            return calendarEvent;
         }
 
-        public async Task<Order> CreateCalendarEventForPlanningAsync(Order order)
+        public async Task<Order> CreateEventForPlanningAsync(Order order)
         {
             if (order.PlanningDate != null)
             {
@@ -138,7 +149,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return order;
         }
 
-        public async Task<Order> UpdateCalendarEventForPlanningAsync(Order order)
+        public async Task<Order> UpdateEventForPlanningAsync(Order order)
         {
             if (order.PlanningMsObjectId != null)
             {
@@ -153,7 +164,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                     catch (Exception)
                     {
                         _logger.LogWarning("Something went wrong while updating planning event {0} for order {1}. Event will be decoupled.", order.PlanningMsObjectId, order.Id);
-                        return await DeleteCalendarEventForPlanningAsync(order);
+                        return await DeleteEventForPlanningAsync(order);
                     }
 
                     _logger.LogDebug("Updated planning event in calendar {0} with id {1}", _calendarConfig.PlanningCalendarId, updatedEvent.Id);
@@ -171,7 +182,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return order;
         }
 
-        public async Task<Order> DeleteCalendarEventForPlanningAsync(Order order)
+        public async Task<Order> DeleteEventForPlanningAsync(Order order)
         {
             if (order.PlanningMsObjectId != null)
             {
@@ -204,15 +215,15 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return await GetSubjectAsync(_calendarConfig.PlanningCalendarId, msObjectId);
         }
 
-        private Event CreateVisitEvent(Visit visit, CustomerEntity customerEntity)
+        private Event CreateRequestVisitEvent(CalendarEvent calendarEvent, CustomerEntity customerEntity)
         {
-            var visitDate = (DateTime) visit.VisitDate;
+            var visitDate = (DateTime) calendarEvent.VisitDate;
             var year = visitDate.Year + 1; // TODO remove +1
             var month = visitDate.Month;
             var day = visitDate.Day;
-            var period = GetPeriodMessage(visit.Period, visit.FromHour, visit.UntilHour);
+            var period = GetPeriodMessage(calendarEvent.Period, calendarEvent.FromHour, calendarEvent.UntilHour);
 
-            var subject = $"{period} {customerEntity.Name} {customerEntity.PostalCode} {customerEntity.City} ({visit.Request.Comment})";
+            var subject = $"{period} {customerEntity.Name} {customerEntity.PostalCode} {customerEntity.City} ({calendarEvent.Request.Comment})";
 
             var start = new DateTimeTimeZone() {
                 DateTime = new DateTime(year, month, day, VISIT_START_TIME, 0, 0).ToString("o"),

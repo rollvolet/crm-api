@@ -2,13 +2,10 @@ using System;
 using Newtonsoft.Json;
 using Rollvolet.CRM.APIContracts.JsonApi;
 
-namespace Rollvolet.CRM.APIContracts.DTO.Visits
+namespace Rollvolet.CRM.APIContracts.DTO.CalendarEvents
 {
-    public class VisitAttributesDto
+    public class CalendarEventAttributesDto
     {
-        [JsonProperty("offer-expected")]
-        public bool OfferExpected { get; set; }
-        public string Visitor { get; set; }
         [JsonProperty("visit-date")]
         public DateTime? VisitDate { get; set; }
         public string Period { get; set; }

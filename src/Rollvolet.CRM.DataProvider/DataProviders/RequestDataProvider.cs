@@ -11,6 +11,8 @@ using Rollvolet.CRM.DataProvider.Extensions;
 using Microsoft.Extensions.Logging;
 using LinqKit;
 using Rollvolet.CRM.Domain.Exceptions;
+using System.Linq.Expressions;
+using System;
 
 namespace Rollvolet.CRM.DataProviders
 {
@@ -24,6 +26,7 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<Paged<Request>> GetAllAsync(QuerySet query)
         {
             var source = _context.Requests
+                            .Include(r => r.Visit) // required inclusion to embed properties in domain object
                             .Include(query)
                             .Sort(query)
                             .Filter(query, _context);
@@ -60,6 +63,7 @@ namespace Rollvolet.CRM.DataProviders
         {
             var source = _context.Requests
                             .Where(r => r.CustomerId == customerId)
+                            .Include(r => r.Visit) // required inclusion to embed properties in domain object
                             .Include(query)
                             .Sort(query)
                             .Filter(query, _context);
@@ -80,7 +84,8 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Request> GetByOfferIdAsync(int offerId)
         {
-            var request = await _context.Offers.Where(r => r.Id == offerId).Select(r => r.Request).FirstOrDefaultAsync();
+            var request = await _context.Offers.Where(r => r.Id == offerId)
+                                    .Select(r => r.Request).Include(r => r.Visit).FirstOrDefaultAsync(); // required inclusion to embed properties in domain object
 
             if (request == null)
             {
@@ -100,13 +105,16 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<Request> CreateAsync(Request request)
         {
             var requestRecord = _mapper.Map<DataProvider.Models.Request>(request);
-
             await EmbedCityAsync(requestRecord);
 
             _context.Requests.Add(requestRecord);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<Request>(requestRecord);
+            _logger.LogDebug($"Automatically create visit record for new request with id {requestRecord.Id}.");
+            var visit = await CreateVisitForRequestAsync(requestRecord, request);
+
+            request = _mapper.Map<Request>(requestRecord);
+            return _mapper.Map(visit, request);
         }
 
         public async Task<Request> UpdateAsync(Request request)
@@ -119,7 +127,11 @@ namespace Rollvolet.CRM.DataProviders
             _context.Requests.Update(requestRecord);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<Request>(requestRecord);
+            _logger.LogDebug($"Automatically update visit record for existing request with id {requestRecord.Id}.");
+            var visit = await UpdateVisitForRequestAsync(requestRecord, request);
+
+            request = _mapper.Map<Request>(requestRecord);
+            return _mapper.Map(visit, request);
         }
 
         public async Task<Request> UpdateContactAndBuildingAsync(int id, int? relativeContactId, int? relativeBuildingId)
@@ -131,6 +143,9 @@ namespace Rollvolet.CRM.DataProviders
             _context.Requests.Update(requestRecord);
             await _context.SaveChangesAsync();
 
+            _logger.LogDebug($"Automatically update visit record for existing request with id {requestRecord.Id}.");
+            await UpdateVisitForRequestAsync(requestRecord);
+
             return _mapper.Map<Request>(requestRecord);
         }
 
@@ -140,6 +155,11 @@ namespace Rollvolet.CRM.DataProviders
 
             if (request != null)
             {
+                var visit = await _context.Requests.Where(c => c.Id == id).Select(c => c.Visit).FirstOrDefaultAsync();
+
+                if (visit != null)
+                    _context.Visits.Remove(visit);
+
                 _context.Requests.Remove(request);
                 await _context.SaveChangesAsync();
            }
@@ -147,7 +167,12 @@ namespace Rollvolet.CRM.DataProviders
 
         private async Task<DataProvider.Models.Request> FindByIdAsync(int id, QuerySet query = null)
         {
-            var source = _context.Requests.Where(c => c.Id == id);
+            return await FindWhereAsync(c => c.Id == id, query);
+        }
+
+        private async Task<DataProvider.Models.Request> FindWhereAsync(Expression<Func<DataProvider.Models.Request, bool>> where, QuerySet query = null)
+        {
+            var source = (IQueryable<DataProvider.Models.Request>) _context.Requests.Where(where).Include(r => r.Visit); // required inclusion to embed properties in domain object
 
             if (query != null)
             {
@@ -180,6 +205,55 @@ namespace Rollvolet.CRM.DataProviders
             else
             {
                 request.EmbeddedCity = null;
+            }
+        }
+
+        private async Task<DataProvider.Models.Visit> CreateVisitForRequestAsync(DataProvider.Models.Request requestRecord, Request request = null)
+        {
+            var visitRecord = new DataProvider.Models.Visit {
+                RequestId = requestRecord.Id,
+                CustomerId = requestRecord.CustomerId,
+                RelativeContactId = requestRecord.RelativeContactId,
+                RelativeBuildingId = requestRecord.RelativeBuildingId,
+                EmbeddedCity = requestRecord.EmbeddedCity,
+                Comment = requestRecord.Comment,
+                Visitor = request == null ? null : request.Visitor,
+                OfferExpected = request == null ? false : request.OfferExpected
+            };
+
+            _context.Visits.Add(visitRecord);
+            await _context.SaveChangesAsync();
+
+            return visitRecord;
+        }
+
+        private async Task<DataProvider.Models.Visit> UpdateVisitForRequestAsync(DataProvider.Models.Request requestRecord, Request request = null)
+        {
+            var visit = await _context.Requests.Where(c => c.Id == request.Id).Select(c => c.Visit).FirstOrDefaultAsync();
+
+            if (visit == null)
+            {
+                _logger.LogWarning($"No visit found for request with id {request.Id}. Creating one now.");
+                return await CreateVisitForRequestAsync(requestRecord, request);
+            }
+            else
+            {
+                visit.RequestId = requestRecord.Id;
+                visit.CustomerId = requestRecord.CustomerId;
+                visit.RelativeContactId = requestRecord.RelativeContactId;
+                visit.RelativeBuildingId = requestRecord.RelativeBuildingId;
+                visit.EmbeddedCity = requestRecord.EmbeddedCity;
+                visit.Comment = requestRecord.Comment;
+
+                if (request != null)
+                {
+                    visit.Visitor = request.Visitor;
+                    visit.OfferExpected = request.OfferExpected;
+                }
+
+               _context.Visits.Update(visit);
+                await _context.SaveChangesAsync();
+                return visit;
             }
         }
     }

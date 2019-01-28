@@ -10,7 +10,7 @@ namespace Rollvolet.CRM.Domain.Models
         public Customer Customer { get; set; }
         public Building Building { get; set; }
         public Contact Contact { get; set; }
-        public Visit Visit { get; set; }
+        public CalendarEvent CalendarEvent { get; set; }
         public Offer Offer { get; set; }
 
         public bool RequiresVisit { get; set; }
@@ -18,5 +18,7 @@ namespace Rollvolet.CRM.Domain.Models
         public DateTime? RequestDate { get; set; }
         public string Comment { get; set; }
         public string Employee { get; set; }
+        public bool OfferExpected { get; set; }
+        public string Visitor { get; set; }
     }
 }

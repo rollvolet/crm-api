@@ -16,7 +16,7 @@ using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
-using Rollvolet.CRM.APIContracts.DTO.Visits;
+using Rollvolet.CRM.APIContracts.DTO.CalendarEvents;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
@@ -35,7 +35,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IContactManager _contactManager;
         private readonly IBuildingManager _buildingManager;
         private readonly IOfferManager _offerManager;
-        private readonly IVisitManager _visitManager;
+        private readonly ICalendarEventManager _calendarEventManager;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
@@ -43,7 +43,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         public RequestsController(IRequestManager requestManager, IOfferManager offerManager, IWayOfEntryManager wayOfEntryManager,
                                     ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
-                                     IVisitManager visitManager, IDocumentGenerationManager documentGenerationManager,
+                                     ICalendarEventManager calendarEventManager, IDocumentGenerationManager documentGenerationManager,
                                      IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _requestManager = requestManager;
@@ -52,7 +52,7 @@ namespace Rollvolet.CRM.API.Controllers
             _customerManager = customerManager;
             _contactManager = contactManager;
             _buildingManager = buildingManager;
-            _visitManager = visitManager;
+            _calendarEventManager = calendarEventManager;
             _documentGenerationManager = documentGenerationManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
@@ -231,23 +231,23 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Links = links, Data = wayOfEntryDto });
         }
 
-        [HttpGet("{requestId}/visit")]
-        [HttpGet("{requestId}/links/visit")]
-        public async Task<IActionResult> GetRelatedVisitByIdAsync(int requestId)
+        [HttpGet("{requestId}/calendar-event")]
+        [HttpGet("{requestId}/links/calendar-event")]
+        public async Task<IActionResult> GetRelatedCalendarEventByIdAsync(int requestId)
         {
-            VisitDto visitDto;
+            CalendarEventDto calendarEventDto;
             try
             {
-                var visit = await _visitManager.GetByRequestIdAsync(requestId);
-                visitDto = _mapper.Map<VisitDto>(visit);
+                var calendarEvent = await _calendarEventManager.GetByRequestIdAsync(requestId);
+                calendarEventDto = _mapper.Map<CalendarEventDto>(calendarEvent);
             }
             catch (EntityNotFoundException)
             {
-                visitDto = null;
+                calendarEventDto = null;
             }
 
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
-            return Ok(new ResourceResponse() { Links = links, Data = visitDto });
+            return Ok(new ResourceResponse() { Links = links, Data = calendarEventDto });
         }
     }
 }

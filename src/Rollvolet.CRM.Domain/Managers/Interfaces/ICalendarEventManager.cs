@@ -1,14 +1,15 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 
-namespace Rollvolet.CRM.Domain.Contracts.DataProviders
+namespace Rollvolet.CRM.Domain.Managers.Interfaces
 {
-    public interface IVisitDataProvider
+    public interface ICalendarEventManager
     {
         Task<CalendarEvent> GetByIdAsync(int id, QuerySet query = null);
         Task<CalendarEvent> GetByRequestIdAsync(int id);
+        Task<CalendarEvent> CreateAsync(CalendarEvent calendarEvent);
         Task<CalendarEvent> UpdateAsync(CalendarEvent calendarEvent);
+        Task DeleteAsync(int id);
     }
 }

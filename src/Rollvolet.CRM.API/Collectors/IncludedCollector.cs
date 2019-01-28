@@ -14,7 +14,7 @@ using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
-using Rollvolet.CRM.APIContracts.DTO.Visits;
+using Rollvolet.CRM.APIContracts.DTO.CalendarEvents;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -183,8 +183,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<BuildingDto>(request.Building));
             if (includeQuery.Contains("way-of-entry") && request.WayOfEntry != null)
                 included.Add(_mapper.Map<WayOfEntryDto>(request.WayOfEntry));
-            if (includeQuery.Contains("visit") && request.Visit != null)
-                included.Add(_mapper.Map<VisitDto>(request.Visit));
+            if (includeQuery.Contains("calendar-event") && request.CalendarEvent != null)
+                included.Add(_mapper.Map<CalendarEventDto>(request.CalendarEvent));
             if (includeQuery.Contains("offer") && request.Offer != null)
                 included.Add(_mapper.Map<OfferDto>(request.Offer));
 
@@ -225,8 +225,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<SubmissionTypeDto>(offer.SubmissionType));
             if (includeQuery.Contains("request") && offer.Request != null)
                 included.Add(_mapper.Map<RequestDto>(offer.Request, opt => opt.Items["include"] = requestIncludeQuery));
-            if (includeQuery.Contains("request.visit") && offer.Request != null && offer.Request.Visit != null)
-                included.Add(_mapper.Map<VisitDto>(offer.Request.Visit));
+            if (includeQuery.Contains("request.calendar-event") && offer.Request != null && offer.Request.CalendarEvent != null)
+                included.Add(_mapper.Map<CalendarEventDto>(offer.Request.CalendarEvent));
 
             // many-relations
             if (includeQuery.Contains("offerlines") && offer.Offerlines.Count() > 0)

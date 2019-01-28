@@ -3,13 +3,11 @@ using System.Collections.Generic;
 
 namespace Rollvolet.CRM.Domain.Models
 {
-    public class Visit
+    public class CalendarEvent
     {
         public int Id { get; set; }
         public Customer Customer { get; set; }
         public Request Request { get; set; }
-        public bool OfferExpected { get; set; }
-        public string Visitor { get; set; }
         public DateTime? VisitDate { get; set; }
         public string Period { get; set; }
         public string FromHour { get; set; }
