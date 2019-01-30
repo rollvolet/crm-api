@@ -13,7 +13,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.CalendarEvents
         public string FromHour { get; set; }
         [JsonProperty("until-hour")]
         public string UntilHour { get; set; }
-        public string Comment { get; set; }
         [JsonProperty("calendar-subject")]
         public string CalendarSubject { get; set; }
         [JsonProperty("calendar-id")]

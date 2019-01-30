@@ -13,10 +13,15 @@ namespace Rollvolet.CRM.DataProvider.Extensions
     {
         public static IQueryable<Visit> Include(this IQueryable<Visit> source, QuerySet querySet)
         {
+            if (querySet.Include.Fields.Contains("request") || querySet.Include.Fields.Contains("request.calendar-event"))
+                source = source.Include(x => x.Request).ThenInclude(x => x.Visit);
+
             var selectors = new Dictionary<string, Expression<Func<Visit, object>>>();
 
-            selectors.Add("request", c => c.Request);
             selectors.Add("customer", c => c.Customer);
+
+            // dummy entries for resources that are already included
+            selectors.Add("request", null);
 
             return source.Include<Visit>(querySet, selectors);
         }

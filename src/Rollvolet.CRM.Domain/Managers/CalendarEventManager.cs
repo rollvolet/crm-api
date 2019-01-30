@@ -100,7 +100,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _visitDataProvider.UpdateAsync(calendarEvent);
         }
 
-        public async Task<CalendarEvent> UpdateAsync(CalendarEvent calendarEvent)
+        public async Task<CalendarEvent> UpdateAsync(CalendarEvent calendarEvent, bool forceEventUpdate = false)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] { "customer", "request" };
@@ -129,7 +129,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
             await EmbedRelations(calendarEvent, existingCalendarEvent);
 
-            if (RequiresCalendarEventUpdate(existingCalendarEvent, calendarEvent))
+            if (forceEventUpdate || RequiresCalendarEventUpdate(existingCalendarEvent, calendarEvent))
             {
                 var customerEntity = await GetRelatedCustomerEntity(calendarEvent);
                 calendarEvent = await _graphApiService.UpdateEventForRequestAsync(calendarEvent, customerEntity);
@@ -145,7 +145,6 @@ namespace Rollvolet.CRM.Domain.Managers
             calendarEvent = await _graphApiService.DeleteEventForRequestAsync(calendarEvent);
 
             calendarEvent.VisitDate = null;
-            calendarEvent.Comment = null;
             await _visitDataProvider.UpdateAsync(calendarEvent);
         }
 
@@ -256,8 +255,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return calendarEvent.VisitDate != existingCalendarEvent.VisitDate
                 || calendarEvent.Period != existingCalendarEvent.Period
                 || calendarEvent.FromHour != existingCalendarEvent.FromHour
-                || calendarEvent.UntilHour != existingCalendarEvent.UntilHour
-                || calendarEvent.Request.Comment != existingCalendarEvent.Comment;
+                || calendarEvent.UntilHour != existingCalendarEvent.UntilHour;
         }
     }
 }

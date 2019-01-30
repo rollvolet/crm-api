@@ -102,7 +102,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Request> UpdateAsync(Request request)
         {
             var query = new QuerySet();
-            query.Include.Fields = new string[] { "customer", "way-of-entry", "building", "contact", "visit" };
+            query.Include.Fields = new string[] { "customer", "way-of-entry", "building", "contact", "calendar-event" };
             var existingRequest = await _requestDataProvider.GetByIdAsync(request.Id, query);
 
             if (request.Id != existingRequest.Id)
@@ -195,7 +195,7 @@ namespace Rollvolet.CRM.Domain.Managers
             try
             {
                 var calendarEvent = await _calendarEventManager.GetByRequestIdAsync(request.Id);
-                await _calendarEventManager.UpdateAsync(calendarEvent);
+                await _calendarEventManager.UpdateAsync(calendarEvent, true);
             }
             catch(EntityNotFoundException)
             {

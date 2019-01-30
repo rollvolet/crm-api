@@ -29,7 +29,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("ContactID")]
         public int? RelativeContactId { get; set; }
 
-        [Column("Opmerking")]
+        [Column("Opmerking")]  // kept in sync with offer comment in frontend
         public string Comment { get; set; }
 
         [Column("AfspraakOnderwerp")]

@@ -12,7 +12,12 @@ namespace Rollvolet.CRM.DataProvider.Mappers
 
             Domain.Models.Request request = null;
             if (src.Request != null)
-                request = new Domain.Models.Request() { Id = (int) src.Request.Id };
+                request = new Domain.Models.Request() {
+                    Id = (int) src.Request.Id,
+                    Comment = src.Comment,
+                    Visitor = src.Visitor,
+                    OfferExpected = src.OfferExpected
+                };
             else if (src.RequestId != null)
                 request = new Domain.Models.Request() { Id = (int) src.RequestId };
 
@@ -22,7 +27,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 CalendarId = src.CalendarId,
                 CalendarSubject = src.CalendarSubject,
                 VisitDate = src.VisitDate,
-                Comment = src.Comment,
                 Request = request
             };
         }

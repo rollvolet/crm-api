@@ -216,7 +216,7 @@ namespace Rollvolet.CRM.DataProviders
                 RelativeContactId = requestRecord.RelativeContactId,
                 RelativeBuildingId = requestRecord.RelativeBuildingId,
                 EmbeddedCity = requestRecord.EmbeddedCity,
-                Comment = requestRecord.Comment,
+                Comment =  request == null ? null : request.Comment,
                 Visitor = request == null ? null : request.Visitor,
                 OfferExpected = request == null ? false : request.OfferExpected
             };
@@ -243,12 +243,12 @@ namespace Rollvolet.CRM.DataProviders
                 visit.RelativeContactId = requestRecord.RelativeContactId;
                 visit.RelativeBuildingId = requestRecord.RelativeBuildingId;
                 visit.EmbeddedCity = requestRecord.EmbeddedCity;
-                visit.Comment = requestRecord.Comment;
 
                 if (request != null)
                 {
                     visit.Visitor = request.Visitor;
                     visit.OfferExpected = request.OfferExpected;
+                    visit.Comment = request.Comment;
                 }
 
                _context.Visits.Update(visit);

@@ -123,6 +123,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences();
 
             CreateMap<Models.Request, Domain.Models.Request>()
+                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Visit != null ? src.Visit.Comment : null))
                 .ForMember(dest => dest.Visitor, opt => opt.MapFrom(src => src.Visit != null ? src.Visit.Visitor : null))
                 .ForMember(dest => dest.OfferExpected, opt => opt.MapFrom(src => src.Visit != null ? src.Visit.OfferExpected : false))
                 .ForMember(dest => dest.CalendarEvent, opt => opt.MapFrom(src => src.Visit))
@@ -147,6 +148,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
 
             CreateMap<Models.Visit, Domain.Models.Request>()
                 // only merge the fields from visit that needs to be public in the request object
+                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
                 .ForMember(dest => dest.Visitor, opt => opt.MapFrom(src => src.Visitor))
                 .ForMember(dest => dest.OfferExpected, opt => opt.MapFrom(src => src.OfferExpected))
                 .ForAllOtherMembers(opt => opt.Ignore());
@@ -157,8 +159,8 @@ namespace Rollvolet.CRM.DataProvider.Mappers
             CreateMap<Domain.Models.CalendarEvent, Models.Visit>()
                 // don't map the Id, Request and Customer properties.
                 // They are managed by the RequestDataProvider which creates Visit records without using the mapper
+                // Also don't map the fields that are set by the request domain model (visitor, offerExpected, comment)
                 .ForMember(dest => dest.VisitDate, opt => opt.MapFrom(src => src.VisitDate))
-                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
                 .ForMember(dest => dest.CalendarId, opt => opt.MapFrom(src => src.CalendarId))
                 .ForMember(dest => dest.MsObjectId, opt => opt.MapFrom(src => src.MsObjectId))
                 .ForMember(dest => dest.CalendarSubject, opt => opt.MapFrom(src => src.CalendarSubject))
