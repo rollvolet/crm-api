@@ -34,7 +34,7 @@ namespace Rollvolet.CRM.Domain.Managers
             if (invoiceSupplement.SequenceNumber != 0)
                 throw new IllegalArgumentException("IllegalAttribute", "Invoice-supplement cannot have a sequence-number on create.");
             if (invoiceSupplement.Invoice == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Invoice is required on deposit creation.");
+                throw new IllegalArgumentException("IllegalAttribute", "Invoice is required on invoice supplement creation.");
 
             await EmbedRelationsAsync(invoiceSupplement);
 

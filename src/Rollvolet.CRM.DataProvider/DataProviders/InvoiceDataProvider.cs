@@ -20,13 +20,16 @@ namespace Rollvolet.CRM.DataProviders
     public class InvoiceDataProvider : BaseInvoiceDataProvider, IInvoiceDataProvider
     {
         private readonly IInvoiceSupplementDataProvider _invoiceSupplementDataProvider;
+        private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
 
         public InvoiceDataProvider(IInvoiceSupplementDataProvider invoiceSupplementDataProvider,
+                                    IDepositInvoiceDataProvider depositInvoiceDataProvider,
                                     ISequenceDataProvider sequenceDataProvider, IVatRateDataProvider vatRateDataProvider,
                                     CrmContext context, IMapper mapper, ILogger<InvoiceDataProvider> logger)
                                     : base(sequenceDataProvider, vatRateDataProvider, context, mapper, logger)
         {
             _invoiceSupplementDataProvider = invoiceSupplementDataProvider;
+            _depositInvoiceDataProvider = depositInvoiceDataProvider;
         }
 
         private new IQueryable<DataProvider.Models.Invoice> BaseQuery() {
@@ -208,11 +211,28 @@ namespace Rollvolet.CRM.DataProviders
         private async Task CalculateAmountAndVatAsync(DataProvider.Models.Invoice invoice)
         {
             _logger.LogDebug("Recalculating amount and VAT of invoice {0}", invoice.Id);
-            var query = new QuerySet();
-            var invoiceSupplements = await _invoiceSupplementDataProvider.GetAllByInvoiceIdAsync(invoice.Id, query);
-            var invoiceSupplementsTotal = invoiceSupplements.Items.Select(s => s.Total).Sum() ?? 0.0;
+
+            var depositInvoicesTotal = 0.0;
+            if (invoice.OrderId != null)
+            {
+                var query = new QuerySet();
+                query.Page.Size = 1000; // TODO we assume 1 order doesn't have more than 1000 deposit invoices. Ideally, we should query by page.
+                // don't GetByInvoiceId because invoice might not be persisted yet
+                var depositInvoices = await _depositInvoiceDataProvider.GetAllByOrderIdAsync((int) invoice.OrderId, query);
+                depositInvoicesTotal = depositInvoices.Items.Select(s => s.Amount).Sum() ?? 0.0;
+            }
+
+            var invoiceSupplementsTotal = 0.0;
+            if (invoice.Id != 0)  // invoice supplements can only be attached to an existing invoice
+            {
+                var query = new QuerySet();
+                query.Page.Size = 1000; // TODO we assume 1 invoice doesn't have more than 1000 supplements. Ideally, we should query by page.
+                var invoiceSupplements = await _invoiceSupplementDataProvider.GetAllByInvoiceIdAsync(invoice.Id, query);
+                invoiceSupplementsTotal = invoiceSupplements.Items.Select(s => s.Amount).Sum() ?? 0.0;
+            }
+
             var baseAmount = invoice.BaseAmount ?? 0.0;
-            var amount = baseAmount + invoiceSupplementsTotal; // TODO minus all deposit invoices
+            var amount = baseAmount + invoiceSupplementsTotal - depositInvoicesTotal;
 
             var vat = 0.0;
             if (invoice.VatRateId != null)

@@ -70,10 +70,10 @@ namespace Rollvolet.CRM.Domain.Managers
                     await _offerDataProvider.UpdateContactAndBuildingAsync((int) offerId, relativeContactId, relativeBuildingId);
                 if (orderId != null)
                 {
-                    // updating the offer automatically updates the contact/building of the order too
+                    // updating the offer automatically updates the contact/building of the order too. No need to do that explicitly here.
 
                     var query = new QuerySet();
-                    query.Page.Size = 1000; // TODO we assume 1 case doesn't have more than 1000 invoice deposits. Ideally, we should query by page.
+                    query.Page.Size = 1000; // TODO we assume 1 case doesn't have more than 1000 deposit invoices. Ideally, we should query by page.
                     var depositInvoices = await _depositInvoiceDataProvider.GetAllByOrderIdAsync((int) orderId, query);
 
                     foreach (var depositInvoice in depositInvoices.Items)
