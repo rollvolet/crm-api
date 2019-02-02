@@ -4,5 +4,6 @@ namespace Rollvolet.CRM.Domain.Configuration
     {
         public string KlantenbezoekCalendarId { get; set; }
         public string PlanningCalendarId { get; set; }
+        public int? PostponeWithYears { get; set; }
     }
 }

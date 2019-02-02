@@ -31,6 +31,9 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             _calendarConfig = calendarConfiguration.Value;
             _employeeDataProvider = employeeDataProvider;
             _logger = logger;
+
+            if (_calendarConfig.PostponeWithYears == null)
+                _calendarConfig.PostponeWithYears = 0;
         }
 
         public async Task<CalendarEvent> CreateEventForRequestAsync(CalendarEvent calendarEvent, CustomerEntity customerEntity)
@@ -218,7 +221,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
         private Event CreateRequestVisitEvent(CalendarEvent calendarEvent, CustomerEntity customerEntity)
         {
             var visitDate = (DateTime) calendarEvent.VisitDate;
-            var year = visitDate.Year + 1; // TODO remove +1
+            var year = visitDate.Year + (int) _calendarConfig.PostponeWithYears;
             var month = visitDate.Month;
             var day = visitDate.Day;
             var period = GetPeriodMessage(calendarEvent.Period, calendarEvent.FromHour, calendarEvent.UntilHour);
@@ -262,7 +265,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             var subject = $"{order.Customer.Name} - {address} ** AD{order.RequestNumber} - ({visitorInitials}) - {order.ScheduledHours}*{order.ScheduledNbOfPersons}";
 
             var planningDate = (DateTime) order.PlanningDate;
-            var year = planningDate.Year + 1; // TODO remove +1
+            var year = planningDate.Year + (int) _calendarConfig.PostponeWithYears;
             var month = planningDate.Month;
             var day = planningDate.Day;
 

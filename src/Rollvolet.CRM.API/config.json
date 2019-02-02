@@ -11,7 +11,8 @@
   },
   "Calendar": {
     "KlantenbezoekCalendarId": "",
-    "PlanningCalendarId": ""
+    "PlanningCalendarId": "",
+    "PostponeWithYears": null
   },
   "DocumentGeneration": {
     "BaseUrl": "",
