@@ -85,6 +85,9 @@ namespace Rollvolet.CRM.Domain.Managers
 
             // Order cannot be required to support the creation of isolated invoices
 
+            if (invoice.Order != null && invoice.VatRate == null)
+                throw new IllegalArgumentException("IllegalAttribute", "VAT rate is required on non-isolated invoice creation.");
+
             // Embedded values cannot be set since they are not exposed in the DTO
 
             await EmbedRelationsAsync(invoice);
@@ -112,9 +115,6 @@ namespace Rollvolet.CRM.Domain.Managers
 
             // Embedded values cannot be updated since they are not exposed in the DTO
 
-            // TODO trigger update reference of offer/order if reference changed
-            // TODO trigger update reference of offer/order if vat-rate changed
-
             await EmbedRelationsAsync(invoice, existingInvoice);
 
             if (invoice.Customer == null)
@@ -125,6 +125,10 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {invoice.Customer.Id}.");
 
             // Order cannot be required to support the creation of isolated invoices
+
+            if (invoice.Order != null
+                    && existingInvoice.VatRate != null && invoice.VatRate != null && existingInvoice.VatRate.Id == invoice.VatRate.Id)
+                throw new IllegalArgumentException("IllegalAttribute", "VAT rate of non-isolated invoice ccannot be updated.");
 
             return await _invoiceDataProvider.UpdateAsync(invoice);
         }
