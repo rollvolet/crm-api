@@ -19,10 +19,16 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IHonorificPrefixDataProvider _honorificPrefixDataProvider;
         private readonly ILanguageDataProvider _langugageDataProvider;
         private readonly ITagDataProvider _tagDataProvider;
+        private readonly IContactDataProvider _contactDataProvider;
+        private readonly IBuildingDataProvider _buildingDataProvider;
+        private readonly IRequestDataProvider _requestDataProvider;
+        private readonly IInvoiceDataProvider _invoiceDataProvider;
         private readonly ILogger _logger;
 
         public CustomerManager(ICustomerDataProvider customerDataProvider, ICountryDataProvider countryDataProvider,
                                 IHonorificPrefixDataProvider honorificPrefixDataProvider, ILanguageDataProvider languageDataProvider,
+                                IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
+                                IRequestDataProvider requestDataProvider, IInvoiceDataProvider invoiceDataProvider,
                                 ITagDataProvider tagDataProvider, ILogger<CustomerManager> logger)
         {
             _customerDataProvider = customerDataProvider;
@@ -30,6 +36,10 @@ namespace Rollvolet.CRM.Domain.Managers
             _honorificPrefixDataProvider = honorificPrefixDataProvider;
             _langugageDataProvider = languageDataProvider;
             _tagDataProvider = tagDataProvider;
+            _contactDataProvider = contactDataProvider;
+            _buildingDataProvider = buildingDataProvider;
+            _requestDataProvider = requestDataProvider;
+            _invoiceDataProvider = invoiceDataProvider;
             _logger = logger;
         }
 
@@ -142,6 +152,37 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task DeleteAsync(int id)
         {
+            var query = new QuerySet();
+            query.Page.Size = 1;
+
+            var requests = await _requestDataProvider.GetAllByCustomerIdAsync(id, query);
+            if (requests.Count > 0)
+            {
+                _logger.LogError($"Customer {id} cannot be deleted because requests are still attached to it.");
+                throw new InvalidOperationException($"Customer {id} cannot be deleted because requests are still attached to it.");
+            }
+
+            var invoices = await _invoiceDataProvider.GetAllByCustomerIdAsync(id, query);
+            if (invoices.Count > 0)
+            {
+                _logger.LogError($"Customer {id} cannot be deleted because invoices are still attached to it.");
+                throw new InvalidOperationException($"Customer {id} cannot be deleted because invoices are still attached to it.");
+            }
+
+            var contacts = await _contactDataProvider.GetAllByCustomerIdAsync(id, query);
+            if (contacts.Count > 0)
+            {
+                _logger.LogError($"Customer {id} cannot be deleted because contacts are still attached to it.");
+                throw new InvalidOperationException($"Customer {id} cannot be deleted because contacts are still attached to it.");
+            }
+
+            var buildings = await _buildingDataProvider.GetAllByCustomerIdAsync(id, query);
+            if (buildings.Count > 0)
+            {
+                _logger.LogError($"Customer {id} cannot be deleted because buildings are still attached to it.");
+                throw new InvalidOperationException($"Customer {id} cannot be deleted because buildings are still attached to it.");
+            }
+
             await _customerDataProvider.DeleteByNumberAsync(id);
         }
 

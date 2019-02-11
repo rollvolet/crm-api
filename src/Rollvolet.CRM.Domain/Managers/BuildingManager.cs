@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,10 +18,13 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly ICountryDataProvider _countryDataProvider;
         private readonly IHonorificPrefixDataProvider _honorificPrefixDataProvider;
         private readonly ILanguageDataProvider _langugageDataProvider;
+        private readonly IRequestDataProvider _requestDataProvider;
+        private readonly IInvoiceDataProvider _invoiceDataProvider;
         private readonly ILogger _logger;
 
         public BuildingManager(IBuildingDataProvider buildingDataProvider, ICustomerDataProvider customerDataProvider,
                                 ICountryDataProvider countryDataProvider, IHonorificPrefixDataProvider honorificPrefixDataProvider,
+                                IRequestDataProvider requestDataProvider, IInvoiceDataProvider invoiceDataProvider,
                                 ILanguageDataProvider languageDataProvider, ILogger<BuildingManager> logger)
         {
             _buildingDataProvider = buildingDataProvider;
@@ -28,6 +32,8 @@ namespace Rollvolet.CRM.Domain.Managers
             _countryDataProvider = countryDataProvider;
             _honorificPrefixDataProvider = honorificPrefixDataProvider;
             _langugageDataProvider = languageDataProvider;
+            _requestDataProvider = requestDataProvider;
+            _invoiceDataProvider = invoiceDataProvider;
             _logger = logger;
         }
 
@@ -137,6 +143,23 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task DeleteAsync(int id)
         {
+            var query = new QuerySet();
+            query.Page.Size = 1;
+
+            var requests = await _requestDataProvider.GetAllByCustomerIdAsync(id, query);
+            if (requests.Count > 0)
+            {
+                _logger.LogError($"Customer {id} cannot be deleted because requests are still attached to it.");
+                throw new InvalidOperationException($"Customer {id} cannot be deleted because requests are still attached to it.");
+            }
+
+            var invoices = await _invoiceDataProvider.GetAllByCustomerIdAsync(id, query);
+            if (invoices.Count > 0)
+            {
+                _logger.LogError($"Customer {id} cannot be deleted because invoices are still attached to it.");
+                throw new InvalidOperationException($"Customer {id} cannot be deleted because invoices are still attached to it.");
+            }
+
             await _buildingDataProvider.DeleteByIdAsync(id);
         }
 
