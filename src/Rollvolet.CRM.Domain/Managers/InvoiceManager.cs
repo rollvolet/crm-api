@@ -127,7 +127,7 @@ namespace Rollvolet.CRM.Domain.Managers
             // Order cannot be required to support the creation of isolated invoices
 
             if (invoice.Order != null
-                    && existingInvoice.VatRate != null && invoice.VatRate != null && existingInvoice.VatRate.Id == invoice.VatRate.Id)
+                    && existingInvoice.VatRate != null && invoice.VatRate != null && existingInvoice.VatRate.Id != invoice.VatRate.Id)
                 throw new IllegalArgumentException("IllegalAttribute", "VAT rate of non-isolated invoice ccannot be updated.");
 
             return await _invoiceDataProvider.UpdateAsync(invoice);
