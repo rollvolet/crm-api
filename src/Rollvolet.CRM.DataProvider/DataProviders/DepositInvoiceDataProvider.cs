@@ -189,6 +189,8 @@ namespace Rollvolet.CRM.DataProviders
             depositInvoiceRecord.RelativeContactId = relativeContactId;
             depositInvoiceRecord.RelativeBuildingId = relativeBuildingId;
 
+            await EmbedCustomerAttributesAsync(depositInvoiceRecord);
+
             _context.Invoices.Update(depositInvoiceRecord);
             await _context.SaveChangesAsync();
 

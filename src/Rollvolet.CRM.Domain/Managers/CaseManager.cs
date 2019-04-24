@@ -46,6 +46,9 @@ namespace Rollvolet.CRM.Domain.Managers
               throw new IllegalArgumentException("CaseParamMissing", "Either requestId, offerId, orderId or invoiceId must be set");
         }
 
+        // Note: contact and building of a Case can only be updated through this method
+        // UpdateAsync() methods of a resource in OfferManager, OrdereManager, etc. prevent the update of the contact/building for an existing resource
+        // That's why we directly call methods of the OfferDataProvider, OrderDataProvider, etc. here
         public async Task UpdateContactAndBuilding(int? contactId, int? buildingId, int? requestId, int? offerId, int? orderId, int? invoiceId)
         {
             int? relativeContactId = null;

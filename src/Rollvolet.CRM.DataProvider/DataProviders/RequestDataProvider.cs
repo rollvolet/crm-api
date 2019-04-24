@@ -229,11 +229,11 @@ namespace Rollvolet.CRM.DataProviders
 
         private async Task<DataProvider.Models.Visit> UpdateVisitForRequestAsync(DataProvider.Models.Request requestRecord, Request request = null)
         {
-            var visit = await _context.Requests.Where(c => c.Id == request.Id).Select(c => c.Visit).FirstOrDefaultAsync();
+            var visit = await _context.Requests.Where(c => c.Id == requestRecord.Id).Select(c => c.Visit).FirstOrDefaultAsync();
 
             if (visit == null)
             {
-                _logger.LogWarning($"No visit found for request with id {request.Id}. Creating one now.");
+                _logger.LogWarning($"No visit found for request with id {requestRecord.Id}. Creating one now.");
                 return await CreateVisitForRequestAsync(requestRecord, request);
             }
             else

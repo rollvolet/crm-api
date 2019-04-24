@@ -133,9 +133,11 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
             if (depositInvoice.Order == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Order is required.");
-            if (depositInvoice.Contact != null && depositInvoice.Contact.Customer.Id != depositInvoice.Customer.Id)
+            if (depositInvoice.Contact != null && depositInvoice.Contact.Customer != null
+                && depositInvoice.Contact.Customer.Id != depositInvoice.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Contact is not attached to customer {depositInvoice.Contact.Id}.");
-            if (depositInvoice.Building != null && depositInvoice.Building.Customer.Id != depositInvoice.Customer.Id)
+            if (depositInvoice.Building != null && depositInvoice.Building.Customer != null
+                && depositInvoice.Building.Customer.Id != depositInvoice.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {depositInvoice.Customer.Id}.");
 
             return await _depositInvoiceDataProvider.UpdateAsync(depositInvoice);
@@ -173,25 +175,6 @@ namespace Rollvolet.CRM.Domain.Managers
                         depositInvoice.VatRate = await _vatRateDataProvider.GetByIdAsync(int.Parse(depositInvoice.VatRate.Id));
                 }
 
-                // TODO prevent update of contact/building. Needs to bubble to request, order, etc.
-                var includeCustomer = new QuerySet();
-                includeCustomer.Include.Fields = new string[] { "customer" };
-                if (depositInvoice.Contact != null)
-                {
-                    if (oldDepositInvoice != null && oldDepositInvoice.Contact != null && oldDepositInvoice.Contact.Id == depositInvoice.Contact.Id)
-                        depositInvoice.Contact = oldDepositInvoice.Contact;
-                    else
-                        depositInvoice.Contact = await _contactDataProvider.GetByIdAsync(depositInvoice.Contact.Id, includeCustomer);
-                }
-
-                if (depositInvoice.Building != null)
-                {
-                    if (oldDepositInvoice != null && oldDepositInvoice.Building != null && oldDepositInvoice.Building.Id == depositInvoice.Building.Id)
-                        depositInvoice.Building = oldDepositInvoice.Building;
-                    else
-                        depositInvoice.Building = await _buildingDataProvider.GetByIdAsync(depositInvoice.Building.Id, includeCustomer);
-                }
-
                 // Customer cannot be updated. Take customer of oldDepositInvoice on update.
                 if (oldDepositInvoice != null)
                     depositInvoice.Customer = oldDepositInvoice.Customer;
@@ -203,6 +186,21 @@ namespace Rollvolet.CRM.Domain.Managers
                     depositInvoice.Order = oldDepositInvoice.Order;
                 else if (depositInvoice.Order != null) // isolated invoice doesn't have an order attached
                     depositInvoice.Order = await _orderDataProvider.GetByIdAsync(depositInvoice.Order.Id);
+
+                var includeCustomer = new QuerySet();
+                includeCustomer.Include.Fields = new string[] { "customer" };
+
+                // Contact can only be updated through CaseManager. Take contact of oldDepositInvoice on update.
+                if (oldDepositInvoice != null)
+                    depositInvoice.Contact = oldDepositInvoice.Contact;
+                else if (depositInvoice.Contact != null)
+                    depositInvoice.Contact = await _contactDataProvider.GetByIdAsync(depositInvoice.Contact.Id, includeCustomer);
+
+                // Building can only be updated through CaseManager. Take building of oldDepositInvoice on update.
+                if (oldDepositInvoice != null)
+                    depositInvoice.Building = oldDepositInvoice.Building;
+                else if (depositInvoice.Building != null)
+                    depositInvoice.Building = await _buildingDataProvider.GetByIdAsync(depositInvoice.Building.Id, includeCustomer);
             }
             catch (EntityNotFoundException)
             {

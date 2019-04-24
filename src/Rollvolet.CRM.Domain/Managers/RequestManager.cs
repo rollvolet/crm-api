@@ -114,9 +114,9 @@ namespace Rollvolet.CRM.Domain.Managers
 
             if (request.Offer != null && request.Customer == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer is required if an offer is attached to the request.");
-            if (request.Contact != null && request.Contact.Customer.Id != request.Customer.Id)
+            if (request.Contact != null && request.Contact.Customer != null && request.Contact.Customer.Id != request.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Contact is not attached to customer {request.Contact.Id}.");
-            if (request.Building != null && request.Building.Customer.Id != request.Customer.Id)
+            if (request.Building != null && request.Building.Customer != null && request.Building.Customer.Id != request.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {request.Customer.Id}.");
 
             request = await _requestDataProvider.UpdateAsync(request);
@@ -161,27 +161,26 @@ namespace Rollvolet.CRM.Domain.Managers
                         request.Customer = await _customerDataProvider.GetByNumberAsync(request.Customer.Id);
                 }
 
-                if (request.Contact != null)
-                {
-                    if (oldRequest != null && oldRequest.Contact != null && oldRequest.Contact.Id == request.Contact.Id)
-                        request.Contact = oldRequest.Contact;
-                    else
-                        request.Contact = await _contactDataProvider.GetByIdAsync(request.Contact.Id);
-                }
-
-                if (request.Building != null)
-                {
-                    if (oldRequest != null && oldRequest.Building != null && oldRequest.Building.Id == request.Building.Id)
-                        request.Building = oldRequest.Building;
-                    else
-                        request.Building = await _buildingDataProvider.GetByIdAsync(request.Building.Id);
-                }
+                var includeCustomer = new QuerySet();
+                includeCustomer.Include.Fields = new string[] { "customer" };
 
                 // Offer cannot be updated. Take offer of oldRequest on update.
                 if (oldRequest != null)
                     request.Offer = oldRequest.Offer;
                 else
                     request.Offer = null;
+
+                // Contact can only be updated through CaseManager. Take contact of oldRequest on update.
+                if (oldRequest != null)
+                    request.Contact = oldRequest.Contact;
+                else if (request.Contact != null)
+                    request.Contact = await _contactDataProvider.GetByIdAsync(request.Contact.Id, includeCustomer);
+
+                // Building can only be updated through CaseManager. Take building of oldRequest on update.
+                if (oldRequest != null)
+                    request.Building = oldRequest.Building;
+                else if (request.Building != null)
+                    request.Building = await _buildingDataProvider.GetByIdAsync(request.Building.Id, includeCustomer);
             }
             catch (EntityNotFoundException)
             {

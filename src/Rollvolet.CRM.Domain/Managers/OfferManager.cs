@@ -133,9 +133,9 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
             if (offer.Request == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Request is required.");
-            if (offer.Contact != null && offer.Contact.Customer.Id != offer.Customer.Id)
+            if (offer.Contact != null && offer.Contact.Customer != null && offer.Contact.Customer.Id != offer.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Contact is not attached to customer {offer.Contact.Id}.");
-            if (offer.Building != null && offer.Building.Customer.Id != offer.Customer.Id)
+            if (offer.Building != null && offer.Building.Customer != null && offer.Building.Customer.Id != offer.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {offer.Customer.Id}.");
 
             return await _offerDataProvider.UpdateAsync(offer);
@@ -175,25 +175,6 @@ namespace Rollvolet.CRM.Domain.Managers
                         offer.SubmissionType = await _submissionTypeDataProvider.GetByIdAsync(offer.SubmissionType.Id);
                 }
 
-                // TODO prevent update of contact/building. Needs to bubble to request, order, etc.
-                var includeCustomer = new QuerySet();
-                includeCustomer.Include.Fields = new string[] { "customer" };
-                if (offer.Contact != null)
-                {
-                    if (oldOffer != null && oldOffer.Contact != null && oldOffer.Contact.Id == offer.Contact.Id)
-                        offer.Contact = oldOffer.Contact;
-                    else
-                        offer.Contact = await _contactDataProvider.GetByIdAsync(offer.Contact.Id, includeCustomer);
-                }
-
-                if (offer.Building != null)
-                {
-                    if (oldOffer != null && oldOffer.Building != null && oldOffer.Building.Id == offer.Building.Id)
-                        offer.Building = oldOffer.Building;
-                    else
-                        offer.Building = await _buildingDataProvider.GetByIdAsync(offer.Building.Id, includeCustomer);
-                }
-
                 // Customer cannot be updated. Take customer of oldOffer on update.
                 if (oldOffer != null)
                     offer.Customer = oldOffer.Customer;
@@ -211,6 +192,21 @@ namespace Rollvolet.CRM.Domain.Managers
                     offer.Order = oldOffer.Order;
                 else
                     offer.Order = null;
+
+                var includeCustomer = new QuerySet();
+                includeCustomer.Include.Fields = new string[] { "customer" };
+
+                // Contact can only be updated through CaseManager. Take contact of oldOffer on update.
+                if (oldOffer != null)
+                    offer.Contact = oldOffer.Contact;
+                else if (offer.Contact != null)
+                    offer.Contact = await _contactDataProvider.GetByIdAsync(offer.Contact.Id, includeCustomer);
+
+                // Building can only be updated through CaseManager. Take building of oldOffer on update.
+                if (oldOffer != null)
+                    offer.Building = oldOffer.Building;
+                else if (offer.Building != null)
+                    offer.Building = await _buildingDataProvider.GetByIdAsync(offer.Building.Id, includeCustomer);
             }
             catch (EntityNotFoundException)
             {

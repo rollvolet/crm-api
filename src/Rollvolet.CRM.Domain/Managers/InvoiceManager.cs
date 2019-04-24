@@ -119,9 +119,9 @@ namespace Rollvolet.CRM.Domain.Managers
 
             if (invoice.Customer == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer is required.");
-            if (invoice.Contact != null && invoice.Contact.Customer.Id != invoice.Customer.Id)
+            if (invoice.Contact != null && invoice.Contact.Customer != null && invoice.Contact.Customer.Id != invoice.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Contact is not attached to customer {invoice.Contact.Id}.");
-            if (invoice.Building != null && invoice.Building.Customer.Id != invoice.Customer.Id)
+            if (invoice.Building != null && invoice.Building.Customer != null && invoice.Building.Customer.Id != invoice.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {invoice.Customer.Id}.");
 
             // Order cannot be required to support the creation of isolated invoices
@@ -165,25 +165,6 @@ namespace Rollvolet.CRM.Domain.Managers
                         invoice.VatRate = await _vatRateDataProvider.GetByIdAsync(int.Parse(invoice.VatRate.Id));
                 }
 
-                // TODO prevent update of contact/building. Needs to bubble to request, order, etc.
-                var includeCustomer = new QuerySet();
-                includeCustomer.Include.Fields = new string[] { "customer" };
-                if (invoice.Contact != null)
-                {
-                    if (oldInvoice != null && oldInvoice.Contact != null && oldInvoice.Contact.Id == invoice.Contact.Id)
-                        invoice.Contact = oldInvoice.Contact;
-                    else
-                        invoice.Contact = await _contactDataProvider.GetByIdAsync(invoice.Contact.Id, includeCustomer);
-                }
-
-                if (invoice.Building != null)
-                {
-                    if (oldInvoice != null && oldInvoice.Building != null && oldInvoice.Building.Id == invoice.Building.Id)
-                        invoice.Building = oldInvoice.Building;
-                    else
-                        invoice.Building = await _buildingDataProvider.GetByIdAsync(invoice.Building.Id, includeCustomer);
-                }
-
                 // Customer cannot be updated. Take customer of oldRequest on update.
                 if (oldInvoice != null)
                     invoice.Customer = oldInvoice.Customer;
@@ -195,6 +176,21 @@ namespace Rollvolet.CRM.Domain.Managers
                     invoice.Order = oldInvoice.Order;
                 else if (invoice.Order != null) // isolated invoice doesn't have an order attached
                     invoice.Order = await _orderDataProvider.GetByIdAsync(invoice.Order.Id);
+
+                var includeCustomer = new QuerySet();
+                includeCustomer.Include.Fields = new string[] { "customer" };
+
+                // Contact can only be updated through CaseManager. Take contact of oldInvoice on update.
+                if (oldInvoice != null)
+                    invoice.Contact = oldInvoice.Contact;
+                else if (invoice.Contact != null)
+                    invoice.Contact = await _contactDataProvider.GetByIdAsync(invoice.Contact.Id, includeCustomer);
+
+                // Building can only be updated through CaseManager. Take building of oldInvoice on update.
+                if (oldInvoice != null)
+                    invoice.Building = oldInvoice.Building;
+                else if (invoice.Building != null)
+                    invoice.Building = await _buildingDataProvider.GetByIdAsync(invoice.Building.Id, includeCustomer);
             }
             catch (EntityNotFoundException)
             {
