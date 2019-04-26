@@ -22,6 +22,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IInvoiceDataProvider _invoiceDataProvider;
         private readonly IOfferlineDataProvider _offerlineDataProvider;
         private readonly IDepositDataProvider _depositDataProvider;
+        private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
         private readonly IGraphApiService _graphApiService;
         private readonly ILogger _logger;
@@ -30,7 +31,8 @@ namespace Rollvolet.CRM.Domain.Managers
                                 ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
                                 IBuildingDataProvider buildingDataProvider, IOfferDataProvider offerDataProvider,
                                 IOfferlineDataProvider offerlineDataProvider, IVatRateDataProvider vatRateDataProvider,
-                                IDepositDataProvider depositDataProvider, IGraphApiService graphApiService, ILogger<OrderManager> logger)
+                                IDepositDataProvider depositDataProvider, IDepositInvoiceDataProvider depositInvoiceDataProvider,
+                                IGraphApiService graphApiService, ILogger<OrderManager> logger)
         {
             _orderDataProvider = orderDataProvider;
             _customerDataProvider = customerDataProvider;
@@ -40,6 +42,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _invoiceDataProvider = invoiceDataProvider;
             _offerlineDataProvider = offerlineDataProvider;
             _depositDataProvider = depositDataProvider;
+            _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
             _graphApiService = graphApiService;
             _logger = logger;
@@ -168,26 +171,38 @@ namespace Rollvolet.CRM.Domain.Managers
             try
             {
                 var invoice = await _invoiceDataProvider.GetByOrderIdAsync(id);
-                _logger.LogError($"Order {id} cannot be deleted because invoice {invoice.Id} is attached to it.");
-                throw new InvalidOperationException($"Order {id} cannot be deleted because invoice {invoice.Id} is attached to it.");
+                var message = $"Order {id} cannot be deleted because invoice {invoice.Id} is attached to it.";
+                _logger.LogError(message);
+                throw new InvalidOperationException(message);
             }
             catch(EntityNotFoundException)
             {
                 var pageQuery = new QuerySet();
                 pageQuery.Page.Size = 1;
 
-                var offerlines = await _offerlineDataProvider.GetOrderedByOrderIdAsync(id, pageQuery);
-                if (offerlines.Count > 0)
+                var depositInvoices = await _depositInvoiceDataProvider.GetAllByOrderIdAsync(id, pageQuery);
+                if (depositInvoices.Count > 0)
                 {
-                    _logger.LogError($"Order {id} cannot be deleted because {offerlines.Count} ordered offerlines are attached to it.");
-                    throw new InvalidOperationException($"Order {id} cannot be deleted because {offerlines.Count} ordered offerlines are attached to it.");
+                    var message = $"Order {id} cannot be deleted because {depositInvoices.Count} deposit-invoices attached to it.";
+                    _logger.LogError(message);
+                    throw new InvalidOperationException(message);
                 }
 
                 var deposits = await _depositDataProvider.GetAllByOrderIdAsync(id, pageQuery);
                 if (deposits.Count > 0)
                 {
-                    _logger.LogError($"Order {id} cannot be deleted because {deposits.Count} deposits are attached to it.");
-                    throw new InvalidOperationException($"Order {id} cannot be deleted because {deposits.Count} deposits are attached to it.");
+                    var message = $"Order {id} cannot be deleted because {deposits.Count} deposits are attached to it.";
+                    _logger.LogError(message);
+                    throw new InvalidOperationException(message);
+                }
+
+                // TODO reset ordered flag of offerlines on deletion instead of throwing an error?
+                var offerlines = await _offerlineDataProvider.GetOrderedByOrderIdAsync(id, pageQuery);
+                if (offerlines.Count > 0)
+                {
+                    var message = $"Order {id} cannot be deleted because {offerlines.Count} ordered offerlines are attached to it.";
+                    _logger.LogError(message);
+                    throw new InvalidOperationException(message);
                 }
 
                 try

@@ -146,8 +146,9 @@ namespace Rollvolet.CRM.Domain.Managers
             try
             {
                 var order = await _orderDataProvider.GetByOfferIdAsync(id);
-                _logger.LogError($"Offer {id} cannot be deleted because order {order.Id} is attached to it.");
-                throw new InvalidOperationException($"Offer {id} cannot be deleted because order {order.Id} is attached to it.");
+                var message = $"Offer {id} cannot be deleted because order {order.Id} is attached to it.";
+                _logger.LogError(message);
+                throw new InvalidOperationException(message);
             }
             catch(EntityNotFoundException)
             {

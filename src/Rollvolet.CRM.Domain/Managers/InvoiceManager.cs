@@ -141,8 +141,9 @@ namespace Rollvolet.CRM.Domain.Managers
 
                 if (invoice.BookingDate != null)
                 {
-                    _logger.LogError($"Invoice {id} cannot be deleted because it has already been transfered to the accounting system.");
-                    throw new InvalidOperationException($"Invoice {id} cannot be deleted because it has already been transfered to the accounting system.");
+                    var message = $"Invoice {id} cannot be deleted because it has already been transferred to the accounting system.";
+                    _logger.LogError(message);
+                    throw new InvalidOperationException(message);
                 }
 
                 await _invoiceDataProvider.DeleteByIdAsync(id);

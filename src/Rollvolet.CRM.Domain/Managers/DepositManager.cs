@@ -97,7 +97,25 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task DeleteAsync(int id)
         {
-            await _depositDataProvider.DeleteByIdAsync(id);
+            try
+            {
+                var includeQuery = new QuerySet();
+                includeQuery.Include.Fields = new string[] { "invoice" };
+                var deposit = await _depositDataProvider.GetByIdAsync(id);
+
+                if (deposit.Invoice != null)
+                {
+                    var message = $"Deposit {id} cannot be deleted because invoice {deposit.Invoice.Id} is attached to it.";
+                    _logger.LogError(message);
+                    throw new InvalidOperationException(message);
+                }
+
+                await _depositDataProvider.DeleteByIdAsync(id);
+            }
+            catch (EntityNotFoundException)
+            {
+                // Deposit not found. Nothing should happen.
+            }
         }
 
         // Embed relations in deposit resource: reuse old relation if there is one and it hasn't changed

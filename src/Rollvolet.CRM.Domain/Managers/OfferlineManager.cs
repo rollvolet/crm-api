@@ -15,14 +15,17 @@ namespace Rollvolet.CRM.Domain.Managers
     {
         private readonly IOfferlineDataProvider _offerlineDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
+        private readonly IOrderDataProvider _orderDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
         private readonly ILogger _logger;
 
         public OfferlineManager(IOfferlineDataProvider offerlineDataProvider, IOfferDataProvider offerDataProvider,
-                                IVatRateDataProvider vatRateDataProvider, ILogger<OfferManager> logger)
+                                IOrderDataProvider orderDataProvider, IVatRateDataProvider vatRateDataProvider,
+                                ILogger<OfferManager> logger)
         {
             _offerlineDataProvider = offerlineDataProvider;
             _offerDataProvider = offerDataProvider;
+            _orderDataProvider = orderDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
             _logger = logger;
         }
@@ -87,7 +90,20 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task DeleteAsync(int id)
         {
-            await _offerlineDataProvider.DeleteByIdAsync(id);
+            var offerline = await _offerlineDataProvider.GetByIdAsync(id);
+
+            try
+            {
+                var order = await _orderDataProvider.GetByOfferIdAsync(id);
+                var message = $"Offerline {id} cannot be deleted because order {order.Id} is attached to it.";
+                _logger.LogError(message);
+                throw new InvalidOperationException(message);
+            }
+            catch(EntityNotFoundException)
+            {
+                await _offerlineDataProvider.DeleteByIdAsync(id);
+            }
+
         }
 
         // Embed relations in request resource: reuse old relation if there is one and it hasn't changed

@@ -110,7 +110,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                 catch (ServiceException e)
                 {
                     if (e.IsMatch(GraphErrorCode.ItemNotFound.ToString()))
-                        _logger.LogDebug("MS event of calendar event {0} has already bee deleted.", calendarEvent.Id);
+                        _logger.LogDebug("MS event of calendar event {0} has already been deleted.", calendarEvent.Id);
                     else
                         throw e;
                 }

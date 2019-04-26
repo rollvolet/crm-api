@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
@@ -73,6 +74,14 @@ namespace Rollvolet.CRM.Domain.Managers
             var query = new QuerySet();
             query.Include.Fields = new string[] { "invoice" };
             var invoiceSupplement = await _invoiceSupplementDataProvider.GetByIdAsync(id, query);
+
+            if (invoiceSupplement.Invoice.BookingDate != null)
+            {
+                var message = $"Invoice-supplement {id} cannot be deleted because the invoice has already been transferred to the accounting system.";
+                _logger.LogError(message);
+                throw new InvalidOperationException(message);
+            }
+
             var invoiceId = invoiceSupplement.Invoice.Id;
 
             await _invoiceSupplementDataProvider.DeleteByIdAsync(id);

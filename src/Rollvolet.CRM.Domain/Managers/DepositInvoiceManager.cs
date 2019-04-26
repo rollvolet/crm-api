@@ -19,18 +19,20 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly IOrderDataProvider _orderDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
+        private readonly IInvoiceDataProvider _invoiceDataProvider;
         private readonly ILogger _logger;
 
         public DepositInvoiceManager(IDepositInvoiceDataProvider depositInvoiceDataProvider, ICustomerDataProvider customerDataProvider,
                                 IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                                 IOrderDataProvider orderDataProvider, IVatRateDataProvider vatRateDataProvider,
-                                 ILogger<InvoiceManager> logger)
+                                IInvoiceDataProvider invoiceDataProvider, ILogger<InvoiceManager> logger)
         {
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _customerDataProvider = customerDataProvider;
             _contactDataProvider = contactDataProvider;
             _buildingDataProvider = buildingDataProvider;
             _orderDataProvider = orderDataProvider;
+            _invoiceDataProvider = invoiceDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
             _logger = logger;
         }
@@ -147,15 +149,28 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             try
             {
-                var invoice = await _depositInvoiceDataProvider.GetByIdAsync(id);
+                var includeQuery = new QuerySet();
+                includeQuery.Include.Fields = new string[] { "order" };
+                var depositInvoice = await _depositInvoiceDataProvider.GetByIdAsync(id);
 
-                if (invoice.BookingDate != null)
+                if (depositInvoice.BookingDate != null)
                 {
-                    _logger.LogError($"Deposit-invoice {id} cannot be deleted because it has already been transfered to the accounting system.");
-                    throw new InvalidOperationException($"Deposit-invoice {id} cannot be deleted because it has already been transfered to the accounting system.");
+                    var message = $"Deposit-invoice {id} cannot be deleted because it has already been transferred to the accounting system.";
+                    _logger.LogError(message);
+                    throw new InvalidOperationException(message);
                 }
 
-                await _depositInvoiceDataProvider.DeleteByIdAsync(id);
+                try
+                {
+                    var invoice = await _invoiceDataProvider.GetByOrderIdAsync(depositInvoice.Order.Id);
+                    var message = $"Deposit-invoice {id} cannot be deleted because invoice {invoice.Id} is attached to it.";
+                    _logger.LogError(message);
+                    throw new InvalidOperationException(message);
+                }
+                catch(EntityNotFoundException)
+                {
+                    await _depositInvoiceDataProvider.DeleteByIdAsync(id);
+                }
             }
             catch (EntityNotFoundException)
             {
