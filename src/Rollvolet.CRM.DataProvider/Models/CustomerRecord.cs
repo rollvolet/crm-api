@@ -7,32 +7,32 @@ namespace Rollvolet.CRM.DataProvider.Models
     public abstract class CustomerRecord
     {
         [Column("DataID")]
-        public int DataId { get; set; } // the public ID for Contact / Building 
-        
+        public int DataId { get; set; } // the public ID for Contact / Building
+
         [Column("ID")]
-        public int Number { get; set; } // the public ID for Customer
+        public int Number { get; set; } // the public ID for Customer ; the relative number for Contact / Building
 
         [Column("AanspreekID")]
         public int? HonorificPrefixId { get; set; }
-        
+
         [Column("Naam")]
-        public string Name { get; set; } 
-        
+        public string Name { get; set; }
+
         [Column("Adres1")]
         public string Address1 { get; set; }
-        
+
         [Column("Adres2")]
         public string Address2 { get; set; }
-        
+
         [Column("Adres3")]
         public string Address3 { get; set; }
-        
+
         [Column("PostcodeID")]
         public int? PostalCodeId { get; set; }
-        
+
         [Column("TaalID")]
         public int? LanguageId { get; set; }
-        
+
         [Column("LandId")]
         public int? CountryId { get; set; }
 
@@ -41,7 +41,7 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("Suffix")]
         public string Suffix { get; set; }
-        
+
         [Column("email")]
         public string Email { get; set; }
 
@@ -59,9 +59,9 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("PrintVoor")]
         public bool PrintInFront { get; set; }
-        
+
         [Column("Opmerking")]
-        public string Comment { get; set; }        
+        public string Comment { get; set; }
 
         [Column("RegistratieDatum")]
         public DateTime Created { get; set; }
@@ -80,7 +80,7 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("Gemeente")]
         public string EmbeddedCity { get; set; }
-        
+
         [Column("ZoekNaam")]
         public string SearchName { get; set; }
 

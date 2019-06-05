@@ -74,24 +74,17 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Paged<Invoice>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
-            var source = BaseQuery()
-                            .Where(o => o.CustomerId == customerId)
-                            .Include(query)
-                            .Sort(query)
-                            .Filter(query, _context);
+            return await GetAllWhereAsync(o => o.CustomerId == customerId, query);
+        }
 
-            var invoices = QueryListWithManualInclude(source, query);
+        public async Task<Paged<Invoice>> GetAllByRelativeContactIdAsync(int customerId, int relativeContactId, QuerySet query)
+        {
+            return await GetAllWhereAsync(r => r.CustomerId == customerId && r.RelativeContactId == relativeContactId, query);
+        }
 
-            var mappedInvoices = _mapper.Map<IEnumerable<Invoice>>(invoices);
-
-            var count = await source.CountAsync();
-
-            return new Paged<Invoice>() {
-                Items = mappedInvoices,
-                Count = count,
-                PageNumber = query.Page.Number,
-                PageSize = query.Page.Size
-            };
+        public async Task<Paged<Invoice>> GetAllByRelativeBuildingIdAsync(int customerId, int relativeBuildingId, QuerySet query)
+        {
+            return await GetAllWhereAsync(r => r.CustomerId == customerId && r.RelativeBuildingId == relativeBuildingId, query);
         }
 
         public async Task<Invoice> GetByOrderIdAsync(int orderId, QuerySet query = null)
@@ -208,6 +201,28 @@ namespace Rollvolet.CRM.DataProviders
                 await _context.SaveChangesAsync();
                 _logger.LogDebug("Successfully recalculated amount and VAT of invoice {0}", id);
             }
+        }
+
+        private async Task<Paged<Invoice>> GetAllWhereAsync(Expression<Func<DataProvider.Models.Invoice, bool>> where, QuerySet query)
+        {
+            var source = BaseQuery()
+                            .Where(where)
+                            .Include(query)
+                            .Sort(query)
+                            .Filter(query, _context);
+
+            var invoices = QueryListWithManualInclude(source, query);
+
+            var mappedInvoices = _mapper.Map<IEnumerable<Invoice>>(invoices);
+
+            var count = await source.CountAsync();
+
+            return new Paged<Invoice>() {
+                Items = mappedInvoices,
+                Count = count,
+                PageNumber = query.Page.Number,
+                PageSize = query.Page.Size
+            };
         }
 
         private async Task CalculateAmountAndVatAsync(DataProvider.Models.Invoice invoice)

@@ -143,24 +143,33 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task DeleteAsync(int id)
         {
-            var query = new QuerySet();
-            query.Page.Size = 1;
-
-            var requests = await _requestDataProvider.GetAllByCustomerIdAsync(id, query);
-            if (requests.Count > 0)
+            try
             {
-                _logger.LogError($"Customer {id} cannot be deleted because requests are still attached to it.");
-                throw new InvalidOperationException($"Customer {id} cannot be deleted because requests are still attached to it.");
-            }
+                var building = await _buildingDataProvider.GetByIdAsync(id);
 
-            var invoices = await _invoiceDataProvider.GetAllByCustomerIdAsync(id, query);
-            if (invoices.Count > 0)
+                var query = new QuerySet();
+                query.Page.Size = 1;
+
+                var requests = await _requestDataProvider.GetAllByRelativeBuildingIdAsync(building.Customer.Id, building.Number, query);
+                if (requests.Count > 0)
+                {
+                    _logger.LogError($"Building {id} cannot be deleted because requests are still attached to it.");
+                    throw new InvalidOperationException($"Building {id} cannot be deleted because requests are still attached to it.");
+                }
+
+                var invoices = await _invoiceDataProvider.GetAllByRelativeBuildingIdAsync(building.Customer.Id, building.Number, query);
+                if (invoices.Count > 0)
+                {
+                    _logger.LogError($"Building {id} cannot be deleted because invoices are still attached to it.");
+                    throw new InvalidOperationException($"Building {id} cannot be deleted because invoices are still attached to it.");
+                }
+
+                await _buildingDataProvider.DeleteByIdAsync(id);
+            }
+            catch (EntityNotFoundException)
             {
-                _logger.LogError($"Customer {id} cannot be deleted because invoices are still attached to it.");
-                throw new InvalidOperationException($"Customer {id} cannot be deleted because invoices are still attached to it.");
+                // Contact not found. Nothing to delete.
             }
-
-            await _buildingDataProvider.DeleteByIdAsync(id);
         }
 
         // Embed relations in contact resource: use old embedded value if there is one and the relation isn't updated or null

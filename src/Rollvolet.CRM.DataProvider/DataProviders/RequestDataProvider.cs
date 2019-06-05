@@ -61,25 +61,17 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Paged<Request>> GetAllByCustomerIdAsync(int customerId, QuerySet query)
         {
-            var source = _context.Requests
-                            .Where(r => r.CustomerId == customerId)
-                            .Include(r => r.Visit) // required inclusion to embed properties in domain object
-                            .Include(query)
-                            .Sort(query)
-                            .Filter(query, _context);
+            return await GetAllWhereAsync(r => r.CustomerId == customerId, query);
+        }
 
-            var requests = QueryListWithManualInclude(source, query);
+        public async Task<Paged<Request>> GetAllByRelativeContactIdAsync(int customerId, int relativeContactId, QuerySet query)
+        {
+            return await GetAllWhereAsync(r => r.CustomerId == customerId && r.RelativeContactId == relativeContactId, query);
+        }
 
-            var mappedRequests = _mapper.Map<IEnumerable<Request>>(requests);
-
-            var count = await source.CountAsync();
-
-            return new Paged<Request>() {
-                Items = mappedRequests,
-                Count = count,
-                PageNumber = query.Page.Number,
-                PageSize = query.Page.Size
-            };
+        public async Task<Paged<Request>> GetAllByRelativeBuildingIdAsync(int customerId, int relativeBuildingId, QuerySet query)
+        {
+            return await GetAllWhereAsync(r => r.CustomerId == customerId && r.RelativeBuildingId == relativeBuildingId, query);
         }
 
         public async Task<Request> GetByOfferIdAsync(int offerId)
@@ -163,6 +155,29 @@ namespace Rollvolet.CRM.DataProviders
                 _context.Requests.Remove(request);
                 await _context.SaveChangesAsync();
            }
+        }
+
+        private async Task<Paged<Request>> GetAllWhereAsync(Expression<Func<DataProvider.Models.Request, bool>> where, QuerySet query)
+        {
+            var source = _context.Requests
+                            .Where(where)
+                            .Include(r => r.Visit) // required inclusion to embed properties in domain object
+                            .Include(query)
+                            .Sort(query)
+                            .Filter(query, _context);
+
+            var requests = QueryListWithManualInclude(source, query);
+
+            var mappedRequests = _mapper.Map<IEnumerable<Request>>(requests);
+
+            var count = await source.CountAsync();
+
+            return new Paged<Request>() {
+                Items = mappedRequests,
+                Count = count,
+                PageNumber = query.Page.Number,
+                PageSize = query.Page.Size
+            };
         }
 
         private async Task<DataProvider.Models.Request> FindByIdAsync(int id, QuerySet query = null)
