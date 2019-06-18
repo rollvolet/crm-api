@@ -32,6 +32,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Visit> Visits { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<AccountancyExport> AccountancyExports { get; set; }
 
         public CrmContext(DbContextOptions<CrmContext> options) : base(options)
         {
@@ -506,6 +507,14 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasQueryFilter(e => e.Type == "BETALING");
 
             modelBuilder.Entity<Payment>()
+                .HasKey(e => e.Id);
+
+
+            // Accountancy export
+            modelBuilder.Entity<AccountancyExport>()
+                .ToTable("TblBoeking", schema: "dbo");
+
+            modelBuilder.Entity<AccountancyExport>()
                 .HasKey(e => e.Id);
         }
     }

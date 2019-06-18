@@ -20,6 +20,7 @@ using Rollvolet.CRM.APIContracts.DTO.CalendarEvents;
 using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
+using Rollvolet.CRM.APIContracts.DTO.AccountancyExports;
 
 namespace Rollvolet.CRM.API.Mappers
 {
@@ -870,6 +871,39 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<RelatedResource, Payment>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForAllOtherMembers(opt => opt.Ignore());;
+
+
+            // Accountancy export mappings
+
+            CreateMap<AccountancyExport, AccountancyExportDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.UseValue("accountancy-exports"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<AccountancyExport, AccountancyExportAttributesDto>().ReverseMap();
+
+            CreateMap<AccountancyExport, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<AccountancyExport, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.UseValue("accountancy-exports"));
+
+            CreateMap<AccountancyExportRequestDto, AccountancyExport>()
+                .ConstructUsing((src, context) => context.Mapper.Map<AccountancyExport>(src.Attributes))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<OneRelationship, AccountancyExport>()
+                .ConstructUsing((src, context) => context.Mapper.Map<AccountancyExport>(src.Data))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<ManyRelationship, IEnumerable<AccountancyExport>>()
+                .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<AccountancyExport>>(src.Data))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<RelatedResource, AccountancyExport>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForAllOtherMembers(opt => opt.Ignore());
         }

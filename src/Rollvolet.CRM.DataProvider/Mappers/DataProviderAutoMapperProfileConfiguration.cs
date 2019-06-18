@@ -321,6 +321,11 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ReverseMap()
                 .ForMember(dest => dest.Type, opt => opt.UseValue("BETALING"))
                 .PreserveReferences();
+
+            CreateMap<Models.AccountancyExport, Domain.Models.AccountancyExport>()
+                .PreserveReferences()
+                .ReverseMap()
+                .PreserveReferences();
         }
 
         private DateTime? ParseDate(string dateString)
