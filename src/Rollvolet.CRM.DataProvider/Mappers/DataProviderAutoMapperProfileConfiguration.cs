@@ -266,8 +266,8 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.MainInvoiceHub != null ? src.MainInvoiceHub.Order : null))
                 .PreserveReferences()
                 .ReverseMap()
-                .ForMember(dest => dest.HasProductionTicket, opt => opt.UseValue(false))
-                .ForMember(dest => dest.IsCreditNote, opt => opt.UseValue(false))
+                .ForMember(dest => dest.HasProductionTicket, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.IsCreditNote, opt => opt.MapFrom(src => false))
                 .ForMember(dest => dest.Customer, opt => opt.Ignore())
                 .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
                 .ForMember(dest => dest.Contact, opt => opt.Ignore())
@@ -320,7 +320,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
             CreateMap<Models.Payment, Domain.Models.Payment>()
                 .PreserveReferences()
                 .ReverseMap()
-                .ForMember(dest => dest.Type, opt => opt.UseValue("BETALING"))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "BETALING"))
                 .PreserveReferences();
 
             CreateMap<Models.AccountancyExport, Domain.Models.AccountancyExport>()

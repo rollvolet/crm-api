@@ -7,8 +7,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 using Narato.Correlations;
 using Narato.ExecutionTimingMiddleware;
-using NLog.Extensions.Logging;
-using NLog.Web;
 using Rollvolet.CRM.DataProvider.Mappers;
 using System.Collections.Generic;
 using System.IO;
@@ -25,7 +23,6 @@ using Rollvolet.CRM.API.Collectors;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Rollvolet.CRM.API.Middleware.ExceptionHandling.Interfaces;
 using Rollvolet.CRM.API.Middleware.ExceptionHandling;
-using Rollvolet.CRM.Domain.Logging;
 using Rollvolet.CRM.API.Middleware.UrlRewrite;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -42,28 +39,11 @@ namespace Rollvolet.CRM.API
 {
     public class Startup
     {
-        private MapperConfiguration _mapperConfiguration { get; set; }
-        public IConfigurationRoot Configuration { get; }
+        public readonly IConfiguration Configuration;
 
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddJsonFile("config.json")
-                .AddJsonFile("config.json.local", optional: true)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
-
-            env.ConfigureNLog("nlog.config");
-
-            _mapperConfiguration = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile(new DataProviderAutoMapperProfileConfiguration());
-                cfg.AddProfile(new DTOAutoMapperProfileConfiguration());
-            });
-            _mapperConfiguration.AssertConfigurationIsValid();
+            Configuration = configuration;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -91,12 +71,17 @@ namespace Rollvolet.CRM.API
             );
 
             services.AddSession();
-
             services.AddCorrelations();
 
-            services.AddSingleton(sp => _mapperConfiguration.CreateMapper());
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            var mapperConfiguration = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new DataProviderAutoMapperProfileConfiguration());
+                cfg.AddProfile(new DTOAutoMapperProfileConfiguration());
+            });
+            mapperConfiguration.AssertConfigurationIsValid();
+            services.AddSingleton(sp => mapperConfiguration.CreateMapper());
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IExceptionToActionResultMapper, ExceptionToActionResultMapper>();
 
             services.AddSingleton<IConfidentialClientApplication, ConfidentialClientApplication>(c =>
@@ -183,7 +168,7 @@ namespace Rollvolet.CRM.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             // auto migrations
             // using (var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
@@ -193,12 +178,8 @@ namespace Rollvolet.CRM.API
 
             if (env.IsDevelopment())
             {
-                loggerFactory.AddConsole(Configuration.GetSection("Logging"));
                 app.UseExecutionTiming();
             }
-            loggerFactory.AddNLog();
-            app.AddNLogWeb();
-            ApplicationLogging.LoggerFactory = loggerFactory;
 
             app.UseCorrelations();
 

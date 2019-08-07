@@ -1,26 +1,13 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using Narato.Correlations.Http.Interfaces;
 using Newtonsoft.Json;
-using Rollvolet.CRM.API.Builders;
-using Rollvolet.CRM.API.Builders.Interfaces;
-using Rollvolet.CRM.API.Collectors;
 using Rollvolet.CRM.APIContracts.DTO;
-using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.API.Configuration;
-using Rollvolet.CRM.Domain.Managers.Interfaces;
-using Rollvolet.CRM.Domain.Models;
-using Rollvolet.CRM.Domain.Models.Query;
 using System.Net.Http;
 
 namespace Rollvolet.CRM.API.Controllers

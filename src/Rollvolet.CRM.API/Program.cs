@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NLog.Web;
+using System;
+using Microsoft.AspNetCore;
 
 namespace Rollvolet.CRM.API
 {
@@ -10,25 +13,59 @@ namespace Rollvolet.CRM.API
     {
         public static void Main(string[] args)
         {
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("hosting.json", optional: true)
-                .Build();
+            // NLog: setup the logger first to catch all errors
+            var logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+            try
+            {
 
-            var host = new WebHostBuilder()
-                .UseKestrel()
-                .UseConfiguration(config)
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
-                .ConfigureLogging((hostingContext, logging) =>
-                {
-                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    logging.SetMinimumLevel(LogLevel.Trace);
-                })
-                .UseStartup<Startup>()
-                .Build();
+                var hostingConfig = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("hosting.json", optional: true)
+                    .Build();
 
-            host.Run();
+                var webhost = WebHost.CreateDefaultBuilder()
+                    .UseKestrel()
+                    .UseConfiguration(hostingConfig)
+                    .UseContentRoot(Directory.GetCurrentDirectory())
+                    .UseIISIntegration()
+                    .ConfigureAppConfiguration((hostingContext, config) =>
+                    {
+                        config.SetBasePath(Directory.GetCurrentDirectory());
+                        config.AddJsonFile("hosting.json", optional: true);
+                        config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                        config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
+                        config.AddJsonFile("config.json");  // TODO merge all in appsettings.json
+                        config.AddJsonFile("config.override.json", optional: true);
+                        config.AddJsonFile("config.json.local", optional: true);
+                        config.AddEnvironmentVariables();
+                    })
+                    .ConfigureLogging((hostingContext, logging) =>
+                    {
+                        logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                        logging.SetMinimumLevel(LogLevel.Trace);
+
+                        if (hostingContext.HostingEnvironment.IsDevelopment())
+                        {
+                            logging.AddConsole();
+                            // logging.AddDebug();
+                        }
+                    })
+                    .UseNLog()
+                    .UseStartup<Startup>()
+                    .Build();
+
+                webhost.Run();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Stopped program because of exception");
+                throw;
+            }
+            finally
+            {
+                // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
+                NLog.LogManager.Shutdown();
+            }
         }
     }
 }

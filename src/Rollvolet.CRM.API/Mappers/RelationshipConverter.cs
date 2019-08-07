@@ -35,6 +35,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Deposit, DepositRelationshipsDto>,
                                             ITypeConverter<WorkingHour, WorkingHourRelationshipsDto>,
                                             ITypeConverter<InvoiceSupplement, InvoiceSupplementRelationshipsDto>,
+                                            ITypeConverter<Employee, EmployeeDto.RelationshipsDto>,
                                             ITypeConverter<Country, EmptyRelationshipsDto>,
                                             ITypeConverter<Language, EmptyRelationshipsDto>,
                                             ITypeConverter<PostalCode, EmptyRelationshipsDto>,
@@ -45,7 +46,6 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<VatRate, EmptyRelationshipsDto>,
                                             ITypeConverter<SubmissionType, EmptyRelationshipsDto>,
                                             ITypeConverter<Payment, EmptyRelationshipsDto>,
-                                            ITypeConverter<Employee, EmptyRelationshipsDto>,
                                             ITypeConverter<AccountancyExport, EmptyRelationshipsDto>
     {
         CustomerRelationshipsDto ITypeConverter<Customer, CustomerRelationshipsDto>.Convert(Customer source, CustomerRelationshipsDto destination, ResolutionContext context)
@@ -206,6 +206,13 @@ namespace Rollvolet.CRM.API.Mappers
             return relationships;
         }
 
+        EmployeeDto.RelationshipsDto ITypeConverter<Employee, EmployeeDto.RelationshipsDto>.Convert(Employee source, EmployeeDto.RelationshipsDto destination, ResolutionContext context)
+        {
+            var relationships = new EmployeeDto.RelationshipsDto();
+            relationships.WorkingHours = GetManyRelationship<WorkingHour>("employees", source.Id, "working-hours", source.WorkingHours, context);
+            return relationships;
+        }
+
         EmptyRelationshipsDto ITypeConverter<Country, EmptyRelationshipsDto>.Convert(Country source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
@@ -253,11 +260,6 @@ namespace Rollvolet.CRM.API.Mappers
         }
 
         EmptyRelationshipsDto ITypeConverter<Payment, EmptyRelationshipsDto>.Convert(Payment source, EmptyRelationshipsDto destination, ResolutionContext context)
-        {
-            return new EmptyRelationshipsDto();
-        }
-
-        EmptyRelationshipsDto ITypeConverter<Employee, EmptyRelationshipsDto>.Convert(Employee source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
         }
