@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Exceptions;
@@ -34,6 +35,9 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<Case> GetCase(int? requestId, int? offerId, int? orderId, int? invoiceId)
         {
+            var paramCount = new int?[] { requestId, offerId, orderId, invoiceId }.Where(p => p != null).Count();
+            if (paramCount != 1)
+              throw new IllegalArgumentException("InvalidCaseParams", $"Exactly 1 of requestId, offerId, orderId or invoiceId must be set. Found {paramCount} params.");
             if (requestId != null)
               return await _caseDataProvider.GetCaseByRequestIdAsync((int) requestId);
             else if (offerId != null)
@@ -43,7 +47,7 @@ namespace Rollvolet.CRM.Domain.Managers
             else if (invoiceId != null)
               return await _caseDataProvider.GetCaseByInvoiceIdAsync((int) invoiceId);
             else
-              throw new IllegalArgumentException("CaseParamMissing", "Either requestId, offerId, orderId or invoiceId must be set");
+              return null;
         }
 
         // Note: contact and building of a Case can only be updated through this method

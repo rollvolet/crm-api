@@ -25,6 +25,12 @@ namespace Rollvolet.CRM.API.Mappers
     {
         public DTOAutoMapperProfileConfiguration()
         {
+            // Case mappings
+
+            CreateMap<Case, CaseDto>()
+                .ReverseMap();
+
+
             // Customer mappings
 
             CreateMap<Customer, CustomerDto>()

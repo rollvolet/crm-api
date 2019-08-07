@@ -23,8 +23,6 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCaseAsync([FromQuery] int? requestId, [FromQuery] int? offerId, [FromQuery] int? orderId, [FromQuery] int? invoiceId)
         {
-            // TOOD return 400 if multiple query params set
-
             var caseObject = await _caseManager.GetCase(requestId, offerId, orderId, invoiceId);
             var mappedCase = _mapper.Map<CaseDto>(caseObject);
 
