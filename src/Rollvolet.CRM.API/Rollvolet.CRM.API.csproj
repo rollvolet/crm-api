@@ -9,7 +9,7 @@
     <PackageId>Rollvolet.CRM.API</PackageId>
   </PropertyGroup>
   <ItemGroup>
-    <None Update="Views;Areas\**\Views;nlog.config">
+    <None Update="nlog.config">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
   </ItemGroup>
@@ -32,6 +32,8 @@
     <PackageReference Include="Narato.ExecutionTimingMiddleware" Version="2.0.0" />
     <PackageReference Include="Narato.Correlations.NlogExtensions" Version="2.0.1" />
     <PackageReference Include="Microsoft.Identity.Client" Version="1.1.4-preview0002" />  <!-- TODO: is this still required? -->
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.0" />
+    <PackageReference Include="NLog" Version="4.6.6" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controllers\" />

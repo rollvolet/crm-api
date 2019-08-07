@@ -31,7 +31,6 @@ namespace Rollvolet.CRM.API
                     .ConfigureAppConfiguration((hostingContext, config) =>
                     {
                         config.SetBasePath(Directory.GetCurrentDirectory());
-                        config.AddJsonFile("hosting.json", optional: true);
                         config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
                         config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
                         config.AddJsonFile("config.json");  // TODO merge all in appsettings.json
