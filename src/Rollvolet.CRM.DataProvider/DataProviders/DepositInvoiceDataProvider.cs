@@ -136,34 +136,44 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<DepositInvoice> CreateAsync(DepositInvoice depositInvoice)
         {
-            // TODO wrap both save operations in a transaction?
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var depositInvoiceRecord = _mapper.Map<DataProvider.Models.Invoice>(depositInvoice);
 
-            var depositInvoiceRecord = _mapper.Map<DataProvider.Models.Invoice>(depositInvoice);
+                    depositInvoiceRecord.Number = await _sequenceDataProvider.GetNextInvoiceNumberAsync();
+                    depositInvoiceRecord.Currency = "EUR";
+                    depositInvoiceRecord.Year = (short) DateTime.Now.Year;
 
-            depositInvoiceRecord.Number = await _sequenceDataProvider.GetNextInvoiceNumberAsync();
-            depositInvoiceRecord.Currency = "EUR";
-            depositInvoiceRecord.Year = (short) DateTime.Now.Year;
+                    await EmbedCustomerAttributesAsync(depositInvoiceRecord);
+                    await CalculateAmountAndVatAsync(depositInvoiceRecord);
 
-            await EmbedCustomerAttributesAsync(depositInvoiceRecord);
-            await CalculateAmountAndVatAsync(depositInvoiceRecord);
+                    _context.Invoices.Add(depositInvoiceRecord);
+                    await _context.SaveChangesAsync();
 
-            _context.Invoices.Add(depositInvoiceRecord);
-            await _context.SaveChangesAsync();
+                    var depositInvoiceHub = new DepositInvoiceHub();
+                    depositInvoiceHub.CustomerId = depositInvoice.Customer.Id;
+                    depositInvoiceHub.OrderId = depositInvoice.Order.Id;
+                    depositInvoiceHub.Date = DateTime.Now;
+                    depositInvoiceHub.DepositInvoiceId = depositInvoiceRecord.Id;
 
-            var depositInvoiceHub = new DepositInvoiceHub();
-            depositInvoiceHub.CustomerId = depositInvoice.Customer.Id;
-            depositInvoiceHub.OrderId = depositInvoice.Order.Id;
-            depositInvoiceHub.Date = DateTime.Now;
-            depositInvoiceHub.DepositInvoiceId = depositInvoiceRecord.Id;
+                    var invoice = await _context.Orders.Where(o => o.Id == depositInvoice.Order.Id).Select(o => o.Invoice).FirstOrDefaultAsync();
+                    if (invoice != null)
+                        depositInvoiceHub.InvoiceId = invoice.Id;
 
-            var invoice = await _context.Orders.Where(o => o.Id == depositInvoice.Order.Id).Select(o => o.Invoice).FirstOrDefaultAsync();
-            if (invoice != null)
-                depositInvoiceHub.InvoiceId = invoice.Id;
+                    _context.DepositInvoices.Add(depositInvoiceHub);
+                    await _context.SaveChangesAsync();
 
-            _context.DepositInvoices.Add(depositInvoiceHub);
-            await _context.SaveChangesAsync();
+                    return _mapper.Map<DepositInvoice>(depositInvoiceRecord);
 
-            return _mapper.Map<DepositInvoice>(depositInvoiceRecord);
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw e;
+                }
+            }
         }
 
         public async Task<DepositInvoice> UpdateAsync(DepositInvoice depositInvoice)
