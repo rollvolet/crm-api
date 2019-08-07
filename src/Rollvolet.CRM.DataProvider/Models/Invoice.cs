@@ -49,6 +49,8 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("BasisBedrag")]
         public double? BaseAmount { get; set; } // sum of all offerlines (in Access amount is copied from order)
 
+        // Amount, Vat and TotalAmount are kept in sync by InvoiceDataProvider.CalculateAmountAndVatAsync
+
         [Column("Bedrag")]
         public double? Amount { get; set; }  // baseAmount + all InvoiceSupplements - all DepositInvoices
 
