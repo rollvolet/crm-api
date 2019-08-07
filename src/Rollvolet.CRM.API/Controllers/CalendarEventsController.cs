@@ -1,25 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.APIContracts.DTO.CalendarEvents;
 using Rollvolet.CRM.APIContracts.JsonApi;
-using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
-using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.API.Controllers
 {
     [Route("calendar-events")]
     [Authorize]
-    public class CalendarEventsController : Controller
+    public class CalendarEventsController : ControllerBase
     {
         private readonly ICalendarEventManager _calendarEventManager;
         private readonly IMapper _mapper;

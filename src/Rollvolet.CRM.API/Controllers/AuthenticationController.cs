@@ -12,7 +12,7 @@ using System.Net.Http;
 
 namespace Rollvolet.CRM.API.Controllers
 {
-    public class AuthenticationController : Controller
+    public class AuthenticationController : ControllerBase
     {
         private AuthenticationConfiguration _authenticationConfiguration;
         private readonly ILogger _logger;

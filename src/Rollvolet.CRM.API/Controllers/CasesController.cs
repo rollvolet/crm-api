@@ -9,7 +9,7 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [Route("[controller]")]
     [Authorize]
-    public class CasesController : Controller
+    public class CasesController : ControllerBase
     {
         private readonly ICaseManager _caseManager;
         private readonly IMapper _mapper;
