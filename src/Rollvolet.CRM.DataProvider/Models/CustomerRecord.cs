@@ -66,7 +66,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("RegistratieDatum")]
         public DateTime Created { get; set; }
 
-
         // Included resources
         public HonorificPrefix HonorificPrefix { get; set; }
         public Country Country { get; set; }

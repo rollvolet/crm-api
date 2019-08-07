@@ -21,5 +21,13 @@
     "ProductionTicketStorageLocation": "",
     "GeneratedCertificateStorageLocation": "",
     "ReceivedCertificateStorageLocation": ""
+  },
+  "Accountancy": {
+    "WinbooksExportLocation": "",
+    "WinbooksInvoicesFile": "",
+    "WinbooksCustomersfile": "",
+    "WinbooksDiary": "",
+    "WinbooksBookYear": "",
+    "WinbooksStart": ""
   }
 }

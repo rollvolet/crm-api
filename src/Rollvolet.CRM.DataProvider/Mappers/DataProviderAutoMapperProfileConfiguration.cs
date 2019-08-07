@@ -22,6 +22,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => String.IsNullOrEmpty(src.Url) ? null : src.Url)) // zero-length DB constraint
                 .ForMember(dest => dest.VatNumber, opt => opt.MapFrom(src => Models.Customer.SerializeVatNumber(src.VatNumber)))
                 .ForMember(dest => dest.Memo, opt => opt.Ignore())
+                .ForMember(dest => dest.BookingDate, opt => opt.Ignore())
                 .ForMember(dest => dest.Country, opt => opt.Ignore())
                 .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.Country != null ? src.Country.Id : null))
                 .ForMember(dest => dest.Language, opt => opt.Ignore())

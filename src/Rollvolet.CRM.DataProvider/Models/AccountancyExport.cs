@@ -23,6 +23,8 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("UntilNumber")]
         public int? UntilNumber { get; set; }
 
+        [Column("IsDryRun")]
+        public bool IsDryRun { get; set; }
     }
 
 }

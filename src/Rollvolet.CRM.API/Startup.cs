@@ -78,6 +78,7 @@ namespace Rollvolet.CRM.API
             services.Configure<AuthenticationConfiguration>(Configuration.GetSection("Authentication"));
             services.Configure<CalendarConfiguration>(Configuration.GetSection("Calendar"));
             services.Configure<DocumentGenerationConfiguration>(Configuration.GetSection("DocumentGeneration"));
+            services.Configure<AccountancyConfiguration>(Configuration.GetSection("Accountancy"));
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
                 jwtOptions => {

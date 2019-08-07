@@ -10,5 +10,6 @@ namespace Rollvolet.CRM.Domain.Models
         public int? UntilNumber { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? UntilDate { get; set; }
+        public bool IsDryRun { get; set; }
     }
 }

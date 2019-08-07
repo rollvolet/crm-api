@@ -17,6 +17,7 @@ using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Interfaces;
 using Rollvolet.CRM.Domain.Models.Query;
+using Rollvolet.CRM.Domain.Utils;
 
 namespace Rollvolet.CRM.Domain.Managers
 {
@@ -64,11 +65,11 @@ namespace Rollvolet.CRM.Domain.Managers
             _documentGenerationConfig = documentGenerationConfiguration.Value;
             _logger = logger;
 
-            _offerStorageLocation = EnsureStorageDirectory(_documentGenerationConfig.OfferStorageLocation);
-            _invoiceStorageLocation = EnsureStorageDirectory(_documentGenerationConfig.InvoiceStorageLocation);
-            _productionTicketStorageLocation = EnsureStorageDirectory(_documentGenerationConfig.ProductionTicketStorageLocation);
-            _generatedCertificateStorageLocation = EnsureStorageDirectory(_documentGenerationConfig.GeneratedCertificateStorageLocation);
-            _receivedCertificateStorageLocation = EnsureStorageDirectory(_documentGenerationConfig.ReceivedCertificateStorageLocation);
+            _offerStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.OfferStorageLocation);
+            _invoiceStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.InvoiceStorageLocation);
+            _productionTicketStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.ProductionTicketStorageLocation);
+            _generatedCertificateStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.GeneratedCertificateStorageLocation);
+            _receivedCertificateStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.ReceivedCertificateStorageLocation);
         }
 
         public async Task<Stream> CreateVisitReportAsync(int requestId)
@@ -474,14 +475,6 @@ namespace Rollvolet.CRM.Domain.Managers
             _logger.LogDebug("Generated JSON for request body: {0}", json);
 
             return new StringContent(json, Encoding.UTF8, "application/json");
-        }
-
-        private string EnsureStorageDirectory(string path)
-        {
-            if (!path.EndsWith(Path.DirectorySeparatorChar))
-                path += Path.DirectorySeparatorChar;
-            Directory.CreateDirectory(path);
-            return path;
         }
     }
 }

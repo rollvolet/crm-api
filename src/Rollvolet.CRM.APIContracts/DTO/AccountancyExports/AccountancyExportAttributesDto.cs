@@ -14,5 +14,7 @@ namespace Rollvolet.CRM.APIContracts.DTO.AccountancyExports
         public DateTime? FromDate { get; set; }
         [JsonProperty("until-date")]
         public DateTime? UntilDate { get; set; }
+        [JsonProperty("is-dry-run")]
+        public bool IsDryRun { get; set; }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,6 +12,8 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("BTWNummer")]
         public string VatNumber { get; set; }
 
+        [Column("Geboekt")]
+        public DateTime? BookingDate { get; set; }
 
         // Included resources
         public IEnumerable<Contact> Contacts { get; set; }

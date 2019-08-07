@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using Rollvolet.CRM.Domain.Configuration;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 
@@ -9,6 +9,6 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     {
         Task<Paged<AccountancyExport>> GetAllAsync(QuerySet query);
         Task<AccountancyExport> GetByIdAsync(int id, QuerySet query = null);
-        Task<AccountancyExport> CreateAsync(AccountancyExport accountancyExport);
+        Task<AccountancyExport> CreateAsync(AccountancyExport accountancyExport, AccountancyConfiguration configuration);
     }
 }
