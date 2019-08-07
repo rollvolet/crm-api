@@ -24,9 +24,9 @@ namespace Rollvolet.CRM.DataProviders
             _logger = logger;
         }
 
-        public async Task<IEnumerable<VatRate>> GetAll()
+        public async Task<IEnumerable<VatRate>> GetAllAsync()
         {
-            var vatRates = _context.VatRates.OrderBy(c => c.Order).AsEnumerable();
+            var vatRates = await Task.Run(() => _context.VatRates.OrderBy(c => c.Order).AsEnumerable());
 
             return _mapper.Map<IEnumerable<VatRate>>(vatRates);
         }

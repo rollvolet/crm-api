@@ -23,7 +23,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<IEnumerable<HonorificPrefix>> GetAllAsync()
         {
-            return await _honorificPrefixDataProvider.GetAll();
+            return await _honorificPrefixDataProvider.GetAllAsync();
         }
 
         public async Task<HonorificPrefix> GetByCustomerIdAsync(int id)

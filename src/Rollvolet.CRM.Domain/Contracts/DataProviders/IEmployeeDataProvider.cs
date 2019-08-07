@@ -7,7 +7,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
 {
     public interface IEmployeeDataProvider
     {
-        Task<IEnumerable<Employee>> GetAll();
+        Task<IEnumerable<Employee>> GetAllAsync();
         Task<Employee> GetByIdAsync(int id);
         Task<Employee> GetByFirstNameAsync(string name);
         Task<Employee> GetVisitorByOfferIdAsync(int offerId);

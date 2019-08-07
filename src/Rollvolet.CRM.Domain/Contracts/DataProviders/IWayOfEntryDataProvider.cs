@@ -7,7 +7,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
 {
     public interface IWayOfEntryDataProvider
     {
-        Task<IEnumerable<WayOfEntry>> GetAll();
+        Task<IEnumerable<WayOfEntry>> GetAllAsync();
         Task<WayOfEntry> GetByIdAsync(int id);
         Task<WayOfEntry> GetByRequestIdAsync(int id);
     }

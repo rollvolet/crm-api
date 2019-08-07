@@ -24,9 +24,9 @@ namespace Rollvolet.CRM.DataProviders
             _logger = logger;
         }
 
-        public async Task<IEnumerable<Language>> GetAll()
+        public async Task<IEnumerable<Language>> GetAllAsync()
         {
-            var languages = _context.Languages.OrderBy(c => c.Name).AsEnumerable();
+            var languages = await Task.Run(() => _context.Languages.OrderBy(c => c.Name).AsEnumerable());
 
             return _mapper.Map<IEnumerable<Language>>(languages);
         }

@@ -23,7 +23,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<IEnumerable<Country>> GetAllAsync()
         {
-            return await _countryDataProvider.GetAll();
+            return await _countryDataProvider.GetAllAsync();
         }
 
         public async Task<Country> GetByCustomerIdAsync(int id)

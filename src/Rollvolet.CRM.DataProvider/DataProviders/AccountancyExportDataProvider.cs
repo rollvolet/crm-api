@@ -74,7 +74,7 @@ namespace Rollvolet.CRM.DataProviders
             {
                 try
                 {
-                    await GenerateExportFiles((int) accountancyExport.FromNumber, (int) accountancyExport.UntilNumber, accountancyExport.IsDryRun, configuration);
+                    await GenerateExportFilesAsync((int) accountancyExport.FromNumber, (int) accountancyExport.UntilNumber, accountancyExport.IsDryRun, configuration);
                     await _context.SaveChangesAsync();
 
                     transaction.Commit();
@@ -89,7 +89,7 @@ namespace Rollvolet.CRM.DataProviders
             }
         }
 
-        private async Task GenerateExportFiles(int fromNumber, int untilNumber, bool isDryRun, AccountancyConfiguration configuration)
+        private async Task GenerateExportFilesAsync(int fromNumber, int untilNumber, bool isDryRun, AccountancyConfiguration configuration)
         {
             var invoiceQuery = _context.Invoices
                                     .Where(i => i.Number >= fromNumber && i.Number <= untilNumber && i.BookingDate == null)

@@ -24,9 +24,9 @@ namespace Rollvolet.CRM.DataProviders
             _logger = logger;
         }
 
-        public async Task<IEnumerable<Country>> GetAll()
+        public async Task<IEnumerable<Country>> GetAllAsync()
         {
-            var countries = _context.Countries.OrderBy(c => c.Name).AsEnumerable();
+            var countries = await Task.Run(() => _context.Countries.OrderBy(c => c.Name).AsEnumerable());
 
             return _mapper.Map<IEnumerable<Country>>(countries);
         }

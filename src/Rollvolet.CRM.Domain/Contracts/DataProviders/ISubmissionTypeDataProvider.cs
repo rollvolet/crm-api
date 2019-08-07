@@ -7,7 +7,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
 {
     public interface ISubmissionTypeDataProvider
     {
-        Task<IEnumerable<SubmissionType>> GetAll();
+        Task<IEnumerable<SubmissionType>> GetAllAsync();
         Task<SubmissionType> GetByIdAsync(string id);
         Task<SubmissionType> GetByOfferIdAsync(int id);
     }

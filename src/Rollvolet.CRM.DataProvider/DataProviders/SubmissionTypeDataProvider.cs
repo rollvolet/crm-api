@@ -24,9 +24,9 @@ namespace Rollvolet.CRM.DataProviders
             _logger = logger;
         }
 
-        public async Task<IEnumerable<SubmissionType>> GetAll()
+        public async Task<IEnumerable<SubmissionType>> GetAllAsync()
         {
-            var submissionTypes = _context.SubmissionTypes.OrderBy(c => c.Order).AsEnumerable();
+            var submissionTypes = await Task.Run(() => _context.SubmissionTypes.OrderBy(c => c.Order).AsEnumerable());
 
             return _mapper.Map<IEnumerable<SubmissionType>>(submissionTypes);
         }

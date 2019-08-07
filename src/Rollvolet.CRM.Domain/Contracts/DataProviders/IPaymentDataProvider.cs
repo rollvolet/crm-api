@@ -7,7 +7,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     public interface IPaymentDataProvider
     {
         Task<Payment> GetByIdAsync(string id);
-        Task<IEnumerable<Payment>> GetAll();
+        Task<IEnumerable<Payment>> GetAllAsync();
         Task<Payment> GetByDepositIdAsync(int depositId);
     }
 }

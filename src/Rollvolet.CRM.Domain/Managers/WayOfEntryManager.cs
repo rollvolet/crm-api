@@ -23,7 +23,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<IEnumerable<WayOfEntry>> GetAllAsync()
         {
-            return await _wayOfEntryDataProvider.GetAll();
+            return await _wayOfEntryDataProvider.GetAllAsync();
         }
 
         public async Task<WayOfEntry> GetByRequestIdAsync(int id)

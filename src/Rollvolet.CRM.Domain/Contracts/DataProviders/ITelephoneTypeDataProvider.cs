@@ -7,7 +7,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
 {
     public interface ITelephoneTypeDataProvider
     {
-        Task<IEnumerable<TelephoneType>> GetAll();
+        Task<IEnumerable<TelephoneType>> GetAllAsync();
         Task<TelephoneType> GetByIdAsync(int id);
         Task<TelephoneType> GetByTelephoneIdAsync(string id);
     }

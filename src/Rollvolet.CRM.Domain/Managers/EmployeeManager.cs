@@ -23,7 +23,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
-            return await _employeeDataProvider.GetAll();
+            return await _employeeDataProvider.GetAllAsync();
         }
 
         public async Task<Employee> GetByWorkingHourIdAsync(int workingHourId)

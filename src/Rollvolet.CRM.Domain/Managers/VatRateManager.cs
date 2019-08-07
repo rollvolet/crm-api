@@ -23,7 +23,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<IEnumerable<VatRate>> GetAllAsync()
         {
-            return await _vatRateDataProvider.GetAll();
+            return await _vatRateDataProvider.GetAllAsync();
         }
 
         public async Task<VatRate> GetByOfferIdAsync(int offerId)

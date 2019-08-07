@@ -10,7 +10,7 @@ using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class PostalCodeDataProvider : IPostalCodeDataProvider
     {
         private readonly CrmContext _context;
@@ -24,9 +24,9 @@ namespace Rollvolet.CRM.DataProviders
             _logger = logger;
         }
 
-        public async Task<IEnumerable<PostalCode>> GetAll()
+        public async Task<IEnumerable<PostalCode>> GetAllAsync()
         {
-            var postalCodes = _context.PostalCodes.OrderBy(c => c.Code).AsEnumerable();
+            var postalCodes = await Task.Run(() => _context.PostalCodes.OrderBy(c => c.Code).AsEnumerable());
 
             return _mapper.Map<IEnumerable<PostalCode>>(postalCodes);
         }
@@ -34,7 +34,7 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<PostalCode> GetByIdAsync(int id)
         {
             var postalCode = await _context.PostalCodes.Where(x => x.Id == id).FirstOrDefaultAsync();
-            
+
             if (postalCode == null)
             {
                 _logger.LogError($"No postal code found with id {id}");

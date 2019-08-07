@@ -24,9 +24,9 @@ namespace Rollvolet.CRM.DataProviders
             _logger = logger;
         }
 
-        public async Task<IEnumerable<TelephoneType>> GetAll()
+        public async Task<IEnumerable<TelephoneType>> GetAllAsync()
         {
-            var telephoneTypes = _context.TelephoneTypes.OrderBy(c => c.Name).AsEnumerable();
+            var telephoneTypes = await Task.Run(() => _context.TelephoneTypes.OrderBy(c => c.Name).AsEnumerable());
 
             return _mapper.Map<IEnumerable<TelephoneType>>(telephoneTypes);
         }

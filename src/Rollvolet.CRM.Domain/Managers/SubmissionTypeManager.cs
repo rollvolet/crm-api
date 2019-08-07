@@ -23,7 +23,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<IEnumerable<SubmissionType>> GetAllAsync()
         {
-            return await _submissionTypeDataProvider.GetAll();
+            return await _submissionTypeDataProvider.GetAllAsync();
         }
 
         public async Task<SubmissionType> GetByOfferIdAsync(int id)

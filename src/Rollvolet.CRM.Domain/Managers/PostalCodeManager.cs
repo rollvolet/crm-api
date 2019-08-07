@@ -20,10 +20,10 @@ namespace Rollvolet.CRM.Domain.Managers
             _postalCodeDataProvider = postalCodeDataProvider;
             _logger = logger;
         }
-        
+
         public async Task<IEnumerable<PostalCode>> GetAllAsync()
         {
-            return await _postalCodeDataProvider.GetAll();
+            return await _postalCodeDataProvider.GetAllAsync();
         }
     }
 }

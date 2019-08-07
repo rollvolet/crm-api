@@ -7,7 +7,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
 {
     public interface IHonorificPrefixDataProvider
     {
-        Task<IEnumerable<HonorificPrefix>> GetAll();
+        Task<IEnumerable<HonorificPrefix>> GetAllAsync();
         Task<HonorificPrefix> GetByIdAsync(string id);
         Task<HonorificPrefix> GetByCustomerNumberAsync(int number);
         Task<HonorificPrefix> GetByContactIdAsync(int id);

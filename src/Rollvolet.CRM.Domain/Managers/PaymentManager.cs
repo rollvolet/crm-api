@@ -21,7 +21,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<IEnumerable<Payment>> GetAllAsync()
         {
-            return await _paymentDataProvider.GetAll();
+            return await _paymentDataProvider.GetAllAsync();
         }
 
         public async Task<Payment> GetByDepositIdAsync(int depositId)

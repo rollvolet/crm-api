@@ -7,7 +7,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
 {
     public interface ILanguageDataProvider
     {
-        Task<IEnumerable<Language>> GetAll();
+        Task<IEnumerable<Language>> GetAllAsync();
         Task<Language> GetByIdAsync(int id);
         Task<Language> GetByCustomerNumberAsync(int number);
         Task<Language> GetByContactIdAsync(int id);

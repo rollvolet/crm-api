@@ -6,13 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Models;
-using Rollvolet.CRM.Domain.Models.Query;
-using Rollvolet.CRM.DataProvider.Extensions;
 using Microsoft.Extensions.Logging;
-using LinqKit;
 using Rollvolet.CRM.Domain.Exceptions;
-using System;
-using System.Linq.Expressions;
 
 namespace Rollvolet.CRM.DataProviders
 {
@@ -29,9 +24,9 @@ namespace Rollvolet.CRM.DataProviders
             _logger = logger;
         }
 
-        public async Task<IEnumerable<Payment>> GetAll()
+        public async Task<IEnumerable<Payment>> GetAllAsync()
         {
-            var payments = _context.Payments.OrderBy(c => c.Name).AsEnumerable();
+            var payments = await Task.Run(() => _context.Payments.OrderBy(c => c.Name).AsEnumerable());
 
             return _mapper.Map<IEnumerable<Payment>>(payments);
         }

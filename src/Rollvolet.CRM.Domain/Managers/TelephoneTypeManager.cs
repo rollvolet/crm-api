@@ -23,7 +23,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<IEnumerable<TelephoneType>> GetAllAsync()
         {
-            return await _telephoneTypeDataProvider.GetAll();
+            return await _telephoneTypeDataProvider.GetAllAsync();
         }
 
         public async Task<TelephoneType> GetByTelephoneIdAsync(string id)
