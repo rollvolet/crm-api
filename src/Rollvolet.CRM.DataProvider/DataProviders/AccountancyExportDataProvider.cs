@@ -107,10 +107,16 @@ namespace Rollvolet.CRM.DataProviders
             var invoiceLines = new List<object>();
             var now = DateTime.Now;
 
+            if (isDryRun)
+                _logger.LogInformation($"Starting dry run of accountancy export. Simulating booking of {invoiceRecords.Count} invoices and {customerRecords.Count} customers..");
+            else
+                _logger.LogInformation($"Starting accountancy export. {invoiceRecords.Count} invoices and {customerRecords.Count} will be booked.");
+
             foreach (var invoiceRecord in invoiceRecords)
             {
                 EnsureValidityForExport(invoiceRecord);
                 invoiceLines.AddRange(GenerateInvoiceExportLines(invoiceRecord, configuration));
+                _logger.LogDebug($"Exported invoice {invoiceRecord.Number} for accountancy export.");
 
                 if (!isDryRun)
                     invoiceRecord.BookingDate = now;
@@ -130,6 +136,7 @@ namespace Rollvolet.CRM.DataProviders
             foreach (var customerRecord in customerRecords)
             {
                 customerLines.Add(GenerateCustomerExportLine(customerRecord, configuration));
+                _logger.LogDebug($"Exported customer {customerRecord.Number} for accountancy export.");
 
                 if (!isDryRun)
                     customerRecord.BookingDate = now;
