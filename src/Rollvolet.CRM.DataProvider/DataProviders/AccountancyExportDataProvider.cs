@@ -126,6 +126,8 @@ namespace Rollvolet.CRM.DataProviders
             using (var csv = new CsvWriter(writer))
             {
                 csv.Configuration.HasHeaderRecord = false;
+                csv.Configuration.Delimiter = ",";
+                csv.Configuration.ShouldQuote = (field, ctx) => { return false; };
                 csv.WriteRecords(invoiceLines);
             }
 
@@ -284,7 +286,7 @@ namespace Rollvolet.CRM.DataProviders
                 DocNumber = ((int) invoice.Number).ToString("D5"), // format with 5 digits
                 DocOrder = "VAT",
                 OPCode = "FIXED",
-                AccountGL = docType == "4" ? "451000" : "",
+                AccountGL = docType == "4" ? "" : "451000",
                 AccountRP = invoice.CustomerId.ToString(),
                 BookYear = bookYear,
                 Period = period,
