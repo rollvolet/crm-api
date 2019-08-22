@@ -165,6 +165,8 @@ namespace Rollvolet.CRM.DataProviders
                     _context.DepositInvoices.Add(depositInvoiceHub);
                     await _context.SaveChangesAsync();
 
+                    transaction.Commit();
+
                     return _mapper.Map<DepositInvoice>(depositInvoiceRecord);
 
                 }
