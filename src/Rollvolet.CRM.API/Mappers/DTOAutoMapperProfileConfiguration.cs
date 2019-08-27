@@ -18,6 +18,7 @@ using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.APIContracts.DTO.AccountancyExports;
+using Rollvolet.CRM.APIContracts.DTO.ErrorNotifications;
 
 namespace Rollvolet.CRM.API.Mappers
 {
@@ -908,6 +909,24 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<RelatedResource, AccountancyExport>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+
+
+            // Error notification mappings
+
+            CreateMap<ErrorNotification, ErrorNotificationDto>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "error-notifications"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<ErrorNotification, ErrorNotificationtAttributesDto>().ReverseMap();
+
+            CreateMap<ErrorNotification, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<ErrorNotificationRequestDto, ErrorNotification>()
+                .ConstructUsing((src, context) => context.Mapper.Map<ErrorNotification>(src.Attributes))
                 .ForAllOtherMembers(opt => opt.Ignore());
         }
 
