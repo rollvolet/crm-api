@@ -214,7 +214,7 @@ namespace Rollvolet.CRM.API.Controllers
             ContactDto contactDto;
             try
             {
-                var contact = await _contactManager.GetByOfferIdAsync(invoiceId);
+                var contact = await _contactManager.GetByInvoiceIdAsync(invoiceId);
                 contactDto = _mapper.Map<ContactDto>(contact);
             }
             catch (EntityNotFoundException)
@@ -233,7 +233,7 @@ namespace Rollvolet.CRM.API.Controllers
             BuildingDto buildingDto;
             try
             {
-                var building = await _buildingManager.GetByOfferIdAsync(invoiceId);
+                var building = await _buildingManager.GetByInvoiceIdAsync(invoiceId);
                 buildingDto = _mapper.Map<BuildingDto>(building);
             }
             catch (EntityNotFoundException)
