@@ -151,7 +151,7 @@ namespace Rollvolet.CRM.Domain.Managers
             {
                 var includeQuery = new QuerySet();
                 includeQuery.Include.Fields = new string[] { "order" };
-                var depositInvoice = await _depositInvoiceDataProvider.GetByIdAsync(id);
+                var depositInvoice = await _depositInvoiceDataProvider.GetByIdAsync(id, includeQuery);
 
                 if (depositInvoice.BookingDate != null)
                 {
