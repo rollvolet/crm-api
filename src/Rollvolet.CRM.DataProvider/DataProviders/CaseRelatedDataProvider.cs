@@ -62,7 +62,7 @@ namespace Rollvolet.CRM.DataProviders
         private IQueryable<CaseTriplet<T>> JoinBuildingAndContact(IQueryable<T> source)
         {
             return source.GroupJoin(
-                    _context.Buildings,
+                    _context.Buildings.Include(b => b.HonorificPrefix),
                     s => new { CustomerId = s.CustomerId, Number = s.RelativeBuildingId },
                     b => new { CustomerId = (int?) b.CustomerId, Number = (int?) b.Number },
                     (s, b) => new { Source = s, Buildings = b }
@@ -70,7 +70,7 @@ namespace Rollvolet.CRM.DataProviders
                     t => t.Buildings.DefaultIfEmpty(),
                     (t, b) => new { Source = t.Source, Building = b }
                 ).GroupJoin(
-                    _context.Contacts,
+                    _context.Contacts.Include(c => c.HonorificPrefix),
                     t => new { CustomerId = t.Source.CustomerId, Number = t.Source.RelativeContactId },
                     c => new { CustomerId = (int?) c.CustomerId, Number = (int?) c.Number },
                     (t, c) => new { Source = t.Source, Building = t.Building, Contacts = c }
