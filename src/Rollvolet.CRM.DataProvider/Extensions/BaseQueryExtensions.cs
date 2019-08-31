@@ -115,13 +115,41 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         public static IQueryable<T> Sort<T>(this IQueryable<T> source, QuerySet querySet, IDictionary<string, Expression<Func<T, object>>> selectors)
         {
-            Expression<Func<T, object>> selector;
+            var multiFieldSelectors = new Dictionary<string, IEnumerable<Expression<Func<T, object>>>>();
+
+            foreach (KeyValuePair<string, Expression<Func<T, object>>> kvp in selectors)
+            {
+                var listValue = new List<Expression<Func<T, object>>> { kvp.Value };
+                multiFieldSelectors.Add(kvp.Key, listValue);
+            }
+
+            return source.Sort(querySet, multiFieldSelectors);
+        }
+
+        public static IQueryable<T> Sort<T>(this IQueryable<T> source, QuerySet querySet, IDictionary<string, IEnumerable<Expression<Func<T, object>>>> selectors)
+        {
+            // TODO add better support to filter on multiple fields.
+            // Now we assume all fields are sorted ASC or DESC. But actually querySet.Sort should support multiple fields
+            IEnumerable<Expression<Func<T, object>>> selectorsForField;
 
             var field = querySet.Sort.Field;
-            if (field != null && selectors.TryGetValue(field, out selector))
+            if (field != null && selectors.TryGetValue(field, out selectorsForField))
             {
-                source = querySet.Sort.Order == SortQuery.ORDER_ASC ? source.OrderBy(selector) : source.OrderByDescending(selector);
-            }
+                int i = 0;
+                foreach (Expression<Func<T, object>> selector in selectorsForField)
+                {
+                    if (i ==0)
+                    {
+                        source = querySet.Sort.IsAscending ? source.OrderBy(selector) : source.OrderByDescending(selector);
+                    }
+                    else
+                    {
+                        var orderedQueryable = (IOrderedQueryable<T>) source;
+                        source = querySet.Sort.IsAscending ? orderedQueryable.ThenBy(selector) : orderedQueryable.ThenByDescending(selector);
+                    }
+                    i++;
+                }
+                            }
             else if (field != null)
             {
                 ApplicationLogging.CreateLogger(typeof(BaseQueryExtensions).AssemblyQualifiedName)

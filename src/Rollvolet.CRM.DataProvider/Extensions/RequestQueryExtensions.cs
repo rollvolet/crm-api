@@ -77,15 +77,15 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         public static IQueryable<Request> Sort(this IQueryable<Request> source, QuerySet querySet)
         {
-            var selectors = new Dictionary<string, Expression<Func<Request, object>>>();
+            var selectors = new Dictionary<string, IEnumerable<Expression<Func<Request, object>>>>();
 
-            selectors.Add("number", x => x.Id);
-            selectors.Add("request-date", x => x.RequestDate);
-            selectors.Add("employee", x => x.Employee);
-            selectors.Add("customer.name", x => x.Customer.Name);
-            selectors.Add("customer.street", x => x.Customer.Address1);
-            selectors.Add("customer.postal-code", x => x.Customer.EmbeddedPostalCode);
-            selectors.Add("customer.city", x => x.Customer.EmbeddedCity);
+            selectors.Add("number", new List<Expression<Func<Request, object>>> { x => x.Id });
+            selectors.Add("request-date", new List<Expression<Func<Request, object>>> { x => x.RequestDate, x => x.Id });
+            selectors.Add("employee", new List<Expression<Func<Request, object>>> { x => x.Employee });
+            selectors.Add("customer.name", new List<Expression<Func<Request, object>>> { x => x.Customer.Name });
+            selectors.Add("customer.street", new List<Expression<Func<Request, object>>> { x => x.Customer.Address1 });
+            selectors.Add("customer.postal-code", new List<Expression<Func<Request, object>>> { x => x.Customer.EmbeddedPostalCode });
+            selectors.Add("customer.city", new List<Expression<Func<Request, object>>> { x => x.Customer.EmbeddedCity });
 
             return source.Sort<Request>(querySet, selectors);
         }
