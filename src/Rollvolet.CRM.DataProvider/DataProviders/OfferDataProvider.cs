@@ -130,9 +130,9 @@ namespace Rollvolet.CRM.DataProviders
             offerRecord.Currency = "EUR";
 
             var date = DateTime.Now;
-            var number = await _sequenceDataProvider.GetNextOfferSequenceNumberAsync(date);
-            offerRecord.SequenceNumber = number;
-            var offerNumber = $"{(date.Year + 10).ToString().Substring(2, 2)}/{date.ToString("MM")}/{date.ToString("dd")}/{number.ToString("D2")}";
+            var sequenceNumber = await _sequenceDataProvider.GetNextOfferSequenceNumberAsync(date);
+            offerRecord.SequenceNumber = sequenceNumber;
+            var offerNumber = $"{(date.Year + 10).ToString().Substring(2, 2)}/{date.ToString("MM")}/{date.ToString("dd")}/{sequenceNumber.ToString("D2")}";
             offerRecord.Number = offerNumber;
 
             _context.Offers.Add(offerRecord);

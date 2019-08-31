@@ -41,10 +41,13 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<short> GetNextOfferSequenceNumberAsync(DateTime date)
         {
             var dateAtMidnight = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
-            var tomorrowAtMidnight = dateAtMidnight.AddDays(1);
 
-            var count = await _context.Offers.Where(x => x.OfferDate >= dateAtMidnight && x.OfferDate <= tomorrowAtMidnight).CountAsync();
-            return (Int16) (count + 1);
+            var maxSequenceNumber = await _context.Offers
+                    .Where(x => x.OfferDate == dateAtMidnight)
+                    .Select(x => x.SequenceNumber)
+                    .DefaultIfEmpty((Int16) 0)
+                    .MaxAsync();
+            return (Int16) (maxSequenceNumber + 1);
         }
 
         public async Task<short> GetNextDepositSequenceNumberAsync(int orderId)
