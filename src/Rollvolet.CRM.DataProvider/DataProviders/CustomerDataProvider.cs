@@ -73,7 +73,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Customer> GetByRequestIdAsync(int requestId)
         {
-            var customer = await _context.Requests.Where(r => r.Id == requestId).Select(r => r.Customer).FirstOrDefaultAsync();
+            var customer = await _context.Requests.Where(r => r.Id == requestId).Select(r => r.Customer).Include(e => e.Memo).FirstOrDefaultAsync();
 
             if (customer == null)
             {
@@ -86,7 +86,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Customer> GetByOfferIdAsync(int offerId)
         {
-            var customer = await _context.Offers.Where(r => r.Id == offerId).Select(r => r.Customer).FirstOrDefaultAsync();
+            var customer = await _context.Offers.Where(r => r.Id == offerId).Select(r => r.Customer).Include(e => e.Memo).FirstOrDefaultAsync();
 
             if (customer == null)
             {
@@ -99,7 +99,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Customer> GetByOrderIdAsync(int orderId)
         {
-            var customer = await _context.Orders.Where(r => r.Id == orderId).Select(r => r.Customer).FirstOrDefaultAsync();
+            var customer = await _context.Orders.Where(r => r.Id == orderId).Select(r => r.Customer).Include(e => e.Memo).FirstOrDefaultAsync();
 
             if (customer == null)
             {
@@ -112,7 +112,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Customer> GetByInvoiceIdAsync(int invoiceId)
         {
-            var customer = await _context.Invoices.Where(r => r.Id == invoiceId).Select(r => r.Customer).FirstOrDefaultAsync();
+            var customer = await _context.Invoices.Where(r => r.Id == invoiceId).Select(r => r.Customer).Include(e => e.Memo).FirstOrDefaultAsync();
 
             if (customer == null)
             {
