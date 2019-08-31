@@ -107,6 +107,7 @@ namespace Rollvolet.CRM.Domain.Managers
             };
             var offer = await _offerDataProvider.GetByIdAsync(offerId, includeQuery);
 
+            offer.Offerlines = offer.Offerlines.OrderBy(l => l.SequenceNumber);
             await EmbedCustomerAndContactTelephonesAsync(offer);
 
             string visitorInitials = null;
