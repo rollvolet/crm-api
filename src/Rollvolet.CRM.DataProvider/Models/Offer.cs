@@ -28,6 +28,8 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("VolgNummer")]
         public short SequenceNumber { get; set; }
 
+        // offerDate reflects the last time the order document is generated
+        // this doesn't need to be in sync with the date included in the offernumber
         [Column("Offertedatum")]
         public DateTime? OfferDate { get; set; }
 

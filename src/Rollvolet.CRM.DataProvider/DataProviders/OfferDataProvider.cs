@@ -9,7 +9,6 @@ using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.DataProvider.Extensions;
 using Microsoft.Extensions.Logging;
-using LinqKit;
 using Rollvolet.CRM.Domain.Exceptions;
 using System;
 using System.Linq.Expressions;
@@ -126,7 +125,13 @@ namespace Rollvolet.CRM.DataProviders
         {
             var offerRecord = _mapper.Map<DataProvider.Models.Offer>(offer);
 
-            await UpdateNumberAndSequenceAsync(offerRecord);
+            // offernumber is set on creation and doesn't change afterwards. No matter what happens to the offer date
+            var date = offer.OfferDate == null ? DateTime.Now : (DateTime) offer.OfferDate;
+            var sequenceNumber = await _sequenceDataProvider.GetNextOfferSequenceNumberAsync(date);
+            offer.SequenceNumber = sequenceNumber;
+            var offerNumber = $"{(date.Year + 10).ToString().Substring(2, 2)}/{date.ToString("MM")}/{date.ToString("dd")}/{sequenceNumber.ToString("D2")}";
+            offer.Number = offerNumber;
+
             await EmbedCityAsync(offerRecord);
             offerRecord.Currency = "EUR";
 
@@ -142,15 +147,9 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<Offer> UpdateAsync(Offer offer)
         {
             var offerRecord = await FindByIdAsync(offer.Id);
-            var oldOfferDate = offerRecord.OfferDate;
-
             _mapper.Map(offer, offerRecord);
-            if (oldOfferDate != offerRecord.OfferDate)
-            {
-                await UpdateNumberAndSequenceAsync(offerRecord);
-                _logger.LogDebug($"Offer-date changed. Updating offer number to {offerRecord.Number}");
-            }
 
+            // we don't update the offernumber if the offerdate changes
             await EmbedCityAsync(offerRecord);
             offerRecord.Currency = "EUR";
 
@@ -206,15 +205,6 @@ namespace Rollvolet.CRM.DataProviders
             {
                 return await source.FirstOrDefaultAsync();
             }
-        }
-
-        private async Task UpdateNumberAndSequenceAsync(DataProvider.Models.Offer offer)
-        {
-            var date = offer.OfferDate == null ? DateTime.Now : (DateTime) offer.OfferDate;
-            var sequenceNumber = await _sequenceDataProvider.GetNextOfferSequenceNumberAsync(date);
-            offer.SequenceNumber = sequenceNumber;
-            var offerNumber = $"{(date.Year + 10).ToString().Substring(2, 2)}/{date.ToString("MM")}/{date.ToString("dd")}/{sequenceNumber.ToString("D2")}";
-            offer.Number = offerNumber;
         }
 
         private async Task EmbedCityAsync(DataProvider.Models.Offer offer)
