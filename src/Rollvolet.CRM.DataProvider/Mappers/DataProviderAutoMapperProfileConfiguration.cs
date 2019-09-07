@@ -338,11 +338,11 @@ namespace Rollvolet.CRM.DataProvider.Mappers
             else
             {
                 DateTime dateTime;
-                if (DateTime.TryParseExact(dateString, "d/MM/yyyy", new CultureInfo("nl-BE"), DateTimeStyles.None, out dateTime))
+                if (DateTime.TryParseExact(dateString, "d/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
                     return dateTime;
-                else if (DateTime.TryParseExact(dateString, "dd/MM/yyyy", new CultureInfo("nl-BE"), DateTimeStyles.None, out dateTime))
+                else if (DateTime.TryParseExact(dateString, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
                     return dateTime;
-                else if (DateTime.TryParseExact(dateString, "d/MM/yy", new CultureInfo("nl-BE"), DateTimeStyles.None, out dateTime))
+                else if (DateTime.TryParseExact(dateString, "d/MM/yy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
                     return dateTime;
                 else
                     return null;

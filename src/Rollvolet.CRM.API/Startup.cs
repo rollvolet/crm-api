@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 using Narato.Correlations;
 using Narato.ExecutionTimingMiddleware;
@@ -34,6 +33,7 @@ using Rollvolet.CRM.DataProvider.MsGraph;
 using Microsoft.Identity.Client;
 using Microsoft.Extensions.Caching.Memory;
 using Rollvolet.CRM.Domain.Configuration;
+using Newtonsoft.Json;
 
 namespace Rollvolet.CRM.API
 {
@@ -80,6 +80,13 @@ namespace Rollvolet.CRM.API
             });
             mapperConfiguration.AssertConfigurationIsValid();
             services.AddSingleton(sp => mapperConfiguration.CreateMapper());
+
+            JsonConvert.DefaultSettings = () =>
+            {
+                var settings = new JsonSerializerSettings();
+                settings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                return settings;
+            };
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IExceptionToActionResultMapper, ExceptionToActionResultMapper>();
@@ -165,6 +172,8 @@ namespace Rollvolet.CRM.API
             services.AddMvc((opt) => {
                 opt.Filters.Add(typeof(ExceptionHandlerFilter));
                 opt.UseCentralRoutePrefix(new RouteAttribute("api"));
+            }).AddJsonOptions((jsonOpt) => {
+                jsonOpt.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
             });
         }
 
