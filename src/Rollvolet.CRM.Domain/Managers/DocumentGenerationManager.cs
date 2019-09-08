@@ -471,7 +471,8 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var json = (string) JsonConvert.SerializeObject(data, new JsonSerializerSettings {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
             });
             _logger.LogDebug("Generated JSON for request body: {0}", json);
 
