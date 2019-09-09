@@ -9,7 +9,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
         Task<int> GetNextInvoiceNumberAsync();
         Task<int> GetNextRelativeContactNumberAsync(int customerId);
         Task<int> GetNextRelativeBuildingNumberAsync(int customerId);
-        Task<short> GetNextOfferSequenceNumberAsync(DateTime date);
+        Task<short> GetNextOfferSequenceNumberAsync(string offerNumberDate);
         Task<short> GetNextDepositSequenceNumberAsync(int orderId);
     }
 }

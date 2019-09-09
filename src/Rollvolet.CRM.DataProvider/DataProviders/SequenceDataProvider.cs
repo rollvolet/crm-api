@@ -38,15 +38,12 @@ namespace Rollvolet.CRM.DataProviders
             return number;
         }
 
-        public async Task<short> GetNextOfferSequenceNumberAsync(DateTime date)
+        public async Task<short> GetNextOfferSequenceNumberAsync(string offerNumberDate)
         {
-            var dateAtMidnight = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
-
             var maxSequenceNumber = await _context.Offers
-                    .Where(x => x.OfferDate == dateAtMidnight)
-                    .Select(x => x.SequenceNumber)
-                    .DefaultIfEmpty((Int16) 0)
-                    .MaxAsync();
+                    .Where(x => x.Number.StartsWith(offerNumberDate))
+                    .MaxAsync(x => (Int16?) x.SequenceNumber) ?? 0;
+
             return (Int16) (maxSequenceNumber + 1);
         }
 

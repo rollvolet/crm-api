@@ -127,9 +127,10 @@ namespace Rollvolet.CRM.DataProviders
 
             // offernumber is set on creation and doesn't change afterwards. No matter what happens to the offer date
             var date = offer.OfferDate == null ? DateTime.Now : (DateTime) offer.OfferDate;
-            var sequenceNumber = await _sequenceDataProvider.GetNextOfferSequenceNumberAsync(date);
+            var offerNumberDate = $"{(date.Year + 10).ToString().Substring(2, 2)}/{date.ToString("MM")}/{date.ToString("dd")}/";
+            var sequenceNumber = await _sequenceDataProvider.GetNextOfferSequenceNumberAsync(offerNumberDate);
             offerRecord.SequenceNumber = sequenceNumber;
-            var offerNumber = $"{(date.Year + 10).ToString().Substring(2, 2)}/{date.ToString("MM")}/{date.ToString("dd")}/{sequenceNumber.ToString("D2")}";
+            var offerNumber = $"{offerNumberDate}{sequenceNumber.ToString("D2")}";
             offerRecord.Number = offerNumber;
 
             await EmbedCityAsync(offerRecord);
