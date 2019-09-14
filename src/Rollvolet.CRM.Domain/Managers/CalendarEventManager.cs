@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -20,15 +21,18 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IVisitDataProvider _visitDataProvider;
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly ICustomerDataProvider _customerDataProvider;
+        private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly IGraphApiService _graphApiService;
         private readonly ILogger _logger;
 
-        public CalendarEventManager(IVisitDataProvider visitDataProvider, IRequestDataProvider requestDataProvider, ICustomerDataProvider customerDataProvider,
+        public CalendarEventManager(IVisitDataProvider visitDataProvider, IRequestDataProvider requestDataProvider,
+                            ICustomerDataProvider customerDataProvider, IBuildingDataProvider buildingDataProvider,
                             IGraphApiService graphApiService, ILogger<CalendarEventManager> logger)
         {
             _visitDataProvider = visitDataProvider;
             _requestDataProvider = requestDataProvider;
             _customerDataProvider = customerDataProvider;
+            _buildingDataProvider = buildingDataProvider;
             _graphApiService = graphApiService;
             _logger = logger;
         }
@@ -91,8 +95,8 @@ namespace Rollvolet.CRM.Domain.Managers
 
             await EmbedRelations(calendarEvent);
 
-            var customerEntity = await GetRelatedCustomerEntity(calendarEvent);
-            calendarEvent = await _graphApiService.CreateEventForRequestAsync(calendarEvent, customerEntity);
+            var tuple = await GetRelatedCustomerAndBuilding(calendarEvent);
+            calendarEvent = await _graphApiService.CreateEventForRequestAsync(calendarEvent, tuple.Item1, tuple.Item2);
 
             return await _visitDataProvider.UpdateAsync(calendarEvent);
         }
@@ -128,8 +132,8 @@ namespace Rollvolet.CRM.Domain.Managers
 
             if (forceEventUpdate || RequiresCalendarEventUpdate(existingCalendarEvent, calendarEvent))
             {
-                var customerEntity = await GetRelatedCustomerEntity(calendarEvent);
-                calendarEvent = await _graphApiService.UpdateEventForRequestAsync(calendarEvent, customerEntity);
+                var tuple = await GetRelatedCustomerAndBuilding(calendarEvent);
+                calendarEvent = await _graphApiService.UpdateEventForRequestAsync(calendarEvent, tuple.Item1, tuple.Item2);
             }
 
             return await _visitDataProvider.UpdateAsync(calendarEvent);
@@ -162,10 +166,21 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
-        private async Task<CustomerEntity> GetRelatedCustomerEntity(CalendarEvent calendarEvent)
+        private async Task<Tuple<Customer, Building>> GetRelatedCustomerAndBuilding(CalendarEvent calendarEvent)
         {
-            // TODO must this be the building if there is one?
-            return await _customerDataProvider.GetByRequestIdAsync(calendarEvent.Request.Id);
+            Building building = null;
+            try
+            {
+                building = await _buildingDataProvider.GetByRequestIdAsync(calendarEvent.Request.Id);
+            }
+            catch (EntityNotFoundException)
+            {
+                // No building found. Nothing should happen.
+            }
+
+            var customer = await _customerDataProvider.GetByRequestIdAsync(calendarEvent.Request.Id);
+
+            return new Tuple<Customer, Building>(customer, building);
         }
 
         private async Task<CalendarEvent> SyncSubjectAndPeriod(CalendarEvent calendarEvent)

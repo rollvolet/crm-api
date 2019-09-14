@@ -8,7 +8,6 @@ using Rollvolet.CRM.Domain.Contracts.MsGraph;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -36,11 +35,11 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                 _calendarConfig.PostponeWithYears = 0;
         }
 
-        public async Task<CalendarEvent> CreateEventForRequestAsync(CalendarEvent calendarEvent, CustomerEntity customerEntity)
+        public async Task<CalendarEvent> CreateEventForRequestAsync(CalendarEvent calendarEvent, Customer customer, Building building)
         {
             if (calendarEvent.VisitDate != null)
             {
-                var msEvent = CreateRequestVisitEvent(calendarEvent, customerEntity);
+                var msEvent = CreateRequestVisitEvent(calendarEvent, customer, building);
 
                 try
                 {
@@ -63,13 +62,13 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return calendarEvent;
         }
 
-        public async Task<CalendarEvent> UpdateEventForRequestAsync(CalendarEvent calendarEvent, CustomerEntity customerEntity)
+        public async Task<CalendarEvent> UpdateEventForRequestAsync(CalendarEvent calendarEvent, Customer customer, Building building)
         {
             if (calendarEvent.MsObjectId != null)
             {
                 if (calendarEvent.VisitDate != null)
                 {
-                    var updatedMsEvent = CreateRequestVisitEvent(calendarEvent, customerEntity);
+                    var updatedMsEvent = CreateRequestVisitEvent(calendarEvent, customer, building);
                     try
                     {
                         updatedMsEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[calendarEvent.MsObjectId]
@@ -218,7 +217,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return await GetSubjectAsync(_calendarConfig.PlanningCalendarId, msObjectId);
         }
 
-        private Event CreateRequestVisitEvent(CalendarEvent calendarEvent, CustomerEntity customerEntity)
+        private Event CreateRequestVisitEvent(CalendarEvent calendarEvent, Customer customer, Building building)
         {
             var visitDate = (DateTime) calendarEvent.VisitDate;
             var year = visitDate.Year + (int) _calendarConfig.PostponeWithYears;
@@ -226,7 +225,12 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             var day = visitDate.Day;
             var period = GetPeriodMessage(calendarEvent.Period, calendarEvent.FromHour, calendarEvent.UntilHour);
 
-            var subject = $"{period} {customerEntity.Name} {customerEntity.PostalCode} {customerEntity.City} ({calendarEvent.Request.Comment})";
+            var address = "";
+            if (building != null)
+                address = $"{building.PostalCode} {building.City}";
+            else
+                address = $"{customer.PostalCode} {customer.City}";
+            var subject = $"{period} {customer.Name} {address} ({calendarEvent.Request.Comment})";
 
             var start = new DateTimeTimeZone() {
                 DateTime = new DateTime(year, month, day, VISIT_START_TIME, 0, 0).ToString("o"),
@@ -249,7 +253,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
         {
             var entity = order.Building != null ? (CustomerEntity) order.Building : order.Customer;
             var addressLines = string.Join(",", new string[3] { entity.Address1, entity.Address2, entity.Address3 }.Where(a => !String.IsNullOrEmpty(a)));
-            var address = $"{order.Customer.PostalCode} {order.Customer.City} ({addressLines})";
+            var address = $"{entity.PostalCode} {entity.City} ({addressLines})";
 
             var visitorInitials = "";
             try
