@@ -94,6 +94,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Referentie")] // kept in sync with offer reference in frontend
         public string Reference { get; set; }
 
+        [Column("DocumentOutro")]
+        public string DocumentOutro { get; set; }
+
         [Column("MuntEenheid")]
         public string Currency { get; set; }
 

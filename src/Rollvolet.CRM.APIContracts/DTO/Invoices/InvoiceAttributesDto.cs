@@ -31,6 +31,8 @@ namespace Rollvolet.CRM.APIContracts.DTO.Invoices
         public bool HasProductionTicket { get; set; }
         public string Comment { get; set; }
         public string Qualification { get; set; }
+        [JsonProperty("document-outro")]
+        public string DocumentOutro { get; set; }
         public string Reference { get; set; }
     }
 }
