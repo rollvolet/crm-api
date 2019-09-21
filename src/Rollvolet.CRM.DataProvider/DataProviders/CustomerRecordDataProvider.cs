@@ -40,8 +40,7 @@ namespace Rollvolet.CRM.DataProviders
             {
                 var postalCodeRecord = await _context.PostalCodes.Where(p => p.Code == customerEntity.PostalCode).FirstOrDefaultAsync();
                 if (postalCodeRecord == null) {
-                    _logger.LogDebug($"No PostalCode found with code '{customerEntity.PostalCode}'");
-                    throw new IllegalArgumentException("IllegalAttribute", $"Invalid postal code '{customerEntity.PostalCode}'.");
+                    _logger.LogDebug($"No PostalCode found with code '{customerEntity.PostalCode}'. Probably a foreign postal code?");
                 } else {
                     customerRecord.PostalCodeId = postalCodeRecord.Id;
                 }
