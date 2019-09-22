@@ -188,8 +188,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             if (querySet.Filter.Fields.ContainsKey("postal-code"))
             {
-                var filterValue = querySet.Filter.Fields["postal-code"];
-                source = source.Where(c => c.EmbeddedPostalCode == filterValue);
+                var filterValue = querySet.Filter.Fields["postal-code"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.EmbeddedPostalCode, filterValue));
             }
 
             if (querySet.Filter.Fields.ContainsKey("city"))

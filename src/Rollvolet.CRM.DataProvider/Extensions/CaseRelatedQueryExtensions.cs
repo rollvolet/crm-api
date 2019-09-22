@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text.RegularExpressions;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Rollvolet.CRM.DataProvider.Contexts;
@@ -24,8 +21,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             if (querySet.Filter.Fields.ContainsKey("customer.postal-code"))
             {
-                var filterValue = querySet.Filter.Fields["customer.postal-code"];
-                source = source.Where(c => c.Customer.EmbeddedPostalCode == filterValue);
+                var filterValue = querySet.Filter.Fields["customer.postal-code"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.Customer.EmbeddedPostalCode, filterValue));
             }
 
             if (querySet.Filter.Fields.ContainsKey("customer.city"))
@@ -64,8 +61,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
                 if (querySet.Filter.Fields.ContainsKey("building.postal-code"))
                 {
-                    var filterValue = querySet.Filter.Fields["building.postal-code"];
-                    predicate.And(c => c.Building.EmbeddedPostalCode == filterValue);
+                    var filterValue = querySet.Filter.Fields["building.postal-code"].FilterWildcard();
+                    predicate.And(c => EF.Functions.Like(c.Building.EmbeddedPostalCode, filterValue));
                 }
 
                 if (querySet.Filter.Fields.ContainsKey("building.city"))
