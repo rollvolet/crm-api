@@ -9,7 +9,6 @@ using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.DataProvider.Extensions;
 using Microsoft.Extensions.Logging;
-using LinqKit;
 using Rollvolet.CRM.Domain.Exceptions;
 using System;
 using System.Linq.Expressions;

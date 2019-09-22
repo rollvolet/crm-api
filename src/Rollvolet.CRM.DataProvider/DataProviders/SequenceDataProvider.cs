@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 
@@ -10,11 +11,13 @@ namespace Rollvolet.CRM.DataProviders
     public class SequenceDataProvider : ISequenceDataProvider
     {
         private readonly CrmContext _context;
+        private readonly ILogger _logger;
         private int _customerNumber { get; set; } = 0;
 
-        public SequenceDataProvider(CrmContext context)
+        public SequenceDataProvider(CrmContext context, ILogger<SequenceDataProvider> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<int> GetNextCustomerNumberAsync()
@@ -40,10 +43,11 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<short> GetNextOfferSequenceNumberAsync(string offerNumberDate)
         {
+            _logger.LogInformation($"Looking up next sequence number for offer starting with '{offerNumberDate}'");
             var maxSequenceNumber = await _context.Offers
                     .Where(x => x.Number.StartsWith(offerNumberDate))
                     .MaxAsync(x => (Int16?) x.SequenceNumber) ?? 0;
-
+            _logger.LogInformation($"Found {maxSequenceNumber} as the maximum sequence number for offer starting with '{offerNumberDate}'");
             return (Int16) (maxSequenceNumber + 1);
         }
 
