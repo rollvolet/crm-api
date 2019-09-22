@@ -28,7 +28,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<WorkingHour> WorkingHours { get; set; }
         public DbSet<InvoiceSupplement> InvoiceSupplements { get; set; }
         public DbSet<VatRate> VatRates { get; set; }
-        public DbSet<SubmissionType> SubmissionTypes { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Visit> Visits { get; set; }
         public DbSet<Payment> Payments { get; set; }
@@ -278,11 +277,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithMany()
                 .HasForeignKey(e => e.VatRateId);
 
-            modelBuilder.Entity<Offer>()
-                .HasOne(e => e.SubmissionType)
-                .WithMany()
-                .HasForeignKey(e => e.SubmissionTypeId);
-
 
             // Offerline
 
@@ -314,15 +308,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasKey(e => e.Id)
                 .HasName("TblBtw$PrimaryKey");
 
-
-            // Submission type
-
-            modelBuilder.Entity<SubmissionType>()
-                .ToTable("TblVerzendType", schema: "dbo");
-
-            modelBuilder.Entity<SubmissionType>()
-                .HasKey(e => e.Id)
-                .HasName("TblVerzendType$PrimaryKey");
 
 
             // Order

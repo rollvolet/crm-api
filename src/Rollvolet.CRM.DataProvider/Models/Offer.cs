@@ -36,8 +36,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("BtwId")]
         public int? VatRateId { get; set; }
 
-        [Column("VerzondenVia")]
-        public string SubmissionTypeId { get; set; }
+        // @Deprecated
+        // [Column("VerzondenVia")]
+        // public string SubmissionTypeId { get; set; }
 
         [Column("Referentie")] // kept in sync with invoice reference in frontend
         public string Reference { get; set; }
@@ -84,7 +85,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Request Request { get; set; }
         public Customer Customer { get; set; }
         public VatRate VatRate { get; set; }
-        public SubmissionType SubmissionType { get; set; }
         public Order Order { get; set; }
         public IEnumerable<Offerline> Offerlines { get; set; }
 

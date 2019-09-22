@@ -487,7 +487,6 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Building, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Building : null))
                 .ForMember(dest => dest.Request, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Request : null))
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Order : null))
-                .ForMember(dest => dest.SubmissionType, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.SubmissionType : null))
                 .ForMember(dest => dest.VatRate, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.VatRate : null))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
@@ -563,34 +562,6 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<RelatedResource, VatRate>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-
-            // Submission types mappings
-
-            CreateMap<SubmissionType, SubmissionTypeDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "submission-types"))
-                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
-
-            CreateMap<SubmissionType, SubmissionTypeDto.AttributesDto>();
-
-            CreateMap<SubmissionType, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
-
-            CreateMap<SubmissionType, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "submission-types"));
-
-            CreateMap<OneRelationship, SubmissionType>()
-                .ConstructUsing((src, context) => context.Mapper.Map<SubmissionType>(src.Data))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<ManyRelationship, IEnumerable<SubmissionType>>()
-                .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<SubmissionType>>(src.Data))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<RelatedResource, SubmissionType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForAllOtherMembers(opt => opt.Ignore());
 

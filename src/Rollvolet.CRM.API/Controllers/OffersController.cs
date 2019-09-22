@@ -33,7 +33,6 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IRequestManager _requestManager;
         private readonly IOrderManager _orderManager;
         private readonly IVatRateManager _vatRateManager;
-        private readonly ISubmissionTypeManager _submissionTypeManager;
         private readonly IOfferlineManager _offerlineManager;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly IIncludedCollector _includedCollector;
@@ -43,7 +42,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         public OffersController(IOfferManager offerManager, IRequestManager requestManager, IOrderManager orderManager,
                                     ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
-                                    IVatRateManager vatRateManager, ISubmissionTypeManager submissionTypeManager, IOfferlineManager offerlineManager,
+                                    IVatRateManager vatRateManager, IOfferlineManager offerlineManager,
                                     IDocumentGenerationManager documentGenerationManager, IIncludedCollector includedCollector,
                                     IMapper mapper, IJsonApiBuilder jsonApiBuilder, ILogger<OffersController> logger)
         {
@@ -54,7 +53,6 @@ namespace Rollvolet.CRM.API.Controllers
             _requestManager = requestManager;
             _orderManager = orderManager;
             _vatRateManager = vatRateManager;
-            _submissionTypeManager = submissionTypeManager;
             _offerlineManager = offerlineManager;
             _documentGenerationManager = documentGenerationManager;
             _includedCollector = includedCollector;
@@ -262,25 +260,6 @@ namespace Rollvolet.CRM.API.Controllers
 
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
             return Ok(new ResourceResponse() { Links = links, Data = vatRateDto });
-        }
-
-        [HttpGet("{offerId}/submission-type")]
-        [HttpGet("{offerId}/links/submission-type")]
-        public async Task<IActionResult> GetRelatedSubmissionTypeByIdAsync(int offerId)
-        {
-            SubmissionTypeDto submissionTypeDto;
-            try
-            {
-                var submissionType = await _submissionTypeManager.GetByOfferIdAsync(offerId);
-                submissionTypeDto = _mapper.Map<SubmissionTypeDto>(submissionType);
-            }
-            catch (EntityNotFoundException)
-            {
-                submissionTypeDto = null;
-            }
-
-            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
-            return Ok(new ResourceResponse() { Links = links, Data = submissionTypeDto });
         }
 
         [HttpGet("{offerId}/offerlines")]

@@ -18,13 +18,12 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly IOrderDataProvider _orderDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
-        private readonly ISubmissionTypeDataProvider _submissionTypeDataProvider;
         private readonly ILogger _logger;
 
         public OfferManager(IOfferDataProvider offerDataProvider, IRequestDataProvider requestDataProvider,
                                 ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
                                 IBuildingDataProvider buildingDataProvider, IOrderDataProvider orderDataProvider,
-                                IVatRateDataProvider vatRateDataProvider, ISubmissionTypeDataProvider submissionTypeDataProvider, ILogger<OfferManager> logger)
+                                IVatRateDataProvider vatRateDataProvider, ILogger<OfferManager> logger)
         {
             _offerDataProvider = offerDataProvider;
             _requestDataProvider = requestDataProvider;
@@ -33,7 +32,6 @@ namespace Rollvolet.CRM.Domain.Managers
             _buildingDataProvider = buildingDataProvider;
             _orderDataProvider = orderDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
-            _submissionTypeDataProvider = submissionTypeDataProvider;
             _logger = logger;
         }
 
@@ -111,7 +109,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Offer> UpdateAsync(Offer offer)
         {
             var query = new QuerySet();
-            query.Include.Fields = new string[] { "customer", "building", "contact", "request", "submission-type", "vat-rate" };
+            query.Include.Fields = new string[] { "customer", "building", "contact", "request", "vat-rate" };
             var existingOffer = await _offerDataProvider.GetByIdAsync(offer.Id, query);
 
             if (offer.Id != existingOffer.Id)
@@ -164,14 +162,6 @@ namespace Rollvolet.CRM.Domain.Managers
                         offer.VatRate = oldOffer.VatRate;
                     else
                         offer.VatRate = await _vatRateDataProvider.GetByIdAsync(int.Parse(offer.VatRate.Id));
-                }
-
-                if (offer.SubmissionType != null)
-                {
-                    if (oldOffer != null && oldOffer.SubmissionType != null && oldOffer.SubmissionType.Id == offer.SubmissionType.Id)
-                        offer.SubmissionType = oldOffer.SubmissionType;
-                    else
-                        offer.SubmissionType = await _submissionTypeDataProvider.GetByIdAsync(offer.SubmissionType.Id);
                 }
 
                 // Customer cannot be updated. Take customer of oldOffer on update.

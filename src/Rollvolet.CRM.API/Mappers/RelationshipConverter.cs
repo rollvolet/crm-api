@@ -44,7 +44,6 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<HonorificPrefix, EmptyRelationshipsDto>,
                                             ITypeConverter<WayOfEntry, EmptyRelationshipsDto>,
                                             ITypeConverter<VatRate, EmptyRelationshipsDto>,
-                                            ITypeConverter<SubmissionType, EmptyRelationshipsDto>,
                                             ITypeConverter<Payment, EmptyRelationshipsDto>,
                                             ITypeConverter<AccountancyExport, EmptyRelationshipsDto>,
                                             ITypeConverter<ErrorNotification, EmptyRelationshipsDto>
@@ -121,7 +120,6 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Building = GetOneRelationship<Building>("offers", source.Id, "building", source.Building, context);
             relationships.Contact = GetOneRelationship<Contact>("offers", source.Id, "contact", source.Contact, context);
             relationships.VatRate = GetOneRelationship<VatRate>("offers", source.Id, "vat-rate", source.VatRate, context);
-            relationships.SubmissionType = GetOneRelationship<SubmissionType>("offers", source.Id, "submission-type", source.SubmissionType, context);
             relationships.Offerlines = GetManyRelationship<Offerline>("offers", source.Id, "offerlines", source.Offerlines, context);
             return relationships;
         }
@@ -251,11 +249,6 @@ namespace Rollvolet.CRM.API.Mappers
         }
 
         EmptyRelationshipsDto ITypeConverter<VatRate, EmptyRelationshipsDto>.Convert(VatRate source, EmptyRelationshipsDto destination, ResolutionContext context)
-        {
-            return new EmptyRelationshipsDto();
-        }
-
-        EmptyRelationshipsDto ITypeConverter<SubmissionType, EmptyRelationshipsDto>.Convert(SubmissionType source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
         }

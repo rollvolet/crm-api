@@ -221,8 +221,6 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<BuildingDto>(offer.Building));
             if (includeQuery.Contains("vat-rate") && offer.VatRate != null)
                 included.Add(_mapper.Map<VatRateDto>(offer.VatRate));
-            if (includeQuery.Contains("submission-type") && offer.SubmissionType != null)
-                included.Add(_mapper.Map<SubmissionTypeDto>(offer.SubmissionType));
             if (includeQuery.Contains("request") && offer.Request != null)
                 included.Add(_mapper.Map<RequestDto>(offer.Request, opt => opt.Items["include"] = requestIncludeQuery));
             if (includeQuery.Contains("request.calendar-event") && offer.Request != null && offer.Request.CalendarEvent != null)

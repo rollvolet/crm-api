@@ -74,7 +74,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             selectors.Add("customer", c => c.Customer);
             selectors.Add("vat-rate", c => c.VatRate);
-            selectors.Add("submission-type", c => c.SubmissionType);
             selectors.Add("offerlines", c => c.Offerlines);
 
             // dummy entries for resources that are already included
