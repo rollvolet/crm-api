@@ -1,6 +1,4 @@
-using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -10,7 +8,6 @@ using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.DataProvider.Extensions;
 using Rollvolet.CRM.DataProvider.Models;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
-using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.DataProviders
@@ -69,7 +66,7 @@ namespace Rollvolet.CRM.DataProviders
             {
                 var searchName = name.ToUpper();
                 searchName = Regex.Replace(searchName, @"\s+", "");
-                searchName =searchName.FilterDiacritics();
+                searchName = searchName.FilterDiacritics();
                 return searchName;
             }
 
