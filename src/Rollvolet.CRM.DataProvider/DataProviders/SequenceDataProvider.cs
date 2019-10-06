@@ -53,20 +53,26 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<short> GetNextDepositSequenceNumberAsync(int orderId)
         {
-            var count = await _context.Deposits.Where(x => x.OrderId == orderId).CountAsync();
-            return (Int16) (count + 1);
+            var maxSequenceNumber = await _context.Deposits
+                    .Where(x => x.OrderId == orderId)
+                    .MaxAsync(x => (Int16?) x.SequenceNumber) ?? 0;
+            return (Int16) (maxSequenceNumber + 1);
         }
 
         public async Task<int> GetNextRelativeContactNumberAsync(int customerId)
         {
-            var count = await _context.Contacts.Where(x => x.CustomerId == customerId).CountAsync();
-            return count + 1;
+            var maxSequenceNumber = await _context.Contacts
+                    .Where(x => x.CustomerId == customerId)
+                    .MaxAsync(x => (Int16?) x.Number) ?? 0;
+            return (Int16) (maxSequenceNumber + 1);
         }
 
         public async Task<int> GetNextRelativeBuildingNumberAsync(int customerId)
         {
-            var count = await _context.Buildings.Where(x => x.CustomerId == customerId).CountAsync();
-            return count + 1;
+            var maxSequenceNumber = await _context.Buildings
+                    .Where(x => x.CustomerId == customerId)
+                    .MaxAsync(x => (Int16?) x.Number) ?? 0;
+            return (Int16) (maxSequenceNumber + 1);
         }
     }
 }
