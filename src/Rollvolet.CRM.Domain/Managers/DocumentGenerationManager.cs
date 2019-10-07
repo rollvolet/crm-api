@@ -24,6 +24,7 @@ namespace Rollvolet.CRM.Domain.Managers
     public class DocumentGenerationManager : IDocumentGenerationManager
     {
         private readonly Regex _onlyAlphaNumeric = new Regex("[^a-zA-Z0-9_]");
+        private readonly Regex _noNewlines = new Regex("\r|\n|\r\n", RegexOptions.Multiline);
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IOrderDataProvider _orderDataProvider;
@@ -342,7 +343,7 @@ namespace Rollvolet.CRM.Domain.Managers
             var directory = $"{_productionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
             Directory.CreateDirectory(directory);
 
-            var filename = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "") + $"_{order.Customer.Name}";
+            var filename = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "") + _noNewlines.Replace($"_{order.Customer.Name}", "");
 
             return $"{directory}{filename}.pdf";
         }
@@ -372,7 +373,7 @@ namespace Rollvolet.CRM.Domain.Managers
             var directory = $"{_receivedCertificateStorageLocation}{year}{Path.DirectorySeparatorChar}";
             Directory.CreateDirectory(directory);
 
-            var filename = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "") + $"_{invoice.CustomerName}";
+            var filename = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "") + _noNewlines.Replace($"_{invoice.CustomerName}", "");
 
             return $"{directory}{filename}.pdf";
         }
