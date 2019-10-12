@@ -2,10 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
-using LinqKit;
-using Microsoft.EntityFrameworkCore;
-using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.DataProvider.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 
@@ -23,6 +19,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             var selectors = new Dictionary<string, Expression<Func<InvoiceSupplement, object>>>();
 
             selectors.Add("invoice", c => c.Invoice);
+            selectors.Add("unit", c => c.Unit);
 
             return source.Include<InvoiceSupplement>(querySet, selectors);
         }

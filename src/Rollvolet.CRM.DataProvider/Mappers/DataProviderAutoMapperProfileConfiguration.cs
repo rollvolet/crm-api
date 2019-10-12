@@ -147,6 +147,11 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ReverseMap()
                 .PreserveReferences();
 
+            CreateMap<Models.ProductUnit, Domain.Models.ProductUnit>()
+                .PreserveReferences()
+                .ReverseMap()
+                .PreserveReferences();
+
             CreateMap<Models.Visit, Domain.Models.Request>()
                 // only merge the fields from visit that needs to be public in the request object
                 .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
@@ -281,6 +286,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ReverseMap()
                 .ForMember(dest => dest.Invoice, opt => opt.Ignore())
                 .ForMember(dest => dest.InvoiceId, opt => opt.MapFrom(src => src.Invoice != null ? src.Invoice.Id : (int?) null))
+                .ForMember(dest => dest.UnitId, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.Id : (int?) null))
                 .PreserveReferences();
 
             CreateMap<Models.Deposit, Domain.Models.Deposit>()

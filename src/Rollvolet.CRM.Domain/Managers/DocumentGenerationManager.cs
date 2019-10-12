@@ -138,7 +138,7 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
-                "customer", "contact", "building", "order", "vat-rate", "supplements", "deposits", "deposit-invoices"
+                "customer", "contact", "building", "order", "vat-rate", "supplements", "supplements.unit", "deposits", "deposit-invoices"
             };
             var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId, includeQuery);
 

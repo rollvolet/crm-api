@@ -1,5 +1,4 @@
 using AutoMapper;
-using Rollvolet.CRM.DataProvider;
 
 namespace Rollvolet.CRM.DataProvider.Mappers
 {

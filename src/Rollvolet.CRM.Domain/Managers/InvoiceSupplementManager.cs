@@ -13,13 +13,15 @@ namespace Rollvolet.CRM.Domain.Managers
     {
         private readonly IInvoiceSupplementDataProvider _invoiceSupplementDataProvider;
         private readonly IInvoiceDataProvider _invoiceDataProvider;
+        private readonly IProductUnitDataProvider _productUnitDataProvider;
         private readonly ILogger _logger;
 
         public InvoiceSupplementManager(IInvoiceSupplementDataProvider invoiceSupplementDataProvider, IInvoiceDataProvider invoiceDataProvider,
-                                         ILogger<InvoiceManager> logger)
+                                         IProductUnitDataProvider productUnitDataProvider, ILogger<InvoiceManager> logger)
         {
             _invoiceSupplementDataProvider = invoiceSupplementDataProvider;
             _invoiceDataProvider = invoiceDataProvider;
+            _productUnitDataProvider = productUnitDataProvider;
             _logger = logger;
         }
 
@@ -97,6 +99,15 @@ namespace Rollvolet.CRM.Domain.Managers
                     invoiceSupplement.Invoice = oldInvoiceSupplement.Invoice; // frontend doesn't always include the invoice in PATCH requests
                 else
                     invoiceSupplement.Invoice = await _invoiceDataProvider.GetByIdAsync(invoiceSupplement.Invoice.Id);
+
+                if (invoiceSupplement.Unit != null)
+                {
+                    if (oldInvoiceSupplement != null && oldInvoiceSupplement.Unit != null
+                            && oldInvoiceSupplement.Unit.Id == invoiceSupplement.Unit.Id)
+                        invoiceSupplement.Unit = oldInvoiceSupplement.Unit;
+                    else
+                        invoiceSupplement.Unit = await _productUnitDataProvider.GetByIdAsync(invoiceSupplement.Unit.Id);
+                }
             }
             catch (EntityNotFoundException)
             {

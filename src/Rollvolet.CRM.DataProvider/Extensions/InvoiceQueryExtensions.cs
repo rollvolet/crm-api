@@ -99,6 +99,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Include.Fields.Contains("customer.honorific-prefix"))
                 source = source.Include(x => x.Customer).ThenInclude(x => x.HonorificPrefix);
 
+            if (querySet.Include.Fields.Contains("supplements.unit"))
+                source = source.Include(x => x.Supplements).ThenInclude(x => x.Unit);
+
             var selectors = new Dictionary<string, Expression<Func<Invoice, object>>>();
 
             selectors.Add("customer", c => c.Customer);
@@ -106,6 +109,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             // dummy entries for resources that are already included
             selectors.Add("customer.honorific-prefix", null);
+            selectors.Add("supplements.unit", null);
 
             if (!isDepositInvoice) // only available on normal invoices
             {

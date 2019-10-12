@@ -1,6 +1,4 @@
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using Rollvolet.CRM.DataProvider.Models.Interfaces;
 
 namespace Rollvolet.CRM.DataProvider.Models
 {
@@ -18,8 +16,8 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Aantal")]
         public double? NbOfPieces { get; set; }
 
-        [Column("Eenheid")]
-        public string Unit { get; set; }
+        [Column("EenheidId")]
+        public int? UnitId { get; set; }
 
         [Column("NettoBedrag")]
         public double? Amount { get; set; }
@@ -33,5 +31,6 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         // Include resources
         public Invoice Invoice { get; set; }
+        public ProductUnit Unit { get; set; }
     }
 }

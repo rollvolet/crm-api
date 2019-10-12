@@ -16,6 +16,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<TelephoneType> TelephoneTypes { get; set; }
         public DbSet<Request> Requests { get; set; }
         public DbSet<WayOfEntry> WayOfEntries { get; set; }
+        public DbSet<ProductUnit> ProductUnits { get; set; }
         public DbSet<Memo> Memos { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<CustomerTag> CustomerTags { get; set; }
@@ -113,6 +114,16 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             modelBuilder.Entity<Language>()
                 .HasKey(e => e.Id)
                 .HasName("TblTaal$PrimaryKey");
+
+
+            // Product unit
+
+            modelBuilder.Entity<ProductUnit>()
+                .ToTable("TblProductUnit", schema: "dbo");
+
+            modelBuilder.Entity<ProductUnit>()
+                .HasKey(e => e.Id)
+                .HasName("TblProductUnit$PrimaryKey");
 
 
             // PostalCode
@@ -395,6 +406,11 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasOne(e => e.Invoice)
                 .WithMany(e => e.Supplements)
                 .HasForeignKey(e => e.InvoiceId);
+
+            modelBuilder.Entity<InvoiceSupplement>()
+                .HasOne(e => e.Unit)
+                .WithMany()
+                .HasForeignKey(e => e.UnitId);
 
 
             // Deposit

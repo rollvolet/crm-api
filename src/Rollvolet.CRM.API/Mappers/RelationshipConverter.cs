@@ -43,6 +43,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Tag, EmptyRelationshipsDto>,
                                             ITypeConverter<HonorificPrefix, EmptyRelationshipsDto>,
                                             ITypeConverter<WayOfEntry, EmptyRelationshipsDto>,
+                                            ITypeConverter<ProductUnit, EmptyRelationshipsDto>,
                                             ITypeConverter<VatRate, EmptyRelationshipsDto>,
                                             ITypeConverter<Payment, EmptyRelationshipsDto>,
                                             ITypeConverter<AccountancyExport, EmptyRelationshipsDto>,
@@ -202,6 +203,7 @@ namespace Rollvolet.CRM.API.Mappers
         {
             var relationships = new InvoiceSupplementRelationshipsDto();
             relationships.Invoice = GetOneRelationship<Invoice>("invoice-supplements", source.Id, "invoice", source.Invoice, context);
+            relationships.Unit = GetOneRelationship<ProductUnit>("invoice-supplements", source.Id, "unit", source.Unit, context);
             return relationships;
         }
 
@@ -242,8 +244,12 @@ namespace Rollvolet.CRM.API.Mappers
             return new EmptyRelationshipsDto();
         }
 
-
         EmptyRelationshipsDto ITypeConverter<WayOfEntry, EmptyRelationshipsDto>.Convert(WayOfEntry source, EmptyRelationshipsDto destination, ResolutionContext context)
+        {
+            return new EmptyRelationshipsDto();
+        }
+
+        EmptyRelationshipsDto ITypeConverter<ProductUnit, EmptyRelationshipsDto>.Convert(ProductUnit source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
         }

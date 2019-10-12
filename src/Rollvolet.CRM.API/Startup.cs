@@ -139,6 +139,7 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IHonorificPrefixDataProvider, HonorificPrefixDataProvider>();
             services.AddTransient<IHonorificPrefixManager, HonorificPrefixManager>();
             services.AddTransient<ILanguageDataProvider, LanguageDataProvider>();
+            services.AddTransient<IProductUnitDataProvider, ProductUnitDataProvider>();
             services.AddTransient<ILanguageManager, LanguageManager>();
             services.AddTransient<IPostalCodeDataProvider, PostalCodeDataProvider>();
             services.AddTransient<IPostalCodeManager, PostalCodeManager>();
@@ -151,6 +152,7 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IEmployeeManager, EmployeeManager>();
             services.AddTransient<IEmployeeDataProvider, EmployeeDataProvider>();
             services.AddTransient<IWayOfEntryManager, WayOfEntryManager>();
+            services.AddTransient<IProductUnitManager, ProductUnitManager>();
             services.AddTransient<IWayOfEntryDataProvider, WayOfEntryDataProvider>();
             services.AddTransient<IAccountancyExportManager, AccountancyExportManager>();
             services.AddTransient<IAccountancyExportDataProvider, AccountancyExportDataProvider>();
