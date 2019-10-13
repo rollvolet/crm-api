@@ -9,6 +9,9 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("AanmeldingOmschrijving")]
         public string Name { get; set; }
+
+        [Column("Position")]
+        public int Position { get; set; }
     }
-  
+
 }

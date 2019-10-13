@@ -6,6 +6,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
     {
         public class AttributesDto {
             public string Name { get; set; }
+            public int Position { get; set; }
         }
   }
 }
