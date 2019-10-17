@@ -57,6 +57,8 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Deposit cannot have an id on create.");
             if (deposit.SequenceNumber != 0)
                 throw new IllegalArgumentException("IllegalAttribute", "Deposit cannot have a sequence-number on create.");
+            if (deposit.Amount == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Amount is required.");
             if (deposit.PaymentDate == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Payment-date is required.");
             if (deposit.Customer == null)
@@ -82,6 +84,8 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Deposit id cannot be updated.");
             if (deposit.SequenceNumber != existingDeposit.SequenceNumber)
                 throw new IllegalArgumentException("IllegalAttribute", "Deposit sequence-number cannot be updated.");
+            if (deposit.Amount == null)
+                throw new IllegalArgumentException("IllegalAttribute", "Amount is required.");
             if (deposit.PaymentDate == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Payment-date is required.");
 
