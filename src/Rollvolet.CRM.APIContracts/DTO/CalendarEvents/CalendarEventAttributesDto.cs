@@ -1,6 +1,5 @@
 using System;
 using Newtonsoft.Json;
-using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.APIContracts.DTO.CalendarEvents
 {

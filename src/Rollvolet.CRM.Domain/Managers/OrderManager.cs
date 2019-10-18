@@ -117,6 +117,9 @@ namespace Rollvolet.CRM.Domain.Managers
             if (order.Building != null && order.Building.Customer.Id != order.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {order.Customer.Id}.");
 
+            if (order.PlanningDate != null)
+                order = await _graphApiService.CreateEventForPlanningAsync(order);
+
             return await _orderDataProvider.CreateAsync(order);
         }
 
@@ -153,9 +156,8 @@ namespace Rollvolet.CRM.Domain.Managers
             {
                 order = await _graphApiService.DeleteEventForPlanningAsync(order);
             }
-            else if (order.PlanningMsObjectId != null && order.PlanningDate != existingOrder.PlanningDate)
+            else if (order.PlanningMsObjectId != null && RequiresPlanningEventUpdate(existingOrder, order))
             {
-                // TODO check on other properties than date only whether event must be updated
                 order = await _graphApiService.UpdateEventForPlanningAsync(order);
             }
             else if (order.PlanningMsObjectId == null && order.PlanningDate != null)
@@ -268,6 +270,14 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogDebug($"Failed to find a related entity");
                 throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
             }
+        }
+
+        private bool RequiresPlanningEventUpdate(Order existingOrder, Order order)
+        {
+            return order.PlanningDate != existingOrder.PlanningDate
+              || order.ScheduledHours != existingOrder.ScheduledHours
+              || order.ScheduledNbOfPersons != existingOrder.ScheduledNbOfPersons
+              || order.MustBeDelivered != existingOrder.MustBeDelivered;
         }
     }
 }
