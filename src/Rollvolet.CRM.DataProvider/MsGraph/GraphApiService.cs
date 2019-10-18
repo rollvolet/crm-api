@@ -255,18 +255,28 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             var addressLines = string.Join(",", new string[3] { entity.Address1, entity.Address2, entity.Address3 }.Where(a => !String.IsNullOrEmpty(a)));
             var address = $"{entity.PostalCode} {entity.City} ({addressLines})";
 
-            var visitorInitials = "";
-            try
-            {
-                var visitor = await _employeeDataProvider.GetVisitorByOrderIdAsync(order.Id);
-                visitorInitials = visitor.Initials;
-            }
-            catch (EntityNotFoundException)
-            {
-                // No employee found. Nothing should happen.
-            }
+            var subject = $"{order.Customer.Name} - {address} ** AD{order.RequestNumber}";
 
-            var subject = $"{order.Customer.Name} - {address} ** AD{order.RequestNumber} - ({visitorInitials}) - {order.ScheduledHours}*{order.ScheduledNbOfPersons}";
+
+            if (order.MustBeDelivered)
+            {
+                subject = $"{subject} - Te leveren";
+            }
+            else
+            {
+                var visitorInitials = "";
+                try
+                {
+                    var visitor = await _employeeDataProvider.GetVisitorByOrderIdAsync(order.Id);
+                    visitorInitials = visitor.Initials;
+                }
+                catch (EntityNotFoundException)
+                {
+                    // No employee found. Nothing should happen.
+                }
+
+                subject = $"{subject} - ({visitorInitials}) - {order.ScheduledHours}*{order.ScheduledNbOfPersons}";
+            }
 
             var planningDate = (DateTime) order.PlanningDate;
             var year = planningDate.Year + (int) _calendarConfig.PostponeWithYears;
