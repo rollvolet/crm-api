@@ -59,7 +59,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _orderDataProvider.GetAllAsync(query);
         }
 
-        public async Task<Order> GetByIdAsync(int id, QuerySet query)
+        public async Task<Order> GetByIdAsync(int id, QuerySet query = null)
         {
             return await _orderDataProvider.GetByIdAsync(id, query);
         }
@@ -118,7 +118,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {order.Customer.Id}.");
 
             if (order.PlanningDate != null)
-                order = await _graphApiService.CreateEventForPlanningAsync(order);
+                await SyncPlanningEventAsync(order);
 
             return await _orderDataProvider.CreateAsync(order);
         }
@@ -151,19 +151,9 @@ namespace Rollvolet.CRM.Domain.Managers
             if (order.Building != null && order.Building.Customer != null && order.Building.Customer.Id != order.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {order.Customer.Id}.");
 
-
-            if (order.PlanningMsObjectId != null && order.PlanningDate == null)
-            {
-                order = await _graphApiService.DeleteEventForPlanningAsync(order);
-            }
-            else if (order.PlanningMsObjectId != null && RequiresPlanningEventUpdate(existingOrder, order))
-            {
-                order = await _graphApiService.UpdateEventForPlanningAsync(order);
-            }
-            else if (order.PlanningMsObjectId == null && order.PlanningDate != null)
-            {
-                order = await _graphApiService.CreateEventForPlanningAsync(order);
-            }
+            var requiresUpdate = RequiresPlanningEventUpdate(existingOrder, order);
+            var requiresReschedule = existingOrder.PlanningDate != order.PlanningDate;
+            await SyncPlanningEventAsync(order, requiresUpdate, requiresReschedule);
 
             return await _orderDataProvider.UpdateAsync(order);
         }
@@ -217,6 +207,38 @@ namespace Rollvolet.CRM.Domain.Managers
                 {
                     // Order not found. Nothing should happen.
                 }
+            }
+        }
+
+        public async Task SyncPlanningEventAsync(Order order, bool requiresUpdate = false, bool requiresReschedule = false)
+        {
+            if (order.PlanningMsObjectId != null && order.PlanningDate == null)
+            {
+                await _graphApiService.DeleteEventForPlanningAsync(order);
+            }
+            else if (order.PlanningMsObjectId != null && requiresUpdate)
+            {
+                await _graphApiService.UpdateEventForPlanningAsync(order, requiresReschedule);
+            }
+            else if (order.PlanningMsObjectId == null && order.PlanningDate != null)
+            {
+                await _graphApiService.CreateEventForPlanningAsync(order);
+            }
+        }
+
+        public async Task SyncPlanningEventAsync(int orderId, bool requiresUpdate = false)
+        {
+            try
+            {
+                var query = new QuerySet();
+                query.Include.Fields = new string[] { "customer", "building", "contact" };
+                var order = await GetByIdAsync(orderId, query);
+                var requiresReschedule = false; // Update triggered by change outside the order, so order.PlanningDate didn't change
+                await SyncPlanningEventAsync(order, requiresUpdate, requiresReschedule);
+            }
+            catch (EntityNotFoundException)
+            {
+                // No calendar event to update
             }
         }
 

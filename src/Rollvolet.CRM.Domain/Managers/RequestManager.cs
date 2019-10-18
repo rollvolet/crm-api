@@ -122,7 +122,7 @@ namespace Rollvolet.CRM.Domain.Managers
             request = await _requestDataProvider.UpdateAsync(request);
 
             if (request.Comment != existingRequest.Comment)
-                await SyncCalendarEvent(request);
+                await SyncCalendarEventAsync(request.Id);
 
             return request;
         }
@@ -139,6 +139,19 @@ namespace Rollvolet.CRM.Domain.Managers
             catch(EntityNotFoundException)
             {
                 await _requestDataProvider.DeleteByIdAsync(id);
+            }
+        }
+
+        public async Task SyncCalendarEventAsync(int requestId)
+        {
+            try
+            {
+                var calendarEvent = await _calendarEventManager.GetByRequestIdAsync(requestId);
+                await _calendarEventManager.UpdateAsync(calendarEvent, true);
+            }
+            catch (EntityNotFoundException)
+            {
+                // No calendar event to update
             }
         }
 
@@ -187,19 +200,6 @@ namespace Rollvolet.CRM.Domain.Managers
             {
                 _logger.LogDebug($"Failed to find a related entity");
                 throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
-            }
-        }
-
-        private async Task SyncCalendarEvent(Request request)
-        {
-            try
-            {
-                var calendarEvent = await _calendarEventManager.GetByRequestIdAsync(request.Id);
-                await _calendarEventManager.UpdateAsync(calendarEvent, true);
-            }
-            catch(EntityNotFoundException)
-            {
-                // No calendar event to update
             }
         }
     }

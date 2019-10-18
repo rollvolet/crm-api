@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
@@ -19,10 +17,13 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
         private readonly IInvoiceDataProvider _invoiceDataProvider;
+        private readonly IRequestManager _requestManager;
+        private readonly IOrderManager _orderManager;
 
         public CaseManager(ICaseDataProvider caseDataProvider, IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                             IDepositInvoiceDataProvider depositInvoiceDataProvider, IRequestDataProvider requestDataProvider,
-                            IOfferDataProvider offerDataProvider, IInvoiceDataProvider invoiceDataProvider)
+                            IOfferDataProvider offerDataProvider, IInvoiceDataProvider invoiceDataProvider,
+                            IRequestManager requestManager, IOrderManager orderManager)
         {
             _caseDataProvider = caseDataProvider;
             _contactDataProvider = contactDataProvider;
@@ -31,9 +32,11 @@ namespace Rollvolet.CRM.Domain.Managers
             _offerDataProvider = offerDataProvider;
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _invoiceDataProvider = invoiceDataProvider;
+            _requestManager = requestManager;
+            _orderManager = orderManager;
         }
 
-        public async Task<Case> GetCase(int? requestId, int? offerId, int? orderId, int? invoiceId)
+        public async Task<Case> GetCaseAsync(int? requestId, int? offerId, int? orderId, int? invoiceId)
         {
             var paramCount = new int?[] { requestId, offerId, orderId, invoiceId }.Where(p => p != null).Count();
             if (paramCount != 1)
@@ -53,7 +56,7 @@ namespace Rollvolet.CRM.Domain.Managers
         // Note: contact and building of a Case can only be updated through this method
         // UpdateAsync() methods of a resource in OfferManager, OrdereManager, etc. prevent the update of the contact/building for an existing resource
         // That's why we directly call methods of the OfferDataProvider, OrderDataProvider, etc. here
-        public async Task UpdateContactAndBuilding(int? contactId, int? buildingId, int? requestId, int? offerId, int? orderId, int? invoiceId)
+        public async Task UpdateContactAndBuildingAsync(int? contactId, int? buildingId, int? requestId, int? offerId, int? orderId, int? invoiceId)
         {
             int? relativeContactId = null;
             int? relativeBuildingId = null;
@@ -72,12 +75,18 @@ namespace Rollvolet.CRM.Domain.Managers
                 }
 
                 if (requestId != null)
+                {
                     await _requestDataProvider.UpdateContactAndBuildingAsync((int) requestId, relativeContactId, relativeBuildingId);
+                    await _requestManager.SyncCalendarEventAsync((int) requestId);
+                }
+
                 if (offerId != null)
                     await _offerDataProvider.UpdateContactAndBuildingAsync((int) offerId, relativeContactId, relativeBuildingId);
                 if (orderId != null)
                 {
                     // updating the offer automatically updates the contact/building of the order too. No need to do that explicitly here.
+
+                    await _orderManager.SyncPlanningEventAsync((int) orderId, true);
 
                     var query = new QuerySet();
                     query.Page.Size = 1000; // TODO we assume 1 case doesn't have more than 1000 deposit invoices. Ideally, we should query by page.

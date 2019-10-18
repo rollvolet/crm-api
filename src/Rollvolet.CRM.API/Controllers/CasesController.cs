@@ -23,7 +23,7 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCaseAsync([FromQuery] int? requestId, [FromQuery] int? offerId, [FromQuery] int? orderId, [FromQuery] int? invoiceId)
         {
-            var caseObject = await _caseManager.GetCase(requestId, offerId, orderId, invoiceId);
+            var caseObject = await _caseManager.GetCaseAsync(requestId, offerId, orderId, invoiceId);
             var mappedCase = _mapper.Map<CaseDto>(caseObject);
 
             return Ok(mappedCase);
@@ -32,7 +32,7 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost("contact-and-building")]
         public async Task<IActionResult> UpdateContactAndBuildingAsync([FromBody] ContactAndBuildingDto contactAndBuildingDto)
         {
-            await _caseManager.UpdateContactAndBuilding(contactAndBuildingDto.ContactId, contactAndBuildingDto.BuildingId,
+            await _caseManager.UpdateContactAndBuildingAsync(contactAndBuildingDto.ContactId, contactAndBuildingDto.BuildingId,
                                                         contactAndBuildingDto.RequestId, contactAndBuildingDto.OfferId,
                                                         contactAndBuildingDto.OrderId, contactAndBuildingDto.InvoiceId);
             return NoContent();

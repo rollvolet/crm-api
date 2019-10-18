@@ -130,6 +130,13 @@ namespace Rollvolet.CRM.API.Controllers
             return file;
         }
 
+        [HttpPut("{id}/calendar-event")]
+        public async Task<IActionResult> UpdateCalendarEventAsync(int id)
+        {
+            await _requestManager.SyncCalendarEventAsync(id);
+            return NoContent();
+        }
+
         [HttpGet("{requestId}/customer")]
         [HttpGet("{requestId}/links/customer")]
         public async Task<IActionResult> GetRelatedCustomerByIdAsync(int requestId)

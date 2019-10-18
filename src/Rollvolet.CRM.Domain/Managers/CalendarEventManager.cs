@@ -133,7 +133,8 @@ namespace Rollvolet.CRM.Domain.Managers
             if (forceEventUpdate || RequiresCalendarEventUpdate(existingCalendarEvent, calendarEvent))
             {
                 var tuple = await GetRelatedCustomerAndBuilding(calendarEvent);
-                calendarEvent = await _graphApiService.UpdateEventForRequestAsync(calendarEvent, tuple.Item1, tuple.Item2);
+                var requiresReschedule = calendarEvent.VisitDate != existingCalendarEvent.VisitDate;
+                calendarEvent = await _graphApiService.UpdateEventForRequestAsync(calendarEvent, tuple.Item1, tuple.Item2, requiresReschedule);
             }
 
             return await _visitDataProvider.UpdateAsync(calendarEvent);

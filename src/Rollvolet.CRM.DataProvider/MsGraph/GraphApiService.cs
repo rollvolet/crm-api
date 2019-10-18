@@ -39,7 +39,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
         {
             if (calendarEvent.VisitDate != null)
             {
-                var msEvent = CreateRequestVisitEvent(calendarEvent, customer, building);
+                var msEvent = GenerateCreateRequestVisitEvent(calendarEvent, customer, building);
 
                 try
                 {
@@ -62,13 +62,13 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return calendarEvent;
         }
 
-        public async Task<CalendarEvent> UpdateEventForRequestAsync(CalendarEvent calendarEvent, Customer customer, Building building)
+        public async Task<CalendarEvent> UpdateEventForRequestAsync(CalendarEvent calendarEvent, Customer customer, Building building, bool requiresReschedule)
         {
             if (calendarEvent.MsObjectId != null)
             {
                 if (calendarEvent.VisitDate != null)
                 {
-                    var updatedMsEvent = CreateRequestVisitEvent(calendarEvent, customer, building);
+                    var updatedMsEvent = requiresReschedule ? GenerateCreateRequestVisitEvent(calendarEvent, customer, building) : GenerateUpdateRequestVisitEvent(calendarEvent, customer, building);
                     try
                     {
                         updatedMsEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[calendarEvent.MsObjectId]
@@ -130,7 +130,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
         {
             if (order.PlanningDate != null)
             {
-                var calendarEvent = await CreatePlanningEventAsync(order);
+                var calendarEvent = await GenerateCreatePlanningEventAsync(order);
                 try
                 {
                     calendarEvent = await _client.Users[_calendarConfig.PlanningCalendarId].Calendar.Events.Request().AddAsync(calendarEvent);
@@ -151,13 +151,14 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return order;
         }
 
-        public async Task<Order> UpdateEventForPlanningAsync(Order order)
+        public async Task<Order> UpdateEventForPlanningAsync(Order order, bool requiresReschedule)
         {
             if (order.PlanningMsObjectId != null)
             {
                 if (order.PlanningDate != null)
                 {
-                    var updatedEvent = await CreatePlanningEventAsync(order);
+                    var updatedEvent = requiresReschedule ? await GenerateCreatePlanningEventAsync(order) : await GenerateUpdatePlanningEventAsync(order);
+
                     try
                     {
                         updatedEvent = await _client.Users[_calendarConfig.PlanningCalendarId].Calendar.Events[order.PlanningMsObjectId]
@@ -217,20 +218,12 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return await GetSubjectAsync(_calendarConfig.PlanningCalendarId, msObjectId);
         }
 
-        private Event CreateRequestVisitEvent(CalendarEvent calendarEvent, Customer customer, Building building)
+        private Event GenerateCreateRequestVisitEvent(CalendarEvent calendarEvent, Customer customer, Building building)
         {
             var visitDate = (DateTime) calendarEvent.VisitDate;
             var year = visitDate.Year + (int) _calendarConfig.PostponeWithYears;
             var month = visitDate.Month;
             var day = visitDate.Day;
-            var period = GetPeriodMessage(calendarEvent.Period, calendarEvent.FromHour, calendarEvent.UntilHour);
-
-            var address = "";
-            if (building != null)
-                address = $"{building.PostalCode} {building.City}";
-            else
-                address = $"{customer.PostalCode} {customer.City}";
-            var subject = $"{period} {customer.Name} {address} ({calendarEvent.Request.Comment})";
 
             var start = new DateTimeTimeZone() {
                 DateTime = new DateTime(year, month, day, VISIT_START_TIME, 0, 0).ToString("o"),
@@ -241,6 +234,8 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                 TimeZone = "Romance Standard Time"
             };
 
+            var subject = GenerateRequestVisitEventSubject(calendarEvent, customer, building);
+
             return new Event
             {
                 Subject = subject,
@@ -249,14 +244,69 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             };
         }
 
-        private async Task<Event> CreatePlanningEventAsync(Order order)
+        private Event GenerateUpdateRequestVisitEvent(CalendarEvent calendarEvent, Customer customer, Building building)
+        {
+            return new Event
+            {
+                Subject = GenerateRequestVisitEventSubject(calendarEvent, customer, building)
+            };
+        }
+
+        private string GenerateRequestVisitEventSubject(CalendarEvent calendarEvent, Customer customer, Building building)
+        {
+            var period = GetPeriodMessage(calendarEvent.Period, calendarEvent.FromHour, calendarEvent.UntilHour);
+
+            var address = "";
+            if (building != null)
+                address = $"{building.PostalCode} {building.City}";
+            else
+                address = $"{customer.PostalCode} {customer.City}";
+
+            return $"{period} {customer.Name} {address} ({calendarEvent.Request.Comment})";
+        }
+
+        private async Task<Event> GenerateCreatePlanningEventAsync(Order order)
+        {
+
+            var planningDate = (DateTime) order.PlanningDate;
+            var year = planningDate.Year + (int) _calendarConfig.PostponeWithYears;
+            var month = planningDate.Month;
+            var day = planningDate.Day;
+
+            var start = new DateTimeTimeZone() {
+                DateTime = new DateTime(year, month, day, PLANNING_START_TIME, 0, 0).ToString("o"),
+                TimeZone = "Romance Standard Time"
+            };
+            var end = new DateTimeTimeZone() {
+                DateTime = new DateTime(year, month, day, PLANNING_START_TIME + 1, 0, 0).ToString("o"),
+                TimeZone = "Romance Standard Time"
+            };
+
+            var subject = await GeneratePlanningEventSubjectAsync(order);
+
+            return new Event
+            {
+                Subject = subject,
+                Start = start,
+                End = end
+            };
+        }
+
+        private async Task<Event> GenerateUpdatePlanningEventAsync(Order order)
+        {
+            return new Event
+            {
+                Subject = await GeneratePlanningEventSubjectAsync(order)
+            };
+        }
+
+        private async Task<string> GeneratePlanningEventSubjectAsync(Order order)
         {
             var entity = order.Building != null ? (CustomerEntity) order.Building : order.Customer;
             var addressLines = string.Join(",", new string[3] { entity.Address1, entity.Address2, entity.Address3 }.Where(a => !String.IsNullOrEmpty(a)));
             var address = $"{entity.PostalCode} {entity.City} ({addressLines})";
 
             var subject = $"{order.Customer.Name} - {address} ** AD{order.RequestNumber}";
-
 
             if (order.MustBeDelivered)
             {
@@ -278,26 +328,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                 subject = $"{subject} - ({visitorInitials}) - {order.ScheduledHours}*{order.ScheduledNbOfPersons}";
             }
 
-            var planningDate = (DateTime) order.PlanningDate;
-            var year = planningDate.Year + (int) _calendarConfig.PostponeWithYears;
-            var month = planningDate.Month;
-            var day = planningDate.Day;
-
-            var start = new DateTimeTimeZone() {
-                DateTime = new DateTime(year, month, day, PLANNING_START_TIME, 0, 0).ToString("o"),
-                TimeZone = "Romance Standard Time"
-            };
-            var end = new DateTimeTimeZone() {
-                DateTime = new DateTime(year, month, day, PLANNING_START_TIME + 1, 0, 0).ToString("o"),
-                TimeZone = "Romance Standard Time"
-            };
-
-            return new Event
-            {
-                Subject = subject,
-                Start = start,
-                End = end
-            };
+            return subject;
         }
 
         private async Task<string> GetSubjectAsync(string calendarId, string msObjectId)
