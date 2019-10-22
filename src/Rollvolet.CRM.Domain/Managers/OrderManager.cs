@@ -235,6 +235,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 var order = await GetByIdAsync(orderId, query);
                 var requiresReschedule = false; // Update triggered by change outside the order, so order.PlanningDate didn't change
                 await SyncPlanningEventAsync(order, requiresUpdate, requiresReschedule);
+                await _orderDataProvider.UpdateAsync(order);
             }
             catch (EntityNotFoundException)
             {

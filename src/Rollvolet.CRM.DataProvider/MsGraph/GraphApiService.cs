@@ -164,6 +164,18 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                         updatedEvent = await _client.Users[_calendarConfig.PlanningCalendarId].Calendar.Events[order.PlanningMsObjectId]
                                     .Request().UpdateAsync(updatedEvent);
                     }
+                    catch (ServiceException e)
+                    {
+                        if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+                        {
+                            _logger.LogWarning("Request to update planning event {0} for order {1}, but event doesn't exist anymore. Event will be recreated.", order.PlanningMsObjectId, order.Id);
+                            return await CreateEventForPlanningAsync(order);
+                        }
+                        else
+                        {
+                            throw e;
+                        }
+                    }
                     catch (Exception)
                     {
                         _logger.LogWarning("Something went wrong while updating planning event {0} for order {1}. Event will be decoupled.", order.PlanningMsObjectId, order.Id);
@@ -333,12 +345,21 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
 
         private async Task<string> GetSubjectAsync(string calendarId, string msObjectId)
         {
-            var calendarEvent = await _client.Users[calendarId].Calendar.Events[msObjectId].Request().GetAsync();
-
-            if (calendarEvent != null)
-                return calendarEvent.Subject;
-            else
-                throw new EntityNotFoundException();
+            try
+            {
+                var calendarEvent = await _client.Users[calendarId].Calendar.Events[msObjectId].Request().GetAsync();
+                if (calendarEvent != null)
+                    return calendarEvent.Subject;
+                else
+                    throw new EntityNotFoundException();
+            }
+            catch (ServiceException e)
+            {
+                if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    throw new EntityNotFoundException();
+                else
+                    throw e;
+            }
         }
 
         private string GetPeriodMessage(string period, string from, string until)
