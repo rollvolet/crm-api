@@ -145,7 +145,9 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             try
             {
-                var building = await _buildingDataProvider.GetByIdAsync(id);
+                var includeQuery = new QuerySet();
+                includeQuery.Include.Fields = new string[] { "customer" };
+                var building = await _buildingDataProvider.GetByIdAsync(id, includeQuery);
 
                 var query = new QuerySet();
                 query.Page.Size = 1;

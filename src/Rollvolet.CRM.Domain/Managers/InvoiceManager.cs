@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
@@ -58,6 +59,60 @@ namespace Rollvolet.CRM.Domain.Managers
             }
 
             return await _invoiceDataProvider.GetAllByCustomerIdAsync(customerId, query);
+        }
+
+        public async Task<Paged<Invoice>> GetAllByContactIdAsync(int contactId, QuerySet query)
+        {
+            try
+            {
+                var includeQuery = new QuerySet();
+                includeQuery.Include.Fields = new string[] { "customer" };
+                var contact = await _contactDataProvider.GetByIdAsync(contactId, includeQuery);
+
+                if (query.Sort.Field == null)
+                {
+                    query.Sort.Order = SortQuery.ORDER_DESC;
+                    query.Sort.Field = "number";
+                }
+
+                return await _invoiceDataProvider.GetAllByRelativeContactIdAsync(contact.Customer.Id, contact.Number, query);
+            }
+            catch (EntityNotFoundException)
+            {
+                return new Paged<Invoice> {
+                    Count = 0,
+                    Items = new List<Invoice>(),
+                    PageNumber = 0,
+                    PageSize = query.Page.Size
+                };
+            }
+        }
+
+        public async Task<Paged<Invoice>> GetAllByBuildingIdAsync(int buildingId, QuerySet query)
+        {
+            try
+            {
+                var includeQuery = new QuerySet();
+                includeQuery.Include.Fields = new string[] { "customer" };
+                var building = await _buildingDataProvider.GetByIdAsync(buildingId, includeQuery);
+
+                if (query.Sort.Field == null)
+                {
+                    query.Sort.Order = SortQuery.ORDER_DESC;
+                    query.Sort.Field = "number";
+                }
+
+                return await _invoiceDataProvider.GetAllByRelativeBuildingIdAsync(building.Customer.Id, building.Number, query);
+            }
+            catch (EntityNotFoundException)
+            {
+                return new Paged<Invoice> {
+                    Count = 0,
+                    Items = new List<Invoice>(),
+                    PageNumber = 0,
+                    PageSize = query.Page.Size
+                };
+            }
         }
 
         public async Task<Invoice> GetByOrderIdAsync(int orderId, QuerySet query = null)

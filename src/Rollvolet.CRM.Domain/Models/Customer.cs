@@ -14,11 +14,9 @@ namespace Rollvolet.CRM.Domain.Models
 
         public IEnumerable<Contact> Contacts { get; set; }
         public IEnumerable<Building> Buildings { get; set; }
-        public IEnumerable<Request> Requests { get; set; }
         public IEnumerable<Offer> Offers { get; set; }
         public IEnumerable<Order> Orders { get; set; }
         public IEnumerable<DepositInvoice> DepositInvoices { get; set; }
-        public IEnumerable<Invoice> Invoices { get; set; }
         public IEnumerable<Tag> Tags { get; set; }
 
         public bool IsValidVatNumber()

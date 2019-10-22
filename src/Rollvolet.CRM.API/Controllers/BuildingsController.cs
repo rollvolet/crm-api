@@ -7,6 +7,8 @@ using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
 using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Buildings;
+using Rollvolet.CRM.APIContracts.DTO.Invoices;
+using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Exceptions;
@@ -24,12 +26,15 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly ICountryManager _countryManager;
         private readonly ILanguageManager _languageManager;
         private readonly IHonorificPrefixManager _honorificPrefixManager;
+        private readonly IRequestManager _requestManager;
+        private readonly IInvoiceManager _invoiceManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
         public BuildingsController(IBuildingManager buildingManager, ITelephoneManager telephoneManager, ICountryManager countryManager,
                                     ILanguageManager languageManager, IHonorificPrefixManager honorificPrefixManager,
+                                    IRequestManager requestManager, IInvoiceManager invoiceManager,
                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _buildingManager = buildingManager;
@@ -37,6 +42,8 @@ namespace Rollvolet.CRM.API.Controllers
             _countryManager = countryManager;
             _languageManager = languageManager;
             _honorificPrefixManager = honorificPrefixManager;
+            _requestManager = requestManager;
+            _invoiceManager = invoiceManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
             _jsonApiBuilder = jsonApiBuilder;
@@ -91,6 +98,38 @@ namespace Rollvolet.CRM.API.Controllers
             await _buildingManager.DeleteAsync(id);
 
             return NoContent();
+        }
+
+        [HttpGet("{buildingId}/requests")]
+        [HttpGet("{buildingId}/links/requests")]
+        public async Task<IActionResult> GetRelatedRequestsByIdAsync(int buildingId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedRequests = await _requestManager.GetAllByBuildingIdAsync(buildingId, querySet);
+
+            var requestDtos = _mapper.Map<IEnumerable<RequestDto>>(pagedRequests.Items, opt => opt.Items["include"] = querySet.Include);
+            var included = _includedCollector.CollectIncluded(pagedRequests.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedRequests);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedRequests);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = requestDtos, Included = included });
+        }
+
+        [HttpGet("{buildingId}/invoices")]
+        [HttpGet("{buildingId}/links/invoices")]
+        public async Task<IActionResult> GetRelatedInvoicesByIdAsync(int buildingId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedInvoices = await _invoiceManager.GetAllByBuildingIdAsync(buildingId, querySet);
+
+            var invoiceDtos = _mapper.Map<IEnumerable<InvoiceDto>>(pagedInvoices.Items, opt => opt.Items["include"] = querySet.Include);
+            var included = _includedCollector.CollectIncluded(pagedInvoices.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedInvoices);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedInvoices);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = invoiceDtos, Included = included });
         }
 
         [HttpGet("{buildingId}/telephones")]

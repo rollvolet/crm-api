@@ -66,6 +66,60 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _requestDataProvider.GetAllByCustomerIdAsync(customerId, query);
         }
 
+        public async Task<Paged<Request>> GetAllByContactIdAsync(int contactId, QuerySet query)
+        {
+            try
+            {
+                var includeQuery = new QuerySet();
+                includeQuery.Include.Fields = new string[] { "customer" };
+                var contact = await _contactDataProvider.GetByIdAsync(contactId, includeQuery);
+
+                if (query.Sort.Field == null)
+                {
+                    query.Sort.Order = SortQuery.ORDER_DESC;
+                    query.Sort.Field = "number";
+                }
+
+                return await _requestDataProvider.GetAllByRelativeContactIdAsync(contact.Customer.Id, contact.Number, query);
+            }
+            catch (EntityNotFoundException)
+            {
+                return new Paged<Request> {
+                    Count = 0,
+                    Items = new List<Request>(),
+                    PageNumber = 0,
+                    PageSize = query.Page.Size
+                };
+            }
+        }
+
+        public async Task<Paged<Request>> GetAllByBuildingIdAsync(int buildingId, QuerySet query)
+        {
+            try
+            {
+                var includeQuery = new QuerySet();
+                includeQuery.Include.Fields = new string[] { "customer" };
+                var building = await _buildingDataProvider.GetByIdAsync(buildingId, includeQuery);
+
+                if (query.Sort.Field == null)
+                {
+                    query.Sort.Order = SortQuery.ORDER_DESC;
+                    query.Sort.Field = "number";
+                }
+
+                return await _requestDataProvider.GetAllByRelativeBuildingIdAsync(building.Customer.Id, building.Number, query);
+            }
+            catch (EntityNotFoundException)
+            {
+                return new Paged<Request> {
+                    Count = 0,
+                    Items = new List<Request>(),
+                    PageNumber = 0,
+                    PageSize = query.Page.Size
+                };
+            }
+        }
+
         public async Task<Request> GetByOfferIdAsync(int offerId)
         {
             return await _requestDataProvider.GetByOfferIdAsync(offerId);
