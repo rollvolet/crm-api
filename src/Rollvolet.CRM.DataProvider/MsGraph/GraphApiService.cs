@@ -74,6 +74,18 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                         updatedMsEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events[calendarEvent.MsObjectId]
                                     .Request().UpdateAsync(updatedMsEvent);
                     }
+                    catch (ServiceException e)
+                    {
+                        if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+                        {
+                            _logger.LogWarning("Request to update calendar event {0}, but event doesn't exist anymore. Event will be recreated.", calendarEvent.Id);
+                            return await CreateEventForRequestAsync(calendarEvent, customer, building);
+                        }
+                        else
+                        {
+                            throw e;
+                        }
+                    }
                     catch (Exception)
                     {
                         _logger.LogWarning("Something went wrong while updating MS event {0} for calendar event {1}. Event will be decoupled.", calendarEvent.MsObjectId, calendarEvent.Id);

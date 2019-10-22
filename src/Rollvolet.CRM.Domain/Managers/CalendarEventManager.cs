@@ -111,22 +111,27 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", $"Calendar event {calendarEvent.Id} cannot be updated since it's mastered by Access.");
             if (calendarEvent.Id != existingCalendarEvent.Id)
                 throw new IllegalArgumentException("IllegalAttribute", "Calendar event id cannot be updated.");
-            if (calendarEvent.VisitDate == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Visit date is required on calendar event.");
-            if (calendarEvent.Period == null)
-                throw new IllegalArgumentException("IllegalAttribute", "Period is required on calendar event creation.");
-            if (calendarEvent.RequiresFromHour && calendarEvent.FromHour == null)
-                throw new IllegalArgumentException("IllegalAttribute", $"FromHour is required on calendar event for period {calendarEvent.Period}.");
-            if (calendarEvent.RequiresUntilHour && calendarEvent.UntilHour == null)
-                throw new IllegalArgumentException("IllegalAttribute", $"UntilHour is required on calendar event for period {calendarEvent.Period}.");
+
+            if (!forceEventUpdate)
+            {
+                if (calendarEvent.VisitDate == null)
+                    throw new IllegalArgumentException("IllegalAttribute", "Visit date is required on calendar event.");
+                if (calendarEvent.Period == null)
+                    throw new IllegalArgumentException("IllegalAttribute", "Period is required on calendar event creation.");
+                if (calendarEvent.RequiresFromHour && calendarEvent.FromHour == null)
+                    throw new IllegalArgumentException("IllegalAttribute", $"FromHour is required on calendar event for period {calendarEvent.Period}.");
+                if (calendarEvent.RequiresUntilHour && calendarEvent.UntilHour == null)
+                    throw new IllegalArgumentException("IllegalAttribute", $"UntilHour is required on calendar event for period {calendarEvent.Period}.");
+                if (calendarEvent.CalendarId != existingCalendarEvent.CalendarId || calendarEvent.MsObjectId != existingCalendarEvent.MsObjectId || calendarEvent.CalendarSubject != existingCalendarEvent.CalendarSubject)
+                    throw new IllegalArgumentException("IllegalAttribute", "Calendar properties cannot be updated.");
+            }
+
             if (calendarEvent.Customer != null)
             {
                 var message = "Customer cannot be set on a calendar event.";
                 _logger.LogDebug(message);
                 throw new IllegalArgumentException("IllegalAttribute", message);
             }
-            if (calendarEvent.CalendarId != existingCalendarEvent.CalendarId || calendarEvent.MsObjectId != existingCalendarEvent.MsObjectId || calendarEvent.CalendarSubject != existingCalendarEvent.CalendarSubject)
-                throw new IllegalArgumentException("IllegalAttribute", "Calendar properties cannot be updated.");
 
             await EmbedRelations(calendarEvent, existingCalendarEvent);
 
@@ -186,17 +191,26 @@ namespace Rollvolet.CRM.Domain.Managers
 
         private async Task<CalendarEvent> SyncSubjectAndPeriod(CalendarEvent calendarEvent)
         {
-            var subject = await _graphApiService.GetVisitSubjectAsync(calendarEvent.MsObjectId);
-
-            if (calendarEvent.CalendarSubject != subject)
+            try
             {
-                calendarEvent.CalendarSubject = subject;
-                calendarEvent = await _visitDataProvider.UpdateAsync(calendarEvent);
+                var subject = await _graphApiService.GetVisitSubjectAsync(calendarEvent.MsObjectId);
+
+                if (calendarEvent.CalendarSubject != subject)
+                {
+                    calendarEvent.CalendarSubject = subject;
+                    calendarEvent = await _visitDataProvider.UpdateAsync(calendarEvent);
+                }
+
+                ParsePeriodFromSubject(calendarEvent);
+
+                return calendarEvent;
             }
-
-            ParsePeriodFromSubject(calendarEvent);
-
-            return calendarEvent;
+            catch (EntityNotFoundException)
+            {
+                calendarEvent.CalendarSubject = null;
+                calendarEvent = await _visitDataProvider.UpdateAsync(calendarEvent);
+                return calendarEvent;
+            }
         }
 
         private void ParsePeriodFromSubject(CalendarEvent calendarEvent)
