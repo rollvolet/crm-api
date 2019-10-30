@@ -122,6 +122,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("postal-code", x => x.EmbeddedPostalCode);
             selectors.Add("city", x => x.EmbeddedCity);
             selectors.Add("created", x => x.Created);
+            selectors.Add("number", x => x.Number);
 
             return source.Sort<Contact>(querySet, selectors);
         }
@@ -171,6 +172,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("postal-code", x => x.EmbeddedPostalCode);
             selectors.Add("city", x => x.EmbeddedCity);
             selectors.Add("created", x => x.Created);
+            selectors.Add("number", x => x.Number);
 
             return source.Sort<Building>(querySet, selectors);
         }
