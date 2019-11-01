@@ -185,6 +185,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 var offerIncludeQuery = new QuerySet();
                 offerIncludeQuery.Include.Fields = new string[] { "offerlines", "offerlines.vat-rate" };
                 var offer = await _offerDataProvider.GetByIdAsync(invoice.Order.Id, offerIncludeQuery); // offer and order have the same id
+                offer.Offerlines = offer.Offerlines.OrderBy(l => l.SequenceNumber);
                 invoice.Order.Offer = offer;
 
                 visitorInitials = await GetVisitorInitialsByOfferIdAsync(offer.Id);
@@ -236,6 +237,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 var offerIncludeQuery = new QuerySet();
                 offerIncludeQuery.Include.Fields = new string[] { "offerlines", "offerlines.vat-rate" };
                 var offer = await _offerDataProvider.GetByIdAsync(depositInvoice.Order.Id, offerIncludeQuery); // offer and order have the same id
+                offer.Offerlines = offer.Offerlines.OrderBy(l => l.SequenceNumber);
                 depositInvoice.Order.Offer = offer;
 
                 visitorInitials = await GetVisitorInitialsByOfferIdAsync(offer.Id);
