@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
@@ -201,7 +199,9 @@ namespace Rollvolet.CRM.Domain.Managers
             try
             {
                 var calendarEvent = await _calendarEventManager.GetByRequestIdAsync(requestId);
-                await _calendarEventManager.UpdateAsync(calendarEvent, true);
+
+                if (!calendarEvent.IsMasteredByAccess)
+                    await _calendarEventManager.UpdateAsync(calendarEvent, true);
             }
             catch (EntityNotFoundException)
             {

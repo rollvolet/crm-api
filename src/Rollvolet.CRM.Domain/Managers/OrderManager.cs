@@ -220,7 +220,7 @@ namespace Rollvolet.CRM.Domain.Managers
             {
                 await _graphApiService.UpdateEventForPlanningAsync(order, requiresReschedule);
             }
-            else if (order.PlanningMsObjectId == null && order.PlanningDate != null)
+            else if (order.PlanningMsObjectId == null && order.PlanningId == null && order.PlanningDate != null)
             {
                 await _graphApiService.CreateEventForPlanningAsync(order);
             }
