@@ -15,6 +15,7 @@ using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
+using Rollvolet.CRM.Domain.Utils;
 
 namespace Rollvolet.CRM.DataProviders
 {
@@ -96,7 +97,7 @@ namespace Rollvolet.CRM.DataProviders
                                     .Include(i => i.VatRate);
             var invoiceRecords = await invoiceQuery.ToListAsync();
             var customerRecords = await invoiceQuery.Select(i => i.Customer)
-                                                .Where(c => c != null && c.BookingDate == null)
+                                                .Where(c => c != null) // Export all customer, also previously exported ones
                                                 .Include(c => c.Country)
                                                 .Distinct().ToListAsync();
 
@@ -148,6 +149,8 @@ namespace Rollvolet.CRM.DataProviders
             using (var csv = new CsvWriter(writer))
             {
                 csv.Configuration.HasHeaderRecord = false;
+                csv.Configuration.Delimiter = ",";
+                csv.Configuration.ShouldQuote = (field, ctx) => { return false; };
                 csv.WriteRecords(customerLines);
             }
         }
@@ -181,9 +184,9 @@ namespace Rollvolet.CRM.DataProviders
             var startMonth = startBookYear >= 100 ? startBookYear / 100 : 0;
             var period = GetPeriod(invoiceDate, startMonth);
 
-            var amount = (double) invoice.Amount;
-            var totalAmount = (double) invoice.TotalAmount;
-            var vatAmount = (double) invoice.Vat;
+            var amount = Math.Round((double) invoice.Amount, 2);
+            var totalAmount = Math.Round((double) invoice.TotalAmount, 2);
+            var vatAmount = Math.Round((double) invoice.Vat, 2);
 
             if (invoice.IsCreditNote)
             {
@@ -448,7 +451,7 @@ namespace Rollvolet.CRM.DataProviders
         {
             if (name != null)
             {
-                var formattedName = name.Replace(',', ' ');
+                var formattedName = name.Replace(',', ' ').ReplaceLineBreaks("-");
                 return formattedName.Length >= 40 ? formattedName.Substring(0, 40) : formattedName;
             }
             else
@@ -464,7 +467,9 @@ namespace Rollvolet.CRM.DataProviders
                 var country = vatNumber.Substring(0, 2).ToUpper();
                 if (country == "BE")
                 {
-                    return vatNumber;
+                    vatNumber = vatNumber.Substring(2).Trim();
+                    // VAT number used to be 000.000.000 but must be 0000.000.000 now
+                    return vatNumber.Length <= 11 ? $"0{vatNumber}" : vatNumber;
                 }
             }
 
