@@ -145,7 +145,9 @@ namespace Rollvolet.CRM.Domain.Managers
             try
             {
                 var calendarEvent = await _calendarEventManager.GetByRequestIdAsync(requestId);
-                await _calendarEventManager.UpdateAsync(calendarEvent, true);
+
+                if (!calendarEvent.IsMasteredByAccess)
+                    await _calendarEventManager.UpdateAsync(calendarEvent, true);
             }
             catch (EntityNotFoundException)
             {
