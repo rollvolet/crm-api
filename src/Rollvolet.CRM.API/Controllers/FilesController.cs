@@ -39,19 +39,33 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpGet("invoices/{id}")]
         public async Task<IActionResult> ViewInvoiceDocumentAsync(int id)
         {
-            var fileStream = await _documentGenerationManager.DownloadInvoiceDocumentAsync(id);
-            var file = new FileStreamResult(fileStream, "application/pdf");
-            // file.FileDownloadName = fileStream.Name;  // this makes file being server with disposition=attachment
-            return file;
+            try
+            {
+              var fileStream = await _documentGenerationManager.DownloadInvoiceDocumentAsync(id);
+              var file = new FileStreamResult(fileStream, "application/pdf");
+              // file.FileDownloadName = fileStream.Name;  // this makes file being server with disposition=attachment
+              return file;
+            }
+            catch (EntityNotFoundException)
+            {
+              return Ok("Document bestaat niet.");
+            }
         }
 
         [HttpGet("deposit-invoices/{id}")]
         public async Task<IActionResult> ViewDepositInvoiceDocumentAsync(int id)
         {
-            var fileStream = await _documentGenerationManager.DownloadDepositInvoiceDocumentAsync(id);
-            var file = new FileStreamResult(fileStream, "application/pdf");
-            // file.FileDownloadName = fileStream.Name;  // this makes file being server with disposition=attachment
-            return file;
+            try
+            {
+              var fileStream = await _documentGenerationManager.DownloadDepositInvoiceDocumentAsync(id);
+              var file = new FileStreamResult(fileStream, "application/pdf");
+              // file.FileDownloadName = fileStream.Name;  // this makes file being server with disposition=attachment
+              return file;
+            }
+            catch (EntityNotFoundException)
+            {
+              return Ok("Document bestaat niet.");
+            }
         }
     }
 }
