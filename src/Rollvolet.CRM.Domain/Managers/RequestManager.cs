@@ -155,7 +155,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Request> UpdateAsync(Request request)
         {
             var query = new QuerySet();
-            query.Include.Fields = new string[] { "customer", "way-of-entry", "building", "contact", "calendar-event" };
+            query.Include.Fields = new string[] { "customer", "way-of-entry", "building", "contact", "calendar-event", "offer" };
             var existingRequest = await _requestDataProvider.GetByIdAsync(request.Id, query);
 
             if (request.Id != existingRequest.Id)
@@ -222,22 +222,29 @@ namespace Rollvolet.CRM.Domain.Managers
                         request.WayOfEntry = await _wayOfEntryDataProvider.GetByIdAsync(int.Parse(request.WayOfEntry.Id));
                 }
 
-                if (request.Customer != null)
-                {
-                    if (oldRequest != null && oldRequest.Customer != null && oldRequest.Customer.Id == request.Customer.Id)
-                        request.Customer = oldRequest.Customer;
-                    else
-                        request.Customer = await _customerDataProvider.GetByNumberAsync(request.Customer.Id);
-                }
-
-                var includeCustomer = new QuerySet();
-                includeCustomer.Include.Fields = new string[] { "customer" };
-
                 // Offer cannot be updated. Take offer of oldRequest on update.
                 if (oldRequest != null)
                     request.Offer = oldRequest.Offer;
                 else
                     request.Offer = null;
+
+                if (request.Offer != null && request.Customer == null)
+                {
+                    request.Customer = oldRequest.Customer;  // Request already has an offer, so it must have a customer
+                }
+                else
+                {
+                    if (request.Customer != null)
+                    {
+                        if (oldRequest != null && oldRequest.Customer != null && oldRequest.Customer.Id == request.Customer.Id)
+                            request.Customer = oldRequest.Customer;
+                        else
+                            request.Customer = await _customerDataProvider.GetByNumberAsync(request.Customer.Id);
+                    }
+                }
+
+                var includeCustomer = new QuerySet();
+                includeCustomer.Include.Fields = new string[] { "customer" };
 
                 // Contact can only be updated through CaseManager. Take contact of oldRequest on update.
                 if (oldRequest != null)
