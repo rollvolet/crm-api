@@ -137,7 +137,7 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
-        public async Task<FileStream> CreateAndStoreOfferDocumentAsync(int offerId)
+        public async Task CreateAndStoreOfferDocumentAsync(int offerId)
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
@@ -161,7 +161,7 @@ namespace Rollvolet.CRM.Domain.Managers
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/offer";
             var filePath = ConstructOfferDocumentFilePath(offer);
 
-            return await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
         }
 
         public async Task<FileStream> DownloadOfferDocument(int offerId)
@@ -171,7 +171,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task<FileStream> CreateAndStoreInvoiceDocumentAsync(int invoiceId, string language)
+        public async Task CreateAndStoreInvoiceDocumentAsync(int invoiceId, string language)
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
@@ -213,7 +213,7 @@ namespace Rollvolet.CRM.Domain.Managers
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/invoice";
             var filePath = ConstructInvoiceDocumentFilePath(invoice);
 
-            return await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
         }
 
         public async Task<FileStream> DownloadInvoiceDocumentAsync(int invoiceId)
@@ -223,7 +223,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task<FileStream> CreateAndStoreDepositInvoiceDocumentAsync(int depositInvoiceId, string language)
+        public async Task CreateAndStoreDepositInvoiceDocumentAsync(int depositInvoiceId, string language)
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
@@ -263,7 +263,7 @@ namespace Rollvolet.CRM.Domain.Managers
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/deposit-invoice";
             var filePath = ConstructInvoiceDocumentFilePath(depositInvoice);
 
-            return await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
         }
 
         public async Task<FileStream> DownloadDepositInvoiceDocumentAsync(int depositInvoiceId)
@@ -343,7 +343,8 @@ namespace Rollvolet.CRM.Domain.Managers
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/certificate";
             var filePath = ConstructGeneratedCertificateFilePath(invoice);
 
-            return await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            return DownloadDcument(filePath);
         }
 
         private string ConstructOfferDocumentFilePath(Offer offer)
@@ -458,7 +459,7 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
-        private async Task<FileStream> GenerateAndStoreDocumentAsync(string url, Object data, string filePath)
+        private async Task GenerateAndStoreDocumentAsync(string url, Object data, string filePath)
         {
             var body = GenerateJsonBody(data);
             _logger.LogDebug("Send request to document generation service at {0}", url);
@@ -473,8 +474,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 {
                     UploadDocument(filePath, inputStream);
                 }
-
-                return new FileStream(filePath, FileMode.Open);
             }
             catch (Exception e)
             {
@@ -494,8 +493,6 @@ namespace Rollvolet.CRM.Domain.Managers
 
         private FileStream DownloadDcument(string filePath)
         {
-            var stream = new MemoryStream();
-
             try
             {
                 return new FileStream(filePath, FileMode.Open);

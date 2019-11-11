@@ -136,21 +136,9 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost("{id}/documents")]
         public async Task<IActionResult> CreateInvoiceDocumentAsync(int id, [FromQuery] string language)
         {
-            var fileStream = await _documentGenerationManager.CreateAndStoreInvoiceDocumentAsync(id, language);
-
-            var file = new FileStreamResult(fileStream, "application/pdf");
-            file.FileDownloadName = fileStream.Name;
-            return file;
-        }
-
-        [HttpGet("{invoiceId}/document")]
-        public async Task<IActionResult> DownloadInvoiceDocumentAsync(int invoiceId)
-        {
-            var fileStream = await _documentGenerationManager.DownloadInvoiceDocumentAsync(invoiceId);
-
-            var file = new FileStreamResult(fileStream, "application/pdf");
-            file.FileDownloadName = fileStream.Name;
-            return file;
+            await _documentGenerationManager.CreateAndStoreInvoiceDocumentAsync(id, language);
+            // TODO return download location in Location header
+            return NoContent();
         }
 
         [HttpPost("{invoiceId}/certificates")]
