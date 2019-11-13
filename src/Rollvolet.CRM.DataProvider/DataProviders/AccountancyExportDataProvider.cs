@@ -212,13 +212,13 @@ namespace Rollvolet.CRM.DataProviders
                 Comment = "",
                 CommentText = "",
                 Amount = "0.000",
-                AmountEUR = totalAmount.ToString("0.000"),
-                VATBase = amount.ToString("0.000"),
+                AmountEUR = FormatDecimal(totalAmount),
+                VATBase = FormatDecimal(amount),
                 VATCode = "",
                 CurrAmount = "0.000",
                 CurrCode = "",
                 CurEURBase = "0.000",
-                VATTax = vatAmount.ToString("0.000"),
+                VATTax = FormatDecimal(vatAmount),
                 VATInput = "",
                 CurrRate = "0.00000",
                 RemindLev = "0",
@@ -256,7 +256,7 @@ namespace Rollvolet.CRM.DataProviders
                 Comment = "",
                 CommentText = "",
                 Amount = "0.000",
-                AmountEUR = (amount * -1).ToString("0.000"),
+                AmountEUR = FormatDecimal(amount * -1),
                 VATBase = "0.000",
                 VATCode = "",
                 CurrAmount = "0.000",
@@ -299,8 +299,8 @@ namespace Rollvolet.CRM.DataProviders
                 Comment = "",
                 CommentText = "",
                 Amount = "0.000",
-                AmountEUR = (vatAmount * -1).ToString("0.000"),
-                VATBase = (invoice.IsCreditNote ? amount : Math.Abs(amount)).ToString("0.000"),
+                AmountEUR = FormatDecimal(vatAmount * -1),
+                VATBase = FormatDecimal(invoice.IsCreditNote ? amount : Math.Abs(amount)),
                 VATCode = vatCode,
                 CurrAmount = "0.000",
                 CurrCode = "",
@@ -474,6 +474,11 @@ namespace Rollvolet.CRM.DataProviders
             }
 
             return "";
+        }
+
+        private string FormatDecimal(double number)
+        {
+            return number.ToString("0.000", System.Globalization.CultureInfo.InvariantCulture);
         }
     }
 }
