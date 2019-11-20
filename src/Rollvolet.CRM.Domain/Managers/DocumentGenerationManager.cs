@@ -243,7 +243,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task CreateAndStoreInvoiceDocumentAsync(int invoiceId, string language)
+        public async Task CreateAndStoreInvoiceDocumentAsync(int invoiceId)
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
@@ -280,7 +280,6 @@ namespace Rollvolet.CRM.Domain.Managers
             dynamic documentData = new ExpandoObject();
             documentData.Invoice = invoice;
             documentData.Visitor = visitorInitials;
-            documentData.language = language;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/invoice";
             var filePath = ConstructInvoiceDocumentFilePath(invoice);
@@ -295,7 +294,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task CreateAndStoreDepositInvoiceDocumentAsync(int depositInvoiceId, string language)
+        public async Task CreateAndStoreDepositInvoiceDocumentAsync(int depositInvoiceId)
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
@@ -330,7 +329,6 @@ namespace Rollvolet.CRM.Domain.Managers
             dynamic documentData = new ExpandoObject();
             documentData.Invoice = depositInvoice;
             documentData.Visitor = visitorInitials;
-            documentData.language = language;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/deposit-invoice";
             var filePath = ConstructInvoiceDocumentFilePath(depositInvoice);
@@ -345,15 +343,17 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task<Stream> CreateCertificateForInvoiceAsync(int invoiceId, string language)
+        public async Task<Stream> CreateCertificateForInvoiceAsync(int invoiceId)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] {
-                "customer", "customer.honorific-prefix", "customer.language", "building", "contact"
+                "customer", "building", "contact"
             };
             var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId, query);
 
-            return await CreateCertificateAsync(invoice, language);
+            await EmbedCustomerAndContactTelephonesAsync(invoice);  // required to include customer/contact language and honorific prefix
+
+            return await CreateCertificateAsync(invoice);
         }
 
         public async Task UploadCertificateForInvoiceAsync(int invoiceId, Stream content)
@@ -369,15 +369,17 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task<Stream> CreateCertificateForDepositInvoiceAsync(int invoiceId, string language)
+        public async Task<Stream> CreateCertificateForDepositInvoiceAsync(int invoiceId)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] {
-                "customer", "customer.honorific-prefix", "customer.language", "building", "contact"
+                "customer", "building", "contact"
             };
             var depositInvoice = await _depositInvoiceDateProvider.GetByIdAsync(invoiceId, query);
 
-            return await CreateCertificateAsync(depositInvoice, language);
+            await EmbedCustomerAndContactTelephonesAsync(depositInvoice);  // required to include customer/contact language and honorific prefix
+
+            return await CreateCertificateAsync(depositInvoice);
         }
 
         public async Task UploadCertificateForDepositInvoiceAsync(int invoiceId, Stream content)
@@ -406,11 +408,10 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        private async Task<Stream> CreateCertificateAsync(BaseInvoice invoice, string language)
+        private async Task<Stream> CreateCertificateAsync(BaseInvoice invoice)
         {
             dynamic documentData = new ExpandoObject();
             documentData.Invoice = invoice;
-            documentData.language = language;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/certificate";
             var filePath = ConstructGeneratedCertificateFilePath(invoice);
