@@ -17,6 +17,8 @@
   "DocumentGeneration": {
     "BaseUrl": "",
     "OfferStorageLocation": "",
+    "OrderStorageLocation": "",
+    "DeliveryNoteStorageLocation": "",
     "InvoiceStorageLocation": "",
     "ProductionTicketStorageLocation": "",
     "GeneratedCertificateStorageLocation": "",

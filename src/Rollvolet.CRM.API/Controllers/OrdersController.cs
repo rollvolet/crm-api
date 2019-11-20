@@ -137,6 +137,22 @@ namespace Rollvolet.CRM.API.Controllers
             return NoContent();
         }
 
+        [HttpPost("{id}/documents")]
+        public async Task<IActionResult> CreateOrderDocumentAsync(int id)
+        {
+            await _documentGenerationManager.CreateAndStoreOrderDocumentAsync(id);
+            // TODO return download location in Location header
+            return NoContent();
+        }
+
+        [HttpPost("{id}/delivery-notes")]
+        public async Task<IActionResult> CreateDeliveryNoteAsync(int id)
+        {
+            await _documentGenerationManager.CreateAndStoreDeliveryNoteAsync(id);
+            // TODO return download location in Location header
+            return NoContent();
+        }
+
         [HttpPost("{orderId}/production-ticket")]
         public async Task<IActionResult> UploadProductionTicketAsync(int orderId, IFormFile file)
         {

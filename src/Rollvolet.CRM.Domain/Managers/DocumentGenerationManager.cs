@@ -39,6 +39,8 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly HttpClient _httpClient;
         private readonly DocumentGenerationConfiguration _documentGenerationConfig;
         private readonly string _offerStorageLocation;
+        private readonly string _orderStorageLocation;
+        private readonly string _deliveryNoteStorageLocation;
         private readonly string _invoiceStorageLocation;
         private readonly string _productionTicketStorageLocation;
         private readonly string _generatedCertificateStorageLocation;
@@ -68,6 +70,8 @@ namespace Rollvolet.CRM.Domain.Managers
             _logger = logger;
 
             _offerStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.OfferStorageLocation);
+            _orderStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.OrderStorageLocation);
+            _deliveryNoteStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.DeliveryNoteStorageLocation);
             _invoiceStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.InvoiceStorageLocation);
             _productionTicketStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.ProductionTicketStorageLocation);
             _generatedCertificateStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.GeneratedCertificateStorageLocation);
@@ -148,11 +152,7 @@ namespace Rollvolet.CRM.Domain.Managers
             offer.Offerlines = offer.Offerlines.OrderBy(l => l.SequenceNumber);
             await EmbedCustomerAndContactTelephonesAsync(offer);
 
-            string visitorInitials = null;
-            if (offer.Request != null)
-            {
-                visitorInitials = await GetVisitorInitialsByOfferIdAsync(offer.Id);
-            }
+            var visitorInitials = offer.Request != null ? await GetVisitorInitialsByOfferIdAsync(offer.Id) : null;
 
             dynamic documentData = new ExpandoObject();
             documentData.Offer = offer;
@@ -164,10 +164,82 @@ namespace Rollvolet.CRM.Domain.Managers
             await GenerateAndStoreDocumentAsync(url, documentData, filePath);
         }
 
-        public async Task<FileStream> DownloadOfferDocument(int offerId)
+        public async Task<FileStream> DownloadOfferDocumentAsync(int offerId)
         {
             var offer = await _offerDataProvider.GetByIdAsync(offerId);
             var filePath = ConstructOfferDocumentFilePath(offer);
+            return DownloadDcument(filePath);
+        }
+
+        public async Task CreateAndStoreOrderDocumentAsync(int orderId)
+        {
+            var includeQuery = new QuerySet();
+            includeQuery.Include.Fields = new string[] { "customer", "contact", "building" };
+            var order = await _orderDataProvider.GetByIdAsync(orderId, includeQuery);
+
+            var offerIncludeQuery = new QuerySet();
+            offerIncludeQuery.Include.Fields = new string[] { "offerlines", "offerlines.vat-rate", "request" };
+            var offer = await _offerDataProvider.GetByOrderIdAsync(orderId, offerIncludeQuery);
+
+            offer.Offerlines = offer.Offerlines.Where(l => l.IsOrdered).OrderBy(l => l.SequenceNumber);
+            offer.Order = null; // Remove duplicated nested data before sending
+
+            order.Offer = offer;
+
+            await EmbedCustomerAndContactTelephonesAsync(order);
+
+            var visitorInitials = offer.Request != null ? await GetVisitorInitialsByOfferIdAsync(offer.Id) : null;
+
+            dynamic documentData = new ExpandoObject();
+            documentData.Order = order;
+            documentData.Visitor = visitorInitials;
+
+            var url = $"{_documentGenerationConfig.BaseUrl}/documents/order";
+            var filePath = ConstructOrderDocumentFilePath(order);
+
+            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+        }
+
+        public async Task<FileStream> DownloadOrderDocumentAsync(int orderId)
+        {
+            var order = await _orderDataProvider.GetByIdAsync(orderId);
+            var filePath = ConstructOrderDocumentFilePath(order);
+            return DownloadDcument(filePath);
+        }
+
+        public async Task CreateAndStoreDeliveryNoteAsync(int orderId)
+        {
+            var includeQuery = new QuerySet();
+            includeQuery.Include.Fields = new string[] { "customer", "contact", "building" };
+            var order = await _orderDataProvider.GetByIdAsync(orderId, includeQuery);
+
+            var offerIncludeQuery = new QuerySet();
+            offerIncludeQuery.Include.Fields = new string[] { "offerlines", "request" };
+            var offer = await _offerDataProvider.GetByOrderIdAsync(orderId, offerIncludeQuery);
+
+            offer.Offerlines = offer.Offerlines.Where(l => l.IsOrdered).OrderBy(l => l.SequenceNumber);
+            offer.Order = null; // Remove duplicated nested data before sending
+
+            order.Offer = offer;
+
+            await EmbedCustomerAndContactTelephonesAsync(order);
+
+            var visitorInitials = offer.Request != null ? await GetVisitorInitialsByOfferIdAsync(offer.Id) : null;
+
+            dynamic documentData = new ExpandoObject();
+            documentData.Order = order;
+            documentData.Visitor = visitorInitials;
+
+            var url = $"{_documentGenerationConfig.BaseUrl}/documents/delivery-note";
+            var filePath = ConstructDeliveryNoteFilePath(order);
+
+            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+        }
+
+        public async Task<FileStream> DownloadDeliveryNoteAsync(int orderId)
+        {
+            var order = await _orderDataProvider.GetByIdAsync(orderId);
+            var filePath = ConstructDeliveryNoteFilePath(order);
             return DownloadDcument(filePath);
         }
 
@@ -356,7 +428,35 @@ namespace Rollvolet.CRM.Domain.Managers
             Directory.CreateDirectory(directory);
 
             var number = $"{offer.Number.Substring(0, 8)}_${offer.Number.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
-            var filename = _onlyAlphaNumeric.Replace($"{number  }_{offer.DocumentVersion}", "");
+            var filename = _onlyAlphaNumeric.Replace($"{number}_{offer.DocumentVersion}", "");
+
+            return $"{directory}{filename}.pdf";
+        }
+
+        private string ConstructOrderDocumentFilePath(Order order)
+        {
+            // Parse year from the offernumber, since the offerdate changes on each document generation
+            // This will only work until 2099
+            var year = $"20{int.Parse(order.OfferNumber.Substring(0, 2)) - 10}";
+            var directory = $"{_orderStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);
+
+            var number = $"{order.OfferNumber.Substring(0, 8)}_${order.OfferNumber.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
+            var filename = _onlyAlphaNumeric.Replace($"{number}", "");
+
+            return $"{directory}{filename}.pdf";
+        }
+
+        private string ConstructDeliveryNoteFilePath(Order order)
+        {
+            // Parse year from the offernumber, since the offerdate changes on each document generation
+            // This will only work until 2099
+            var year = $"20{int.Parse(order.OfferNumber.Substring(0, 2)) - 10}";
+            var directory = $"{_deliveryNoteStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);
+
+            var number = $"{order.OfferNumber.Substring(0, 8)}_${order.OfferNumber.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
+            var filename = _onlyAlphaNumeric.Replace($"{number}", "");
 
             return $"{directory}{filename}.pdf";
         }

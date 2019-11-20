@@ -7,7 +7,11 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
     {
         Task<Stream> CreateVisitReportAsync(int requestId);
         Task CreateAndStoreOfferDocumentAsync(int offerId);
-        Task<FileStream> DownloadOfferDocument(int offerId);
+        Task<FileStream> DownloadOfferDocumentAsync(int offerId);
+        Task CreateAndStoreOrderDocumentAsync(int orderId);
+        Task<FileStream> DownloadOrderDocumentAsync(int orderId);
+        Task CreateAndStoreDeliveryNoteAsync(int orderId);
+        Task<FileStream> DownloadDeliveryNoteAsync(int orderId);
         Task CreateAndStoreInvoiceDocumentAsync(int invoiceId, string language);
         Task<FileStream> DownloadInvoiceDocumentAsync(int invoiceId);
         Task CreateAndStoreDepositInvoiceDocumentAsync(int depositInvoiceId, string language);
