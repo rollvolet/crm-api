@@ -144,11 +144,9 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost("{invoiceId}/certificates")]
         public async Task<IActionResult> CreateCertificateAsync(int invoiceId)
         {
-            var stream = await _documentGenerationManager.CreateCertificateForInvoiceAsync(invoiceId);
-
-            var file = new FileStreamResult(stream, "application/pdf");
-            file.FileDownloadName = $"{invoiceId}_attest.pdf";
-            return file;
+            await _documentGenerationManager.CreateCertificateTemplateForInvoiceAsync(invoiceId);
+            // TODO return download location in Location header
+            return NoContent();
         }
 
         [HttpPost("{invoiceId}/certificate")]
@@ -164,16 +162,6 @@ namespace Rollvolet.CRM.API.Controllers
             }
 
             return NoContent();
-        }
-
-        [HttpGet("{invoiceId}/certificate")]
-        public async Task<IActionResult> DownloadCertificateAsync(int invoiceId)
-        {
-            var fileStream = await _documentGenerationManager.DownloadCertificateForInvoiceAsync(invoiceId);
-
-            var file = new FileStreamResult(fileStream, "application/pdf");
-            file.FileDownloadName = fileStream.Name;
-            return file;
         }
 
         [HttpGet("{invoiceId}/customer")]

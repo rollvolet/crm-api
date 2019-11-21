@@ -343,7 +343,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task<Stream> CreateCertificateForInvoiceAsync(int invoiceId)
+        public async Task CreateCertificateTemplateForInvoiceAsync(int invoiceId)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] {
@@ -353,7 +353,14 @@ namespace Rollvolet.CRM.Domain.Managers
 
             await EmbedCustomerAndContactTelephonesAsync(invoice);  // required to include customer/contact language and honorific prefix
 
-            return await CreateCertificateAsync(invoice);
+            await CreateCertificateAsync(invoice);
+        }
+
+        public async Task<FileStream> DownloadCertificateTemplateForInvoiceAsync(int invoiceId)
+        {
+            var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
+            var filePath = ConstructGeneratedCertificateFilePath(invoice);
+            return DownloadDcument(filePath);
         }
 
         public async Task UploadCertificateForInvoiceAsync(int invoiceId, Stream content)
@@ -369,7 +376,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task<Stream> CreateCertificateForDepositInvoiceAsync(int invoiceId)
+        public async Task CreateCertificateTemplateForDepositInvoiceAsync(int invoiceId)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] {
@@ -379,7 +386,14 @@ namespace Rollvolet.CRM.Domain.Managers
 
             await EmbedCustomerAndContactTelephonesAsync(depositInvoice);  // required to include customer/contact language and honorific prefix
 
-            return await CreateCertificateAsync(depositInvoice);
+            await CreateCertificateAsync(depositInvoice);
+        }
+
+        public async Task<FileStream> DownloadCertificateTemplateForDepositInvoiceAsync(int invoiceId)
+        {
+            var depositInvoice = await _depositInvoiceDateProvider.GetByIdAsync(invoiceId);
+            var filePath = ConstructGeneratedCertificateFilePath(depositInvoice);
+            return DownloadDcument(filePath);
         }
 
         public async Task UploadCertificateForDepositInvoiceAsync(int invoiceId, Stream content)
@@ -408,7 +422,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        private async Task<Stream> CreateCertificateAsync(BaseInvoice invoice)
+        private async Task CreateCertificateAsync(BaseInvoice invoice)
         {
             dynamic documentData = new ExpandoObject();
             documentData.Invoice = invoice;
@@ -417,7 +431,6 @@ namespace Rollvolet.CRM.Domain.Managers
             var filePath = ConstructGeneratedCertificateFilePath(invoice);
 
             await GenerateAndStoreDocumentAsync(url, documentData, filePath);
-            return DownloadDcument(filePath);
         }
 
         private string ConstructOfferDocumentFilePath(Offer offer)
