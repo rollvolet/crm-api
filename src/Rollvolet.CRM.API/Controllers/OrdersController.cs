@@ -153,6 +153,14 @@ namespace Rollvolet.CRM.API.Controllers
             return NoContent();
         }
 
+        [HttpPost("{id}/production-tickets")]
+        public async Task<IActionResult> CreateProductionTicketAsync(int id)
+        {
+            await _documentGenerationManager.CreateAndStoreProductionTicketTemplateAsync(id);
+            // TODO return download location in Location header
+            return NoContent();
+        }
+
         [HttpPost("{orderId}/production-ticket")]
         public async Task<IActionResult> UploadProductionTicketAsync(int orderId, IFormFile file)
         {
@@ -166,16 +174,6 @@ namespace Rollvolet.CRM.API.Controllers
             }
 
             return NoContent();
-        }
-
-        [HttpGet("{orderId}/production-ticket")]
-        public async Task<IActionResult> DownloadProductionTicketAsync(int orderId)
-        {
-            var fileStream = await _documentGenerationManager.DownloadProductionTicketAsync(orderId);
-
-            var file = new FileStreamResult(fileStream, "application/pdf");
-            file.FileDownloadName = fileStream.Name;
-            return file;
         }
 
         [HttpGet("{orderId}/customer")]

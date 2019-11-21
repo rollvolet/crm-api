@@ -41,8 +41,9 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly string _offerStorageLocation;
         private readonly string _orderStorageLocation;
         private readonly string _deliveryNoteStorageLocation;
+        private readonly string _generatedProductionTicketStorageLocation;
+        private readonly string _receivedProductionTicketStorageLocation;
         private readonly string _invoiceStorageLocation;
-        private readonly string _productionTicketStorageLocation;
         private readonly string _generatedCertificateStorageLocation;
         private readonly string _receivedCertificateStorageLocation;
         private readonly ILogger _logger;
@@ -73,7 +74,8 @@ namespace Rollvolet.CRM.Domain.Managers
             _orderStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.OrderStorageLocation);
             _deliveryNoteStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.DeliveryNoteStorageLocation);
             _invoiceStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.InvoiceStorageLocation);
-            _productionTicketStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.ProductionTicketStorageLocation);
+            _generatedProductionTicketStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.GeneratedProductionTicketStorageLocation);
+            _receivedProductionTicketStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.ReceivedProductionTicketStorageLocation);
             _generatedCertificateStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.GeneratedCertificateStorageLocation);
             _receivedCertificateStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.ReceivedCertificateStorageLocation);
         }
@@ -243,6 +245,54 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
+        public async Task CreateAndStoreProductionTicketTemplateAsync(int orderId)
+        {
+            var includeQuery = new QuerySet();
+            includeQuery.Include.Fields = new string[] { "customer", "contact", "building" };
+            var order = await _orderDataProvider.GetByIdAsync(orderId, includeQuery);
+
+            var offerIncludeQuery = new QuerySet();
+            offerIncludeQuery.Include.Fields = new string[] { "request" };
+            var offer = await _offerDataProvider.GetByOrderIdAsync(orderId, offerIncludeQuery);
+
+            offer.Order = null; // Remove duplicated nested data before sending
+
+            order.Offer = offer;
+
+            await EmbedCustomerAndContactTelephonesAsync(order);
+
+            var visitorInitials = offer.Request != null ? await GetVisitorInitialsByOfferIdAsync(offer.Id) : null;
+
+            dynamic documentData = new ExpandoObject();
+            documentData.Order = order;
+            documentData.Visitor = visitorInitials;
+
+            var url = $"{_documentGenerationConfig.BaseUrl}/documents/production-ticket";
+            var filePath = ConstructGeneratedProductionTicketFilePath(order);
+
+            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+        }
+
+        public async Task<FileStream> DownloadProductionTicketTemplateAsync(int orderId)
+        {
+            var order = await _orderDataProvider.GetByIdAsync(orderId);
+            var filePath = ConstructGeneratedProductionTicketFilePath(order);
+            return DownloadDcument(filePath);
+        }
+
+        public async Task UploadProductionTicketAsync(int orderId, Stream content)
+        {
+            var filePath = await ConstructReceivedProductionTicketFilePathAsync(orderId);
+            _logger.LogDebug($"Uploading production ticket to {filePath}");
+            UploadDocument(filePath, content);
+        }
+
+        public async Task<FileStream> DownloadProductionTicketAsync(int orderId)
+        {
+            var filePath = await ConstructReceivedProductionTicketFilePathAsync(orderId);
+            return DownloadDcument(filePath);
+        }
+
         public async Task CreateAndStoreInvoiceDocumentAsync(int invoiceId)
         {
             var includeQuery = new QuerySet();
@@ -409,19 +459,6 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task UploadProductionTicketAsync(int orderId, Stream content)
-        {
-            var filePath = await ConstructProductionTicketFilePathAsync(orderId);
-            _logger.LogDebug($"Uploading production ticket to {filePath}");
-            UploadDocument(filePath, content);
-        }
-
-        public async Task<FileStream> DownloadProductionTicketAsync(int orderId)
-        {
-            var filePath = await ConstructProductionTicketFilePathAsync(orderId);
-            return DownloadDcument(filePath);
-        }
-
         private async Task CreateCertificateAsync(BaseInvoice invoice)
         {
             dynamic documentData = new ExpandoObject();
@@ -449,9 +486,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         private string ConstructOrderDocumentFilePath(Order order)
         {
-            // Parse year from the offernumber, since the offerdate changes on each document generation
-            // This will only work until 2099
-            var year = $"20{int.Parse(order.OfferNumber.Substring(0, 2)) - 10}";
+            var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
             var directory = $"{_orderStorageLocation}{year}{Path.DirectorySeparatorChar}";
             Directory.CreateDirectory(directory);
 
@@ -463,14 +498,39 @@ namespace Rollvolet.CRM.Domain.Managers
 
         private string ConstructDeliveryNoteFilePath(Order order)
         {
-            // Parse year from the offernumber, since the offerdate changes on each document generation
-            // This will only work until 2099
-            var year = $"20{int.Parse(order.OfferNumber.Substring(0, 2)) - 10}";
+            var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
             var directory = $"{_deliveryNoteStorageLocation}{year}{Path.DirectorySeparatorChar}";
             Directory.CreateDirectory(directory);
 
             var number = $"{order.OfferNumber.Substring(0, 8)}_${order.OfferNumber.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
             var filename = _onlyAlphaNumeric.Replace($"{number}", "");
+
+            return $"{directory}{filename}.pdf";
+        }
+
+        private string ConstructGeneratedProductionTicketFilePath(Order order)
+        {
+             var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
+            var directory = $"{_generatedProductionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);
+
+            var number = $"{order.OfferNumber.Substring(0, 8)}_${order.OfferNumber.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
+            var filename = _onlyAlphaNumeric.Replace($"{number}", "");
+
+            return $"{directory}{filename}.pdf";
+        }
+
+        private async Task<string> ConstructReceivedProductionTicketFilePathAsync(int orderId)
+        {
+            var query = new QuerySet();
+            query.Include.Fields = new string[] { "customer" };
+            var order = await _orderDataProvider.GetByIdAsync(orderId, query);
+
+            var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
+            var directory = $"{_receivedProductionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);
+
+            var filename = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "") + _noNewlines.Replace($"_{order.Customer.Name}", "");
 
             return $"{directory}{filename}.pdf";
         }
@@ -483,21 +543,6 @@ namespace Rollvolet.CRM.Domain.Managers
             Directory.CreateDirectory(directory);
 
             var filename = _onlyAlphaNumeric.Replace($"F0{invoice.Number}", "");
-
-            return $"{directory}{filename}.pdf";
-        }
-
-        private async Task<string> ConstructProductionTicketFilePathAsync(int orderId)
-        {
-            var query = new QuerySet();
-            query.Include.Fields = new string[] { "customer" };
-            var order = await _orderDataProvider.GetByIdAsync(orderId, query);
-
-            var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
-            var directory = $"{_productionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);
-
-            var filename = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "") + _noNewlines.Replace($"_{order.Customer.Name}", "");
 
             return $"{directory}{filename}.pdf";
         }

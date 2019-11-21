@@ -40,6 +40,18 @@ namespace Rollvolet.CRM.API.Controllers
             return await ViewFileStreamAsync(_documentGenerationManager.DownloadDeliveryNoteAsync, orderId);
         }
 
+        [HttpGet("production-ticket-templates/{orderId}")]
+        public async Task<IActionResult> ViewProductionTicketTemplateAsync(int orderId)
+        {
+            return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketTemplateAsync, orderId);
+        }
+
+        [HttpGet("production-tickets/{orderId}")]
+        public async Task<IActionResult> ViewProductionTicketeAsync(int orderId)
+        {
+            return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketAsync, orderId);
+        }
+
         [HttpGet("invoices/{id}")]
         public async Task<IActionResult> ViewInvoiceDocumentAsync(int id)
         {
@@ -51,7 +63,6 @@ namespace Rollvolet.CRM.API.Controllers
         {
             return await ViewFileStreamAsync(_documentGenerationManager.DownloadCertificateTemplateForInvoiceAsync, id);
         }
-
 
         [HttpGet("invoices/{id}/certificate")]
         public async Task<IActionResult> ViewVatCertificateForInvoiceAsync(int id)

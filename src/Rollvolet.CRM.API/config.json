@@ -19,8 +19,9 @@
     "OfferStorageLocation": "",
     "OrderStorageLocation": "",
     "DeliveryNoteStorageLocation": "",
+    "GeneratedProductionTicketStorageLocation": "",
+    "ReceivedProductionTicketStorageLocation": "",
     "InvoiceStorageLocation": "",
-    "ProductionTicketStorageLocation": "",
     "GeneratedCertificateStorageLocation": "",
     "ReceivedCertificateStorageLocation": ""
   },
