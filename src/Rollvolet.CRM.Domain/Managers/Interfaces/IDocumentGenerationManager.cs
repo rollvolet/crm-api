@@ -16,6 +16,7 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<FileStream> DownloadProductionTicketTemplateAsync(int orderId);
         Task UploadProductionTicketAsync(int orderId, Stream content);
         Task<FileStream> DownloadProductionTicketAsync(int orderId);
+        Task DeleteProductionTicketAsync(int orderId);
         Task CreateAndStoreInvoiceDocumentAsync(int invoiceId);
         Task<FileStream> DownloadInvoiceDocumentAsync(int invoiceId);
         Task CreateAndStoreDepositInvoiceDocumentAsync(int depositInvoiceId);
@@ -24,9 +25,11 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<FileStream> DownloadCertificateTemplateForInvoiceAsync(int invoiceId);
         Task UploadCertificateForInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null);
         Task<FileStream> DownloadCertificateForInvoiceAsync(int invoiceId);
+        Task DeleteCertificateForInvoiceAsync(int invoiceId);
         Task CreateCertificateTemplateForDepositInvoiceAsync(int invoiceId);
         Task<FileStream> DownloadCertificateTemplateForDepositInvoiceAsync(int invoiceId);
         Task UploadCertificateForDepositInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null);
         Task<FileStream> DownloadCertificateForDepositInvoiceAsync(int invoiceId);
+        Task DeleteCertificateForDepositInvoiceAsync(int invoiceId);
     }
 }

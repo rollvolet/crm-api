@@ -150,6 +150,14 @@ namespace Rollvolet.CRM.API.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{invoiceId}/certificate")]
+        public async Task<IActionResult> DeleteCertificateAsync(int invoiceId)
+        {
+            await _documentGenerationManager.DeleteCertificateForDepositInvoiceAsync(invoiceId);
+
+            return NoContent();
+        }
+
         [HttpGet("{invoiceId}/customer")]
         [HttpGet("{invoiceId}/links/customer")]
         public async Task<IActionResult> GetRelatedCustomerByIdAsync(int invoiceId)

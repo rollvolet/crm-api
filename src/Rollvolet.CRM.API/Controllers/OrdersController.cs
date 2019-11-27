@@ -176,6 +176,14 @@ namespace Rollvolet.CRM.API.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{orderId}/production-ticket")]
+        public async Task<IActionResult> DeleteProductionTicketAsync(int orderId)
+        {
+            await _documentGenerationManager.DeleteProductionTicketAsync(orderId);
+
+            return NoContent();
+        }
+
         [HttpGet("{orderId}/customer")]
         [HttpGet("{orderId}/links/customer")]
         public async Task<IActionResult> GetRelatedCustomerByIdAsync(int orderId)

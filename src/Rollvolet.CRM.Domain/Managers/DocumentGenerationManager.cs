@@ -295,6 +295,20 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
+        public async Task DeleteProductionTicketAsync(int orderId)
+        {
+            var filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
+
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Something went wrong while deleting production ticket {0}.", filePath);
+            }
+        }
+
         public async Task CreateAndStoreInvoiceDocumentAsync(int invoiceId)
         {
             var includeQuery = new QuerySet();
@@ -430,6 +444,20 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
+        public async Task DeleteCertificateForInvoiceAsync(int invoiceId)
+        {
+            var filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
+
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Something went wrong while deleting production ticket {0}.", filePath);
+            }
+        }
+
         public async Task CreateCertificateTemplateForDepositInvoiceAsync(int invoiceId)
         {
             var query = new QuerySet();
@@ -463,6 +491,20 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var filePath = await FindReceivedCertificateFilePathAsync(invoiceId, true);
             return DownloadDcument(filePath);
+        }
+
+        public async Task DeleteCertificateForDepositInvoiceAsync(int invoiceId)
+        {
+            var filePath = await FindReceivedCertificateFilePathAsync(invoiceId, true);
+
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Something went wrong while deleting production ticket {0}.", filePath);
+            }
         }
 
         private async Task CreateCertificateAsync(BaseInvoice invoice)
