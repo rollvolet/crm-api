@@ -23,7 +23,8 @@
     "ReceivedProductionTicketStorageLocation": "",
     "InvoiceStorageLocation": "",
     "GeneratedCertificateStorageLocation": "",
-    "ReceivedCertificateStorageLocation": ""
+    "ReceivedCertificateStorageLocation": "",
+    "CertificateUploadSourceLocation": ""
   },
   "Accountancy": {
     "WinbooksExportLocation": "",

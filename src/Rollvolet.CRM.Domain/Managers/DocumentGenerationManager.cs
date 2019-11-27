@@ -46,6 +46,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly string _invoiceStorageLocation;
         private readonly string _generatedCertificateStorageLocation;
         private readonly string _receivedCertificateStorageLocation;
+        private readonly string _certificateUploadSourceLocation;
         private readonly ILogger _logger;
 
         public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IOfferDataProvider offerDataProvider,
@@ -78,6 +79,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _receivedProductionTicketStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.ReceivedProductionTicketStorageLocation);
             _generatedCertificateStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.GeneratedCertificateStorageLocation);
             _receivedCertificateStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.ReceivedCertificateStorageLocation);
+            _certificateUploadSourceLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.CertificateUploadSourceLocation);
         }
 
         public async Task<Stream> CreateVisitReportAsync(int requestId)
@@ -413,11 +415,13 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task UploadCertificateForInvoiceAsync(int invoiceId, Stream content)
+        public async Task UploadCertificateForInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null)
         {
             var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId);
             _logger.LogDebug($"Uploading certificate to {filePath}");
             UploadDocument(filePath, content);
+
+            RemoveUploadFile($"{_certificateUploadSourceLocation}{uploadFileName}");
         }
 
         public async Task<FileStream> DownloadCertificateForInvoiceAsync(int invoiceId)
@@ -446,11 +450,13 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task UploadCertificateForDepositInvoiceAsync(int invoiceId, Stream content)
+        public async Task UploadCertificateForDepositInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null)
         {
             var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId, true);
             _logger.LogDebug($"Uploading certificate to {filePath}");
             UploadDocument(filePath, content);
+
+            RemoveUploadFile($"{_certificateUploadSourceLocation}{uploadFileName}");
         }
 
         public async Task<FileStream> DownloadCertificateForDepositInvoiceAsync(int invoiceId)
@@ -711,6 +717,18 @@ namespace Rollvolet.CRM.Domain.Managers
             {
                 _logger.LogWarning("Cannot find document at {1}", filePath);
                 throw new EntityNotFoundException();
+            }
+        }
+
+        private void RemoveUploadFile(string path)
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            catch (Exception)
+            {
+                _logger.LogDebug("Failed to remove uploaded file {0}.", path);
             }
         }
 

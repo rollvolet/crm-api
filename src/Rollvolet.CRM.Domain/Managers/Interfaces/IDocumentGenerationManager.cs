@@ -22,11 +22,11 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<FileStream> DownloadDepositInvoiceDocumentAsync(int depositInvoiceId);
         Task CreateCertificateTemplateForInvoiceAsync(int invoiceId);
         Task<FileStream> DownloadCertificateTemplateForInvoiceAsync(int invoiceId);
-        Task UploadCertificateForInvoiceAsync(int invoiceId, Stream content);
+        Task UploadCertificateForInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null);
         Task<FileStream> DownloadCertificateForInvoiceAsync(int invoiceId);
         Task CreateCertificateTemplateForDepositInvoiceAsync(int invoiceId);
         Task<FileStream> DownloadCertificateTemplateForDepositInvoiceAsync(int invoiceId);
-        Task UploadCertificateForDepositInvoiceAsync(int invoiceId, Stream content);
+        Task UploadCertificateForDepositInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null);
         Task<FileStream> DownloadCertificateForDepositInvoiceAsync(int invoiceId);
     }
 }

@@ -144,7 +144,7 @@ namespace Rollvolet.CRM.API.Controllers
             using (var stream = new MemoryStream())
             {
                 await file.CopyToAsync(stream);
-                await _documentGenerationManager.UploadCertificateForDepositInvoiceAsync(invoiceId, stream);
+                await _documentGenerationManager.UploadCertificateForDepositInvoiceAsync(invoiceId, stream, file.FileName);
             }
 
             return NoContent();
