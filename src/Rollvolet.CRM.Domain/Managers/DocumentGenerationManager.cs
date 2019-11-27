@@ -289,7 +289,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<FileStream> DownloadProductionTicketAsync(int orderId)
         {
-            var filePath = await ConstructReceivedProductionTicketFilePathAsync(orderId);
+            var filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
             return DownloadDcument(filePath);
         }
 
@@ -422,7 +422,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<FileStream> DownloadCertificateForInvoiceAsync(int invoiceId)
         {
-            var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId);
+            var filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
             return DownloadDcument(filePath);
         }
 
@@ -455,7 +455,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<FileStream> DownloadCertificateForDepositInvoiceAsync(int invoiceId)
         {
-            var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId, true);
+            var filePath = await FindReceivedCertificateFilePathAsync(invoiceId, true);
             return DownloadDcument(filePath);
         }
 
@@ -535,6 +535,29 @@ namespace Rollvolet.CRM.Domain.Managers
             return $"{directory}{filename}.pdf";
         }
 
+        private async Task<string> FindReceivedProductionTicketFilePathAsync(int orderId)
+        {
+            var order = await _orderDataProvider.GetByIdAsync(orderId);
+
+            var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
+            var directory = $"{_receivedProductionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
+
+            // only search on offernumber since customer name might have changed
+            var filenameSearch = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "") + "*";
+
+            var matchingFiles = Directory.GetFiles(directory, filenameSearch);
+
+            if (matchingFiles.Length > 0)
+            {
+                return matchingFiles[0];
+            }
+            else
+            {
+                _logger.LogWarning($"Cannot find production-ticket file for order {orderId} starting with '{filenameSearch}' in directory {directory}");
+                throw new EntityNotFoundException();
+            }
+        }
+
         private string ConstructInvoiceDocumentFilePath(BaseInvoice invoice)
         {
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
@@ -575,6 +598,34 @@ namespace Rollvolet.CRM.Domain.Managers
             var filename = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "") + _noNewlines.Replace($"_{invoice.CustomerName}", "");
 
             return $"{directory}{filename}.pdf";
+        }
+
+        private async Task<string> FindReceivedCertificateFilePathAsync(int invoiceId, bool isDeposit = false)
+        {
+            BaseInvoice invoice = null;
+            if (isDeposit)
+                invoice = await _depositInvoiceDateProvider.GetByIdAsync(invoiceId);
+            else
+                invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
+
+            var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
+
+            var directory = $"{_receivedCertificateStorageLocation}{year}{Path.DirectorySeparatorChar}";
+
+            // only search on invoice number since customer name might have changed
+            var filenameSearch = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "") + "*";
+
+            var matchingFiles = Directory.GetFiles(directory, filenameSearch);
+
+            if (matchingFiles.Length > 0)
+            {
+                return matchingFiles[0];
+            }
+            else
+            {
+                _logger.LogWarning($"Cannot find certificate file for invoice {invoiceId} starting with '{filenameSearch}' in directory {directory}");
+                throw new EntityNotFoundException();
+            }
         }
 
         private async Task EmbedCustomerAndContactTelephonesAsync(ICaseRelated resource)
