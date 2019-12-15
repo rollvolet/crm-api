@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Rollvolet.CRM.DataProvider.Contexts;
@@ -37,10 +36,14 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 }
             }
 
-            if (querySet.Filter.Fields.ContainsKey("offer") && querySet.Filter.Fields["offer"] == "false")
+            if (querySet.Filter.Fields.ContainsKey("visitor"))
             {
-                source = source.Where(e => e.Offer == null);
+                var filterValue = querySet.Filter.Fields["visitor"].FilterWildcard();
+                source = source.Where(e => EF.Functions.Like(e.Visit.Visitor, filterValue));
             }
+
+            if (querySet.Filter.Fields.ContainsKey("offer") && querySet.Filter.Fields["offer"] == "false")
+                source = source.Where(e => e.Offer == null);
 
             source = source.FilterCase(querySet, context);
 

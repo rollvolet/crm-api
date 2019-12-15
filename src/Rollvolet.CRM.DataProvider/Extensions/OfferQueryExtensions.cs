@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Rollvolet.CRM.DataProvider.Contexts;
@@ -47,6 +46,12 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 {
                     throw new IllegalArgumentException("IllegalFilter", "Request number filter must be a integer.");
                 }
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("request.visitor"))
+            {
+                var filterValue = querySet.Filter.Fields["request.visitor"].FilterWildcard();
+                source = source.Where(e => EF.Functions.Like(e.Request.Visit.Visitor, filterValue));
             }
 
             source = source.FilterCase(querySet, context);
