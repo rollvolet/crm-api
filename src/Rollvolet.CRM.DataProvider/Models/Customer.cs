@@ -31,7 +31,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         // BE0664977164 => BE 0664.977.164
         public static string SerializeVatNumber(string vatNumber)
         {
-            if (vatNumber != null)
+            if (vatNumber != null && vatNumber.Length > 2)
             {
                 var country = vatNumber.Substring(0, 2).ToUpper();
                 var number = vatNumber.Substring(2);

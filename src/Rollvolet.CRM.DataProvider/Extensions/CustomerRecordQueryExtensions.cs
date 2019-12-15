@@ -36,6 +36,12 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 }
             }
 
+            if (querySet.Filter.Fields.ContainsKey("vat-number"))
+            {
+                var filterValue = Customer.SerializeVatNumber(querySet.Filter.Fields["vat-number"]);
+                source = source.Where(c => c.VatNumber == filterValue);
+            }
+
             return source;
         }
 
