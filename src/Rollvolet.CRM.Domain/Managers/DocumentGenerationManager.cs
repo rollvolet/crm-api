@@ -297,11 +297,15 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task DeleteProductionTicketAsync(int orderId)
         {
-            var filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
-
+            string filePath = null;
             try
             {
+                filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
                 File.Delete(filePath);
+            }
+            catch (EntityNotFoundException)
+            {
+                _logger.LogInformation("No file found for production ticket of order {0}. Nothing to delete on disk.", orderId);
             }
             catch (Exception e)
             {
@@ -446,15 +450,19 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task DeleteCertificateForInvoiceAsync(int invoiceId)
         {
-            var filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
-
+            string filePath = null;
             try
             {
+                filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
                 File.Delete(filePath);
+            }
+            catch (EntityNotFoundException)
+            {
+                _logger.LogInformation("No file found for received certificate of invoice {0}. Nothing to delete on disk.", invoiceId);
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "Something went wrong while deleting production ticket {0}.", filePath);
+                _logger.LogWarning(e, "Something went wrong while deleting received certificate {0}.", filePath);
             }
         }
 
@@ -495,15 +503,19 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task DeleteCertificateForDepositInvoiceAsync(int invoiceId)
         {
-            var filePath = await FindReceivedCertificateFilePathAsync(invoiceId, true);
-
+            string filePath = null;
             try
             {
+                filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
                 File.Delete(filePath);
+            }
+            catch (EntityNotFoundException)
+            {
+                _logger.LogInformation("No file found for received certificate of deposit invoice {0}. Nothing to delete on disk.", invoiceId);
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "Something went wrong while deleting production ticket {0}.", filePath);
+                _logger.LogWarning(e, "Something went wrong while deleting received certificate {0}.", filePath);
             }
         }
 
@@ -589,6 +601,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
             var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
             var directory = $"{_receivedProductionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);  // ensure directory exists
 
             // only search on offernumber since customer name might have changed
             var filenameSearch = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "") + "*";
@@ -659,6 +672,7 @@ namespace Rollvolet.CRM.Domain.Managers
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
 
             var directory = $"{_receivedCertificateStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);  // ensure directory exists
 
             // only search on invoice number since customer name might have changed
             var filenameSearch = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "") + "*";
