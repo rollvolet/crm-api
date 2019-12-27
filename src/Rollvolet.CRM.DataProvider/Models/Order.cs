@@ -36,6 +36,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("BestelTotaal")]
         public double? Amount { get; set; }
 
+        [Column("Referentie")] // kept in sync with invoice reference in frontend
+        public string Reference { get; set; }
+
         [Column("BtwId")]
         public int? VatRateId { get; set; }
 
