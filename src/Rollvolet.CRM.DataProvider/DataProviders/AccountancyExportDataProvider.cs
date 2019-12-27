@@ -199,7 +199,7 @@ namespace Rollvolet.CRM.DataProviders
                 DocType = "1",
                 DBKCode = configuration.WinbooksDiary,
                 DBKType = "2",
-                DocNumber = ((int) invoice.Number).ToString("D5"), // format with 5 digits
+                DocNumber = ((int) invoice.Number).ToString("D5"), // format with minimal 5 digits
                 DocOrder = "001",
                 OPCode = "",
                 AccountGL = "400000",
@@ -243,7 +243,7 @@ namespace Rollvolet.CRM.DataProviders
                 DocType = "3",
                 DBKCode = configuration.WinbooksDiary,
                 DBKType = "2",
-                DocNumber = ((int) invoice.Number).ToString("D5"), // format with 5 digits
+                DocNumber = ((int) invoice.Number).ToString("D5"), // format with minimal 5 digits
                 DocOrder = "002",
                 OPCode = "",
                 AccountGL = account,
@@ -286,7 +286,7 @@ namespace Rollvolet.CRM.DataProviders
                 DocType = docType,
                 DBKCode = configuration.WinbooksDiary,
                 DBKType = "2",
-                DocNumber = ((int) invoice.Number).ToString("D5"), // format with 5 digits
+                DocNumber = ((int) invoice.Number).ToString("D5"), // format with minimal 5 digits
                 DocOrder = "VAT",
                 OPCode = "FIXED",
                 AccountGL = docType == "4" ? "" : "451000",

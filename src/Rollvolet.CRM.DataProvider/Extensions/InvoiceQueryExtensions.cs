@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Rollvolet.CRM.DataProvider.Contexts;
@@ -23,7 +22,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 if (Int32.TryParse(filterValue, out number)) {
                     var predicate = PredicateBuilder.New<Invoice>(x => x.Number == number);
                     var i = 10;
-                    while (i * number < 1000000) {
+                    while (i * number < 10000000) {
                         var from = i * number;
                         var to = i * (number + 1);
                         predicate.Or(c => c.Number >= from && c.Number <= to);
