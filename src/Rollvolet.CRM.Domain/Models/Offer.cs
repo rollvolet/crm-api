@@ -21,6 +21,7 @@ namespace Rollvolet.CRM.Domain.Models
         public DateTime OfferDate { get; set; }
         public double? Amount { get; set; }
         public string Reference { get; set; }
+        public string Comment { get; set; }
         public string DocumentIntro { get; set; }
         public string DocumentOutro { get; set; }
         public string DocumentVersion { get; set; }

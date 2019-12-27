@@ -70,6 +70,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("OfferteBedrag")]
         public double? Amount { get; set; }
 
+        [Column("Opmerking")] // kept in sync with invoice comment in frontend
+        public string Comment { get; set; }
+
         // @Deprecated
         // [Column("VerzendDatum")]
 
