@@ -123,11 +123,9 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost("{id}/reports")]
         public async Task<IActionResult> CreateVisitReportAsync(int id)
         {
-            var stream = await _documentGenerationManager.CreateVisitReportAsync(id);
-
-            var file = new FileStreamResult(stream, "application/pdf");
-            file.FileDownloadName = $"AD{id}_bezoekrapport.pdf";
-            return file;
+            await _documentGenerationManager.CreateAndStoreVisitReportAsync(id);
+            // TODO return download location in Location header
+            return NoContent();
         }
 
         [HttpPut("{id}/calendar-event")]

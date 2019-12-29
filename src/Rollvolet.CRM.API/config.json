@@ -16,6 +16,7 @@
   },
   "DocumentGeneration": {
     "BaseUrl": "",
+    "VisitReportStorageLocation": "",
     "OfferStorageLocation": "",
     "OrderStorageLocation": "",
     "DeliveryNoteStorageLocation": "",

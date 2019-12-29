@@ -22,6 +22,12 @@ namespace Rollvolet.CRM.API.Controllers
             _logger = logger;
         }
 
+        [HttpGet("requests/{id}")]
+        public async Task<IActionResult> ViewVisitReportAsync(int id)
+        {
+            return await ViewFileStreamAsync(_documentGenerationManager.DownloadVisitReportAsync, id);
+        }
+
         [HttpGet("offers/{id}")]
         public async Task<IActionResult> ViewOfferDocumentAsync(int id)
         {
@@ -94,7 +100,7 @@ namespace Rollvolet.CRM.API.Controllers
             {
                 var fileStream = await downloadFileAsync(id);
                 var file = new FileStreamResult(fileStream, "application/pdf");
-                // file.FileDownloadName = fileStream.Name;  // this makes file being server with disposition=attachment
+                // file.FileDownloadName = fileStream.Name;  // this makes file being served with disposition=attachment
                 return file;
             }
             catch (EntityNotFoundException)

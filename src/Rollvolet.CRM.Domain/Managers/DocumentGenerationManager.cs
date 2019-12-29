@@ -38,6 +38,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IEmployeeDataProvider _employeeDataProvider;
         private readonly HttpClient _httpClient;
         private readonly DocumentGenerationConfiguration _documentGenerationConfig;
+        private readonly string _visitReportStorageLocation;
         private readonly string _offerStorageLocation;
         private readonly string _orderStorageLocation;
         private readonly string _deliveryNoteStorageLocation;
@@ -71,6 +72,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _documentGenerationConfig = documentGenerationConfiguration.Value;
             _logger = logger;
 
+            _visitReportStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.VisitReportStorageLocation);
             _offerStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.OfferStorageLocation);
             _orderStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.OrderStorageLocation);
             _deliveryNoteStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.DeliveryNoteStorageLocation);
@@ -82,7 +84,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _certificateUploadSourceLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.CertificateUploadSourceLocation);
         }
 
-        public async Task<Stream> CreateVisitReportAsync(int requestId)
+        public async Task CreateAndStoreVisitReportAsync(int requestId)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] {
@@ -129,20 +131,16 @@ namespace Rollvolet.CRM.Domain.Managers
             documentData.History = history;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/visit-report";
-            var body = GenerateJsonBody(documentData);
-            _logger.LogDebug("Send request to document generation service at {0}", url);
-            var response = await _httpClient.PostAsync(url, body);
+            var filePath = ConstructVisitReportFilePath(request);
 
-            try
-            {
-                response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsStreamAsync();
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning("Something went wrong while generating the visit report of request {0}: {1}", requestId, e.Message);
-                throw e;
-            }
+            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+        }
+
+        public async Task<FileStream> DownloadVisitReportAsync(int requestId)
+        {
+            var request = await _requestDataProvider.GetByIdAsync(requestId);
+            var filePath = ConstructVisitReportFilePath(request);
+            return DownloadDcument(filePath);
         }
 
         public async Task CreateAndStoreOfferDocumentAsync(int offerId)
@@ -528,6 +526,15 @@ namespace Rollvolet.CRM.Domain.Managers
             var filePath = ConstructGeneratedCertificateFilePath(invoice);
 
             await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+        }
+
+        private string ConstructVisitReportFilePath(Request request)
+        {
+            var year = request.RequestDate != null ? ((DateTime) request.RequestDate).Year : 0;
+            var directory = $"{_visitReportStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);
+
+            return $"{directory}AD{request.Id}.pdf";
         }
 
         private string ConstructOfferDocumentFilePath(Offer offer)

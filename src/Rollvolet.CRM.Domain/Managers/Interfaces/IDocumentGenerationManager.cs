@@ -5,7 +5,8 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
 {
     public interface IDocumentGenerationManager
     {
-        Task<Stream> CreateVisitReportAsync(int requestId);
+        Task CreateAndStoreVisitReportAsync(int requestId);
+        Task<FileStream> DownloadVisitReportAsync(int requestId);
         Task CreateAndStoreOfferDocumentAsync(int offerId);
         Task<FileStream> DownloadOfferDocumentAsync(int offerId);
         Task CreateAndStoreOrderDocumentAsync(int orderId);
