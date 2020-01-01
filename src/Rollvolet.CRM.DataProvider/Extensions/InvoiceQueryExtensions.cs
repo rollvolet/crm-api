@@ -19,7 +19,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             {
                 var filterValue = querySet.Filter.Fields["number"].Replace("/", "");
                 int number;
-                if (Int32.TryParse(filterValue, out number)) {
+                if (Int32.TryParse(filterValue, out number))
+                 {
                     var predicate = PredicateBuilder.New<Invoice>(x => x.Number == number);
                     var i = 10;
                     while (i * number < 10000000) {
@@ -42,14 +43,31 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 source = source.Where(c => EF.Functions.Like(c.Reference, filterValue));
             }
 
+            if (querySet.Filter.Fields.ContainsKey("order.id"))
+            {
+                var filterValue = querySet.Filter.Fields["order.id"];
+                int orderId;
+                if (Int32.TryParse(filterValue, out orderId))
+                {
+                    if (isDepositInvoice)
+                        source = source.Where(c => c.MainInvoiceHub.OrderId == orderId);
+                    else
+                        source = source.Where(c => c.OrderId == orderId);
+                }
+                else
+                {
+                    throw new IllegalArgumentException("IllegalFilter", "Order id filter must be a integer.");
+                }
+            }
+
             if (querySet.Filter.Fields.ContainsKey("offer.number"))
             {
                 var filterValue = querySet.Filter.Fields["offer.number"].FilterWildcard();
 
                 if (isDepositInvoice)
-                    source = source.Where(c => EF.Functions.Like(c.Order.OfferNumber, filterValue));
-                else
                     source = source.Where(c => EF.Functions.Like(c.MainInvoiceHub.Order.OfferNumber, filterValue));
+                else
+                    source = source.Where(c => EF.Functions.Like(c.Order.OfferNumber, filterValue));
             }
 
             if (querySet.Filter.Fields.ContainsKey("offer.request-number"))
