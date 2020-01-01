@@ -49,6 +49,21 @@ namespace Rollvolet.CRM.API.Controllers
             _jsonApiBuilder = jsonApiBuilder;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedContacts = await _contactManager.GetAllAsync(querySet);
+
+            var contactDtos = _mapper.Map<IEnumerable<ContactDto>>(pagedContacts.Items, opt => opt.Items["include"] = querySet.Include);
+            var included = _includedCollector.CollectIncluded(pagedContacts.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedContacts);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedContacts);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = contactDtos, Included = included });
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {

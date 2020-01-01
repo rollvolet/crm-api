@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -35,6 +34,26 @@ namespace Rollvolet.CRM.Domain.Managers
             _requestDataProvider = requestDataProvider;
             _invoiceDataProvider = invoiceDataProvider;
             _logger = logger;
+        }
+
+        public async Task<Paged<Contact>> GetAllAsync(QuerySet query)
+        {
+            if (query.Filter.Fields.ContainsKey("customer.number"))
+            {
+                var filterValue = query.Filter.Fields["customer.number"];
+                int customerId;
+                if (Int32.TryParse(filterValue, out customerId)) {
+                    return await GetAllByCustomerIdAsync(customerId, query);
+                }
+                else
+                {
+                    throw new IllegalArgumentException("IllegalFilter", "Customer number filter must be a integer.");
+                }
+            }
+            else
+            {
+                throw new IllegalArgumentException("IllegalFilter", "Customer number filter is required to get all contacts.");
+            }
         }
 
         public async Task<Paged<Contact>> GetAllByCustomerIdAsync(int customerId, QuerySet query)

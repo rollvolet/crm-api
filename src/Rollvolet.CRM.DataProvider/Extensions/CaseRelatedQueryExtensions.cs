@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using LinqKit;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.DataProvider.Models;
 using Rollvolet.CRM.DataProvider.Models.Interfaces;
+using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.DataProvider.Extensions
@@ -13,6 +15,18 @@ namespace Rollvolet.CRM.DataProvider.Extensions
     {
         public static IQueryable<T> FilterCase<T>(this IQueryable<T> source, QuerySet querySet, CrmContext context) where T : ICaseRelated
         {
+            if (querySet.Filter.Fields.ContainsKey("customer.number"))
+            {
+                var filterValue = querySet.Filter.Fields["customer.number"];
+                int number;
+                if (Int32.TryParse(filterValue, out number)) {
+                    source = source.Where(c => c.Customer.Number == number);
+                } else
+                {
+                    throw new IllegalArgumentException("IllegalFilter", "Customer number filter must be a integer.");
+                }
+            }
+
             if (querySet.Filter.Fields.ContainsKey("customer.name"))
             {
                 var filterValue = querySet.Filter.Fields["customer.name"].TextSearch();
