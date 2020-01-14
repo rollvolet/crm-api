@@ -72,6 +72,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Include.Fields.Contains("deposit-invoices"))
                 source = source.Include(c => c.DepositInvoicesHubs).ThenInclude(d => d.DepositInvoice);
 
+            if (querySet.Include.Fields.Contains("invoicelines.vat-rate"))
+                source = source.Include(x => x.Invoicelines).ThenInclude(x => x.VatRate);
+
             var selectors = new Dictionary<string, Expression<Func<Order, object>>>();
 
             selectors.Add("customer", c => c.Customer);
@@ -79,10 +82,12 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("invoice", c => c.Invoice);
             selectors.Add("vat-rate", c => c.VatRate);
             selectors.Add("deposits", c => c.Deposits);
+            selectors.Add("invoicelines", c => c.Invoicelines);
 
             // dummy entries for resources that are already included
             selectors.Add("customer.honorific-prefix", null);
             selectors.Add("deposit-invoices", null);
+            selectors.Add("invoicelines.vat-rate", null);
 
             // The selectors below won't work since we're not able to define the relationship in CrmContext
             // They are manually mapped in the DataProvider

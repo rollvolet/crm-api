@@ -176,16 +176,15 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task CreateAndStoreOrderDocumentAsync(int orderId)
         {
             var includeQuery = new QuerySet();
-            includeQuery.Include.Fields = new string[] { "customer", "contact", "building" };
+            includeQuery.Include.Fields = new string[] { "customer", "contact", "building", "invoicelines", "invoicelines.vat-rate" };
             var order = await _orderDataProvider.GetByIdAsync(orderId, includeQuery);
 
             var offerIncludeQuery = new QuerySet();
-            offerIncludeQuery.Include.Fields = new string[] { "offerlines", "offerlines.vat-rate", "request" };
+            offerIncludeQuery.Include.Fields = new string[] { "request" };
             var offer = await _offerDataProvider.GetByOrderIdAsync(orderId, offerIncludeQuery);
 
-            offer.Offerlines = offer.Offerlines.Where(l => l.IsOrdered).OrderBy(l => l.SequenceNumber);
+            order.Invoicelines = order.Invoicelines.OrderBy(l => l.SequenceNumber);
             offer.Order = null; // Remove duplicated nested data before sending
-
             order.Offer = offer;
 
             await EmbedCustomerAndContactTelephonesAsync(order);
@@ -212,16 +211,15 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task CreateAndStoreDeliveryNoteAsync(int orderId)
         {
             var includeQuery = new QuerySet();
-            includeQuery.Include.Fields = new string[] { "customer", "contact", "building" };
+            includeQuery.Include.Fields = new string[] { "customer", "contact", "building", "invoicelines", "invoicelines.vat-rate" };
             var order = await _orderDataProvider.GetByIdAsync(orderId, includeQuery);
 
             var offerIncludeQuery = new QuerySet();
-            offerIncludeQuery.Include.Fields = new string[] { "offerlines", "request" };
+            offerIncludeQuery.Include.Fields = new string[] { "request" };
             var offer = await _offerDataProvider.GetByOrderIdAsync(orderId, offerIncludeQuery);
 
-            offer.Offerlines = offer.Offerlines.Where(l => l.IsOrdered).OrderBy(l => l.SequenceNumber);
+            order.Invoicelines = order.Invoicelines.OrderBy(l => l.SequenceNumber);
             offer.Order = null; // Remove duplicated nested data before sending
-
             order.Offer = offer;
 
             await EmbedCustomerAndContactTelephonesAsync(order);
@@ -315,17 +313,16 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
-                "customer", "contact", "building", "order", "vat-rate", "supplements", "supplements.unit", "deposits", "deposit-invoices"
+                "customer", "contact", "building", "order", "vat-rate", "supplements", "supplements.unit", "deposits", "deposit-invoices", "invoicelines", "invoicelines.vat-rate"
             };
             var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId, includeQuery);
+
+            invoice.Invoicelines = invoice.Invoicelines.OrderBy(l => l.SequenceNumber);
 
             string visitorInitials = null;
             if (invoice.Order != null)
             {
-                var offerIncludeQuery = new QuerySet();
-                offerIncludeQuery.Include.Fields = new string[] { "offerlines", "offerlines.vat-rate" };
-                var offer = await _offerDataProvider.GetByIdAsync(invoice.Order.Id, offerIncludeQuery); // offer and order have the same id
-                offer.Offerlines = offer.Offerlines.OrderBy(l => l.SequenceNumber);
+                var offer = await _offerDataProvider.GetByIdAsync(invoice.Order.Id); // offer and order have the same id
                 invoice.Order.Offer = offer;
 
                 visitorInitials = await GetVisitorInitialsByOfferIdAsync(offer.Id);
@@ -340,6 +337,7 @@ namespace Rollvolet.CRM.Domain.Managers
             // Remove duplicated nested data before sending
             foreach (var deposit in invoice.Deposits) { deposit.Customer = null; deposit.Order = null; }
             foreach (var depositInvoice in invoice.DepositInvoices) { depositInvoice.Customer = null; depositInvoice.Order = null; }
+            foreach (var invoiceline in invoice.Invoicelines) { invoiceline.Order = null; }
             invoice.Customer.Offers = Enumerable.Empty<Offer>();
             invoice.Customer.Orders = Enumerable.Empty<Order>();
 

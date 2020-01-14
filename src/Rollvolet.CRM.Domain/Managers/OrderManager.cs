@@ -18,7 +18,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IInvoiceDataProvider _invoiceDataProvider;
-        private readonly IOfferlineDataProvider _offerlineDataProvider;
+        private readonly IInvoicelineDataProvider _invoicelineDataProvider;
         private readonly IDepositDataProvider _depositDataProvider;
         private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
@@ -28,7 +28,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public OrderManager(IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDataProvider,
                                 ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
                                 IBuildingDataProvider buildingDataProvider, IOfferDataProvider offerDataProvider,
-                                IOfferlineDataProvider offerlineDataProvider, IVatRateDataProvider vatRateDataProvider,
+                                IInvoicelineDataProvider invoicelineDataProvider, IVatRateDataProvider vatRateDataProvider,
                                 IDepositDataProvider depositDataProvider, IDepositInvoiceDataProvider depositInvoiceDataProvider,
                                 IGraphApiService graphApiService, ILogger<OrderManager> logger)
         {
@@ -38,7 +38,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _buildingDataProvider = buildingDataProvider;
             _offerDataProvider = offerDataProvider;
             _invoiceDataProvider = invoiceDataProvider;
-            _offerlineDataProvider = offerlineDataProvider;
+            _invoicelineDataProvider = invoicelineDataProvider;
             _depositDataProvider = depositDataProvider;
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
@@ -191,11 +191,10 @@ namespace Rollvolet.CRM.Domain.Managers
                     throw new InvalidOperationException(message);
                 }
 
-                // TODO reset ordered flag of offerlines on deletion instead of throwing an error?
-                var offerlines = await _offerlineDataProvider.GetOrderedByOrderIdAsync(id, pageQuery);
-                if (offerlines.Count > 0)
+                var invoicelines = await _invoicelineDataProvider.GetAllByOrderIdAsync(id, pageQuery);
+                if (invoicelines.Count > 0)
                 {
-                    var message = $"Order {id} cannot be deleted because {offerlines.Count} ordered offerlines are attached to it.";
+                    var message = $"Order {id} cannot be deleted because {invoicelines.Count} invoicelines are attached to it.";
                     _logger.LogError(message);
                     throw new InvalidOperationException(message);
                 }

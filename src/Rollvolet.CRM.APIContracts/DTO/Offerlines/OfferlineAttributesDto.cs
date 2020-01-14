@@ -8,7 +8,5 @@ namespace Rollvolet.CRM.APIContracts.DTO.Offerlines
         public int SequenceNumber { get; set; }
         public double? Amount { get; set; }
         public string Description { get; set; }
-        [JsonProperty("is-ordered")]
-        public bool IsOrdered { get; set; }
     }
 }
