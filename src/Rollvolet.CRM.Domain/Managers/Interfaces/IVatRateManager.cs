@@ -10,6 +10,7 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<VatRate> GetByOfferIdAsync(int offerId);
         Task<VatRate> GetByOrderIdAsync(int orderId);
         Task<VatRate> GetByOfferlineIdAsync(int offerlineId);
+        Task<VatRate> GetByInvoicelineIdAsync(int invoicelineId);
         Task<VatRate> GetByInvoiceIdAsync(int invoiceId);
         Task<VatRate> GetByDepositInvoiceIdAsync(int depositInvoiceId);
     }

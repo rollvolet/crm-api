@@ -108,6 +108,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public IEnumerable<InvoiceSupplement> Supplements { get; set; }
         public IEnumerable<Deposit> Deposits { get; set; }
         public IEnumerable<WorkingHour> WorkingHours { get; set; }
+        public IEnumerable<Invoiceline> Invoicelines { get; set; }
         public IEnumerable<DepositInvoiceHub> DepositInvoiceHubs { get; set; } // only set on normal invoices
         public DepositInvoiceHub MainInvoiceHub { get; set; } // only set on deposit invoices
 

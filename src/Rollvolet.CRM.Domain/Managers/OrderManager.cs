@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
@@ -83,6 +81,11 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Order> GetByInvoiceIdAsync(int invoiceId, QuerySet query = null)
         {
             return await _orderDataProvider.GetByInvoiceIdAsync(invoiceId, query);
+        }
+
+        public async Task<Order> GetByInvoicelineIdAsync(int invoicelineId, QuerySet query = null)
+        {
+            return await _orderDataProvider.GetByInvoicelineIdAsync(invoicelineId);
         }
 
         public async Task<Order> GetByDepositInvoiceIdAsync(int depositInvoiceId, QuerySet query = null)

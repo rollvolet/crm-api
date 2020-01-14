@@ -13,6 +13,7 @@ namespace Rollvolet.CRM.Domain.Models
         public Building Building { get; set; }
         public Contact Contact { get; set; }
         public VatRate VatRate { get; set; }
+        public IEnumerable<Invoiceline> Invoicelines { get; set; }
         public IEnumerable<Deposit> Deposits { get; set; }
         public IEnumerable<DepositInvoice> DepositInvoices { get; set; }
 

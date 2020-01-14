@@ -12,6 +12,7 @@ namespace Rollvolet.CRM.APIContracts.DTO.Invoices
         [JsonProperty("vat-rate")]
         public OneRelationship VatRate { get; set; }
         public ManyRelationship Supplements { get; set; }
+        public ManyRelationship Invoicelines { get; set; }
         public ManyRelationship Deposits { get; set; }
         [JsonProperty("deposit-invoices")]
         public ManyRelationship DepositInvoices { get; set; }

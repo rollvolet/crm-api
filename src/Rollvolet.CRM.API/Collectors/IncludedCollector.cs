@@ -308,6 +308,31 @@ namespace Rollvolet.CRM.API.Collectors
             return included;
         }
 
+        public IEnumerable<IResource> CollectIncluded(Invoiceline invoiceline, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+
+            // one-relations
+            if (includeQuery.Contains("order") && invoiceline.Order != null)
+                included.Add(_mapper.Map<OrderDto>(invoiceline.Order));
+            if (includeQuery.Contains("invoice") && invoiceline.Invoice != null)
+                included.Add(_mapper.Map<InvoiceDto>(invoiceline.Invoice));
+            if (includeQuery.Contains("vat-rate") && invoiceline.VatRate != null)
+                included.Add(_mapper.Map<VatRateDto>(invoiceline.VatRate));
+
+            return included;
+        }
+
+        public IEnumerable<IResource> CollectIncluded(IEnumerable<Invoiceline> invoicelines, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+
+            foreach (var invoiceline in invoicelines)
+                included.UnionWith(CollectIncluded(invoiceline, includeQuery));
+
+            return included;
+        }
+
         public IEnumerable<IResource> CollectIncluded(Invoice invoice, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();

@@ -88,11 +88,13 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task DeleteAsync(int id)
         {
-            var offerline = await _offerlineDataProvider.GetByIdAsync(id);
+            var query = new QuerySet();
+            query.Include.Fields = new string[] { "offer" };
+            var offerline = await _offerlineDataProvider.GetByIdAsync(id, query);
 
             try
             {
-                var order = await _orderDataProvider.GetByOfferIdAsync(id);
+                var order = await _orderDataProvider.GetByOfferIdAsync(offerline.Offer.Id);
                 var message = $"Offerline {id} cannot be deleted because order {order.Id} is attached to it.";
                 _logger.LogError(message);
                 throw new InvalidOperationException(message);

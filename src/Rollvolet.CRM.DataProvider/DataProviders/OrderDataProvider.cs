@@ -9,7 +9,6 @@ using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.DataProvider.Extensions;
 using Microsoft.Extensions.Logging;
-using LinqKit;
 using Rollvolet.CRM.Domain.Exceptions;
 using System.Linq.Expressions;
 using System;
@@ -120,6 +119,19 @@ namespace Rollvolet.CRM.DataProviders
             }
 
             return await GetByIdAsync((int) orderId, query);
+        }
+
+        public async Task<Order> GetByInvoicelineIdAsync(int invoicelineId)
+        {
+            var order = await _context.Invoicelines.Where(o => o.Id == invoicelineId).Select(o => o.Order).FirstOrDefaultAsync();
+
+            if (order == null)
+            {
+                _logger.LogError($"No order found for invoiceline-id {invoicelineId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Order>(order);
         }
 
         public async Task<Order> GetByDepositInvoiceIdAsync(int invoiceId, QuerySet query = null)

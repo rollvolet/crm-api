@@ -1,12 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
-using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.Domain.Managers
 {
@@ -39,6 +36,11 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<VatRate> GetByOfferlineIdAsync(int orderId)
         {
             return await _vatRateDataProvider.GetByOfferlineIdAsync(orderId);
+        }
+
+        public async Task<VatRate> GetByInvoicelineIdAsync(int invoicelineId)
+        {
+            return await _vatRateDataProvider.GetByInvoicelineIdAsync(invoicelineId);
         }
 
         public async Task<VatRate> GetByInvoiceIdAsync(int invoiceId)

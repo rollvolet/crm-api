@@ -13,6 +13,7 @@ namespace Rollvolet.CRM.APIContracts.DTO.Orders
         public OneRelationship Contact { get; set; }
         [JsonProperty("vat-rate")]
         public OneRelationship VatRate { get; set; }
+        public ManyRelationship Invoicelines { get; set; }
         public ManyRelationship Deposits { get; set; }
         [JsonProperty("deposit-invoices")]
         public ManyRelationship DepositInvoices { get; set; }

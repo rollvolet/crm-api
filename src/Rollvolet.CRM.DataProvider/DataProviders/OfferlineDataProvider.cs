@@ -21,7 +21,7 @@ namespace Rollvolet.CRM.DataProviders
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
 
-        public OfferlineDataProvider(CrmContext context, IMapper mapper, ILogger<DepositDataProvider> logger)
+        public OfferlineDataProvider(CrmContext context, IMapper mapper, ILogger<OfferlineDataProvider> logger)
         {
             _context = context;
             _mapper = mapper;

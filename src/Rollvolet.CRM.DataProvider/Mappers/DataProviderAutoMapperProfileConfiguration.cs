@@ -241,8 +241,20 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Offer, opt => opt.Ignore())
                 .ForMember(dest => dest.Invoice, opt => opt.Ignore())
                 .ForMember(dest => dest.DepositInvoicesHubs, opt => opt.Ignore())
+                .ForMember(dest => dest.Invoicelines, opt => opt.Ignore())
                 .ForMember(dest => dest.Deposits, opt => opt.Ignore())
                 .ForMember(dest => dest.OfferNumber, opt => opt.Ignore()) // Offer number cannot be updated through Order
+                .PreserveReferences();
+
+            CreateMap<Models.Invoiceline, Domain.Models.Invoiceline>()
+                .PreserveReferences()
+                .ReverseMap()
+                .ForMember(dest => dest.Order, opt => opt.Ignore())
+                .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.Order.Id))
+                .ForMember(dest => dest.Invoice, opt => opt.Ignore())
+                .ForMember(dest => dest.InvoiceId, opt => opt.MapFrom(src => src.Invoice.Id))
+                .ForMember(dest => dest.VatRate, opt => opt.Ignore())
+                .ForMember(dest => dest.VatRateId, opt => opt.MapFrom(src => src.VatRate != null ? src.VatRate.Id : null))
                 .PreserveReferences();
 
             CreateMap<Models.Invoice, Domain.Models.Invoice>()
@@ -260,6 +272,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Order, opt => opt.Ignore())
                 .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.Order != null ? src.Order.Id : (int?) null))
                 .ForMember(dest => dest.Deposits, opt => opt.Ignore())
+                .ForMember(dest => dest.Invoicelines, opt => opt.Ignore())
                 .ForMember(dest => dest.Supplements, opt => opt.Ignore())
                 .ForMember(dest => dest.DepositInvoiceHubs, opt => opt.Ignore())
                 .PreserveReferences();

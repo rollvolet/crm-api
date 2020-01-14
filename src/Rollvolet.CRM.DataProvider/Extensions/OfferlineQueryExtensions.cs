@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using LinqKit;
-using Microsoft.EntityFrameworkCore;
 using Rollvolet.CRM.DataProvider.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 

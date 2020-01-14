@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Rollvolet.CRM.DataProvider.Models
 {
-    public class Offerline
+    public class Invoiceline
     {
         [Column("Id")]
         public int Id { get; set; }
@@ -19,17 +19,18 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("VatRateId")]
         public int? VatRateId { get; set; }
 
-        [Column("OfferId")]
-        public int OfferId { get; set; }
+        [Column("OrderId")]
+        public int? OrderId { get; set; }
 
-        [Column("IsOrdered")]
-        public bool IsOrdered { get; set; }
+        [Column("InvoiceId")]
+        public int? InvoiceId { get; set; }
 
         [Column("Currency")]
         public string Currency { get; set; }
 
         // Include resources
-        public Offer Offer  { get; set; }
+        public Order Order  { get; set; }
+        public Invoice Invoice { get; set; }
         public VatRate VatRate { get; set; }
     }
 }
