@@ -136,11 +136,13 @@ namespace Rollvolet.CRM.Domain.Managers
                         invoiceline.VatRate = await _vatRateDataProvider.GetByIdAsync(int.Parse(invoiceline.VatRate.Id));
                 }
 
-                // Order cannot be updated. Take Order of oldInvoiceline on update.
-                if (oldInvoiceline != null)
-                    invoiceline.Order = oldInvoiceline.Order;
-                else
-                    invoiceline.Order = await _orderDataProvider.GetByIdAsync(invoiceline.Order.Id);
+                if (invoiceline.Order != null)
+                {
+                    if (oldInvoiceline != null) // Order cannot be updated. Take Order of oldInvoiceline on update.
+                        invoiceline.Order = oldInvoiceline.Order;
+                    else
+                        invoiceline.Order = await _orderDataProvider.GetByIdAsync(invoiceline.Order.Id);
+                }
 
                 if (invoiceline.Invoice != null)
                 {
