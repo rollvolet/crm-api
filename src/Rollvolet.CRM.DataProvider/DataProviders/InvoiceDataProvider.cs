@@ -101,7 +101,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Invoice> GetByInvoicelineIdAsync(int invoicelineId)
         {
-            var invoice = await _context.Invoicelines.Where(o => o.Id == invoicelineId).Select(o => o.Order).FirstOrDefaultAsync();
+            var invoice = await _context.Invoicelines.Where(o => o.Id == invoicelineId).Select(o => o.Invoice).FirstOrDefaultAsync();
 
             if (invoice == null)
             {
