@@ -56,6 +56,7 @@ namespace Rollvolet.CRM.DataProviders
             }
         }
 
+        // TODO this method is duplicated in CaseDataProvider
         private IQueryable<CaseTriplet<T>> JoinBuildingAndContact(IQueryable<T> source)
         {
             return source.GroupJoin(
