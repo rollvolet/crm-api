@@ -7,6 +7,7 @@ using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.API.Middleware.ExceptionHandling.Interfaces;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace Rollvolet.CRM.API.Middleware.ExceptionHandling
 {
@@ -79,6 +80,20 @@ namespace Rollvolet.CRM.API.Middleware.ExceptionHandling
                     Detail = typedEx.Message
                 };
                 return new BadRequestObjectResult(error);
+            }
+
+            if (ex is InvalidDataException)
+            {
+                var typedEx = ex as InvalidDataException;
+
+                var error = new Error
+                {
+                    Code = "InvalidData",
+                    Status = "500",
+                    Title = "Invalid data",
+                    Detail = typedEx.Message
+                };
+                return new ObjectResult(error) { StatusCode = StatusCodes.Status500InternalServerError };
             }
 
             if (ex is CodedException)
