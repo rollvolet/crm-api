@@ -371,13 +371,13 @@ namespace Rollvolet.CRM.Domain.Managers
             string visitorInitials = null;
             if (depositInvoice.Order != null)
             {
-                var offerIncludeQuery = new QuerySet();
-                offerIncludeQuery.Include.Fields = new string[] { "offerlines", "offerlines.vat-rate" };
-                var offer = await _offerDataProvider.GetByIdAsync(depositInvoice.Order.Id, offerIncludeQuery); // offer and order have the same id
-                offer.Offerlines = offer.Offerlines.OrderBy(l => l.SequenceNumber);
-                depositInvoice.Order.Offer = offer;
+                var orderIncludeQuery = new QuerySet();
+                orderIncludeQuery.Include.Fields = new string[] { "offer", "invoicelines", "invoicelines.vat-rate" };
+                var order = await _orderDataProvider.GetByIdAsync(depositInvoice.Order.Id, orderIncludeQuery);
+                order.Invoicelines = order.Invoicelines.OrderBy(l => l.SequenceNumber);
+                depositInvoice.Order = order;
 
-                visitorInitials = await GetVisitorInitialsByOfferIdAsync(offer.Id);
+                visitorInitials = await GetVisitorInitialsByOfferIdAsync(depositInvoice.Order.Offer.Id);
 
                 // Remove duplicated nested data before sending
                 depositInvoice.Order.Customer = null; depositInvoice.Order.Contact = null; depositInvoice.Order.Building = null;
