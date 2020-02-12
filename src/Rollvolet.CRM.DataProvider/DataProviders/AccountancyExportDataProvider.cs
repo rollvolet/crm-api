@@ -161,8 +161,6 @@ namespace Rollvolet.CRM.DataProviders
                 throw new InvalidDataException($"Invoice {invoice.Id} doesn't have an invoice date and cannot be exported.");
             if (invoice.InvoiceDate == null)
                 throw new InvalidDataException($"Invoice {invoice.Id} doesn't have an invoice date and cannot be exported.");
-            if (invoice.DueDate == null)
-                throw new InvalidDataException($"Invoice {invoice.Id} doesn't have a due date and cannot be exported.");
             if (invoice.Amount == null)
                 throw new InvalidDataException($"Invoice {invoice.Id} doesn't have an amount and cannot be exported.");
             if (invoice.Vat == null)
@@ -175,7 +173,7 @@ namespace Rollvolet.CRM.DataProviders
         {
             var invoiceDate = (DateTime) invoice.InvoiceDate;
             var invoiceDateStr = invoiceDate.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
-            var dueDate = (DateTime) invoice.DueDate;
+            var dueDate = invoice.DueDate != null ? (DateTime) invoice.DueDate : (DateTime) invoice.InvoiceDate;
             var dueDateStr = dueDate.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
 
             var startYear = Int32.Parse(configuration.WinbooksStart);
