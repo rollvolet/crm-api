@@ -8,6 +8,7 @@ using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
+using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.DataProviders
 {
@@ -31,7 +32,7 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<IEnumerable<VatRate>>(vatRates);
         }
 
-        public async Task<VatRate> GetByIdAsync(int id)
+        public async Task<VatRate> GetByIdAsync(int id, QuerySet query = null)
         {
             var vatRate = await _context.VatRates.Where(x => x.Id == id).FirstOrDefaultAsync();
 

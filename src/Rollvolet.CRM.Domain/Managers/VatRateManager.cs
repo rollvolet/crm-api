@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
+using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.Domain.Managers
 {
@@ -21,6 +22,11 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<IEnumerable<VatRate>> GetAllAsync()
         {
             return await _vatRateDataProvider.GetAllAsync();
+        }
+
+        public async Task<VatRate> GetByIdAsync(int id, QuerySet query = null)
+        {
+            return await _vatRateDataProvider.GetByIdAsync(id, query);
         }
 
         public async Task<VatRate> GetByOfferIdAsync(int offerId)
