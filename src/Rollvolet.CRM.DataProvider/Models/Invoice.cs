@@ -43,6 +43,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("OfferteID")]
         public int? OrderId { get; set; }
 
+        [Column("InterventionId")]
+        public int? InterventionId { get; set; }
+
         [Column("BtwId")]
         public int? VatRateId { get; set; }
 
@@ -104,6 +107,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         // Include resources
         public Customer Customer { get; set; }
         public Order Order { get; set; }
+        public Intervention Intervention { get; set; }
         public VatRate VatRate { get; set; }
         public IEnumerable<InvoiceSupplement> Supplements { get; set; }
         public IEnumerable<Deposit> Deposits { get; set; }

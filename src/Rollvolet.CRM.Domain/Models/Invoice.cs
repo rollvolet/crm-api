@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Rollvolet.CRM.Domain.Models
@@ -8,6 +7,7 @@ namespace Rollvolet.CRM.Domain.Models
         public bool IsCreditNote { get; set; }
         public bool HasProductionTicket { get; set; }
 
+        public Intervention Intervention { get; set; }
         public IEnumerable<InvoiceSupplement> Supplements { get; set; }
         public IEnumerable<Deposit> Deposits { get; set; }
         public IEnumerable<DepositInvoice> DepositInvoices { get; set; }

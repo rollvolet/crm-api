@@ -5,6 +5,7 @@ namespace Rollvolet.CRM.APIContracts.DTO.Invoices
 {
     public class InvoiceRequestRelationshipsDto
     {
+        public OneRelationship Intervention { get; set; }
         public OneRelationship Order { get; set; }
         public OneRelationship Customer { get; set; }
         public OneRelationship Building { get; set; }

@@ -63,6 +63,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("way-of-entry", c => c.WayOfEntry);
             selectors.Add("calendar-event", x => x.Visit);
             selectors.Add("offer", x => x.Offer);
+            selectors.Add("origin", x => x.Origin);
 
             // dummy entries for resources that are already included
             selectors.Add("customer.honorific-prefix", null);

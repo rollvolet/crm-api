@@ -21,6 +21,7 @@ using Rollvolet.CRM.APIContracts.DTO.AccountancyExports;
 using Rollvolet.CRM.APIContracts.DTO.ErrorNotifications;
 using Rollvolet.CRM.APIContracts.DTO.ProductUnits;
 using Rollvolet.CRM.APIContracts.DTO.Invoicelines;
+using Rollvolet.CRM.APIContracts.DTO.Interventions;
 
 namespace Rollvolet.CRM.API.Mappers
 {
@@ -62,6 +63,7 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Buildings, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Buildings : null))
                 .ForMember(dest => dest.Contacts, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Contacts : null))
                 .ForMember(dest => dest.Requests, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Requests : null))
+                .ForMember(dest => dest.Interventions, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Interventions : null))
                 .ForMember(dest => dest.Offers, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Offers : null))
                 .ForMember(dest => dest.Orders, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Orders : null))
                 .ForMember(dest => dest.DepositInvoices, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.DepositInvoices : null))
@@ -388,6 +390,7 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.WayOfEntry, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.WayOfEntry : null))
                 .ForMember(dest => dest.CalendarEvent, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.CalendarEvent : null))
                 .ForMember(dest => dest.Offer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Offer : null))
+                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Origin : null))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<OneRelationship, Request>()
@@ -399,6 +402,46 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<RelatedResource, Request>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+
+            // Intervention mappings
+
+            CreateMap<Intervention, InterventionDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "interventions"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<Intervention, InterventionAttributesDto>().ReverseMap();
+
+            CreateMap<Intervention, InterventionRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<Intervention, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "interventions"));
+
+            CreateMap<InterventionRequestDto, Intervention>()
+                .ConstructUsing((src, context) => context.Mapper.Map<Intervention>(src.Attributes))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Customer : null))
+                .ForMember(dest => dest.Contact, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Contact : null))
+                .ForMember(dest => dest.Building, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Building : null))
+                .ForMember(dest => dest.WayOfEntry, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.WayOfEntry : null))
+                .ForMember(dest => dest.FollowUpRequest, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.FollowUpRequest : null))
+                .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Invoice : null))
+                .ForMember(dest => dest.Technicians, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Technicians : null))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<OneRelationship, Intervention>()
+                .ConstructUsing((src, context) => context.Mapper.Map<Intervention>(src.Data))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<ManyRelationship, IEnumerable<Intervention>>()
+                .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<Intervention>>(src.Data))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<RelatedResource, Intervention>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
@@ -696,6 +739,7 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Contact, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Contact : null))
                 .ForMember(dest => dest.Building, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Building : null))
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Order : null))
+                .ForMember(dest => dest.Intervention, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Intervention : null))
                 .ForMember(dest => dest.VatRate, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.VatRate : null))
                 .ForMember(dest => dest.Deposits, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Deposits : null))
                 .ForMember(dest => dest.DepositInvoices, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.DepositInvoices : null))

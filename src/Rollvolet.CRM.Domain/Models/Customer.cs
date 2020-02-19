@@ -14,6 +14,7 @@ namespace Rollvolet.CRM.Domain.Models
 
         public IEnumerable<Contact> Contacts { get; set; }
         public IEnumerable<Building> Buildings { get; set; }
+        public IEnumerable<Intervention> Interventions { get; set; }
         public IEnumerable<Offer> Offers { get; set; }
         public IEnumerable<Order> Orders { get; set; }
         public IEnumerable<DepositInvoice> DepositInvoices { get; set; }

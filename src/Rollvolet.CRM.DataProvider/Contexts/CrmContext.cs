@@ -15,6 +15,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Telephone> Telephones { get; set; }
         public DbSet<TelephoneType> TelephoneTypes { get; set; }
         public DbSet<Request> Requests { get; set; }
+        public DbSet<Intervention> Interventions { get; set; }
         public DbSet<WayOfEntry> WayOfEntries { get; set; }
         public DbSet<ProductUnit> ProductUnits { get; set; }
         public DbSet<Memo> Memos { get; set; }
@@ -31,6 +32,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<InvoiceSupplement> InvoiceSupplements { get; set; }
         public DbSet<VatRate> VatRates { get; set; }
         public DbSet<Employee> Employees { get; set; }
+        public DbSet<InterventionTechinican> InterventionTechnicians { get; set; }
         public DbSet<Visit> Visits { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<AccountancyExport> AccountancyExports { get; set; }
@@ -262,6 +264,28 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasName("TblAanmelding$PrimaryKey");
 
 
+            // Intervention
+
+            modelBuilder.Entity<Intervention>()
+                .ToTable("TblIntervention", schema: "dbo");
+
+            modelBuilder.Entity<Intervention>()
+                .HasKey(e => e.Id)
+                .HasName("TblIntervention$PrimaryKey");
+
+            modelBuilder.Entity<Intervention>()
+                .HasOne(e => e.Customer)
+                .WithMany(e => e.Interventions)
+                .HasForeignKey(e => e.CustomerId)
+                .HasPrincipalKey(e => e.Number);
+
+            modelBuilder.Entity<Intervention>()
+                .HasOne(e => e.FollowUpRequest)
+                .WithOne(e => e.Origin)
+                .HasForeignKey<Intervention>(e => e.FollowUpRequestId)
+                .HasPrincipalKey<Request>(e => e.Id);
+
+
             // Offer
             modelBuilder.Entity<Offer>()
                 .ToTable("tblOfferte", schema: "dbo");
@@ -409,6 +433,12 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasPrincipalKey<Order>(e => e.Id);
 
             modelBuilder.Entity<Invoice>()
+                .HasOne(e => e.Intervention)
+                .WithOne(e => e.Invoice)
+                .HasForeignKey<Invoice>(e => e.InterventionId)
+                .HasPrincipalKey<Order>(e => e.Id);
+
+            modelBuilder.Entity<Invoice>()
                 .HasOne(e => e.VatRate)
                 .WithMany()
                 .HasForeignKey(e => e.VatRateId);
@@ -506,6 +536,25 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<Employee>()
                 .HasKey(e => e.Id);
+
+
+            // InterventionTechinician
+
+            modelBuilder.Entity<InterventionTechinican>()
+                .ToTable("TblInterventionTechnician", schema: "dbo");
+
+            modelBuilder.Entity<InterventionTechinican>()
+                .HasKey(e => new { e.InterventionId, e.EmployeeId });
+
+            modelBuilder.Entity<InterventionTechinican>()
+                .HasOne(e => e.Intervention)
+                .WithMany(e => e.InterventionTechinicans)
+                .HasForeignKey(e => e.InterventionId);
+
+            modelBuilder.Entity<InterventionTechinican>()
+                .HasOne(e => e.Employee)
+                .WithMany(e => e.InterventionTechinicans)
+                .HasForeignKey(e => e.EmployeeId);
 
 
             // WorkingHour
