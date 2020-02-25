@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -83,6 +82,23 @@ namespace Rollvolet.CRM.DataProviders
             if (contact == null)
             {
                 _logger.LogError($"No contact found for request id {requestId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Contact>(contact);
+        }
+
+        public async Task<Contact> GetByInterventionIdAsync(int interventionId)
+        {
+            var intervention = await _context.Interventions.Where(r => r.Id == interventionId).FirstOrDefaultAsync();
+
+            DataProvider.Models.Contact contact = null;
+            if (intervention != null)
+                contact = await _context.Contacts.Where(c => c.CustomerId == intervention.CustomerId && c.Number == intervention.RelativeContactId).FirstOrDefaultAsync();
+
+            if (contact == null)
+            {
+                _logger.LogError($"No contact found for intervention id {interventionId}");
                 throw new EntityNotFoundException();
             }
 

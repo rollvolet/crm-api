@@ -21,9 +21,9 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCaseAsync([FromQuery] int? requestId, [FromQuery] int? offerId, [FromQuery] int? orderId, [FromQuery] int? invoiceId)
+        public async Task<IActionResult> GetCaseAsync([FromQuery] int? requestId, [FromQuery] int? interventionId, [FromQuery] int? offerId, [FromQuery] int? orderId, [FromQuery] int? invoiceId)
         {
-            var caseObject = await _caseManager.GetCaseAsync(requestId, offerId, orderId, invoiceId);
+            var caseObject = await _caseManager.GetCaseAsync(requestId, interventionId, offerId, orderId, invoiceId);
             var mappedCase = _mapper.Map<CaseDto>(caseObject);
 
             return Ok(mappedCase);

@@ -13,5 +13,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Requests
         [JsonProperty("calendar-event")]
         public IRelationship CalendarEvent { get; set; }
         public IRelationship Offer { get; set; }
+        public IRelationship Origin { get; set; }
     }
 }

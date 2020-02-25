@@ -14,6 +14,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IContactDataProvider _contactDataProvider;
         private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly IRequestDataProvider _requestDataProvider;
+        private readonly IInterventionDataProvider _interventionDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
         private readonly IInvoiceDataProvider _invoiceDataProvider;
@@ -21,7 +22,8 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IOrderManager _orderManager;
 
         public CaseManager(ICaseDataProvider caseDataProvider, IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
-                            IDepositInvoiceDataProvider depositInvoiceDataProvider, IRequestDataProvider requestDataProvider,
+                            IDepositInvoiceDataProvider depositInvoiceDataProvider,
+                            IRequestDataProvider requestDataProvider, IInterventionDataProvider interventionDataProvider,
                             IOfferDataProvider offerDataProvider, IInvoiceDataProvider invoiceDataProvider,
                             IRequestManager requestManager, IOrderManager orderManager)
         {
@@ -29,6 +31,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _contactDataProvider = contactDataProvider;
             _buildingDataProvider = buildingDataProvider;
             _requestDataProvider = requestDataProvider;
+            _interventionDataProvider = interventionDataProvider;
             _offerDataProvider = offerDataProvider;
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _invoiceDataProvider = invoiceDataProvider;
@@ -36,13 +39,15 @@ namespace Rollvolet.CRM.Domain.Managers
             _orderManager = orderManager;
         }
 
-        public async Task<Case> GetCaseAsync(int? requestId, int? offerId, int? orderId, int? invoiceId)
+        public async Task<Case> GetCaseAsync(int? requestId, int? interventionId, int? offerId, int? orderId, int? invoiceId)
         {
-            var paramCount = new int?[] { requestId, offerId, orderId, invoiceId }.Where(p => p != null).Count();
+            var paramCount = new int?[] { requestId, interventionId, offerId, orderId, invoiceId }.Where(p => p != null).Count();
             if (paramCount != 1)
-              throw new IllegalArgumentException("InvalidCaseParams", $"Exactly 1 of requestId, offerId, orderId or invoiceId must be set. Found {paramCount} params.");
+              throw new IllegalArgumentException("InvalidCaseParams", $"Exactly 1 of requestId, interventionId, offerId, orderId or invoiceId must be set. Found {paramCount} params.");
             if (requestId != null)
               return await _caseDataProvider.GetCaseByRequestIdAsync((int) requestId);
+            else if (interventionId != null)
+              return await _caseDataProvider.GetCaseByInterventionIdAsync((int) interventionId);
             else if (offerId != null)
               return await _caseDataProvider.GetCaseByOfferIdAsync((int) offerId);
             else if (orderId != null)

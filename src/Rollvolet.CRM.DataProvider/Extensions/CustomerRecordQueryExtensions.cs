@@ -56,7 +56,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("buildings", c => c.Buildings);
             selectors.Add("telephones", c => c.Telephones);
             selectors.Add("requests", c => c.Requests);
+            selectors.Add("interventions", c => c.Interventions);
             selectors.Add("offers", c => c.Offers);
+            selectors.Add("orders", c => c.Orders);
             selectors.Add("invoices", c => c.Invoices);
 
             source = source.Include<Customer>(querySet, selectors);

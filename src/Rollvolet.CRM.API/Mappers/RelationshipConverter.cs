@@ -19,6 +19,7 @@ using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.APIContracts.DTO.Invoicelines;
+using Rollvolet.CRM.APIContracts.DTO.Interventions;
 
 namespace Rollvolet.CRM.API.Mappers
 {
@@ -28,6 +29,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Telephone, TelephoneRelationshipsDto>,
                                             ITypeConverter<Request, RequestRelationshipsDto>,
                                             ITypeConverter<CalendarEvent, CalendarEventRelationshipsDto>,
+                                            ITypeConverter<Intervention, InterventionRelationshipsDto>,
                                             ITypeConverter<Offer, OfferRelationshipsDto>,
                                             ITypeConverter<Offerline, OfferlineRelationshipsDto>,
                                             ITypeConverter<Order, OrderRelationshipsDto>,
@@ -61,6 +63,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.HonorificPrefix = GetOneRelationship<HonorificPrefix>("customers", source.Id, "honorific-prefix", source.HonorificPrefix, context);
             relationships.Telephones = GetManyRelationship<Telephone>("customers", source.Id, "telephones", source.Telephones, context);
             relationships.Requests = GetManyRelationship<Request>("customers", source.Id, "requests", source.Requests, context);
+            relationships.Interventions = GetManyRelationship<Intervention>("interventions", source.Id, "interventions", source.Interventions, context);
             relationships.Offers = GetManyRelationship<Offer>("customers", source.Id, "offers", source.Offers, context);
             relationships.Orders = GetManyRelationship<Order>("customers", source.Id, "orders", source.Orders, context);
             relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("customers", source.Id, "deposit-invoices", source.DepositInvoices, context);
@@ -115,6 +118,20 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.WayOfEntry = GetOneRelationship<WayOfEntry>("requests", source.Id, "way-of-entry", source.WayOfEntry, context);
             relationships.CalendarEvent = GetOneRelationship<CalendarEvent>("requests", source.Id, "calendar-event", source.CalendarEvent, context);
             relationships.Offer = GetOneRelationship<Offer>("requests", source.Id, "offer", source.Offer, context);
+            relationships.Origin = GetOneRelationship<Intervention>("requests", source.Id, "origin", source.Origin, context);
+            return relationships;
+        }
+
+        InterventionRelationshipsDto ITypeConverter<Intervention, InterventionRelationshipsDto>.Convert(Intervention source, InterventionRelationshipsDto destination, ResolutionContext context)
+        {
+            var relationships = new InterventionRelationshipsDto();
+            relationships.Customer = GetOneRelationship<Customer>("interventions", source.Id, "customer", source.Customer, context);
+            relationships.Building = GetOneRelationship<Building>("interventions", source.Id, "building", source.Building, context);
+            relationships.Contact = GetOneRelationship<Contact>("interventions", source.Id, "contact", source.Contact, context);
+            relationships.WayOfEntry = GetOneRelationship<WayOfEntry>("interventions", source.Id, "way-of-entry", source.WayOfEntry, context);
+            relationships.FollowUpRequest = GetOneRelationship<Request>("interventions", source.Id, "follow-up-request", source.FollowUpRequest, context);
+            relationships.Invoice = GetOneRelationship<Invoice>("interventions", source.Id, "invoice", source.Invoice, context);
+            relationships.Technicians = GetManyRelationship<Employee>("interventions", source.Id, "technicians", source.Technicians, context);
             return relationships;
         }
 
@@ -167,6 +184,7 @@ namespace Rollvolet.CRM.API.Mappers
         {
             var relationships = new InvoiceRelationshipsDto();
             relationships.Order = GetOneRelationship<Order>("invoices", source.Id, "order", source.Order, context);
+            relationships.Intervention = GetOneRelationship<Intervention>("invoices", source.Id, "intervention", source.Intervention, context);
             relationships.Customer = GetOneRelationship<Customer>("invoices", source.Id, "customer", source.Customer, context);
             relationships.Building = GetOneRelationship<Building>("invoices", source.Id, "building", source.Building, context);
             relationships.Contact = GetOneRelationship<Contact>("invoices", source.Id, "contact", source.Contact, context);

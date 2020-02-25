@@ -14,6 +14,7 @@ using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.DepositInvoices;
 using Rollvolet.CRM.APIContracts.DTO.Deposits;
+using Rollvolet.CRM.APIContracts.DTO.Interventions;
 using Rollvolet.CRM.APIContracts.DTO.Invoicelines;
 using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.DTO.InvoiceSupplements;
@@ -35,6 +36,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IContactManager _contactManager;
         private readonly IBuildingManager _buildingManager;
         private readonly IOrderManager _orderManager;
+        private readonly IInterventionManager _interventionManager;
         private readonly IVatRateManager _vatRateManager;
         private readonly IWorkingHourManager _workingHourManager;
         private readonly IDepositManager _depositManager;
@@ -47,8 +49,8 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
         public InvoicesController(IInvoiceManager invoiceManager, ICustomerManager customerManager, IContactManager contactManager,
-                                    IBuildingManager buildingManager, IOrderManager orderManager, IVatRateManager vatRateManager,
-                                    IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager,
+                                    IBuildingManager buildingManager, IOrderManager orderManager, IInterventionManager interventionManager,
+                                    IVatRateManager vatRateManager, IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager,
                                     IInvoiceSupplementManager invoiceSupplementManager, IWorkingHourManager workingHourManager,
                                     IInvoicelineManager invoicelineManager, IDocumentGenerationManager documentGenerationManager,
                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
@@ -58,6 +60,7 @@ namespace Rollvolet.CRM.API.Controllers
             _contactManager = contactManager;
             _buildingManager = buildingManager;
             _orderManager = orderManager;
+            _interventionManager = interventionManager;
             _vatRateManager = vatRateManager;
             _depositManager = depositManager;
             _depositInvoiceManager = depositInvoiceManager;
@@ -250,6 +253,25 @@ namespace Rollvolet.CRM.API.Controllers
 
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
             return Ok(new ResourceResponse() { Links = links, Data = orderDto });
+        }
+
+        [HttpGet("{invoiceId}/intervention")]
+        [HttpGet("{invoiceId}/links/intervention")]
+        public async Task<IActionResult> GetRelatedInterventionByIdAsync(int invoiceId)
+        {
+            InterventionDto interventionDto;
+            try
+            {
+                var intervention = await _interventionManager.GetByInvoiceIdAsync(invoiceId);
+                interventionDto = _mapper.Map<InterventionDto>(intervention);
+            }
+            catch (EntityNotFoundException)
+            {
+                interventionDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = interventionDto });
         }
 
         [HttpGet("{invoiceId}/vat-rate")]

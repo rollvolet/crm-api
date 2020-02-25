@@ -27,6 +27,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly Regex _onlyAlphaNumeric = new Regex("[^a-zA-Z0-9_]");
         private readonly Regex _noNewlines = new Regex("\r|\n|\r\n", RegexOptions.Multiline);
         private readonly IRequestDataProvider _requestDataProvider;
+        private readonly IInterventionDataProvider _interventionDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IOrderDataProvider _orderDataProvider;
         private readonly IInvoiceDataProvider _invoiceDateProvider;
@@ -50,7 +51,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly string _certificateUploadSourceLocation;
         private readonly ILogger _logger;
 
-        public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IOfferDataProvider offerDataProvider,
+        public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IInterventionDataProvider interventionDataProvider, IOfferDataProvider offerDataProvider,
                                          ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
                                          IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDateProvider,
                                          IDepositInvoiceDataProvider depositInvoiceDataProvider, ITelephoneDataProvider telephoneDataProvider,
@@ -59,6 +60,7 @@ namespace Rollvolet.CRM.Domain.Managers
                                          ILogger<DocumentGenerationManager> logger)
         {
             _requestDataProvider = requestDataProvider;
+            _interventionDataProvider = interventionDataProvider;
             _offerDataProvider = offerDataProvider;
             _orderDataProvider = orderDataProvider;
             _invoiceDateProvider = invoiceDateProvider;
@@ -243,7 +245,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task CreateAndStoreProductionTicketTemplateAsync(int orderId)
+        public async Task CreateAndStoreProductionTicketTemplateByOrderIdAsync(int orderId)
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] { "customer", "contact", "building" };
@@ -271,32 +273,69 @@ namespace Rollvolet.CRM.Domain.Managers
             await GenerateAndStoreDocumentAsync(url, documentData, filePath);
         }
 
-        public async Task<FileStream> DownloadProductionTicketTemplateAsync(int orderId)
+        public async Task CreateAndStoreProductionTicketTemplateByInterventionIdAsync(int interventionId)
+        {
+            var includeQuery = new QuerySet();
+            includeQuery.Include.Fields = new string[] { "customer", "contact", "building" };
+            var intervention = await _interventionDataProvider.GetByIdAsync(interventionId, includeQuery);
+
+            await EmbedCustomerAndContactTelephonesAsync(intervention);
+
+            dynamic documentData = new ExpandoObject();
+            documentData.Intervention = intervention;
+
+            var url = $"{_documentGenerationConfig.BaseUrl}/documents/production-ticket";
+            var filePath = ConstructGeneratedProductionTicketFilePath(intervention);
+
+            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+        }
+
+        public async Task<FileStream> DownloadProductionTicketTemplateByOrderIdAsync(int orderId)
         {
             var order = await _orderDataProvider.GetByIdAsync(orderId);
             var filePath = ConstructGeneratedProductionTicketFilePath(order);
             return DownloadDcument(filePath);
         }
 
-        public async Task UploadProductionTicketAsync(int orderId, Stream content)
+        public async Task<FileStream> DownloadProductionTicketTemplateByInterventionIdAsync(int interventionId)
         {
-            var filePath = await ConstructReceivedProductionTicketFilePathAsync(orderId);
+            var intervention = await _interventionDataProvider.GetByIdAsync(interventionId);
+            var filePath = ConstructGeneratedProductionTicketFilePath(intervention);
+            return DownloadDcument(filePath);
+        }
+
+        public async Task UploadProductionTicketByOrderIdAsync(int orderId, Stream content)
+        {
+            var filePath = await ConstructReceivedProductionTicketFilePathForOrderAsync(orderId);
             _logger.LogDebug($"Uploading production ticket to {filePath}");
             UploadDocument(filePath, content);
         }
 
-        public async Task<FileStream> DownloadProductionTicketAsync(int orderId)
+        public async Task UploadProductionTicketByInterventionIdAsync(int interventationId, Stream content)
         {
-            var filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
+            var filePath = await ConstructReceivedProductionTicketFilePathForInterventionAsync(interventationId);
+            _logger.LogDebug($"Uploading production ticket to {filePath}");
+            UploadDocument(filePath, content);
+        }
+
+        public async Task<FileStream> DownloadProductionTicketByOrderIdAsync(int orderId)
+        {
+            var filePath = await FindReceivedProductionTicketFilePathForOrderAsync(orderId);
             return DownloadDcument(filePath);
         }
 
-        public async Task DeleteProductionTicketAsync(int orderId)
+        public async Task<FileStream> DownloadProductionTicketByInterventionIdAsync(int interventionId)
+        {
+            var filePath = await FindReceivedProductionTicketFilePathForInterventionAsync(interventionId);
+            return DownloadDcument(filePath);
+        }
+
+        public async Task DeleteProductionTicketByOrderIdAsync(int orderId)
         {
             string filePath = null;
             try
             {
-                filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
+                filePath = await FindReceivedProductionTicketFilePathForOrderAsync(orderId);
                 File.Delete(filePath);
             }
             catch (EntityNotFoundException)
@@ -309,11 +348,29 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
+        public async Task DeleteProductionTicketByInterventionIdAsync(int interventionId)
+        {
+            string filePath = null;
+            try
+            {
+                filePath = await FindReceivedProductionTicketFilePathForInterventionAsync(interventionId);
+                File.Delete(filePath);
+            }
+            catch (EntityNotFoundException)
+            {
+                _logger.LogInformation("No file found for production ticket of intervention {0}. Nothing to delete on disk.", interventionId);
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Something went wrong while deleting production ticket {0}.", filePath);
+            }
+        }
+
         public async Task CreateAndStoreInvoiceDocumentAsync(int invoiceId)
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
-                "customer", "contact", "building", "order", "vat-rate", "supplements", "supplements.unit", "deposits", "deposit-invoices", "invoicelines", "invoicelines.vat-rate"
+                "customer", "contact", "building", "order", "intervention", "vat-rate", "supplements", "supplements.unit", "deposits", "deposit-invoices", "invoicelines", "invoicelines.vat-rate"
             };
             var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId, includeQuery);
 
@@ -332,6 +389,11 @@ namespace Rollvolet.CRM.Domain.Managers
                 invoice.Order.Deposits = null; invoice.Order.DepositInvoices = null;
                 invoice.Order.Offer.Customer = null; invoice.Order.Offer.Contact = null;
                 invoice.Order.Offer.Building = null; invoice.Order.Offer.Order = null;
+            }
+
+            if (invoice.Intervention != null)
+            {
+                invoice.Intervention.Customer = null; invoice.Intervention.Contact = null; invoice.Intervention.Building = null;
             }
 
             // Remove duplicated nested data before sending
@@ -585,7 +647,18 @@ namespace Rollvolet.CRM.Domain.Managers
             return $"{directory}{filename}.pdf";
         }
 
-        private async Task<string> ConstructReceivedProductionTicketFilePathAsync(int orderId)
+        private string ConstructGeneratedProductionTicketFilePath(Intervention intervention)
+        {
+             var year = intervention.Date != null ? ((DateTime) intervention.Date).Year : 0;
+            var directory = $"{_generatedProductionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);
+
+            var filename = _onlyAlphaNumeric.Replace($"IR{intervention.Id}", "");
+
+            return $"{directory}{filename}.pdf";
+        }
+
+        private async Task<string> ConstructReceivedProductionTicketFilePathForOrderAsync(int orderId)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] { "customer" };
@@ -600,7 +673,22 @@ namespace Rollvolet.CRM.Domain.Managers
             return $"{directory}{filename}.pdf";
         }
 
-        private async Task<string> FindReceivedProductionTicketFilePathAsync(int orderId)
+        private async Task<string> ConstructReceivedProductionTicketFilePathForInterventionAsync(int interventionId)
+        {
+            var query = new QuerySet();
+            query.Include.Fields = new string[] { "customer" };
+            var intervention = await _interventionDataProvider.GetByIdAsync(interventionId, query);
+
+            var year = intervention.Date != null ? ((DateTime) intervention.Date).Year : 0;
+            var directory = $"{_receivedProductionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);
+
+            var filename = _onlyAlphaNumeric.Replace($"IR{intervention.Id}", "") + _noNewlines.Replace($"_{intervention.Customer.Name}", "");
+
+            return $"{directory}{filename}.pdf";
+        }
+
+        private async Task<string> FindReceivedProductionTicketFilePathForOrderAsync(int orderId)
         {
             var order = await _orderDataProvider.GetByIdAsync(orderId);
 
@@ -620,6 +708,30 @@ namespace Rollvolet.CRM.Domain.Managers
             else
             {
                 _logger.LogWarning($"Cannot find production-ticket file for order {orderId} starting with '{filenameSearch}' in directory {directory}");
+                throw new EntityNotFoundException();
+            }
+        }
+
+        private async Task<string> FindReceivedProductionTicketFilePathForInterventionAsync(int interventionId)
+        {
+            var intervention = await _interventionDataProvider.GetByIdAsync(interventionId);
+
+            var year = intervention.Date != null ? ((DateTime) intervention.Date).Year : 0;
+            var directory = $"{_receivedProductionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);  // ensure directory exists
+
+            // only search on intervention number since customer name might have changed
+            var filenameSearch = _onlyAlphaNumeric.Replace($"IR{intervention.Id}", "") + "*";
+
+            var matchingFiles = Directory.GetFiles(directory, filenameSearch);
+
+            if (matchingFiles.Length > 0)
+            {
+                return matchingFiles[0];
+            }
+            else
+            {
+                _logger.LogWarning($"Cannot find production-ticket file for intervention {interventionId} starting with '{filenameSearch}' in directory {directory}");
                 throw new EntityNotFoundException();
             }
         }

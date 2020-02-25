@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
@@ -29,6 +27,11 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Employee> GetByWorkingHourIdAsync(int workingHourId)
         {
             return await _employeeDataProvider.GetByWorkingHourIdAsync(workingHourId);
+        }
+
+        public async Task<Paged<Employee>> GetAllByInterventionIdAsync(int interventionId, QuerySet query)
+        {
+            return await _employeeDataProvider.GetAllByInterventionIdAsync(interventionId, query);
         }
     }
 }

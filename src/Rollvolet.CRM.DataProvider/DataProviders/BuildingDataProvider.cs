@@ -88,6 +88,23 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Building>(building);
         }
 
+        public async Task<Building> GetByInterventionIdAsync(int interventionId)
+        {
+            var intervention = await _context.Interventions.Where(r => r.Id == interventionId).FirstOrDefaultAsync();
+
+            DataProvider.Models.Building building = null;
+            if (intervention != null)
+                building = await _context.Buildings.Where(c => c.CustomerId == intervention.CustomerId && c.Number == intervention.RelativeBuildingId).FirstOrDefaultAsync();
+
+            if (building == null)
+            {
+                _logger.LogError($"No building found for intervention id {interventionId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Building>(building);
+        }
+
         public async Task<Building> GetByOfferIdAsync(int offerId)
         {
             var offer = await _context.Offers.Where(r => r.Id == offerId).FirstOrDefaultAsync();

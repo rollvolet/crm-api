@@ -17,6 +17,8 @@ namespace Rollvolet.CRM.API.Collectors
         IEnumerable<IResource> CollectIncluded(IEnumerable<Telephone> telephones, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(Request request, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(IEnumerable<Request> requests, IncludeQuery includeQuery);
+        IEnumerable<IResource> CollectIncluded(Intervention intervention, IncludeQuery includeQuery);
+        IEnumerable<IResource> CollectIncluded(IEnumerable<Intervention> interventions, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(Offer offer, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(IEnumerable<Offer> offers, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(Offerline offerline, IncludeQuery includeQuery);
@@ -29,6 +31,8 @@ namespace Rollvolet.CRM.API.Collectors
         IEnumerable<IResource> CollectIncluded(IEnumerable<Invoice> invoices, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(Tag tag, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(IEnumerable<Tag> tags, IncludeQuery includeQuery);
+        IEnumerable<IResource> CollectIncluded(Employee employee, IncludeQuery includeQuery);
+        IEnumerable<IResource> CollectIncluded(IEnumerable<Employee> employees, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(Deposit deposit, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(IEnumerable<Deposit> deposits, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(DepositInvoice depositInvoice, IncludeQuery includeQuery);

@@ -99,6 +99,19 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Invoice>(invoice);
         }
 
+        public async Task<Invoice> GetByInterventionIdAsync(int interventionId, QuerySet query = null)
+        {
+            var invoice = await FindWhereAsync(i => i.InterventionId == interventionId, query);
+
+            if (invoice == null)
+            {
+                _logger.LogError($"No invoice found for intervention-id {interventionId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Invoice>(invoice);
+        }
+
         public async Task<Invoice> GetByInvoicelineIdAsync(int invoicelineId)
         {
             var invoice = await _context.Invoicelines.Where(o => o.Id == invoicelineId).Select(o => o.Invoice).FirstOrDefaultAsync();

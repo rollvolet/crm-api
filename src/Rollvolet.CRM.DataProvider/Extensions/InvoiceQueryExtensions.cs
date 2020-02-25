@@ -141,6 +141,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                     source = source.Include(c => c.WorkingHours).ThenInclude(h => h.Employee);
 
                 selectors.Add("order", c => c.Order);
+                selectors.Add("intervention", c => c.Intervention);
                 selectors.Add("supplements", c => c.Supplements);
                 selectors.Add("deposits", c => c.Deposits);
                 selectors.Add("working-hours", c => c.WorkingHours);

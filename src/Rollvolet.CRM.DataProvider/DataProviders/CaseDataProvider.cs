@@ -54,6 +54,31 @@ namespace Rollvolet.CRM.DataProviders
             return result;
         }
 
+        public async Task<Case> GetCaseByInterventionIdAsync(int interventionId)
+        {
+            var source = _context.Interventions
+                .Where(r => r.Id == interventionId)
+                .Include(r => r.Invoice);
+
+            var joinedSource = JoinBuildingAndContact(source);
+
+            var result = await joinedSource.Select(x => new Case {
+                    CustomerId = x.Source.CustomerId,
+                    ContactId = x.Contact != null ? x.Contact.DataId : (int?) null,
+                    BuildingId = x.Building != null ? x.Building.DataId : (int?) null,
+                    InterventionId = x.Source.Id,
+                    InvoiceId = x.Source.Invoice != null ? x.Source.Invoice.Id : (int?) null
+                })
+                .FirstOrDefaultAsync();
+
+            if (result == null) {
+                _logger.LogError($"No case found with interventionId {interventionId}");
+                throw new EntityNotFoundException();
+            }
+
+            return result;
+        }
+
         public async Task<Case> GetCaseByOfferIdAsync(int offerId)
         {
             var source = _context.Offers
@@ -118,7 +143,8 @@ namespace Rollvolet.CRM.DataProviders
                 .Where(x => x.Id == invoiceId)
                 .Include(x => x.Order)
                     .ThenInclude(o => o.Offer)
-                        .ThenInclude(o => o.Request);
+                        .ThenInclude(o => o.Request)
+                .Include(x => x.Intervention);
 
             var joinedSource = JoinBuildingAndContact(source);
 
@@ -129,6 +155,7 @@ namespace Rollvolet.CRM.DataProviders
                     RequestId = x.Source.Order != null && x.Source.Order.Offer != null && x.Source.Order.Offer.Request != null ? x.Source.Order.Offer.Request.Id : (int?) null,
                     OfferId = x.Source.Order != null && x.Source.Order.Offer != null ? x.Source.Order.Offer.Id : (int?) null,
                     OrderId = x.Source.Order != null ? x.Source.Order.Id : (int?) null,
+                    InterventionId = x.Source.Intervention != null ? x.Source.Intervention.Id : (int?) null,
                     InvoiceId = x.Source.Id
                 })
                 .FirstOrDefaultAsync();

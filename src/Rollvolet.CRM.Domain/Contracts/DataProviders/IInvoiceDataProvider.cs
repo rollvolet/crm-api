@@ -12,6 +12,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
         Task<Paged<Invoice>> GetAllByRelativeContactIdAsync(int customerId, int relativeContactId, QuerySet query);
         Task<Paged<Invoice>> GetAllByRelativeBuildingIdAsync(int customerId, int relativeBuildingId, QuerySet query);
         Task<Invoice> GetByOrderIdAsync(int orderId, QuerySet query = null);
+        Task<Invoice> GetByInterventionIdAsync(int interventionId, QuerySet query = null);
         Task<Invoice> GetByInvoicelineIdAsync(int invoicelineId);
         Task<Invoice> GetByWorkingHourIdAsync(int workingHourId);
         Task<Invoice> CreateAsync(Invoice invoice);

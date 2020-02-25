@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -11,6 +10,7 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
         Task<Paged<Building>> GetAllByCustomerIdAsync(int customerId, QuerySet query);
         Task<Building> GetByTelephoneIdAsync(string telephoneId);
         Task<Building> GetByRequestIdAsync(int requestId);
+        Task<Building> GetByInterventionIdAsync(int interventionId);
         Task<Building> GetByOfferIdAsync(int offerId);
         Task<Building> GetByOrderIdAsync(int orderId);
         Task<Building> GetByInvoiceIdAsync(int invoiceId);

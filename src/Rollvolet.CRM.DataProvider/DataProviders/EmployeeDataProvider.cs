@@ -5,9 +5,11 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.DataProvider.Contexts;
+using Rollvolet.CRM.DataProvider.Extensions;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
+using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.DataProviders
 {
@@ -95,6 +97,27 @@ namespace Rollvolet.CRM.DataProviders
             }
 
             return _mapper.Map<Employee>(employee);
+        }
+
+        public async Task<Paged<Employee>> GetAllByInterventionIdAsync(int interventionId, QuerySet query)
+        {
+            var source = _context.InterventionTechnicians
+                                    .Where(o => o.InterventionId == interventionId)
+                                    .Include(o => o.Employee)
+                                    .Select(o => o.Employee);
+
+            var employees = source.ForPage(query).AsEnumerable();
+
+            var mappedEmployees = _mapper.Map<IEnumerable<Employee>>(employees);
+
+            var count = await source.CountAsync();
+
+            return new Paged<Employee>() {
+                Items = mappedEmployees,
+                Count = count,
+                PageNumber = query.Page.Number,
+                PageSize = query.Page.Size
+            };
         }
     }
 }

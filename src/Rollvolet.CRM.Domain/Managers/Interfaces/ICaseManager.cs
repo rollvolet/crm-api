@@ -5,7 +5,7 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
 {
     public interface ICaseManager
     {
-        Task<Case> GetCaseAsync(int? requestId, int? offerId, int? orderId, int? invoiceId);
+        Task<Case> GetCaseAsync(int? requestId, int? interventionId, int? offerId, int? orderId, int? invoiceId);
         Task UpdateContactAndBuildingAsync(int? contactId, int? buildingId, int? requestId, int? offerId, int? orderId, int? invoiceId);
     }
 }

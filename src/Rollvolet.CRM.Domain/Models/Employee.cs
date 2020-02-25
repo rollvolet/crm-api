@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Rollvolet.CRM.Domain.Models
@@ -17,5 +16,6 @@ namespace Rollvolet.CRM.Domain.Models
 
         // Included resources
         public IEnumerable<WorkingHour> WorkingHours { get; set; }
+        public IEnumerable<Intervention> Interventions { get; set; }
     }
 }

@@ -76,7 +76,9 @@ namespace Rollvolet.CRM.DataProviders
         public async Task<Request> GetByOfferIdAsync(int offerId)
         {
             var request = await _context.Offers.Where(r => r.Id == offerId)
-                                    .Select(r => r.Request).Include(r => r.Visit).FirstOrDefaultAsync(); // required inclusion to embed properties in domain object
+                                    .Select(r => r.Request)
+                                    .Include(r => r.Visit)  // required inclusion to embed properties in domain object
+                                    .FirstOrDefaultAsync();
 
             if (request == null)
             {
@@ -92,6 +94,21 @@ namespace Rollvolet.CRM.DataProviders
             return await GetByOfferIdAsync(orderId);
         }
 
+        public async Task<Request> GetByInterventionIdAsync(int interventionId)
+        {
+            var request = await _context.Interventions.Where(r => r.Id == interventionId)
+                                    .Select(r => r.FollowUpRequest)
+                                    .Include(r => r.Visit)  // required inclusion to embed properties in domain object
+                                    .FirstOrDefaultAsync();
+
+            if (request == null)
+            {
+                _logger.LogError($"No request found for intervention id {interventionId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Request>(request);
+        }
 
         public async Task<Request> CreateAsync(Request request)
         {

@@ -9,11 +9,10 @@ using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.DataProvider.Extensions;
 using Microsoft.Extensions.Logging;
-using LinqKit;
 using Rollvolet.CRM.Domain.Exceptions;
 
 namespace Rollvolet.CRM.DataProviders
-{   
+{
     public class TagDataProvider : ITagDataProvider
     {
         private readonly CrmContext _context;
@@ -43,7 +42,7 @@ namespace Rollvolet.CRM.DataProviders
                             .OrderBy(e => e.Tag.Name)
                             .Select(e => e.Tag);
 
-            var tags = source.ForPage(query).AsEnumerable();                            
+            var tags = source.ForPage(query).AsEnumerable();
 
             var mappedTags = _mapper.Map<IEnumerable<Tag>>(tags);
 
@@ -54,13 +53,13 @@ namespace Rollvolet.CRM.DataProviders
                 Count = count,
                 PageNumber = query.Page.Number,
                 PageSize = query.Page.Size
-            };            
-        }  
+            };
+        }
 
         public async Task<Tag> GetByIdAsync(int id)
         {
             var tag = await _context.Tags.Where(x => x.Id == id).FirstOrDefaultAsync();
-            
+
             if (tag == null)
             {
                 _logger.LogError($"No tag found with id {id}");
@@ -68,6 +67,6 @@ namespace Rollvolet.CRM.DataProviders
             }
 
             return _mapper.Map<Tag>(tag);
-        }  
+        }
     }
 }

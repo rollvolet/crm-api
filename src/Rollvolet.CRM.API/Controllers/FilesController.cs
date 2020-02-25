@@ -46,16 +46,22 @@ namespace Rollvolet.CRM.API.Controllers
             return await ViewFileStreamAsync(_documentGenerationManager.DownloadDeliveryNoteAsync, orderId);
         }
 
-        [HttpGet("production-ticket-templates/{orderId}")]
-        public async Task<IActionResult> ViewProductionTicketTemplateAsync(int orderId)
+        [HttpGet("production-ticket-templates/{resource}/{resourceId}")]
+        public async Task<IActionResult> ViewProductionTicketTemplateAsync(string resource, int resourceId)
         {
-            return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketTemplateAsync, orderId);
+            if (resource == "orders")
+                return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketTemplateByOrderIdAsync, resourceId);
+            else
+                return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketTemplateByInterventionIdAsync, resourceId);
         }
 
-        [HttpGet("production-tickets/{orderId}")]
-        public async Task<IActionResult> ViewProductionTicketeAsync(int orderId)
+        [HttpGet("production-tickets/{resource}/{resourceId}")]
+        public async Task<IActionResult> ViewProductionTicketeAsync(string resource, int resourceId)
         {
-            return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketAsync, orderId);
+            if (resource == "orders")
+                return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketByOrderIdAsync, resourceId);
+            else
+                return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketByInterventionIdAsync, resourceId);
         }
 
         [HttpGet("invoices/{id}")]

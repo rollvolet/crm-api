@@ -1,12 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
-using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.Domain.Managers
 {
@@ -29,6 +26,11 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<WayOfEntry> GetByRequestIdAsync(int id)
         {
             return await _wayOfEntryDataProvider.GetByRequestIdAsync(id);
+        }
+
+        public async Task<WayOfEntry> GetByInterventionIdAsync(int id)
+        {
+            return await _wayOfEntryDataProvider.GetByInterventionIdAsync(id);
         }
     }
 }

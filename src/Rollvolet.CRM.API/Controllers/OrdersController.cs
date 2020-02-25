@@ -159,7 +159,7 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost("{id}/production-tickets")]
         public async Task<IActionResult> CreateProductionTicketAsync(int id)
         {
-            await _documentGenerationManager.CreateAndStoreProductionTicketTemplateAsync(id);
+            await _documentGenerationManager.CreateAndStoreProductionTicketTemplateByOrderIdAsync(id);
             // TODO return download location in Location header
             return NoContent();
         }
@@ -173,7 +173,7 @@ namespace Rollvolet.CRM.API.Controllers
             using (var stream = new MemoryStream())
             {
                 await file.CopyToAsync(stream);
-                await _documentGenerationManager.UploadProductionTicketAsync(orderId, stream);
+                await _documentGenerationManager.UploadProductionTicketByOrderIdAsync(orderId, stream);
             }
 
             return NoContent();
@@ -182,7 +182,7 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpDelete("{orderId}/production-ticket")]
         public async Task<IActionResult> DeleteProductionTicketAsync(int orderId)
         {
-            await _documentGenerationManager.DeleteProductionTicketAsync(orderId);
+            await _documentGenerationManager.DeleteProductionTicketByOrderIdAsync(orderId);
 
             return NoContent();
         }

@@ -40,6 +40,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public WayOfEntry WayOfEntry { get; set; }
         public Visit Visit { get; set; }
         public Offer Offer { get; set; }
+        public Intervention Origin { get; set; }
 
 
         // Manually included resources

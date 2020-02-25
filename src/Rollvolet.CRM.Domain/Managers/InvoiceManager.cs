@@ -120,6 +120,11 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _invoiceDataProvider.GetByOrderIdAsync(orderId, query);
         }
 
+        public async Task<Invoice> GetByInterventionIdAsync(int interventionId, QuerySet query = null)
+        {
+            return await _invoiceDataProvider.GetByInterventionIdAsync(interventionId, query);
+        }
+
         public async Task<Invoice> GetByInvoicelineIdAsync(int invoicelineId, QuerySet query = null)
         {
             return await _invoiceDataProvider.GetByInvoicelineIdAsync(invoicelineId);

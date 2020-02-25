@@ -117,6 +117,8 @@ namespace Rollvolet.CRM.API
             services.AddTransient<ITelephoneTypeManager, TelephoneTypeManager>();
             services.AddTransient<IRequestDataProvider, RequestDataProvider>();
             services.AddTransient<IRequestManager, RequestManager>();
+            services.AddTransient<IInterventionDataProvider, InterventionDataProvider>();
+            services.AddTransient<IInterventionManager, InterventionManager>();
             services.AddTransient<IOfferDataProvider, OfferDataProvider>();
             services.AddTransient<IOfferManager, OfferManager>();
             services.AddTransient<IOfferlineDataProvider, OfferlineDataProvider>();

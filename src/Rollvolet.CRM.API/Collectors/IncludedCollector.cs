@@ -202,6 +202,45 @@ namespace Rollvolet.CRM.API.Collectors
             return included;
         }
 
+        public IEnumerable<IResource> CollectIncluded(Intervention intervention, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+
+            var customerIncludeQuery = includeQuery.NestedInclude("customer");
+
+            // one-relations
+            if (includeQuery.Contains("customer") && intervention.Customer != null)
+                included.Add(_mapper.Map<CustomerDto>(intervention.Customer, opt => opt.Items["include"] = customerIncludeQuery));
+            if (includeQuery.Contains("customer.honorific-prefix") && intervention.Customer != null && intervention.Customer.HonorificPrefix != null)
+                included.Add(_mapper.Map<HonorificPrefixDto>(intervention.Customer.HonorificPrefix));
+            if (includeQuery.Contains("contact") && intervention.Contact != null)
+                included.Add(_mapper.Map<ContactDto>(intervention.Contact));
+            if (includeQuery.Contains("building") && intervention.Building != null)
+                included.Add(_mapper.Map<BuildingDto>(intervention.Building));
+            if (includeQuery.Contains("way-of-entry") && intervention.WayOfEntry != null)
+                included.Add(_mapper.Map<WayOfEntryDto>(intervention.WayOfEntry));
+            if (includeQuery.Contains("invoice") && intervention.Invoice != null)
+                included.Add(_mapper.Map<InvoiceDto>(intervention.Invoice));
+            if (includeQuery.Contains("follow-up-request") && intervention.FollowUpRequest != null)
+                included.Add(_mapper.Map<RequestDto>(intervention.FollowUpRequest));
+
+            // many-relations
+            if (includeQuery.Contains("technicians") && intervention.Technicians.Count() > 0)
+                included.UnionWith(_mapper.Map<IEnumerable<EmployeeDto>>(intervention.Technicians));
+
+            return included;
+        }
+
+        public IEnumerable<IResource> CollectIncluded(IEnumerable<Intervention> interventions, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+
+            foreach (var intervention in interventions)
+                included.UnionWith(CollectIncluded(intervention, includeQuery));
+
+            return included;
+        }
+
         public IEnumerable<IResource> CollectIncluded(Offer offer, IncludeQuery includeQuery)
         {
             ISet<IResource> included = new HashSet<IResource>();
@@ -395,6 +434,23 @@ namespace Rollvolet.CRM.API.Collectors
 
             foreach (var tag in tags)
                 included.UnionWith(CollectIncluded(tag, includeQuery));
+
+            return included;
+        }
+
+        public IEnumerable<IResource> CollectIncluded(Employee employee, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+
+            return included;
+        }
+
+        public IEnumerable<IResource> CollectIncluded(IEnumerable<Employee> employees, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+
+            foreach (var employee in employees)
+                included.UnionWith(CollectIncluded(employee, includeQuery));
 
             return included;
         }

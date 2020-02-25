@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Rollvolet.CRM.Domain.Models;
-using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.Domain.Managers.Interfaces
 {
@@ -9,5 +8,6 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
     {
         Task<IEnumerable<WayOfEntry>> GetAllAsync();
         Task<WayOfEntry> GetByRequestIdAsync(int id);
+        Task<WayOfEntry> GetByInterventionIdAsync(int id);
     }
 }
