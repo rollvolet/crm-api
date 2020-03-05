@@ -9,13 +9,13 @@ namespace Rollvolet.CRM.Domain.Models
         public int Id { get; set; }
         public DateTime? Date { get; set; }
         public string Comment { get; set; }
-        public bool HasProductionTicket { get; set; }
         public DateTime? PlanningDate { get; set; }
         public string PlanningMsObjectId { get; set; }
 
         public Customer Customer { get; set; }
         public Building Building { get; set; }
         public Contact Contact { get; set; }
+        public Order Origin { get; set; }
         public Invoice Invoice { get; set; }
         public Request FollowUpRequest { get; set; }
         public WayOfEntry WayOfEntry { get; set; }

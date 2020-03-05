@@ -428,6 +428,7 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Contact, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Contact : null))
                 .ForMember(dest => dest.Building, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Building : null))
                 .ForMember(dest => dest.WayOfEntry, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.WayOfEntry : null))
+                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Origin : null))
                 .ForMember(dest => dest.FollowUpRequest, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.FollowUpRequest : null))
                 .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Invoice : null))
                 .ForMember(dest => dest.Technicians, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Technicians : null))
@@ -670,6 +671,7 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Invoicelines, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Invoicelines : null))
                 .ForMember(dest => dest.Deposits, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Deposits : null))
                 .ForMember(dest => dest.DepositInvoices, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.DepositInvoices : null))
+                .ForMember(dest => dest.Interventions, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Interventions : null))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<OneRelationship, Order>()

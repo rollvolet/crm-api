@@ -20,6 +20,7 @@ using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.DTO.ProductUnits;
+using Rollvolet.CRM.APIContracts.DTO.Interventions;
 
 namespace Rollvolet.CRM.API.Collectors
 {
@@ -188,6 +189,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<CalendarEventDto>(request.CalendarEvent));
             if (includeQuery.Contains("offer") && request.Offer != null)
                 included.Add(_mapper.Map<OfferDto>(request.Offer));
+            if (includeQuery.Contains("origin") && request.Origin != null)
+                included.Add(_mapper.Map<InterventionDto>(request.Origin));
 
             return included;
         }
@@ -223,6 +226,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<InvoiceDto>(intervention.Invoice));
             if (includeQuery.Contains("follow-up-request") && intervention.FollowUpRequest != null)
                 included.Add(_mapper.Map<RequestDto>(intervention.FollowUpRequest));
+            if (includeQuery.Contains("origin") && intervention.Origin != null)
+                included.Add(_mapper.Map<OrderDto>(intervention.Origin));
 
             // many-relations
             if (includeQuery.Contains("technicians") && intervention.Technicians.Count() > 0)
@@ -333,6 +338,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.UnionWith(_mapper.Map<IEnumerable<DepositDto>>(order.Deposits));
             if (includeQuery.Contains("deposit-invoices") && order.DepositInvoices.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<DepositInvoiceDto>>(order.DepositInvoices));
+            if (includeQuery.Contains("interventions") && order.Interventions.Count() > 0)
+                included.UnionWith(_mapper.Map<IEnumerable<InterventionDto>>(order.Interventions));
 
             return included;
         }

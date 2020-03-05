@@ -116,6 +116,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         public IEnumerable<Deposit> Deposits { get; set; }
         public IEnumerable<DepositInvoiceHub> DepositInvoicesHubs { get; set; }
         public IEnumerable<Invoiceline> Invoicelines { get; set; }
+        public IEnumerable<Intervention> Interventions { get; set; }
 
 
         // Manually included resources

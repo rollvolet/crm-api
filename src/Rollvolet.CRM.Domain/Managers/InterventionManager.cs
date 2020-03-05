@@ -159,7 +159,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Intervention> UpdateAsync(Intervention intervention)
         {
             var query = new QuerySet();
-            query.Include.Fields = new string[] { "customer", "way-of-entry", "building", "contact", "invoice", "technicians" };
+            query.Include.Fields = new string[] { "customer", "way-of-entry", "building", "contact", "invoice", "origin", "technicians" };
             var existingIntervention = await _interventionDataProvider.GetByIdAsync(intervention.Id, query);
 
             if (intervention.Id != existingIntervention.Id)
@@ -218,6 +218,12 @@ namespace Rollvolet.CRM.Domain.Managers
                     technicians.Add(technician);
                 }
                 intervention.Technicians = technicians;
+
+                // Origin cannot be updated. Take origin of oldIntervention on update.
+                if (oldIntervention != null)
+                    intervention.Origin = oldIntervention.Origin;
+                else
+                    intervention.Origin = null;
 
                 // Invoice cannot be updated. Take invoice of oldRequest on update.
                 if (oldIntervention != null)

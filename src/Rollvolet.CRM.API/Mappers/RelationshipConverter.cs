@@ -130,6 +130,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Contact = GetOneRelationship<Contact>("interventions", source.Id, "contact", source.Contact, context);
             relationships.WayOfEntry = GetOneRelationship<WayOfEntry>("interventions", source.Id, "way-of-entry", source.WayOfEntry, context);
             relationships.FollowUpRequest = GetOneRelationship<Request>("interventions", source.Id, "follow-up-request", source.FollowUpRequest, context);
+            relationships.Origin = GetOneRelationship<Order>("interventions", source.Id, "origin", source.Origin, context);
             relationships.Invoice = GetOneRelationship<Invoice>("interventions", source.Id, "invoice", source.Invoice, context);
             relationships.Technicians = GetManyRelationship<Employee>("interventions", source.Id, "technicians", source.Technicians, context);
             return relationships;
@@ -168,6 +169,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Invoicelines = GetManyRelationship<Invoiceline>("orders", source.Id, "invoicelines", source.Invoicelines, context);
             relationships.Deposits = GetManyRelationship<Deposit>("orders", source.Id, "deposits", source.Deposits, context);
             relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("orders", source.Id, "deposit-invoices", source.DepositInvoices, context);
+            relationships.Interventions = GetManyRelationship<Intervention>("orders", source.Id, "interventions", source.Interventions, context);
             return relationships;
         }
 

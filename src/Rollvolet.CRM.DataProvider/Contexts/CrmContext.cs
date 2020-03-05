@@ -218,6 +218,12 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.Number);
 
+            modelBuilder.Entity<Request>()
+                .HasOne(e => e.Origin)
+                .WithOne(e => e.FollowUpRequest)
+                .HasForeignKey<Request>(e => e.OriginId)
+                .HasPrincipalKey<Intervention>(e => e.Id);
+
             // The below configuration doesn't work since the FK may not include the CustomerId field on a derived type
             // As a consequence the Building and Contact need to be embedded manually in the Request resources
 
@@ -280,10 +286,10 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasPrincipalKey(e => e.Number);
 
             modelBuilder.Entity<Intervention>()
-                .HasOne(e => e.FollowUpRequest)
-                .WithOne(e => e.Origin)
-                .HasForeignKey<Intervention>(e => e.FollowUpRequestId)
-                .HasPrincipalKey<Request>(e => e.Id);
+                .HasOne(e => e.Origin)
+                .WithMany(e => e.Interventions)
+                .HasForeignKey(e => e.OriginId)
+                .HasPrincipalKey(e => e.Id);
 
 
             // Offer

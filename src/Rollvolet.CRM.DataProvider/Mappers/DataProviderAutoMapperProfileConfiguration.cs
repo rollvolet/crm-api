@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using AutoMapper;
@@ -146,9 +145,10 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.RelativeContactId, opt => opt.MapFrom(src => src.Contact != null ? src.Contact.Number : (int?) null))
                 .ForMember(dest => dest.Building, opt => opt.Ignore())
                 .ForMember(dest => dest.RelativeBuildingId, opt => opt.MapFrom(src => src.Building != null ? src.Building.Number : (int?) null))
+                .ForMember(dest => dest.OriginId, opt => opt.MapFrom(src => src.Origin.Id))
+                .ForMember(dest => dest.Origin, opt => opt.Ignore())
                 .ForMember(dest => dest.Visit, opt => opt.Ignore())
                 .ForMember(dest => dest.Offer, opt => opt.Ignore())
-                .ForMember(dest => dest.Origin, opt => opt.Ignore())
                 .PreserveReferences();
 
             CreateMap<Models.WayOfEntry, Domain.Models.WayOfEntry>()
@@ -193,10 +193,11 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.RelativeContactId, opt => opt.MapFrom(src => src.Contact != null ? src.Contact.Number : (int?) null))
                 .ForMember(dest => dest.Building, opt => opt.Ignore())
                 .ForMember(dest => dest.RelativeBuildingId, opt => opt.MapFrom(src => src.Building != null ? src.Building.Number : (int?) null))
-                .ForMember(dest => dest.FollowUpRequest, opt => opt.Ignore())
-                .ForMember(dest => dest.FollowUpRequestId, opt => opt.MapFrom(src => src.FollowUpRequest.Id))
                 .ForMember(dest => dest.Invoice, opt => opt.Ignore())
                 .ForMember(dest => dest.InterventionTechnicians, opt => opt.MapFrom(src => src.Technicians))
+                .ForMember(dest => dest.Origin, opt => opt.Ignore())
+                .ForMember(dest => dest.OriginId, opt => opt.MapFrom(src => src.Origin.Id))
+                .ForMember(dest => dest.FollowUpRequest, opt => opt.Ignore())
                 .AfterMap((src, dest) => {
                     foreach(var joinEntry in dest.InterventionTechnicians)
                     {
@@ -272,6 +273,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.DepositInvoicesHubs, opt => opt.Ignore())
                 .ForMember(dest => dest.Invoicelines, opt => opt.Ignore())
                 .ForMember(dest => dest.Deposits, opt => opt.Ignore())
+                .ForMember(dest => dest.Interventions, opt => opt.Ignore())
                 .ForMember(dest => dest.OfferNumber, opt => opt.Ignore()) // Offer number cannot be updated through Order
                 .PreserveReferences();
 

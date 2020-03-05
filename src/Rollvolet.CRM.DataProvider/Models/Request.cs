@@ -24,6 +24,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("AanmeldingID")]
         public int? WayOfEntryId { get; set; }
 
+        [Column("OriginId")]
+        public int? OriginId { get; set; }
+
         [Column("Aanvraagdatum")]
         public DateTime RequestDate { get; set; }
 

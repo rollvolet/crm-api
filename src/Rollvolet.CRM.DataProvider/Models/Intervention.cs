@@ -22,17 +22,14 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("WayOfEntryId")]
         public int? WayOfEntryId { get; set; }
 
-        [Column("FollowUpRequestId")]
-        public int? FollowUpRequestId { get; set; }
+        [Column("OriginId")]
+        public int? OriginId { get; set; }
 
         [Column("Date")]
         public DateTime Date { get; set; }
 
         [Column("Comment")]
         public string Comment { get; set; }
-
-        [Column("ProductionTicket")]
-        public bool HasProductionTicket { get; set; }
 
         [Column("PlanningDate")]
         public DateTime? PlanningDate { get; set; }
@@ -44,6 +41,7 @@ namespace Rollvolet.CRM.DataProvider.Models
         // Include resources
         public Customer Customer { get; set; }
         public WayOfEntry WayOfEntry { get; set; }
+        public Order Origin { get; set; }
         public Invoice Invoice { get; set; }
         public Request FollowUpRequest { get; set; }
 

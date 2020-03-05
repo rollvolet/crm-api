@@ -83,6 +83,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("vat-rate", c => c.VatRate);
             selectors.Add("deposits", c => c.Deposits);
             selectors.Add("invoicelines", c => c.Invoicelines);
+            selectors.Add("interventions", c => c.Interventions);
 
             // dummy entries for resources that are already included
             selectors.Add("customer.honorific-prefix", null);

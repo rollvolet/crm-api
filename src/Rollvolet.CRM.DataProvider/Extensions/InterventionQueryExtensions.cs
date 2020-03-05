@@ -58,6 +58,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("customer", c => c.Customer);
             selectors.Add("way-of-entry", c => c.WayOfEntry);
             selectors.Add("invoice", x => x.Invoice);
+            selectors.Add("origin", x => x.Origin);
             selectors.Add("follow-up-request", x => x.FollowUpRequest);
 
             // dummy entries for resources that are already included

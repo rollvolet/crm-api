@@ -160,7 +160,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Request> UpdateAsync(Request request)
         {
             var query = new QuerySet();
-            query.Include.Fields = new string[] { "customer", "way-of-entry", "building", "contact", "calendar-event", "offer" };
+            query.Include.Fields = new string[] { "customer", "way-of-entry", "building", "contact", "calendar-event", "offer", "origin" };
             var existingRequest = await _requestDataProvider.GetByIdAsync(request.Id, query);
 
             if (request.Id != existingRequest.Id)
@@ -226,6 +226,12 @@ namespace Rollvolet.CRM.Domain.Managers
                     else
                         request.WayOfEntry = await _wayOfEntryDataProvider.GetByIdAsync(int.Parse(request.WayOfEntry.Id));
                 }
+
+                // Origin cannot be updated. Take origin of oldRequest on update.
+                if (oldRequest != null)
+                    request.Origin = oldRequest.Origin;
+                else
+                    request.Origin = null;
 
                 // Offer cannot be updated. Take offer of oldRequest on update.
                 if (oldRequest != null)
