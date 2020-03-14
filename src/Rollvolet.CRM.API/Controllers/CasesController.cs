@@ -33,8 +33,9 @@ namespace Rollvolet.CRM.API.Controllers
         public async Task<IActionResult> UpdateContactAndBuildingAsync([FromBody] ContactAndBuildingDto contactAndBuildingDto)
         {
             await _caseManager.UpdateContactAndBuildingAsync(contactAndBuildingDto.ContactId, contactAndBuildingDto.BuildingId,
-                                                        contactAndBuildingDto.RequestId, contactAndBuildingDto.OfferId,
-                                                        contactAndBuildingDto.OrderId, contactAndBuildingDto.InvoiceId);
+                                                        contactAndBuildingDto.RequestId, contactAndBuildingDto.InterventionId,
+                                                         contactAndBuildingDto.OfferId, contactAndBuildingDto.OrderId,
+                                                         contactAndBuildingDto.InvoiceId);
             return NoContent();
         }
     }

@@ -61,7 +61,8 @@ namespace Rollvolet.CRM.Domain.Managers
         // Note: contact and building of a Case can only be updated through this method
         // UpdateAsync() methods of a resource in OfferManager, OrdereManager, etc. prevent the update of the contact/building for an existing resource
         // That's why we directly call methods of the OfferDataProvider, OrderDataProvider, etc. here
-        public async Task UpdateContactAndBuildingAsync(int? contactId, int? buildingId, int? requestId, int? offerId, int? orderId, int? invoiceId)
+        public async Task UpdateContactAndBuildingAsync(int? contactId, int? buildingId, int? requestId, int? interventionId,
+                                                        int? offerId, int? orderId, int? invoiceId)
         {
             int? relativeContactId = null;
             int? relativeBuildingId = null;
@@ -83,6 +84,11 @@ namespace Rollvolet.CRM.Domain.Managers
                 {
                     await _requestDataProvider.UpdateContactAndBuildingAsync((int) requestId, relativeContactId, relativeBuildingId);
                     await _requestManager.SyncCalendarEventAsync((int) requestId);
+                }
+
+                if (interventionId != null)
+                {
+                    await _interventionDataProvider.UpdateContactAndBuildingAsync((int) interventionId, relativeContactId, relativeBuildingId);
                 }
 
                 if (offerId != null)
