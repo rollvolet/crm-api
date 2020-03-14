@@ -291,6 +291,12 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasForeignKey(e => e.OriginId)
                 .HasPrincipalKey(e => e.Id);
 
+            modelBuilder.Entity<Intervention>()
+                .HasOne(e => e.Employee)
+                .WithOne()
+                .HasForeignKey<Intervention>(e => e.EmployeeId)
+                .HasPrincipalKey<Employee>(e => e.Id);
+
 
             // Offer
             modelBuilder.Entity<Offer>()

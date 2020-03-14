@@ -14,6 +14,7 @@ namespace Rollvolet.CRM.APIContracts.DTO.Interventions
         public OneRelationship Contact { get; set; }
         [JsonProperty("way-of-entry")]
         public OneRelationship WayOfEntry { get; set; }
+        public OneRelationship Employee { get; set; }
         public ManyRelationship Technicians { get; set; }
     }
 }

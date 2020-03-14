@@ -99,6 +99,19 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Employee>(employee);
         }
 
+        public async Task<Employee> GetByInterventionIdAsync(int interventionId)
+        {
+            var employee = await _context.Interventions.Where(w => w.Id == interventionId).Select(w => w.Employee).FirstOrDefaultAsync();
+
+            if (employee == null)
+            {
+                _logger.LogError($"No employee found for intervention-id {interventionId}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Employee>(employee);
+        }
+
         public async Task<Paged<Employee>> GetAllByInterventionIdAsync(int interventionId, QuerySet query)
         {
             var source = _context.InterventionTechnicians

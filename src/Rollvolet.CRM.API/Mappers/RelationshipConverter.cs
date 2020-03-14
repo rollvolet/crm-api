@@ -132,6 +132,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.FollowUpRequest = GetOneRelationship<Request>("interventions", source.Id, "follow-up-request", source.FollowUpRequest, context);
             relationships.Origin = GetOneRelationship<Order>("interventions", source.Id, "origin", source.Origin, context);
             relationships.Invoice = GetOneRelationship<Invoice>("interventions", source.Id, "invoice", source.Invoice, context);
+            relationships.Employee = GetOneRelationship<Employee>("interventions", source.Id, "employee", source.Employee, context);
             relationships.Technicians = GetManyRelationship<Employee>("interventions", source.Id, "technicians", source.Technicians, context);
             return relationships;
         }

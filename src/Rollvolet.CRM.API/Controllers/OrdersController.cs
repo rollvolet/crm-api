@@ -159,7 +159,7 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost("{id}/production-tickets")]
         public async Task<IActionResult> CreateProductionTicketAsync(int id)
         {
-            await _documentGenerationManager.CreateAndStoreProductionTicketTemplateByOrderIdAsync(id);
+            await _documentGenerationManager.CreateAndStoreProductionTicketTemplateAsync(id);
             // TODO return download location in Location header
             return NoContent();
         }

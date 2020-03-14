@@ -46,13 +46,10 @@ namespace Rollvolet.CRM.API.Controllers
             return await ViewFileStreamAsync(_documentGenerationManager.DownloadDeliveryNoteAsync, orderId);
         }
 
-        [HttpGet("production-ticket-templates/{resource}/{resourceId}")]
-        public async Task<IActionResult> ViewProductionTicketTemplateAsync(string resource, int resourceId)
+        [HttpGet("production-ticket-templates/{orderId}")]
+        public async Task<IActionResult> ViewProductionTicketTemplateAsync(int orderId)
         {
-            if (resource == "orders")
-                return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketTemplateByOrderIdAsync, resourceId);
-            else
-                return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketTemplateByInterventionIdAsync, resourceId);
+            return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketTemplateAsync, orderId);
         }
 
         [HttpGet("production-tickets/{resource}/{resourceId}")]

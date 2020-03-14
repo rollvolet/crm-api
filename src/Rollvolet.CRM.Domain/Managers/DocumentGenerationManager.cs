@@ -245,7 +245,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task CreateAndStoreProductionTicketTemplateByOrderIdAsync(int orderId)
+        public async Task CreateAndStoreProductionTicketTemplateAsync(int orderId)
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] { "customer", "contact", "building" };
@@ -273,34 +273,10 @@ namespace Rollvolet.CRM.Domain.Managers
             await GenerateAndStoreDocumentAsync(url, documentData, filePath);
         }
 
-        public async Task CreateAndStoreProductionTicketTemplateByInterventionIdAsync(int interventionId)
-        {
-            var includeQuery = new QuerySet();
-            includeQuery.Include.Fields = new string[] { "customer", "contact", "building" };
-            var intervention = await _interventionDataProvider.GetByIdAsync(interventionId, includeQuery);
-
-            await EmbedCustomerAndContactTelephonesAsync(intervention);
-
-            dynamic documentData = new ExpandoObject();
-            documentData.Intervention = intervention;
-
-            var url = $"{_documentGenerationConfig.BaseUrl}/documents/production-ticket";
-            var filePath = ConstructGeneratedProductionTicketFilePath(intervention);
-
-            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
-        }
-
-        public async Task<FileStream> DownloadProductionTicketTemplateByOrderIdAsync(int orderId)
+        public async Task<FileStream> DownloadProductionTicketTemplateAsync(int orderId)
         {
             var order = await _orderDataProvider.GetByIdAsync(orderId);
             var filePath = ConstructGeneratedProductionTicketFilePath(order);
-            return DownloadDcument(filePath);
-        }
-
-        public async Task<FileStream> DownloadProductionTicketTemplateByInterventionIdAsync(int interventionId)
-        {
-            var intervention = await _interventionDataProvider.GetByIdAsync(interventionId);
-            var filePath = ConstructGeneratedProductionTicketFilePath(intervention);
             return DownloadDcument(filePath);
         }
 

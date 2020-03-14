@@ -29,6 +29,11 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _employeeDataProvider.GetByWorkingHourIdAsync(workingHourId);
         }
 
+        public async Task<Employee> GetByInterventionIdAsync(int interventionId)
+        {
+            return await _employeeDataProvider.GetByInterventionIdAsync(interventionId);
+        }
+
         public async Task<Paged<Employee>> GetAllByInterventionIdAsync(int interventionId, QuerySet query)
         {
             return await _employeeDataProvider.GetAllByInterventionIdAsync(interventionId, query);

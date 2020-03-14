@@ -211,6 +211,14 @@ namespace Rollvolet.CRM.Domain.Managers
                         intervention.WayOfEntry = await _wayOfEntryDataProvider.GetByIdAsync(int.Parse(intervention.WayOfEntry.Id));
                 }
 
+                if (intervention.Employee != null)
+                {
+                    if (oldIntervention != null && oldIntervention.Employee != null && oldIntervention.Employee.Id == intervention.Employee.Id)
+                        intervention.Employee = oldIntervention.Employee;
+                    else
+                        intervention.Employee = await _employeeDataProvider.GetByIdAsync(intervention.Employee.Id);
+                }
+
                 var technicians = new List<Employee>();
                 foreach (var technicianRelation in intervention.Technicians)
                 {

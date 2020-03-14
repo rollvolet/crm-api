@@ -124,14 +124,6 @@ namespace Rollvolet.CRM.API.Controllers
             return NoContent();
         }
 
-        [HttpPost("{id}/production-tickets")]
-        public async Task<IActionResult> CreateProductionTicketAsync(int id)
-        {
-            await _documentGenerationManager.CreateAndStoreProductionTicketTemplateByInterventionIdAsync(id);
-            // TODO return download location in Location header
-            return NoContent();
-        }
-
         [HttpPost("{interventionId}/production-ticket")]
         public async Task<IActionResult> UploadProductionTicketAsync(int interventionId, IFormFile file)
         {
@@ -267,6 +259,25 @@ namespace Rollvolet.CRM.API.Controllers
 
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
             return Ok(new ResourceResponse() { Links = links, Data = wayOfEntryDto });
+        }
+
+        [HttpGet("{interventionId}/employee")]
+        [HttpGet("{interventionId}/links/employee")]
+        public async Task<IActionResult> GetRelatedEmployeeByIdAsync(int interventionId)
+        {
+            EmployeeDto employeeDto;
+            try
+            {
+                var employee = await _employeeManager.GetByInterventionIdAsync(interventionId);
+                employeeDto = _mapper.Map<EmployeeDto>(employee);
+            }
+            catch (EntityNotFoundException)
+            {
+                employeeDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = employeeDto });
         }
 
         [HttpGet("{interventionId}/technicians")]

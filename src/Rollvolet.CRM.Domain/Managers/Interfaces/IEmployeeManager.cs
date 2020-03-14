@@ -9,6 +9,7 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
     {
         Task<IEnumerable<Employee>> GetAllAsync();
         Task<Employee> GetByWorkingHourIdAsync(int workingHourId);
+        Task<Employee> GetByInterventionIdAsync(int interventionId);
         Task<Paged<Employee>> GetAllByInterventionIdAsync(int interventionId, QuerySet query);
     }
 }

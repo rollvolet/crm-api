@@ -431,6 +431,7 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Origin : null))
                 .ForMember(dest => dest.FollowUpRequest, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.FollowUpRequest : null))
                 .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Invoice : null))
+                .ForMember(dest => dest.Employee, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Employee : null))
                 .ForMember(dest => dest.Technicians, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Technicians : null))
                 .AfterMap((src, dest) => {
                     if (dest.Technicians == null)

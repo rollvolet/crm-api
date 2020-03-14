@@ -11,6 +11,7 @@ namespace Rollvolet.CRM.Domain.Models
         public string Comment { get; set; }
         public DateTime? PlanningDate { get; set; }
         public string PlanningMsObjectId { get; set; }
+        public DateTime? CancellationDate { get; set; }
 
         public Customer Customer { get; set; }
         public Building Building { get; set; }
@@ -19,6 +20,7 @@ namespace Rollvolet.CRM.Domain.Models
         public Invoice Invoice { get; set; }
         public Request FollowUpRequest { get; set; }
         public WayOfEntry WayOfEntry { get; set; }
+        public Employee Employee { get; set; }
         public IEnumerable<Employee> Technicians { get; set; }
     }
 }

@@ -197,6 +197,8 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.InterventionTechnicians, opt => opt.MapFrom(src => src.Technicians))
                 .ForMember(dest => dest.Origin, opt => opt.Ignore())
                 .ForMember(dest => dest.OriginId, opt => opt.MapFrom(src => src.Origin.Id))
+                .ForMember(dest => dest.Employee, opt => opt.Ignore())
+                .ForMember(dest => dest.EmployeeId, opt => opt.MapFrom(src => src.Employee.Id))
                 .ForMember(dest => dest.FollowUpRequest, opt => opt.Ignore())
                 .AfterMap((src, dest) => {
                     foreach(var joinEntry in dest.InterventionTechnicians)
