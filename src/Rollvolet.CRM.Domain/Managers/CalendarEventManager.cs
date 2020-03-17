@@ -272,7 +272,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 calendarEvent.FromHour = null;
                 calendarEvent.UntilHour = null;
             }
-
         }
 
         private bool RequiresCalendarEventUpdate(CalendarEvent existingCalendarEvent, CalendarEvent calendarEvent)

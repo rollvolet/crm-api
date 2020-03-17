@@ -20,12 +20,13 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IInvoiceDataProvider _invoiceDataProvider;
         private readonly IRequestManager _requestManager;
         private readonly IOrderManager _orderManager;
+        private readonly IPlanningEventManager _planningEventManager;
 
         public CaseManager(ICaseDataProvider caseDataProvider, IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                             IDepositInvoiceDataProvider depositInvoiceDataProvider,
                             IRequestDataProvider requestDataProvider, IInterventionDataProvider interventionDataProvider,
                             IOfferDataProvider offerDataProvider, IInvoiceDataProvider invoiceDataProvider,
-                            IRequestManager requestManager, IOrderManager orderManager)
+                            IRequestManager requestManager, IOrderManager orderManager, IPlanningEventManager planningEventManager)
         {
             _caseDataProvider = caseDataProvider;
             _contactDataProvider = contactDataProvider;
@@ -37,6 +38,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _invoiceDataProvider = invoiceDataProvider;
             _requestManager = requestManager;
             _orderManager = orderManager;
+            _planningEventManager = planningEventManager;
         }
 
         public async Task<Case> GetCaseAsync(int? requestId, int? interventionId, int? offerId, int? orderId, int? invoiceId)
@@ -89,6 +91,8 @@ namespace Rollvolet.CRM.Domain.Managers
                 if (interventionId != null)
                 {
                     await _interventionDataProvider.UpdateContactAndBuildingAsync((int) interventionId, relativeContactId, relativeBuildingId);
+                    var planningEvent = await _planningEventManager.GetByInterventionIdAsync((int) interventionId);
+                    await _planningEventManager.UpdateAsync(planningEvent);
                 }
 
                 if (offerId != null)

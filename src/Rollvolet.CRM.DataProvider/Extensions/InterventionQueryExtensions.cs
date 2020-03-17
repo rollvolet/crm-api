@@ -60,6 +60,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("invoice", x => x.Invoice);
             selectors.Add("origin", x => x.Origin);
             selectors.Add("follow-up-request", x => x.FollowUpRequest);
+            selectors.Add("planning-event", x => x.PlanningEvent);
 
             // dummy entries for resources that are already included
             selectors.Add("customer.honorific-prefix", null);

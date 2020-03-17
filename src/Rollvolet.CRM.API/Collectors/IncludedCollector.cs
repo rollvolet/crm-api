@@ -21,6 +21,7 @@ using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.DTO.ProductUnits;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
+using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
 
 namespace Rollvolet.CRM.API.Collectors
 {
@@ -228,6 +229,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<RequestDto>(intervention.FollowUpRequest));
             if (includeQuery.Contains("origin") && intervention.Origin != null)
                 included.Add(_mapper.Map<OrderDto>(intervention.Origin));
+            if (includeQuery.Contains("planning-event") && intervention.PlanningEvent != null)
+                included.Add(_mapper.Map<PlanningEventDto>(intervention.PlanningEvent));
 
             // many-relations
             if (includeQuery.Contains("technicians") && intervention.Technicians.Count() > 0)
@@ -564,6 +567,29 @@ namespace Rollvolet.CRM.API.Collectors
 
             foreach (var invoiceSupplement in invoiceSupplements)
                 included.UnionWith(CollectIncluded(invoiceSupplement, includeQuery));
+
+            return included;
+        }
+
+        public IEnumerable<IResource> CollectIncluded(PlanningEvent planningEvent, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+
+            // one-relations
+            if (includeQuery.Contains("intervention") && planningEvent.Intervention != null)
+                included.Add(_mapper.Map<InterventionDto>(planningEvent.Intervention));
+            if (includeQuery.Contains("order") && planningEvent.Order != null)
+                included.Add(_mapper.Map<OrderDto>(planningEvent.Order));
+
+            return included;
+        }
+
+        public IEnumerable<IResource> CollectIncluded(IEnumerable<PlanningEvent> planningEvents, IncludeQuery includeQuery)
+        {
+            ISet<IResource> included = new HashSet<IResource>();
+
+            foreach (var planningEvent in planningEvents)
+                included.UnionWith(CollectIncluded(planningEvent, includeQuery));
 
             return included;
         }

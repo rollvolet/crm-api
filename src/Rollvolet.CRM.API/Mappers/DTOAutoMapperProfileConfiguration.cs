@@ -22,6 +22,7 @@ using Rollvolet.CRM.APIContracts.DTO.ErrorNotifications;
 using Rollvolet.CRM.APIContracts.DTO.ProductUnits;
 using Rollvolet.CRM.APIContracts.DTO.Invoicelines;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
+using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
 
 namespace Rollvolet.CRM.API.Mappers
 {
@@ -430,6 +431,7 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.WayOfEntry, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.WayOfEntry : null))
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Origin : null))
                 .ForMember(dest => dest.FollowUpRequest, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.FollowUpRequest : null))
+                .ForMember(dest => dest.PlanningEvent, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.PlanningEvent : null))
                 .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Invoice : null))
                 .ForMember(dest => dest.Employee, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Employee : null))
                 .ForMember(dest => dest.Technicians, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Technicians : null))
@@ -967,7 +969,44 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<RelatedResource, Payment>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());;
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+
+            // Planning event mappings
+
+            CreateMap<PlanningEvent, PlanningEventDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "planning-events"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<PlanningEvent, PlanningEventAttributesDto>()
+                .ReverseMap()
+                .ForMember(dest => dest.IsNotAvailableInCalendar, opt => opt.MapFrom(src => false)); // flag is only set on outgoing planning events
+
+            CreateMap<PlanningEvent, PlanningEventRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+            CreateMap<PlanningEvent, RelatedResource>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "planning-events"));
+
+            CreateMap<PlanningEventRequestDto, PlanningEvent>()
+                .ConstructUsing((src, context) => context.Mapper.Map<PlanningEvent>(src.Attributes))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Intervention, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Intervention : null))
+                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Order : null))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<OneRelationship, PlanningEvent>()
+                .ConstructUsing((src, context) => context.Mapper.Map<PlanningEvent>(src.Data))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<ManyRelationship, IEnumerable<PlanningEvent>>()
+                .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<PlanningEvent>>(src.Data))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<RelatedResource, PlanningEvent>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForAllOtherMembers(opt => opt.Ignore());
 
 
             // Accountancy export mappings

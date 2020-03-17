@@ -34,6 +34,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Employee> Employees { get; set; }
         public DbSet<InterventionTechnician> InterventionTechnicians { get; set; }
         public DbSet<Visit> Visits { get; set; }
+        public DbSet<PlanningEvent> PlanningEvents { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<AccountancyExport> AccountancyExports { get; set; }
 
@@ -598,6 +599,22 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<Payment>()
                 .HasKey(e => e.Id);
+
+
+            // PlanningEvent
+
+            modelBuilder.Entity<PlanningEvent>()
+                .ToTable("TblPlanningEvent", schema: "dbo");
+
+            modelBuilder.Entity<PlanningEvent>()
+                .HasKey(e => e.Id)
+                .HasName("TblPlanningEvent$PrimaryKey");
+
+            modelBuilder.Entity<PlanningEvent>()
+                .HasOne(e => e.Intervention)
+                .WithOne(e => e.PlanningEvent)
+                .HasForeignKey<PlanningEvent>(e => e.InterventionId)
+                .HasPrincipalKey<Intervention>(e => e.Id);
 
 
             // Accountancy export

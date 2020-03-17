@@ -7,6 +7,8 @@ namespace Rollvolet.CRM.APIContracts.DTO.Interventions
     {
         [JsonProperty("follow-up-request")]
         public IRelationship FollowUpRequest { get; set; }
+        [JsonProperty("planning-event")]
+        public IRelationship PlanningEvent { get; set; }
         public IRelationship Invoice { get; set; }
         public IRelationship Origin { get; set; }
         public IRelationship Customer { get; set; }
