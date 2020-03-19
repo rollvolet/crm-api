@@ -19,13 +19,15 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IVisitDataProvider _visitDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IWayOfEntryDataProvider _wayOfEntryDataProvider;
+        private readonly IInterventionDataProvider _interventionDataProvider;
         private readonly ICalendarEventManager _calendarEventManager;
         private readonly ILogger _logger;
 
         public RequestManager(IRequestDataProvider requestDataProvider, ICustomerDataProvider customerDataProvider,
                                 IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                                 IVisitDataProvider visitDataProvider, IOfferDataProvider offerDataProvider,
-                                IWayOfEntryDataProvider wayOfEntryDataProvider, ICalendarEventManager calendarEventManager, ILogger<RequestManager> logger)
+                                IWayOfEntryDataProvider wayOfEntryDataProvider, IInterventionDataProvider interventionDataProvider,
+                                ICalendarEventManager calendarEventManager, ILogger<RequestManager> logger)
         {
             _requestDataProvider = requestDataProvider;
             _customerDataProvider = customerDataProvider;
@@ -34,6 +36,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _visitDataProvider = visitDataProvider;
             _offerDataProvider = offerDataProvider;
             _wayOfEntryDataProvider = wayOfEntryDataProvider;
+            _interventionDataProvider = interventionDataProvider;
             _calendarEventManager = calendarEventManager;
             _logger = logger;
         }
@@ -231,7 +234,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 if (oldRequest != null)
                     request.Origin = oldRequest.Origin;
                 else
-                    request.Origin = null;
+                    request.Origin = await _interventionDataProvider.GetByIdAsync(request.Origin.Id);
 
                 // Offer cannot be updated. Take offer of oldRequest on update.
                 if (oldRequest != null)
