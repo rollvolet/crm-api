@@ -4,6 +4,7 @@ namespace Rollvolet.CRM.Domain.Configuration
     {
         public string BaseUrl { get; set; }
         public string VisitReportStorageLocation { get; set; }
+        public string InterventionReportStorageLocation { get; set; }
         public string OfferStorageLocation { get; set; }
         public string OrderStorageLocation { get; set; }
         public string DeliveryNoteStorageLocation { get; set; }

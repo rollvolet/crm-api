@@ -128,26 +128,11 @@ namespace Rollvolet.CRM.API.Controllers
             return NoContent();
         }
 
-        [HttpPost("{interventionId}/production-ticket")]
-        public async Task<IActionResult> UploadProductionTicketAsync(int interventionId, IFormFile file)
+        [HttpPost("{id}/reports")]
+        public async Task<IActionResult> CreateInterventionReportAsync(int id)
         {
-            if (file == null || file.Length == 0)
-                throw new IllegalArgumentException("InvalidFile", "File cannot be empty");
-
-            using (var stream = new MemoryStream())
-            {
-                await file.CopyToAsync(stream);
-                await _documentGenerationManager.UploadProductionTicketByInterventionIdAsync(interventionId, stream);
-            }
-
-            return NoContent();
-        }
-
-        [HttpDelete("{interventionId}/production-ticket")]
-        public async Task<IActionResult> DeleteProductionTicketAsync(int interventionId)
-        {
-            await _documentGenerationManager.DeleteProductionTicketByInterventionIdAsync(interventionId);
-
+            await _documentGenerationManager.CreateAndStoreInterventionReportAsync(id);
+            // TODO return download location in Location header
             return NoContent();
         }
 

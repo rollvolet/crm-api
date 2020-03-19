@@ -17,6 +17,7 @@
   "DocumentGeneration": {
     "BaseUrl": "",
     "VisitReportStorageLocation": "",
+    "InterventionReportStorageLocation": "",
     "OfferStorageLocation": "",
     "OrderStorageLocation": "",
     "DeliveryNoteStorageLocation": "",

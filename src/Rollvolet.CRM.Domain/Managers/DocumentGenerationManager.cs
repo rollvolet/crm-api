@@ -40,6 +40,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly HttpClient _httpClient;
         private readonly DocumentGenerationConfiguration _documentGenerationConfig;
         private readonly string _visitReportStorageLocation;
+        private readonly string _interventionReportStorageLocation;
         private readonly string _offerStorageLocation;
         private readonly string _orderStorageLocation;
         private readonly string _deliveryNoteStorageLocation;
@@ -75,6 +76,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _logger = logger;
 
             _visitReportStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.VisitReportStorageLocation);
+            _interventionReportStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.InterventionReportStorageLocation);
             _offerStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.OfferStorageLocation);
             _orderStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.OrderStorageLocation);
             _deliveryNoteStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.DeliveryNoteStorageLocation);
@@ -142,6 +144,37 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var request = await _requestDataProvider.GetByIdAsync(requestId);
             var filePath = ConstructVisitReportFilePath(request);
+            return DownloadDcument(filePath);
+        }
+
+        public async Task CreateAndStoreInterventionReportAsync(int interventionId)
+        {
+            var query = new QuerySet();
+            query.Include.Fields = new string[] {
+                "planning-event", "customer", "customer.honorific-prefix", "customer.language", "building", "contact", "way-of-entry", "employee"
+            };
+            var intervention = await _interventionDataProvider.GetByIdAsync(interventionId, query);
+
+            var techniciansQuery = new QuerySet();
+            techniciansQuery.Page.Size = 1000; // TODO we assume 1 intervention doesn't have more than 1000 technicians. Ideally, we should query by page.
+            var technicians = await _employeeDataProvider.GetAllByInterventionIdAsync(interventionId, techniciansQuery);
+            intervention.Technicians = technicians.Items.OrderBy(t => t.FirstName);
+
+            await EmbedCustomerAndContactTelephonesAsync(intervention);
+
+            dynamic documentData = new ExpandoObject();
+            documentData.Intervention = intervention;
+
+            var url = $"{_documentGenerationConfig.BaseUrl}/documents/intervention-report";
+            var filePath = ConstructInterventionReportFilePath(intervention);
+
+            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+        }
+
+        public async Task<FileStream> DownloadInterventionReportAsync(int interventionId)
+        {
+            var intervention = await _interventionDataProvider.GetByIdAsync(interventionId);
+            var filePath = ConstructInterventionReportFilePath(intervention);
             return DownloadDcument(filePath);
         }
 
@@ -287,22 +320,9 @@ namespace Rollvolet.CRM.Domain.Managers
             UploadDocument(filePath, content);
         }
 
-        public async Task UploadProductionTicketByInterventionIdAsync(int interventationId, Stream content)
-        {
-            var filePath = await ConstructReceivedProductionTicketFilePathForInterventionAsync(interventationId);
-            _logger.LogDebug($"Uploading production ticket to {filePath}");
-            UploadDocument(filePath, content);
-        }
-
         public async Task<FileStream> DownloadProductionTicketByOrderIdAsync(int orderId)
         {
             var filePath = await FindReceivedProductionTicketFilePathForOrderAsync(orderId);
-            return DownloadDcument(filePath);
-        }
-
-        public async Task<FileStream> DownloadProductionTicketByInterventionIdAsync(int interventionId)
-        {
-            var filePath = await FindReceivedProductionTicketFilePathForInterventionAsync(interventionId);
             return DownloadDcument(filePath);
         }
 
@@ -317,24 +337,6 @@ namespace Rollvolet.CRM.Domain.Managers
             catch (EntityNotFoundException)
             {
                 _logger.LogInformation("No file found for production ticket of order {0}. Nothing to delete on disk.", orderId);
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, "Something went wrong while deleting production ticket {0}.", filePath);
-            }
-        }
-
-        public async Task DeleteProductionTicketByInterventionIdAsync(int interventionId)
-        {
-            string filePath = null;
-            try
-            {
-                filePath = await FindReceivedProductionTicketFilePathForInterventionAsync(interventionId);
-                File.Delete(filePath);
-            }
-            catch (EntityNotFoundException)
-            {
-                _logger.LogInformation("No file found for production ticket of intervention {0}. Nothing to delete on disk.", interventionId);
             }
             catch (Exception e)
             {
@@ -573,6 +575,15 @@ namespace Rollvolet.CRM.Domain.Managers
             return $"{directory}AD{request.Id}.pdf";
         }
 
+        private string ConstructInterventionReportFilePath(Intervention intervention)
+        {
+            var year = intervention.Date != null ? ((DateTime) intervention.Date).Year : 0;
+            var directory = $"{_interventionReportStorageLocation}{year}{Path.DirectorySeparatorChar}";
+            Directory.CreateDirectory(directory);
+
+            return $"{directory}IR{intervention.Id}.pdf";
+        }
+
         private string ConstructOfferDocumentFilePath(Offer offer)
         {
             // Parse year from the offernumber, since the offerdate changes on each document generation
@@ -623,17 +634,6 @@ namespace Rollvolet.CRM.Domain.Managers
             return $"{directory}{filename}.pdf";
         }
 
-        private string ConstructGeneratedProductionTicketFilePath(Intervention intervention)
-        {
-             var year = intervention.Date != null ? ((DateTime) intervention.Date).Year : 0;
-            var directory = $"{_generatedProductionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);
-
-            var filename = _onlyAlphaNumeric.Replace($"IR{intervention.Id}", "");
-
-            return $"{directory}{filename}.pdf";
-        }
-
         private async Task<string> ConstructReceivedProductionTicketFilePathForOrderAsync(int orderId)
         {
             var query = new QuerySet();
@@ -645,21 +645,6 @@ namespace Rollvolet.CRM.Domain.Managers
             Directory.CreateDirectory(directory);
 
             var filename = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "") + _noNewlines.Replace($"_{order.Customer.Name}", "");
-
-            return $"{directory}{filename}.pdf";
-        }
-
-        private async Task<string> ConstructReceivedProductionTicketFilePathForInterventionAsync(int interventionId)
-        {
-            var query = new QuerySet();
-            query.Include.Fields = new string[] { "customer" };
-            var intervention = await _interventionDataProvider.GetByIdAsync(interventionId, query);
-
-            var year = intervention.Date != null ? ((DateTime) intervention.Date).Year : 0;
-            var directory = $"{_receivedProductionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);
-
-            var filename = _onlyAlphaNumeric.Replace($"IR{intervention.Id}", "") + _noNewlines.Replace($"_{intervention.Customer.Name}", "");
 
             return $"{directory}{filename}.pdf";
         }
@@ -684,30 +669,6 @@ namespace Rollvolet.CRM.Domain.Managers
             else
             {
                 _logger.LogWarning($"Cannot find production-ticket file for order {orderId} starting with '{filenameSearch}' in directory {directory}");
-                throw new EntityNotFoundException();
-            }
-        }
-
-        private async Task<string> FindReceivedProductionTicketFilePathForInterventionAsync(int interventionId)
-        {
-            var intervention = await _interventionDataProvider.GetByIdAsync(interventionId);
-
-            var year = intervention.Date != null ? ((DateTime) intervention.Date).Year : 0;
-            var directory = $"{_receivedProductionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);  // ensure directory exists
-
-            // only search on intervention number since customer name might have changed
-            var filenameSearch = _onlyAlphaNumeric.Replace($"IR{intervention.Id}", "") + "*";
-
-            var matchingFiles = Directory.GetFiles(directory, filenameSearch);
-
-            if (matchingFiles.Length > 0)
-            {
-                return matchingFiles[0];
-            }
-            else
-            {
-                _logger.LogWarning($"Cannot find production-ticket file for intervention {interventionId} starting with '{filenameSearch}' in directory {directory}");
                 throw new EntityNotFoundException();
             }
         }
