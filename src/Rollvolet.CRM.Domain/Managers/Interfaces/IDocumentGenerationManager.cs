@@ -17,9 +17,10 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<FileStream> DownloadDeliveryNoteAsync(int orderId);
         Task CreateAndStoreProductionTicketTemplateAsync(int orderId);
         Task<FileStream> DownloadProductionTicketTemplateAsync(int orderId);
-        Task UploadProductionTicketByOrderIdAsync(int orderId, Stream content);
-        Task<FileStream> DownloadProductionTicketByOrderIdAsync(int orderId);
-        Task DeleteProductionTicketByOrderIdAsync(int orderId);
+        Task UploadProductionTicketAsync(int orderId, Stream content);
+        Task<FileStream> DownloadProductionTicketAsync(int orderId);
+        Task<Stream> DownloadProductionTicketWithWatermarkAsync(int orderId);
+        Task DeleteProductionTicketAsync(int orderId);
         Task CreateAndStoreInvoiceDocumentAsync(int invoiceId);
         Task<FileStream> DownloadInvoiceDocumentAsync(int invoiceId);
         Task CreateAndStoreDepositInvoiceDocumentAsync(int depositInvoiceId);

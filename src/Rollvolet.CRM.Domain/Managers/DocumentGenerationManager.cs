@@ -4,6 +4,7 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -313,25 +314,54 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
-        public async Task UploadProductionTicketByOrderIdAsync(int orderId, Stream content)
+        public async Task UploadProductionTicketAsync(int orderId, Stream content)
         {
-            var filePath = await ConstructReceivedProductionTicketFilePathForOrderAsync(orderId);
+            var filePath = await ConstructReceivedProductionTicketFilePathAsync(orderId);
             _logger.LogDebug($"Uploading production ticket to {filePath}");
             UploadDocument(filePath, content);
         }
 
-        public async Task<FileStream> DownloadProductionTicketByOrderIdAsync(int orderId)
+        public async Task<FileStream> DownloadProductionTicketAsync(int orderId)
         {
-            var filePath = await FindReceivedProductionTicketFilePathForOrderAsync(orderId);
+            var filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
             return DownloadDcument(filePath);
         }
 
-        public async Task DeleteProductionTicketByOrderIdAsync(int orderId)
+        public async Task<Stream> DownloadProductionTicketWithWatermarkAsync(int orderId)
+        {
+            var filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
+            var file = DownloadDcument(filePath);
+            return await WatermarkProductionTicketAsync(file);
+        }
+
+        private async Task<Stream> WatermarkProductionTicketAsync(FileStream productionTicketStream)
+        {
+            var url = $"{_documentGenerationConfig.BaseUrl}/documents/production-ticket-watermark";
+            var body = new MultipartFormDataContent();
+            var pdfContent = new StreamContent(productionTicketStream);
+            pdfContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/pdf");
+            body.Add(pdfContent, "file", "production-ticket.pdf");
+
+            var response = await _httpClient.PostAsync(url, body);
+
+            try
+            {
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStreamAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning("Something went wrong while retrieving document from URL {0}: {1}", url, e.Message);
+                throw e;
+            }
+        }
+
+        public async Task DeleteProductionTicketAsync(int orderId)
         {
             string filePath = null;
             try
             {
-                filePath = await FindReceivedProductionTicketFilePathForOrderAsync(orderId);
+                filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
                 File.Delete(filePath);
             }
             catch (EntityNotFoundException)
@@ -634,7 +664,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return $"{directory}{filename}.pdf";
         }
 
-        private async Task<string> ConstructReceivedProductionTicketFilePathForOrderAsync(int orderId)
+        private async Task<string> ConstructReceivedProductionTicketFilePathAsync(int orderId)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] { "customer" };
@@ -649,7 +679,7 @@ namespace Rollvolet.CRM.Domain.Managers
             return $"{directory}{filename}.pdf";
         }
 
-        private async Task<string> FindReceivedProductionTicketFilePathForOrderAsync(int orderId)
+        private async Task<string> FindReceivedProductionTicketFilePathAsync(int orderId)
         {
             var order = await _orderDataProvider.GetByIdAsync(orderId);
 

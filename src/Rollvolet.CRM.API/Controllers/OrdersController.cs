@@ -173,7 +173,7 @@ namespace Rollvolet.CRM.API.Controllers
             using (var stream = new MemoryStream())
             {
                 await file.CopyToAsync(stream);
-                await _documentGenerationManager.UploadProductionTicketByOrderIdAsync(orderId, stream);
+                await _documentGenerationManager.UploadProductionTicketAsync(orderId, stream);
             }
 
             return NoContent();
@@ -182,7 +182,7 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpDelete("{orderId}/production-ticket")]
         public async Task<IActionResult> DeleteProductionTicketAsync(int orderId)
         {
-            await _documentGenerationManager.DeleteProductionTicketByOrderIdAsync(orderId);
+            await _documentGenerationManager.DeleteProductionTicketAsync(orderId);
 
             return NoContent();
         }

@@ -59,9 +59,12 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("production-tickets/{orderId}")]
-        public async Task<IActionResult> ViewProductionTicketeAsync(int orderId)
+        public async Task<IActionResult> ViewProductionTicketAsync(int orderId, [FromQuery] bool watermark)
         {
-            return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketByOrderIdAsync, orderId);
+            if (watermark)
+                return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketWithWatermarkAsync, orderId);
+            else
+                return await ViewFileStreamAsync(_documentGenerationManager.DownloadProductionTicketAsync, orderId);
         }
 
         [HttpGet("invoices/{id}")]
@@ -100,7 +103,7 @@ namespace Rollvolet.CRM.API.Controllers
             return await ViewFileStreamAsync(_documentGenerationManager.DownloadCertificateForDepositInvoiceAsync, id);
         }
 
-        private async Task<IActionResult> ViewFileStreamAsync(Func<int, Task<FileStream>> downloadFileAsync, int id)
+        private async Task<IActionResult> ViewFileStreamAsync<T>(Func<int, Task<T>> downloadFileAsync, int id) where T : Stream
         {
             try
             {

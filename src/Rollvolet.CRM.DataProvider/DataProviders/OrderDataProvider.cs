@@ -80,6 +80,20 @@ namespace Rollvolet.CRM.DataProviders
             };
         }
 
+        public async Task<Order> GetByInterventionIdAsync(int interventionId, QuerySet query = null)
+        {
+            var intervention = await _context.Interventions.Where(i => i.Id == interventionId).FirstOrDefaultAsync();
+            var orderId = intervention.OriginId;
+
+            if (orderId == null)
+            {
+                _logger.LogError($"No order found for intervention-id {interventionId}");
+                throw new EntityNotFoundException();
+            }
+
+            return await GetByIdAsync((int) orderId, query);
+        }
+
         public async Task<Order> GetByOfferIdAsync(int offerId, QuerySet query = null)
         {
             var order = await FindByIdAsync(offerId, query); // order has the same id as the attached offer
@@ -91,20 +105,6 @@ namespace Rollvolet.CRM.DataProviders
             }
 
             return _mapper.Map<Order>(order);
-        }
-
-
-        public async Task<Offer> GetByRequestIdAsync(int requestId, QuerySet query = null)
-        {
-            var offer = await FindWhereAsync(r => r.RequestId == requestId, query);
-
-            if (offer == null)
-            {
-                _logger.LogError($"No offer found for request-id {requestId}");
-                throw new EntityNotFoundException();
-            }
-
-            return _mapper.Map<Offer>(offer);
         }
 
         public async Task<Order> GetByInvoiceIdAsync(int invoiceId, QuerySet query = null)

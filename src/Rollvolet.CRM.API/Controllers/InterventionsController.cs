@@ -17,8 +17,8 @@ using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
 using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Microsoft.AspNetCore.Http;
-using System.IO;
 using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
+using Rollvolet.CRM.APIContracts.DTO.Orders;
 
 namespace Rollvolet.CRM.API.Controllers
 {
@@ -32,6 +32,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IContactManager _contactManager;
         private readonly IBuildingManager _buildingManager;
         private readonly IInvoiceManager _invoiceManager;
+        private readonly IOrderManager _orderManager;
         private readonly IRequestManager _requestManager;
         private readonly IEmployeeManager _employeeManager;
         private readonly IPlanningEventManager _planningEventManager;
@@ -42,8 +43,8 @@ namespace Rollvolet.CRM.API.Controllers
 
         public InterventionsController(IInterventionManager interventionManager, IWayOfEntryManager wayOfEntryManager, IEmployeeManager employeeManager,
                                     ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
-                                    IInvoiceManager invoiceManager, IRequestManager requestManager, IPlanningEventManager planningEventManager,
-                                    IDocumentGenerationManager documentGenerationManager,
+                                    IInvoiceManager invoiceManager, IOrderManager orderManager, IRequestManager requestManager,
+                                    IPlanningEventManager planningEventManager, IDocumentGenerationManager documentGenerationManager,
                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _interventionManager = interventionManager;
@@ -52,6 +53,7 @@ namespace Rollvolet.CRM.API.Controllers
             _contactManager = contactManager;
             _buildingManager = buildingManager;
             _invoiceManager = invoiceManager;
+            _orderManager = orderManager;
             _requestManager = requestManager;
             _employeeManager = employeeManager;
             _planningEventManager = planningEventManager;
@@ -210,6 +212,25 @@ namespace Rollvolet.CRM.API.Controllers
 
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
             return Ok(new ResourceResponse() { Links = links, Data = invoiceDto });
+        }
+
+        [HttpGet("{interventionId}/origin")]
+        [HttpGet("{interventionId}/links/origin")]
+        public async Task<IActionResult> GetRelatedOriginByIdAsync(int interventionId)
+        {
+            OrderDto orderDto;
+            try
+            {
+                var order = await _orderManager.GetByInterventionIdAsync(interventionId);
+                orderDto = _mapper.Map<OrderDto>(order);
+            }
+            catch (EntityNotFoundException)
+            {
+                orderDto = null;
+            }
+
+            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
+            return Ok(new ResourceResponse() { Links = links, Data = orderDto });
         }
 
         [HttpGet("{interventionId}/follow-up-request")]

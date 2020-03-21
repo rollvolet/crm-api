@@ -17,6 +17,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IContactDataProvider _contactDataProvider;
         private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly IInvoiceDataProvider _invoiceDataProvider;
+        private readonly IOrderDataProvider _orderDataProvider;
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly IWayOfEntryDataProvider _wayOfEntryDataProvider;
         private readonly IEmployeeDataProvider _employeeDataProvider;
@@ -25,7 +26,8 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public InterventionManager(IInterventionDataProvider interventionDataProvider, ICustomerDataProvider customerDataProvider,
                                 IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
-                                IInvoiceDataProvider invoiceDataProvider, IRequestDataProvider requestDataProvider,
+                                IInvoiceDataProvider invoiceDataProvider, IOrderDataProvider orderDataProvider,
+                                 IRequestDataProvider requestDataProvider,
                                 IWayOfEntryDataProvider wayOfEntryDataProvider, IEmployeeDataProvider employeeDataProvider,
                                 IPlanningEventManager planningEventManager, ILogger<InterventionManager> logger)
         {
@@ -34,6 +36,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _contactDataProvider = contactDataProvider;
             _buildingDataProvider = buildingDataProvider;
             _invoiceDataProvider = invoiceDataProvider;
+            _orderDataProvider = orderDataProvider;
             _requestDataProvider = requestDataProvider;
             _wayOfEntryDataProvider = wayOfEntryDataProvider;
             _employeeDataProvider = employeeDataProvider;
@@ -223,6 +226,14 @@ namespace Rollvolet.CRM.Domain.Managers
                         intervention.Employee = await _employeeDataProvider.GetByIdAsync(intervention.Employee.Id);
                 }
 
+                if (intervention.Origin != null)
+                {
+                    if (oldIntervention != null && oldIntervention.Origin != null && oldIntervention.Origin.Id == intervention.Origin.Id)
+                        intervention.Origin = oldIntervention.Origin;
+                    else
+                        intervention.Origin = await _orderDataProvider.GetByIdAsync(intervention.Origin.Id);
+                }
+
                 var technicians = new List<Employee>();
                 foreach (var technicianRelation in intervention.Technicians)
                 {
@@ -230,12 +241,6 @@ namespace Rollvolet.CRM.Domain.Managers
                     technicians.Add(technician);
                 }
                 intervention.Technicians = technicians;
-
-                // Origin cannot be updated. Take origin of oldIntervention on update.
-                if (oldIntervention != null)
-                    intervention.Origin = oldIntervention.Origin;
-                else
-                    intervention.Origin = null;
 
                 // Planning-event cannot be updated. Take planning-event of oldIntervention on update.
                 if (oldIntervention != null)

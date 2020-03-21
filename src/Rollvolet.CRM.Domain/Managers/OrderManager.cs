@@ -73,6 +73,11 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _orderDataProvider.GetAllByCustomerIdAsync(customerId, query);
         }
 
+        public async Task<Order> GetByInterventionIdAsync(int interventionId, QuerySet query = null)
+        {
+            return await _orderDataProvider.GetByInterventionIdAsync(interventionId, query);
+        }
+
         public async Task<Order> GetByOfferIdAsync(int offerId, QuerySet query = null)
         {
             return await _orderDataProvider.GetByOfferIdAsync(offerId, query);
