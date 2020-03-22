@@ -37,6 +37,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("CancellationDate")]
         public DateTime? CancellationDate { get; set; }
 
+        [Column("CancellationReason")]
+        public string CancellationReason { get; set; }
+
 
         // Include resources
         public Customer Customer { get; set; }
