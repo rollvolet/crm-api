@@ -72,6 +72,11 @@ namespace Rollvolet.CRM.DataProviders
             return await GetAllWhereAsync(r => r.CustomerId == customerId && r.RelativeBuildingId == relativeBuildingId, query);
         }
 
+        public async Task<Paged<Intervention>> GetAllByOrderIdAsync(int orderId, QuerySet query)
+        {
+            return await GetAllWhereAsync(r => r.OriginId == orderId, query);
+        }
+
         public async Task<Intervention> GetByInvoiceIdAsync(int invoiceId)
         {
             var intervention = await _context.Invoices.Where(r => r.Id == invoiceId)

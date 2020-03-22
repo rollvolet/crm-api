@@ -36,6 +36,16 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 }
             }
 
+            if (querySet.Filter.Fields.ContainsKey("origin.id"))
+            {
+                var filterValue = querySet.Filter.Fields["origin.id"];
+                int orderId;
+                if (Int32.TryParse(filterValue, out orderId))
+                    source = source.Where(c => c.OriginId == orderId);
+                else
+                    throw new IllegalArgumentException("IllegalFilter", "Order id filter must be a integer.");
+            }
+
             if (querySet.Filter.Fields.ContainsKey("invoice") && querySet.Filter.Fields["invoice"] == "false")
                 source = source.Where(e => e.Invoice == null);
 

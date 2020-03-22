@@ -125,6 +125,17 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
+        public async Task<Paged<Intervention>> GetAllByOrderIdAsync(int orderId, QuerySet query)
+        {
+            if (query.Sort.Field == null)
+            {
+                query.Sort.Order = SortQuery.ORDER_DESC;
+                query.Sort.Field = "date";
+            }
+
+            return await _interventionDataProvider.GetAllByOrderIdAsync(orderId, query);
+        }
+
         public async Task<Intervention> GetByInvoiceIdAsync(int invoiceId)
         {
             return await _interventionDataProvider.GetByInvoiceIdAsync(invoiceId);

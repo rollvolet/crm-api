@@ -14,6 +14,7 @@ using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.DepositInvoices;
 using Rollvolet.CRM.APIContracts.DTO.Deposits;
+using Rollvolet.CRM.APIContracts.DTO.Interventions;
 using Rollvolet.CRM.APIContracts.DTO.Invoicelines;
 using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
@@ -38,6 +39,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IDepositManager _depositManager;
         private readonly IDepositInvoiceManager _depositInvoiceManager;
         private readonly IVatRateManager _vatRateManager;
+        private readonly IInterventionManager _interventionManager;
         private readonly IInvoicelineManager _invoicelineManager;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly IIncludedCollector _includedCollector;
@@ -47,7 +49,8 @@ namespace Rollvolet.CRM.API.Controllers
         public OrdersController(IOrderManager orderManager, IOfferManager offerManager, IInvoiceManager invoiceManager,
                                 ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
                                 IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager, IVatRateManager vatRateManager,
-                                IInvoicelineManager invoicelineManager, IDocumentGenerationManager documentGenerationManager,
+                                IInterventionManager interventionManager, IInvoicelineManager invoicelineManager,
+                                IDocumentGenerationManager documentGenerationManager,
                                 IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _orderManager = orderManager;
@@ -59,6 +62,7 @@ namespace Rollvolet.CRM.API.Controllers
             _depositManager = depositManager;
             _depositInvoiceManager = depositInvoiceManager;
             _vatRateManager = vatRateManager;
+            _interventionManager = interventionManager;
             _invoicelineManager = invoicelineManager;
             _documentGenerationManager = documentGenerationManager;
             _includedCollector = includedCollector;
@@ -332,6 +336,22 @@ namespace Rollvolet.CRM.API.Controllers
 
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
             return Ok(new ResourceResponse() { Links = links, Data = vatRateDto });
+        }
+
+        [HttpGet("{orderId}/interventions")]
+        [HttpGet("{orderId}/links/interventions")]
+        public async Task<IActionResult> GetRelatedInterventionsByOrderIdAsync(int orderId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedInterventions = await _interventionManager.GetAllByOrderIdAsync(orderId, querySet);
+
+            var interventionDtos = _mapper.Map<IEnumerable<InterventionDto>>(pagedInterventions.Items, opt => opt.Items["include"] = querySet.Include);
+            var included = _includedCollector.CollectIncluded(pagedInterventions.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedInterventions);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedInterventions);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = interventionDtos, Included = included });
         }
 
         [HttpGet("{orderId}/invoicelines")]
