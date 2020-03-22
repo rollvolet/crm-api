@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using Rollvolet.CRM.Domain.Models.Interfaces;
 
 namespace Rollvolet.CRM.Domain.Models
@@ -23,14 +24,22 @@ namespace Rollvolet.CRM.Domain.Models
         public PlanningEvent PlanningEvent { get; set; }
         public IEnumerable<Employee> Technicians { get; set; }
 
+        [JsonIgnore]
         public string CalendarSubject
         {
             get
             {
                 var entity = Building != null ? (CustomerEntity) Building : Customer;
-                var addressLines = string.Join(",", new string[3] { entity.Address1, entity.Address2, entity.Address3 }.Where(a => !String.IsNullOrEmpty(a)));
-                var address = $"{entity.PostalCode} {entity.City} ({addressLines})";
-                return $"{Customer.Name} - {address} ** IR{Id} ({Comment})";
+                if (entity != null)
+                {
+                    var addressLines = string.Join(",", new string[3] { entity.Address1, entity.Address2, entity.Address3 }.Where(a => !String.IsNullOrEmpty(a)));
+                    var address = $"{entity.PostalCode} {entity.City} ({addressLines})";
+                    return $"{Customer.Name} - {address} ** IR{Id} ({Comment})";
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
     }
