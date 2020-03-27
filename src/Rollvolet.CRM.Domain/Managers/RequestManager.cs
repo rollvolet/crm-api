@@ -233,7 +233,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 // Origin cannot be updated. Take origin of oldRequest on update.
                 if (oldRequest != null)
                     request.Origin = oldRequest.Origin;
-                else
+                else if (request.Origin != null)
                     request.Origin = await _interventionDataProvider.GetByIdAsync(request.Origin.Id);
 
                 // Offer cannot be updated. Take offer of oldRequest on update.
