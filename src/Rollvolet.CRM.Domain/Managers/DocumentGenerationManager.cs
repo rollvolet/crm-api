@@ -35,6 +35,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IDepositInvoiceDataProvider _depositInvoiceDateProvider;
         private readonly ICustomerDataProvider _customerDataProvider;
         private readonly IContactDataProvider _contactDataProvider;
+        private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly ITelephoneDataProvider _telephoneDataProvider;
         private readonly IVisitDataProvider _visitDataProvider;
         private readonly IEmployeeDataProvider _employeeDataProvider;
@@ -53,8 +54,9 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly string _certificateUploadSourceLocation;
         private readonly ILogger _logger;
 
-        public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IInterventionDataProvider interventionDataProvider, IOfferDataProvider offerDataProvider,
-                                         ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
+        public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IInterventionDataProvider interventionDataProvider,
+                                         IOfferDataProvider offerDataProvider, ICustomerDataProvider customerDataProvider,
+                                         IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                                          IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDateProvider,
                                          IDepositInvoiceDataProvider depositInvoiceDataProvider, ITelephoneDataProvider telephoneDataProvider,
                                          IVisitDataProvider visitDataProvider, IEmployeeDataProvider employeeDataProvider,
@@ -69,6 +71,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _depositInvoiceDateProvider = depositInvoiceDataProvider;
             _customerDataProvider = customerDataProvider;
             _contactDataProvider = contactDataProvider;
+            _buildingDataProvider = buildingDataProvider;
             _telephoneDataProvider = telephoneDataProvider;
             _visitDataProvider = visitDataProvider;
             _employeeDataProvider = employeeDataProvider;
@@ -294,6 +297,7 @@ namespace Rollvolet.CRM.Domain.Managers
             order.Offer = offer;
 
             await EmbedCustomerAndContactTelephonesAsync(order);
+            await EmbedBuildingTelephoneAsync(order);
 
             var visitorInitials = offer.Request != null ? await GetVisitorInitialsByOfferIdAsync(offer.Id) : null;
 
@@ -799,6 +803,24 @@ namespace Rollvolet.CRM.Domain.Managers
 
                 var telephones = await _telephoneDataProvider.GetAllByContactIdAsync(resource.Contact.Id, telephoneQuery);
                 resource.Contact.Telephones = telephones.Items;
+            }
+        }
+
+        private async Task EmbedBuildingTelephoneAsync(ICaseRelated resource)
+        {
+            var telephoneQuery = new QuerySet();
+            telephoneQuery.Sort.Field = "order";
+            telephoneQuery.Sort.Order = SortQuery.ORDER_ASC;
+            telephoneQuery.Include.Fields = new string[] { "country", "telephone-type" };
+
+            if (resource.Building != null)
+            {
+                var buildingIncludeQuery = new QuerySet();
+                buildingIncludeQuery.Include.Fields = new string[] { "honorific-prefix", "language" };
+                resource.Building = await _buildingDataProvider.GetByIdAsync(resource.Building.Id, buildingIncludeQuery);
+
+                var telephones = await _telephoneDataProvider.GetAllByBuildingIdAsync(resource.Building.Id, telephoneQuery);
+                resource.Building.Telephones = telephones.Items;
             }
         }
 
