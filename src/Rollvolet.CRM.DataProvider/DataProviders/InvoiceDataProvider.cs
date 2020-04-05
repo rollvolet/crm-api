@@ -261,7 +261,7 @@ namespace Rollvolet.CRM.DataProviders
                 query.Page.Size = 1000; // TODO we assume 1 order doesn't have more than 1000 deposit invoices. Ideally, we should query by page.
                 // don't GetByInvoiceId because invoice might not be persisted yet
                 var depositInvoices = await _depositInvoiceDataProvider.GetAllByOrderIdAsync((int) invoice.OrderId, query);
-                depositInvoicesTotal = depositInvoices.Items.Select(s => s.Amount).Sum() ?? 0.0;
+                depositInvoicesTotal = depositInvoices.Items.Select(s => s.IsCreditNote ? s.Amount * -1.0 : s.Amount).Sum() ?? 0.0;
             }
 
             var invoiceSupplementsTotal = 0.0;

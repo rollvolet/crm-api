@@ -26,6 +26,8 @@ namespace Rollvolet.CRM.APIContracts.DTO.DepositInvoices
         public bool CertificateReceived { get; set; }
         [JsonProperty("certificate-closed")]
         public bool CertificateClosed { get; set; }
+        [JsonProperty("is-credit-note")]
+        public bool IsCreditNote { get; set; }
         public string Comment { get; set; }
         public string Qualification { get; set; }
         [JsonProperty("document-outro")]

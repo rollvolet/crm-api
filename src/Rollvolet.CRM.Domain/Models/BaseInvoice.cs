@@ -12,6 +12,7 @@ namespace Rollvolet.CRM.Domain.Models
         public DateTime? BookingDate { get; set; }
         public DateTime? PaymentDate { get; set; }
         public DateTime? CancellationDate { get; set; }
+        public bool IsCreditNote { get; set; }
         public Customer Customer { get; set; }
         public Building Building { get; set; }
         public Contact Contact { get; set; }

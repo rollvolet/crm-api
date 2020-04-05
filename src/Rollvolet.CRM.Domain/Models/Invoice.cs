@@ -4,7 +4,6 @@ namespace Rollvolet.CRM.Domain.Models
 {
     public class Invoice : BaseInvoice
     {
-        public bool IsCreditNote { get; set; }
         public bool HasProductionTicket { get; set; }
 
         public Intervention Intervention { get; set; }
