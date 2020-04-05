@@ -47,17 +47,20 @@ namespace Rollvolet.CRM.DataProviders
         // Workaround for constraints set on the database. Some fields don't allow an empty value. It must be set to null explicitly.
         protected void ReplaceEmptyStringWithNull(CustomerEntity customerEntity, CustomerRecord customerRecord)
         {
-            if (string.IsNullOrEmpty(customerEntity.Suffix))
+            if (string.IsNullOrEmpty(customerEntity.Suffix) || string.IsNullOrEmpty(customerEntity.Suffix.Trim()))
                 customerRecord.Suffix = null;
 
-            if (string.IsNullOrEmpty(customerEntity.Prefix))
+            if (string.IsNullOrEmpty(customerEntity.Prefix) || string.IsNullOrEmpty(customerEntity.Prefix.Trim()))
                 customerRecord.Prefix = null;
 
-            if (string.IsNullOrEmpty(customerEntity.Email))
+            if (string.IsNullOrEmpty(customerEntity.Email) || string.IsNullOrEmpty(customerEntity.Email.Trim()))
                 customerRecord.Email = null;
 
-            if (string.IsNullOrEmpty(customerEntity.Email2))
+            if (string.IsNullOrEmpty(customerEntity.Email2) || string.IsNullOrEmpty(customerEntity.Email2.Trim()))
                 customerRecord.Email2 = null;
+
+            if (string.IsNullOrEmpty(customerEntity.Comment) || string.IsNullOrEmpty(customerEntity.Comment.Trim()))
+                customerRecord.Comment = null;
         }
 
         protected string CalculateSearchName(string name)
