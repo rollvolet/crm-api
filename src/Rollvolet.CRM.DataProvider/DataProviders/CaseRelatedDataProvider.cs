@@ -38,7 +38,7 @@ namespace Rollvolet.CRM.DataProviders
                 return source.ForPage(query).AsEnumerable();
             }
         }
-        
+
         protected async Task<T> QueryWithManualIncludeAsync(IQueryable<T> source, QuerySet query)
         {
             if (query.Include.Fields.Contains("building")  || query.Include.Fields.Contains("contact"))

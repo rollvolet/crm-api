@@ -2,10 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
-using LinqKit;
-using Microsoft.EntityFrameworkCore;
-using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.DataProvider.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 
@@ -13,10 +9,10 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 {
     public static class DepositQueryExtensions
     {
-        public static IQueryable<Deposit> Filter(this IQueryable<Deposit> source, QuerySet querySet)  
+        public static IQueryable<Deposit> Filter(this IQueryable<Deposit> source, QuerySet querySet)
         {
             return source;
-        }      
+        }
 
         public static IQueryable<Deposit> Include(this IQueryable<Deposit> source, QuerySet querySet)
         {

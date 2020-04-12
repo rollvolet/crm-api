@@ -182,5 +182,97 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             return source.Sort<Invoice>(querySet, selectors);
         }
 
+        // Duplicated in each Case related query extension since EF core doesn't support generics
+        public static IQueryable<Invoice> FilterCase(this IQueryable<Invoice> source, QuerySet querySet, CrmContext context)
+        {
+            if (querySet.Filter.Fields.ContainsKey("customer.number"))
+            {
+                var filterValue = querySet.Filter.Fields["customer.number"];
+                int number;
+                if (Int32.TryParse(filterValue, out number)) {
+                    source = source.Where(c => c.Customer.Number == number);
+                } else
+                {
+                    throw new IllegalArgumentException("IllegalFilter", "Customer number filter must be a integer.");
+                }
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("customer.name"))
+            {
+                var filterValue = querySet.Filter.Fields["customer.name"].TextSearch();
+                source = source.Where(c => EF.Functions.Like(c.Customer.SearchName, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("customer.postal-code"))
+            {
+                var filterValue = querySet.Filter.Fields["customer.postal-code"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.Customer.EmbeddedPostalCode, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("customer.city"))
+            {
+                var filterValue = querySet.Filter.Fields["customer.city"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.Customer.EmbeddedCity, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("customer.street"))
+            {
+                var filterValue = querySet.Filter.Fields["customer.street"].FilterWildcard();
+                source = source.Where(c => EF.Functions.Like(c.Customer.Address1, filterValue)
+                                        || EF.Functions.Like(c.Customer.Address2, filterValue)
+                                        || EF.Functions.Like(c.Customer.Address3, filterValue));
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("customer.telephone"))
+            {
+                var search = querySet.Filter.Fields["customer.telephone"];
+                var predicate = search.ConstructTelephoneQuery();
+
+                source = source.AsExpandable().Where(c => c.Customer.Telephones.Any(t => predicate.Invoke(t)));
+            }
+
+            var buildingFilters = querySet.Filter.Fields.Keys.Where(k => k.StartsWith("building"));
+
+            if (buildingFilters.Count() > 0)
+            {
+                var predicate = PredicateBuilder.New<CaseTuple<Invoice>>(true);
+
+                if (querySet.Filter.Fields.ContainsKey("building.name"))
+                {
+                    var filterValue = querySet.Filter.Fields["building.name"].TextSearch();
+                    predicate.And(c => EF.Functions.Like(c.Building.SearchName, filterValue));
+                }
+
+                if (querySet.Filter.Fields.ContainsKey("building.postal-code"))
+                {
+                    var filterValue = querySet.Filter.Fields["building.postal-code"].FilterWildcard();
+                    predicate.And(c => EF.Functions.Like(c.Building.EmbeddedPostalCode, filterValue));
+                }
+
+                if (querySet.Filter.Fields.ContainsKey("building.city"))
+                {
+                    var filterValue = querySet.Filter.Fields["building.city"].FilterWildcard();
+                    predicate.And(c => EF.Functions.Like(c.Building.EmbeddedCity, filterValue));
+                }
+
+                if (querySet.Filter.Fields.ContainsKey("building.street"))
+                {
+                    var filterValue = querySet.Filter.Fields["building.street"].FilterWildcard();
+                    predicate.And(c => EF.Functions.Like(c.Building.Address1, filterValue)
+                                            || EF.Functions.Like(c.Building.Address2, filterValue)
+                                            || EF.Functions.Like(c.Building.Address3, filterValue));
+                }
+
+                source = source.Join(
+                    context.Buildings,
+                    r => new { Number = r.RelativeBuildingId, CustomerId = r.CustomerId },
+                    b => new { Number = (int?) b.Number, CustomerId = (int?) b.CustomerId },
+                    (r, b) => new CaseTuple<Invoice> { Source = r, Building = b }
+                ).Where(predicate)
+                .Select(x => x.Source);
+            }
+
+            return source;
+        }
     }
 }
