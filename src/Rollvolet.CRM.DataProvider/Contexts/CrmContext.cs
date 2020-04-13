@@ -63,6 +63,16 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasForeignKey(e => new { e.HonorificPrefixId, e.LanguageId });
 
             modelBuilder.Entity<Customer>()
+                .HasOne(e => e.Country)
+                .WithMany()
+                .HasForeignKey(e => e.CountryId);
+
+            modelBuilder.Entity<Customer>()
+                .HasOne(e => e.Language)
+                .WithMany()
+                .HasForeignKey(e => e.LanguageId);
+
+            modelBuilder.Entity<Customer>()
                 .HasOne(e => e.Memo)
                 .WithOne()
                 .HasForeignKey<Memo>(e => e.CustomerId);
@@ -78,6 +88,16 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithMany()
                 .HasForeignKey(e => new { e.HonorificPrefixId, e.LanguageId });
 
+            modelBuilder.Entity<Contact>()
+                .HasOne(e => e.Country)
+                .WithMany()
+                .HasForeignKey(e => e.CountryId);
+
+            modelBuilder.Entity<Contact>()
+                .HasOne(e => e.Language)
+                .WithMany()
+                .HasForeignKey(e => e.LanguageId);
+
             modelBuilder.Entity<Building>()
                 .HasOne(e => e.Customer)
                 .WithMany(e => e.Buildings)
@@ -88,6 +108,16 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasOne(e => e.HonorificPrefix)
                 .WithMany()
                 .HasForeignKey(e => new { e.HonorificPrefixId, e.LanguageId });
+
+            modelBuilder.Entity<Building>()
+                .HasOne(e => e.Country)
+                .WithMany()
+                .HasForeignKey(e => e.CountryId);
+
+            modelBuilder.Entity<Building>()
+                .HasOne(e => e.Language)
+                .WithMany()
+                .HasForeignKey(e => e.LanguageId);
 
 
             // Country
@@ -155,6 +185,16 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasForeignKey(e => e.CustomerRecordId)
                 .HasPrincipalKey(e => e.DataId);
 
+            modelBuilder.Entity<Telephone>()
+                .HasOne(e => e.Country)
+                .WithMany()
+                .HasForeignKey(e => e.CountryId);
+
+            modelBuilder.Entity<Telephone>()
+                .HasOne(e => e.TelephoneType)
+                .WithMany()
+                .HasForeignKey(e => e.TelephoneTypeId);
+
 
             // Telephone Type
 
@@ -215,9 +255,14 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<Request>()
                 .HasOne(e => e.Customer)
-                .WithMany(e => e.Requests)
+                .WithMany()
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.Number);
+
+            modelBuilder.Entity<Request>()
+                .HasOne(e => e.WayOfEntry)
+                .WithMany()
+                .HasForeignKey(e => e.WayOfEntryId);
 
             modelBuilder.Entity<Request>()
                 .HasOne(e => e.Origin)
@@ -282,7 +327,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<Intervention>()
                 .HasOne(e => e.Customer)
-                .WithMany(e => e.Interventions)
+                .WithMany()
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.Number);
 
@@ -317,7 +362,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<Offer>()
                 .HasOne(e => e.Customer)
-                .WithMany(e => e.Offers)
+                .WithMany()
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.Number);
 
@@ -373,7 +418,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<Order>()
                 .HasOne(e => e.Customer)
-                .WithMany(e => e.Orders)
+                .WithMany()
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.Number);
 
@@ -435,7 +480,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
 
             modelBuilder.Entity<Invoice>()
                 .HasOne(e => e.Customer)
-                .WithMany(e => e.Invoices)
+                .WithMany()
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.Number);
 

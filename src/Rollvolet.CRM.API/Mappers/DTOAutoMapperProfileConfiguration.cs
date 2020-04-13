@@ -63,12 +63,6 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Tags : null))
                 .ForMember(dest => dest.Buildings, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Buildings : null))
                 .ForMember(dest => dest.Contacts, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Contacts : null))
-                .ForMember(dest => dest.Requests, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Requests : null))
-                .ForMember(dest => dest.Interventions, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Interventions : null))
-                .ForMember(dest => dest.Offers, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Offers : null))
-                .ForMember(dest => dest.Orders, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Orders : null))
-                .ForMember(dest => dest.DepositInvoices, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.DepositInvoices : null))
-                .ForMember(dest => dest.Invoices, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Invoices : null))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<OneRelationship, Customer>()

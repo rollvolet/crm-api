@@ -412,8 +412,6 @@ namespace Rollvolet.CRM.Domain.Managers
             foreach (var deposit in invoice.Deposits) { deposit.Customer = null; deposit.Order = null; }
             foreach (var depositInvoice in invoice.DepositInvoices) { depositInvoice.Customer = null; depositInvoice.Order = null; }
             foreach (var invoiceline in invoice.Invoicelines) { invoiceline.Order = null; }
-            invoice.Customer.Offers = Enumerable.Empty<Offer>();
-            invoice.Customer.Orders = Enumerable.Empty<Order>();
 
             await EmbedCustomerAndContactTelephonesAsync(invoice);
 
@@ -459,10 +457,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 depositInvoice.Order.Offer.Customer = null; depositInvoice.Order.Offer.Contact = null;
                 depositInvoice.Order.Offer.Building = null; depositInvoice.Order.Offer.Order = null;
             }
-
-            // Remove duplicated nested data before sending
-            depositInvoice.Customer.Offers = Enumerable.Empty<Offer>();
-            depositInvoice.Customer.Orders = Enumerable.Empty<Order>();
 
             await EmbedCustomerAndContactTelephonesAsync(depositInvoice);
 

@@ -16,7 +16,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 source = source.Include(x => x.Request).ThenInclude(x => x.Visit);
 
             var selectors = new Dictionary<string, Expression<Func<Visit, object>>>();
-
             selectors.Add("customer", c => c.Customer);
 
             // dummy entries for resources that are already included

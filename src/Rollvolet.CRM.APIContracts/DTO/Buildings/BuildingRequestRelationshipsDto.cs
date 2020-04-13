@@ -11,7 +11,5 @@ namespace Rollvolet.CRM.APIContracts.DTO.Buildings
         public OneRelationship HonorificPrefix { get; set; }
         public ManyRelationship Telephones { get; set; }
         public OneRelationship Customer { get; set; }
-        public ManyRelationship Requests { get; set; }
-        public ManyRelationship Invoices { get; set; }
     }
 }

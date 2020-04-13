@@ -47,6 +47,15 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         public static IQueryable<Customer> Include(this IQueryable<Customer> source, QuerySet querySet)
         {
+            if (querySet.Include.Fields.Contains("requests")
+                || querySet.Include.Fields.Contains("interventions")
+                || querySet.Include.Fields.Contains("offers")
+                || querySet.Include.Fields.Contains("orders")
+                || querySet.Include.Fields.Contains("invoices"))
+            {
+                throw new IllegalArgumentException("IllegalInclude", $"Unsupported include param passed to customer model: {querySet.Include.Fields.ToString()}");
+            }
+
             var selectors = new Dictionary<string, Expression<Func<Customer, object>>>();
 
             selectors.Add("country", c => c.Country);
@@ -55,11 +64,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("contacts", c => c.Contacts);
             selectors.Add("buildings", c => c.Buildings);
             selectors.Add("telephones", c => c.Telephones);
-            selectors.Add("requests", c => c.Requests);
-            selectors.Add("interventions", c => c.Interventions);
-            selectors.Add("offers", c => c.Offers);
-            selectors.Add("orders", c => c.Orders);
-            selectors.Add("invoices", c => c.Invoices);
 
             source = source.Include<Customer>(querySet, selectors);
 

@@ -105,8 +105,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Country is required on customer creation.");
             if (customer.Language == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Language is required on customer creation.");
-            if (customer.Telephones != null || customer.Contacts != null || customer.Buildings != null || customer.Requests != null
-                  || customer.Offers != null || customer.Orders != null || customer.DepositInvoices != null || customer.Invoices != null)
+            if (customer.Telephones != null || customer.Contacts != null || customer.Buildings != null)
             {
                 var message = "Telephones, contacts, buildings, requests, offers, orders, deposit-invoices or invoices cannot be added to a customer on creation.";
                 _logger.LogDebug(message);
