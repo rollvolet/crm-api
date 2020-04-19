@@ -341,22 +341,27 @@ namespace Rollvolet.CRM.Domain.Managers
         private async Task<Stream> WatermarkProductionTicketAsync(FileStream productionTicketStream)
         {
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/production-ticket-watermark";
-            var body = new MultipartFormDataContent();
-            var pdfContent = new StreamContent(productionTicketStream);
-            pdfContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/pdf");
-            body.Add(pdfContent, "file", "production-ticket.pdf");
 
-            var response = await _httpClient.PostAsync(url, body);
+            using (var body = new MultipartFormDataContent())
+            {
+                using (var pdfContent = new StreamContent(productionTicketStream))
+                {
+                    pdfContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/pdf");
+                    body.Add(pdfContent, "file", "production-ticket.pdf");
 
-            try
-            {
-                response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsStreamAsync();
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning("Something went wrong while retrieving document from URL {0}: {1}", url, e.Message);
-                throw e;
+                    var response = await _httpClient.PostAsync(url, body);
+
+                    try
+                    {
+                        response.EnsureSuccessStatusCode();
+                        return await response.Content.ReadAsStreamAsync();
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogWarning("Something went wrong while retrieving document from URL {0}: {1}", url, e.Message);
+                        throw e;
+                    }
+                }
             }
         }
 
