@@ -94,6 +94,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             selectors.Add("number", new List<Expression<Func<Intervention, object>>> { x => x.Id });
             selectors.Add("date", new List<Expression<Func<Intervention, object>>> { x => x.Date, x => x.Id });
+            selectors.Add("planning-event.date", new List<Expression<Func<Intervention, object>>> { x => x.PlanningEvent.Date, x => x.Date, x => x.Id });
             selectors.Add("customer.name", new List<Expression<Func<Intervention, object>>> { x => x.Customer.Name });
             selectors.Add("customer.street", new List<Expression<Func<Intervention, object>>> { x => x.Customer.Address1 });
             selectors.Add("customer.postal-code", new List<Expression<Func<Intervention, object>>> { x => x.Customer.EmbeddedPostalCode });
