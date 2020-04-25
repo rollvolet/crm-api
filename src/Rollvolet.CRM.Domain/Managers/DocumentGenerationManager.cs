@@ -31,8 +31,8 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IInterventionDataProvider _interventionDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IOrderDataProvider _orderDataProvider;
-        private readonly IInvoiceDataProvider _invoiceDateProvider;
-        private readonly IDepositInvoiceDataProvider _depositInvoiceDateProvider;
+        private readonly IInvoiceDataProvider _invoiceDataProvider;
+        private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
         private readonly ICustomerDataProvider _customerDataProvider;
         private readonly IContactDataProvider _contactDataProvider;
         private readonly IBuildingDataProvider _buildingDataProvider;
@@ -57,7 +57,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IInterventionDataProvider interventionDataProvider,
                                          IOfferDataProvider offerDataProvider, ICustomerDataProvider customerDataProvider,
                                          IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
-                                         IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDateProvider,
+                                         IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDataProvider,
                                          IDepositInvoiceDataProvider depositInvoiceDataProvider, ITelephoneDataProvider telephoneDataProvider,
                                          IVisitDataProvider visitDataProvider, IEmployeeDataProvider employeeDataProvider,
                                          IOptions<DocumentGenerationConfiguration> documentGenerationConfiguration,
@@ -67,8 +67,8 @@ namespace Rollvolet.CRM.Domain.Managers
             _interventionDataProvider = interventionDataProvider;
             _offerDataProvider = offerDataProvider;
             _orderDataProvider = orderDataProvider;
-            _invoiceDateProvider = invoiceDateProvider;
-            _depositInvoiceDateProvider = depositInvoiceDataProvider;
+            _invoiceDataProvider = invoiceDataProvider;
+            _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _customerDataProvider = customerDataProvider;
             _contactDataProvider = contactDataProvider;
             _buildingDataProvider = buildingDataProvider;
@@ -151,6 +151,13 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
+        public async Task DeleteVisitReportAsync(int requestId)
+        {
+            var request = await _requestDataProvider.GetByIdAsync(requestId);
+            var filePath = ConstructVisitReportFilePath(request);
+            RemoveFile(filePath);
+        }
+
         public async Task CreateAndStoreInterventionReportAsync(int interventionId)
         {
             var query = new QuerySet();
@@ -182,6 +189,13 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
+        public async Task DeleteInterventionReportAsync(int interventionId)
+        {
+            var request = await _interventionDataProvider.GetByIdAsync(interventionId);
+            var filePath = ConstructInterventionReportFilePath(request);
+            RemoveFile(filePath);
+        }
+
         public async Task CreateAndStoreOfferDocumentAsync(int offerId)
         {
             var includeQuery = new QuerySet();
@@ -210,6 +224,13 @@ namespace Rollvolet.CRM.Domain.Managers
             var offer = await _offerDataProvider.GetByIdAsync(offerId);
             var filePath = ConstructOfferDocumentFilePath(offer);
             return DownloadDcument(filePath);
+        }
+
+        public async Task DeleteOfferDocumentAsync(int offerId)
+        {
+            var offer = await _offerDataProvider.GetByIdAsync(offerId);
+            var filePath = ConstructOfferDocumentFilePath(offer);
+            RemoveFile(filePath);
         }
 
         public async Task CreateAndStoreOrderDocumentAsync(int orderId)
@@ -247,6 +268,13 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
+        public async Task DeleteOrderDocumentAsync(int orderId)
+        {
+            var order = await _orderDataProvider.GetByIdAsync(orderId);
+            var filePath = ConstructOrderDocumentFilePath(order);
+            RemoveFile(filePath);
+        }
+
         public async Task CreateAndStoreDeliveryNoteAsync(int orderId)
         {
             var includeQuery = new QuerySet();
@@ -280,6 +308,13 @@ namespace Rollvolet.CRM.Domain.Managers
             var order = await _orderDataProvider.GetByIdAsync(orderId);
             var filePath = ConstructDeliveryNoteFilePath(order);
             return DownloadDcument(filePath);
+        }
+
+        public async Task DeleteDeliveryNoteAsync(int orderId)
+        {
+            var order = await _orderDataProvider.GetByIdAsync(orderId);
+            var filePath = ConstructDeliveryNoteFilePath(order);
+            RemoveFile(filePath);
         }
 
         public async Task CreateAndStoreProductionTicketTemplateAsync(int orderId)
@@ -318,6 +353,13 @@ namespace Rollvolet.CRM.Domain.Managers
             return DownloadDcument(filePath);
         }
 
+        public async Task DeleteProductionTicketTemplateAsync(int orderId)
+        {
+            var order = await _orderDataProvider.GetByIdAsync(orderId);
+            var filePath = ConstructGeneratedProductionTicketFilePath(order);
+            RemoveFile(filePath);
+        }
+
         public async Task UploadProductionTicketAsync(int orderId, Stream content)
         {
             var filePath = await ConstructReceivedProductionTicketFilePathAsync(orderId);
@@ -329,6 +371,19 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
             return DownloadDcument(filePath);
+        }
+
+        public async Task DeleteProductionTicketAsync(int orderId)
+        {
+            try
+            {
+                var filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
+                RemoveFile(filePath);
+            }
+            catch (EntityNotFoundException)
+            {
+                _logger.LogInformation("No production ticket found for order {0}. Nothing to delete on disk.", orderId);
+            }
         }
 
         public async Task<Stream> DownloadProductionTicketWithWatermarkAsync(int orderId)
@@ -365,31 +420,13 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
-        public async Task DeleteProductionTicketAsync(int orderId)
-        {
-            string filePath = null;
-            try
-            {
-                filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
-                File.Delete(filePath);
-            }
-            catch (EntityNotFoundException)
-            {
-                _logger.LogInformation("No file found for production ticket of order {0}. Nothing to delete on disk.", orderId);
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, "Something went wrong while deleting production ticket {0}.", filePath);
-            }
-        }
-
         public async Task CreateAndStoreInvoiceDocumentAsync(int invoiceId)
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
                 "customer", "contact", "building", "order", "intervention", "vat-rate", "supplements", "supplements.unit", "deposits", "deposit-invoices", "invoicelines", "invoicelines.vat-rate"
             };
-            var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId, includeQuery);
+            var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId, includeQuery);
 
             invoice.Invoicelines = invoice.Invoicelines.OrderBy(l => l.SequenceNumber);
 
@@ -432,9 +469,16 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<FileStream> DownloadInvoiceDocumentAsync(int invoiceId)
         {
-            var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
+            var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
             var filePath = ConstructInvoiceDocumentFilePath(invoice);
             return DownloadDcument(filePath);
+        }
+
+        public async Task DeleteInvoiceDocumentAsync(int invoiceId)
+        {
+            var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
+            var filePath = ConstructInvoiceDocumentFilePath(invoice);
+            RemoveFile(filePath);
         }
 
         public async Task CreateAndStoreDepositInvoiceDocumentAsync(int depositInvoiceId)
@@ -443,7 +487,7 @@ namespace Rollvolet.CRM.Domain.Managers
             includeQuery.Include.Fields = new string[] {
                 "customer", "contact", "building", "order", "vat-rate"
             };
-            var depositInvoice = await _depositInvoiceDateProvider.GetByIdAsync(depositInvoiceId, includeQuery);
+            var depositInvoice = await _depositInvoiceDataProvider.GetByIdAsync(depositInvoiceId, includeQuery);
 
             string visitorInitials = null;
             if (depositInvoice.Order != null)
@@ -477,9 +521,16 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<FileStream> DownloadDepositInvoiceDocumentAsync(int depositInvoiceId)
         {
-            var depositInvoice = await _depositInvoiceDateProvider.GetByIdAsync(depositInvoiceId);
+            var depositInvoice = await _depositInvoiceDataProvider.GetByIdAsync(depositInvoiceId);
             var filePath = ConstructInvoiceDocumentFilePath(depositInvoice);
             return DownloadDcument(filePath);
+        }
+
+        public async Task DeleteDepositInvoiceDocumentAsync(int depositInvoiceId)
+        {
+            var depositInvoice = await _depositInvoiceDataProvider.GetByIdAsync(depositInvoiceId);
+            var filePath = ConstructInvoiceDocumentFilePath(depositInvoice);
+            RemoveFile(filePath);
         }
 
         public async Task CreateCertificateTemplateForInvoiceAsync(int invoiceId)
@@ -488,7 +539,7 @@ namespace Rollvolet.CRM.Domain.Managers
             query.Include.Fields = new string[] {
                 "customer", "building", "contact"
             };
-            var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId, query);
+            var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId, query);
 
             await EmbedCustomerAndContactTelephonesAsync(invoice);  // required to include customer/contact language and honorific prefix
 
@@ -497,9 +548,16 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<FileStream> DownloadCertificateTemplateForInvoiceAsync(int invoiceId)
         {
-            var invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
+            var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
             var filePath = ConstructGeneratedCertificateFilePath(invoice);
             return DownloadDcument(filePath);
+        }
+
+        public async Task DeleteCertificateTemplateForInvoiceAsync(int invoiceId)
+        {
+            var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
+            var filePath = ConstructGeneratedCertificateFilePath(invoice);
+            RemoveFile(filePath);
         }
 
         public async Task UploadCertificateForInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null)
@@ -508,7 +566,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _logger.LogDebug($"Uploading certificate to {filePath}");
             UploadDocument(filePath, content);
 
-            RemoveUploadFile($"{_certificateUploadSourceLocation}{uploadFileName}");
+            RemoveFile($"{_certificateUploadSourceLocation}{uploadFileName}");
         }
 
         public async Task<FileStream> DownloadCertificateForInvoiceAsync(int invoiceId)
@@ -519,19 +577,14 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task DeleteCertificateForInvoiceAsync(int invoiceId)
         {
-            string filePath = null;
             try
             {
-                filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
-                File.Delete(filePath);
+                var filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
+                RemoveFile(filePath);
             }
             catch (EntityNotFoundException)
             {
                 _logger.LogInformation("No file found for received certificate of invoice {0}. Nothing to delete on disk.", invoiceId);
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, "Something went wrong while deleting received certificate {0}.", filePath);
             }
         }
 
@@ -541,7 +594,7 @@ namespace Rollvolet.CRM.Domain.Managers
             query.Include.Fields = new string[] {
                 "customer", "building", "contact"
             };
-            var depositInvoice = await _depositInvoiceDateProvider.GetByIdAsync(invoiceId, query);
+            var depositInvoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId, query);
 
             await EmbedCustomerAndContactTelephonesAsync(depositInvoice);  // required to include customer/contact language and honorific prefix
 
@@ -550,9 +603,16 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task<FileStream> DownloadCertificateTemplateForDepositInvoiceAsync(int invoiceId)
         {
-            var depositInvoice = await _depositInvoiceDateProvider.GetByIdAsync(invoiceId);
+            var depositInvoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId);
             var filePath = ConstructGeneratedCertificateFilePath(depositInvoice);
             return DownloadDcument(filePath);
+        }
+
+        public async Task DeleteCertificateTemplateForDepositInvoiceAsync(int invoiceId)
+        {
+            var invoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId);
+            var filePath = ConstructGeneratedCertificateFilePath(invoice);
+            RemoveFile(filePath);
         }
 
         public async Task UploadCertificateForDepositInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null)
@@ -561,7 +621,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _logger.LogDebug($"Uploading certificate to {filePath}");
             UploadDocument(filePath, content);
 
-            RemoveUploadFile($"{_certificateUploadSourceLocation}{uploadFileName}");
+            RemoveFile($"{_certificateUploadSourceLocation}{uploadFileName}");
         }
 
         public async Task<FileStream> DownloadCertificateForDepositInvoiceAsync(int invoiceId)
@@ -572,19 +632,14 @@ namespace Rollvolet.CRM.Domain.Managers
 
         public async Task DeleteCertificateForDepositInvoiceAsync(int invoiceId)
         {
-            string filePath = null;
             try
             {
-                filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
-                File.Delete(filePath);
+                var filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
+                RemoveFile(filePath);
             }
             catch (EntityNotFoundException)
             {
                 _logger.LogInformation("No file found for received certificate of deposit invoice {0}. Nothing to delete on disk.", invoiceId);
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, "Something went wrong while deleting received certificate {0}.", filePath);
             }
         }
 
@@ -734,9 +789,9 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             BaseInvoice invoice = null;
             if (isDeposit)
-                invoice = await _depositInvoiceDateProvider.GetByIdAsync(invoiceId);
+                invoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId);
             else
-                invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
+                invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
 
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
 
@@ -752,9 +807,9 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             BaseInvoice invoice = null;
             if (isDeposit)
-                invoice = await _depositInvoiceDateProvider.GetByIdAsync(invoiceId);
+                invoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId);
             else
-                invoice = await _invoiceDateProvider.GetByIdAsync(invoiceId);
+                invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
 
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
 
@@ -881,15 +936,18 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
-        private void RemoveUploadFile(string path)
+        private void RemoveFile(string path)
         {
             try
             {
-                File.Delete(path);
+                if (File.Exists(path))
+                    File.Delete(path);
+                else
+                    _logger.LogDebug("File {0} not found and will not be removed.", path);
             }
             catch (Exception)
             {
-                _logger.LogDebug("Failed to remove uploaded file {0}.", path);
+                _logger.LogDebug("Failed to remove file {0}.", path);
             }
         }
 

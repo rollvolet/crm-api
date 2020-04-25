@@ -18,12 +18,13 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly IOrderDataProvider _orderDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
+        private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly ILogger _logger;
 
         public InvoiceManager(IInvoiceDataProvider invoiceDataProvider, ICustomerDataProvider customerDataProvider,
                                 IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                                 IOrderDataProvider orderDataProvider, IVatRateDataProvider vatRateDataProvider,
-                                 ILogger<InvoiceManager> logger)
+                                IDocumentGenerationManager documentGenerationManager, ILogger<InvoiceManager> logger)
         {
             _invoiceDataProvider = invoiceDataProvider;
             _customerDataProvider = customerDataProvider;
@@ -31,6 +32,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _buildingDataProvider = buildingDataProvider;
             _orderDataProvider = orderDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
+            _documentGenerationManager = documentGenerationManager;
             _logger = logger;
         }
 
@@ -209,6 +211,9 @@ namespace Rollvolet.CRM.Domain.Managers
                     throw new InvalidOperationException(message);
                 }
 
+                await _documentGenerationManager.DeleteInvoiceDocumentAsync(id);
+                await _documentGenerationManager.DeleteCertificateTemplateForInvoiceAsync(id);
+                await _documentGenerationManager.DeleteCertificateForInvoiceAsync(id);
                 await _invoiceDataProvider.DeleteByIdAsync(id);
             }
             catch (EntityNotFoundException)

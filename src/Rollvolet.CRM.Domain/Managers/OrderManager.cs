@@ -23,6 +23,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
         private readonly IGraphApiService _graphApiService;
+        private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly ILogger _logger;
 
         public OrderManager(IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDataProvider,
@@ -30,7 +31,8 @@ namespace Rollvolet.CRM.Domain.Managers
                                 IBuildingDataProvider buildingDataProvider, IOfferDataProvider offerDataProvider,
                                 IInvoicelineDataProvider invoicelineDataProvider, IVatRateDataProvider vatRateDataProvider,
                                 IDepositDataProvider depositDataProvider, IDepositInvoiceDataProvider depositInvoiceDataProvider,
-                                IGraphApiService graphApiService, ILogger<OrderManager> logger)
+                                IGraphApiService graphApiService, IDocumentGenerationManager documentGenerationManager,
+                                ILogger<OrderManager> logger)
         {
             _orderDataProvider = orderDataProvider;
             _customerDataProvider = customerDataProvider;
@@ -43,6 +45,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
             _graphApiService = graphApiService;
+            _documentGenerationManager = documentGenerationManager;
             _logger = logger;
         }
 
@@ -208,6 +211,10 @@ namespace Rollvolet.CRM.Domain.Managers
                 {
                     var order = await _orderDataProvider.GetByIdAsync(id);
                     await _graphApiService.DeleteEventForPlanningAsync(order);
+                    await _documentGenerationManager.DeleteOrderDocumentAsync(id);
+                    await _documentGenerationManager.DeleteDeliveryNoteAsync(id);
+                    await _documentGenerationManager.DeleteProductionTicketTemplateAsync(id);
+                    await _documentGenerationManager.DeleteProductionTicketAsync(id);
                     await _orderDataProvider.DeleteByIdAsync(id);
                 }
                 catch (EntityNotFoundException)

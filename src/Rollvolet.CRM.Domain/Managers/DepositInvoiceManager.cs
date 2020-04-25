@@ -20,12 +20,14 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IOrderDataProvider _orderDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
         private readonly IInvoiceDataProvider _invoiceDataProvider;
+        private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly ILogger _logger;
 
         public DepositInvoiceManager(IDepositInvoiceDataProvider depositInvoiceDataProvider, ICustomerDataProvider customerDataProvider,
                                 IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                                 IOrderDataProvider orderDataProvider, IVatRateDataProvider vatRateDataProvider,
-                                IInvoiceDataProvider invoiceDataProvider, ILogger<InvoiceManager> logger)
+                                IInvoiceDataProvider invoiceDataProvider, IDocumentGenerationManager documentGenerationManager,
+                                ILogger<InvoiceManager> logger)
         {
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _customerDataProvider = customerDataProvider;
@@ -34,6 +36,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _orderDataProvider = orderDataProvider;
             _invoiceDataProvider = invoiceDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
+            _documentGenerationManager = documentGenerationManager;
             _logger = logger;
         }
 
@@ -169,6 +172,9 @@ namespace Rollvolet.CRM.Domain.Managers
                 }
                 catch(EntityNotFoundException)
                 {
+                    await _documentGenerationManager.DeleteDepositInvoiceDocumentAsync(id);
+                    await _documentGenerationManager.DeleteCertificateTemplateForDepositInvoiceAsync(id);
+                    await _documentGenerationManager.DeleteCertificateForDepositInvoiceAsync(id);
                     await _depositInvoiceDataProvider.DeleteByIdAsync(id);
                 }
             }

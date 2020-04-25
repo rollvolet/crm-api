@@ -22,14 +22,16 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IWayOfEntryDataProvider _wayOfEntryDataProvider;
         private readonly IEmployeeDataProvider _employeeDataProvider;
         private readonly IPlanningEventManager _planningEventManager;
+        private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly ILogger _logger;
 
         public InterventionManager(IInterventionDataProvider interventionDataProvider, ICustomerDataProvider customerDataProvider,
                                 IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                                 IInvoiceDataProvider invoiceDataProvider, IOrderDataProvider orderDataProvider,
-                                 IRequestDataProvider requestDataProvider,
+                                IRequestDataProvider requestDataProvider,
                                 IWayOfEntryDataProvider wayOfEntryDataProvider, IEmployeeDataProvider employeeDataProvider,
-                                IPlanningEventManager planningEventManager, ILogger<InterventionManager> logger)
+                                IPlanningEventManager planningEventManager, IDocumentGenerationManager documentGenerationManager,
+                                ILogger<InterventionManager> logger)
         {
             _interventionDataProvider = interventionDataProvider;
             _customerDataProvider = customerDataProvider;
@@ -41,6 +43,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _wayOfEntryDataProvider = wayOfEntryDataProvider;
             _employeeDataProvider = employeeDataProvider;
             _planningEventManager = planningEventManager;
+            _documentGenerationManager = documentGenerationManager;
             _logger = logger;
         }
 
@@ -213,6 +216,7 @@ namespace Rollvolet.CRM.Domain.Managers
             }
             catch(EntityNotFoundException)
             {
+                await _documentGenerationManager.DeleteInterventionReportAsync(id);
                 await _interventionDataProvider.DeleteByIdAsync(id);
             }
         }

@@ -18,12 +18,14 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly IOrderDataProvider _orderDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
+        private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly ILogger _logger;
 
         public OfferManager(IOfferDataProvider offerDataProvider, IRequestDataProvider requestDataProvider,
                                 ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
                                 IBuildingDataProvider buildingDataProvider, IOrderDataProvider orderDataProvider,
-                                IVatRateDataProvider vatRateDataProvider, ILogger<OfferManager> logger)
+                                IVatRateDataProvider vatRateDataProvider, IDocumentGenerationManager documentGenerationManager,
+                                ILogger<OfferManager> logger)
         {
             _offerDataProvider = offerDataProvider;
             _requestDataProvider = requestDataProvider;
@@ -32,6 +34,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _buildingDataProvider = buildingDataProvider;
             _orderDataProvider = orderDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
+            _documentGenerationManager = documentGenerationManager;
             _logger = logger;
         }
 
@@ -148,6 +151,7 @@ namespace Rollvolet.CRM.Domain.Managers
             }
             catch(EntityNotFoundException)
             {
+                await _documentGenerationManager.DeleteOfferDocumentAsync(id);
                 await _offerDataProvider.DeleteByIdAsync(id);
             }
         }
