@@ -6,6 +6,7 @@ namespace Rollvolet.CRM.APIContracts.DTO.Interventions
     public class InterventionAttributesDto
     {
         public DateTime? Date { get; set; }
+        public string Description { get; set; }
         public string Comment { get; set; }
         [JsonProperty("cancellation-date")]
         public DateTime? CancellationDate { get; set; }

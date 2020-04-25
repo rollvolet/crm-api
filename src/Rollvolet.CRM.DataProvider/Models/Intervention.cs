@@ -31,6 +31,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Date")]
         public DateTime Date { get; set; }
 
+        [Column("Description")]
+        public string Description { get; set; }
+
         [Column("Comment")]
         public string Comment { get; set; }
 
