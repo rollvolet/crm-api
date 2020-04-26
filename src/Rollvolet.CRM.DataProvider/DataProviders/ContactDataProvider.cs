@@ -169,7 +169,7 @@ namespace Rollvolet.CRM.DataProviders
             contactRecord.Number = await _sequenceDataProvider.GetNextRelativeContactNumberAsync(customerId);
             contactRecord.CustomerId = customerId;
             contactRecord.Created = DateTime.Now;
-            contactRecord.SearchName = CalculateSearchName(contact.Name);
+            contactRecord.SearchName = DataProvider.Models.CustomerRecord.CalculateSearchName(contact.Name);
 
             await HydratePostalCodeAsync(contact, contactRecord);
             ReplaceEmptyStringWithNull(contact, contactRecord);
@@ -184,7 +184,7 @@ namespace Rollvolet.CRM.DataProviders
         {
             var contactRecord = await FindByIdAsync(contact.Id);
             _mapper.Map(contact, contactRecord);
-            contactRecord.SearchName = CalculateSearchName(contact.Name);
+            contactRecord.SearchName = DataProvider.Models.CustomerRecord.CalculateSearchName(contact.Name);
 
             await HydratePostalCodeAsync(contact, contactRecord);
 

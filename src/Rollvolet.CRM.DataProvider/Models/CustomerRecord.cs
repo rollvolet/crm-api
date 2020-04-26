@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.RegularExpressions;
+using Rollvolet.CRM.DataProvider.Extensions;
 
 namespace Rollvolet.CRM.DataProvider.Models
 {
@@ -83,5 +85,19 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("ZoekNaam")]
         public string SearchName { get; set; }
 
+
+        public static string CalculateSearchName(string name)
+        {
+            if (name != null)
+            {
+                var searchName = name.ToUpper();
+                searchName = Regex.Replace(searchName, @"\s+", "");
+                searchName = searchName.FilterDiacritics();
+                return searchName;
+            }
+
+            return null;
+
+        }
     }
 }

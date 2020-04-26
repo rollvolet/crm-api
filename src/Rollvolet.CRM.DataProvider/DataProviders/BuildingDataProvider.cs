@@ -169,7 +169,7 @@ namespace Rollvolet.CRM.DataProviders
             buildingRecord.Number = await _sequenceDataProvider.GetNextRelativeBuildingNumberAsync(customerId);
             buildingRecord.CustomerId = customerId;
             buildingRecord.Created = DateTime.Now;
-            buildingRecord.SearchName = CalculateSearchName(building.Name);
+            buildingRecord.SearchName = DataProvider.Models.CustomerRecord.CalculateSearchName(building.Name);
 
             await HydratePostalCodeAsync(building, buildingRecord);
             ReplaceEmptyStringWithNull(building, buildingRecord);
@@ -184,7 +184,7 @@ namespace Rollvolet.CRM.DataProviders
         {
             var buildingRecord = await FindByIdAsync(building.Id);
             _mapper.Map(building, buildingRecord);
-            buildingRecord.SearchName = CalculateSearchName(building.Name);
+            buildingRecord.SearchName = DataProvider.Models.CustomerRecord.CalculateSearchName(building.Name);
 
             await HydratePostalCodeAsync(building, buildingRecord);
 

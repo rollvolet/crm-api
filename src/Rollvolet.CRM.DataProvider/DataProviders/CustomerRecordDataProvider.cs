@@ -1,11 +1,9 @@
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.DataProvider.Contexts;
-using Rollvolet.CRM.DataProvider.Extensions;
 using Rollvolet.CRM.DataProvider.Models;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Models;
@@ -61,19 +59,6 @@ namespace Rollvolet.CRM.DataProviders
 
             if (string.IsNullOrEmpty(customerEntity.Comment) || string.IsNullOrEmpty(customerEntity.Comment.Trim()))
                 customerRecord.Comment = null;
-        }
-
-        protected string CalculateSearchName(string name)
-        {
-            if (name != null)
-            {
-                var searchName = name.ToUpper();
-                searchName = Regex.Replace(searchName, @"\s+", "");
-                searchName = searchName.FilterDiacritics();
-                return searchName;
-            }
-
-            return null;
         }
     }
 }

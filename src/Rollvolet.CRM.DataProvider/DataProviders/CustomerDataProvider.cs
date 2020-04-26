@@ -147,7 +147,7 @@ namespace Rollvolet.CRM.DataProviders
 
             customerRecord.Number = await _sequenceDataProvider.GetNextCustomerNumberAsync();
             customerRecord.Created = DateTime.Now;
-            customerRecord.SearchName = CalculateSearchName(customer.Name);
+            customerRecord.SearchName = DataProvider.Models.CustomerRecord.CalculateSearchName(customer.Name);
             // customer name is already uppercased by the frontend
 
             await HydratePostalCodeAsync(customer, customerRecord);
@@ -170,7 +170,7 @@ namespace Rollvolet.CRM.DataProviders
             var customerRecord = await FindByNumberAsync(customer.Id);
             var memoRecord = customerRecord.Memo;
             _mapper.Map(customer, customerRecord);
-            customerRecord.SearchName = CalculateSearchName(customer.Name);
+            customerRecord.SearchName = DataProvider.Models.CustomerRecord.CalculateSearchName(customer.Name);
             // customer name is already uppercased by the frontend
 
             await HydratePostalCodeAsync(customer, customerRecord);
