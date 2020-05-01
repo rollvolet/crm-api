@@ -39,7 +39,7 @@ namespace Rollvolet.CRM.DataProviders
             _logger.LogInformation($"Updating search names of {total} customers");
             while (query.Page.Number * query.Page.Size < total)
             {
-                var customers = _context.Customers.ForPage(query).AsNoTracking().Select(c => new { Id = c.DataId, Name = c.Name }).AsEnumerable();
+                var customers = _context.Customers.ForPage(query).AsNoTracking().Select(c => new { Id = c.DataId, Name = c.Name }).ToList();
                 await UpdateBatch(customers);
                 query.Page.Number += 1;
                 var handledCount = query.Page.Number * query.Page.Size > total ? total : query.Page.Number * query.Page.Size;
@@ -58,7 +58,7 @@ namespace Rollvolet.CRM.DataProviders
             _logger.LogInformation($"Updating search names of {total} contacts");
             while (query.Page.Number * query.Page.Size < total)
             {
-                var contacts = _context.Contacts.ForPage(query).AsNoTracking().Select(c => new { Id = c.DataId, Name = c.Name }).AsEnumerable();
+                var contacts = _context.Contacts.ForPage(query).AsNoTracking().Select(c => new { Id = c.DataId, Name = c.Name }).ToList();
                 await UpdateBatch(contacts);
                 query.Page.Number += 1;
                 var handledCount = query.Page.Number * query.Page.Size > total ? total : query.Page.Number * query.Page.Size;
@@ -77,7 +77,7 @@ namespace Rollvolet.CRM.DataProviders
             _logger.LogInformation($"Updating search names of {total} buildings");
             while (query.Page.Number * query.Page.Size < total)
             {
-                var buildings = _context.Buildings.ForPage(query).AsNoTracking().Select(c => new { Id = c.DataId, Name = c.Name }).AsEnumerable();
+                var buildings = _context.Buildings.ForPage(query).AsNoTracking().Select(c => new { Id = c.DataId, Name = c.Name }).ToList();
                 await UpdateBatch(buildings);
                 query.Page.Number += 1;
                 var handledCount = query.Page.Number * query.Page.Size > total ? total : query.Page.Number * query.Page.Size;
