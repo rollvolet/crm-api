@@ -71,7 +71,12 @@ namespace Rollvolet.CRM.Domain.Managers
             if (invoiceline.VatRate == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Vat-rate is required.");
 
-            return await _invoicelineDataProvider.CreateAsync(invoiceline);
+            invoiceline = await _invoicelineDataProvider.CreateAsync(invoiceline);
+
+            if (invoiceline.Invoice != null)
+                await _invoiceDataProvider.SyncAmountAndVatAsync(invoiceline.Invoice.Id);
+
+            return invoiceline;
         }
 
         public async Task<Invoiceline> UpdateAsync(Invoiceline invoiceline)
@@ -92,7 +97,12 @@ namespace Rollvolet.CRM.Domain.Managers
             if (invoiceline.VatRate == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Vat-rate is required.");
 
-            return await _invoicelineDataProvider.UpdateAsync(invoiceline);
+            invoiceline = await _invoicelineDataProvider.UpdateAsync(invoiceline);
+
+            if (invoiceline.Invoice != null)
+                await _invoiceDataProvider.SyncAmountAndVatAsync(invoiceline.Invoice.Id);
+
+            return invoiceline;
         }
 
         public async Task DeleteAsync(int id)
@@ -101,27 +111,23 @@ namespace Rollvolet.CRM.Domain.Managers
             query.Include.Fields = new string[] { "invoice" };
             var invoiceline = await _invoicelineDataProvider.GetByIdAsync(id, query);
 
-            try
+            int? invoiceId = null;
+            if (invoiceline.Invoice != null)
             {
-                if (invoiceline.Invoice != null)
+                if (invoiceline.Invoice.BookingDate != null)
                 {
-                    var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceline.Invoice.Id);
-
-                    if (invoice.BookingDate != null)
-                    {
-                        var message = $"Invoiceline {id} cannot be deleted because the invoice that is attached to it has already been transferred to the accounting system.";
-                        _logger.LogError(message);
-                        throw new InvalidOperationException(message);
-                    }
+                    var message = $"Invoiceline {id} cannot be deleted because the invoice has already been transferred to the accounting system.";
+                    _logger.LogError(message);
+                    throw new InvalidOperationException(message);
                 }
-            }
-            catch(EntityNotFoundException)
-            {
-                // No invoice found. Invoiceline can be removed
+
+                invoiceId = invoiceline.Invoice.Id;
             }
 
             await _invoicelineDataProvider.DeleteByIdAsync(id);
 
+            if (invoiceId != null)
+                await _invoiceDataProvider.SyncAmountAndVatAsync((int) invoiceId);
         }
 
         // Embed relations in invoiceline resource: reuse old relation if there is one and it hasn't changed

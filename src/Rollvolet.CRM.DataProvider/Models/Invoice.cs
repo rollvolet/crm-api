@@ -50,12 +50,14 @@ namespace Rollvolet.CRM.DataProvider.Models
         public int? VatRateId { get; set; }
 
         [Column("BasisBedrag")]
-        public double? BaseAmount { get; set; } // sum of all offerlines (in Access amount is copied from order)
+        // in Access: amount copied from order for invoice
+        // Now amount entered by user for deposit invoice and isolated invoice. Else null.
+        public double? BaseAmount { get; set; }
 
         // Amount, Vat and TotalAmount are kept in sync by InvoiceDataProvider.CalculateAmountAndVatAsync
 
         [Column("Bedrag")]
-        public double? Amount { get; set; }  // baseAmount + all InvoiceSupplements - all DepositInvoices
+        public double? Amount { get; set; }  // baseAmount + all Invoicelines + all InvoiceSupplements - all DepositInvoices
 
         [Column("BTWBedrag")]
         public double? Vat { get; set; } // VAT calculated on Amount

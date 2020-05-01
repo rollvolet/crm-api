@@ -20,15 +20,18 @@ namespace Rollvolet.CRM.DataProviders
     {
         private readonly IInvoiceSupplementDataProvider _invoiceSupplementDataProvider;
         private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
+        private readonly IInvoicelineDataProvider _invoicelineDataProvider;
 
         public InvoiceDataProvider(IInvoiceSupplementDataProvider invoiceSupplementDataProvider,
                                     IDepositInvoiceDataProvider depositInvoiceDataProvider,
+                                    IInvoicelineDataProvider invoicelineDataProvider,
                                     ISequenceDataProvider sequenceDataProvider, IVatRateDataProvider vatRateDataProvider,
                                     CrmContext context, IMapper mapper, ILogger<InvoiceDataProvider> logger)
                                     : base(sequenceDataProvider, vatRateDataProvider, context, mapper, logger)
         {
             _invoiceSupplementDataProvider = invoiceSupplementDataProvider;
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
+            _invoicelineDataProvider = invoicelineDataProvider;
         }
 
         private new IQueryable<DataProvider.Models.Invoice> BaseQuery() {
@@ -173,7 +176,7 @@ namespace Rollvolet.CRM.DataProviders
             invoiceRecord.Currency = "EUR";
             await EmbedCustomerAttributesAsync(invoiceRecord);
 
-            // Updates by a change in other resources (e.g. invoice supplements) are triggered through SyncAmountAndVatAsync
+            // Updates by a change in other resources (e.g. invoice supplements, invoicelines) are triggered through SyncAmountAndVatAsync
             await CalculateAmountAndVatAsync(invoiceRecord);
 
             _context.Invoices.Update(invoiceRecord);
@@ -273,8 +276,17 @@ namespace Rollvolet.CRM.DataProviders
                 invoiceSupplementsTotal = invoiceSupplements.Items.Select(s => s.Amount).Sum() ?? 0.0;
             }
 
+            var invoicelinesTotal = 0.0;
+            if (invoice.Id != 0)  // invoice supplements can only be attached to an existing invoice
+            {
+                var query = new QuerySet();
+                query.Page.Size = 10000; // TODO we assume 1 invoice doesn't have more than 10000 lines. Ideally, we should query by page.
+                var invoicelines = await _invoicelineDataProvider.GetAllByInvoiceIdAsync(invoice.Id, query);
+                invoicelinesTotal = invoicelines.Items.Select(s => s.Amount).Sum() ?? 0.0;
+            }
+
             var baseAmount = invoice.BaseAmount ?? 0.0;
-            var amount = baseAmount + invoiceSupplementsTotal - depositInvoicesTotal;
+            var amount = baseAmount + invoiceSupplementsTotal + invoicelinesTotal - depositInvoicesTotal;
 
             var vat = 0.0;
             if (invoice.VatRateId != null)
