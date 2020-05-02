@@ -3,12 +3,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.PlatformAbstractions;
 using Narato.Correlations;
 using Narato.ExecutionTimingMiddleware;
 using Rollvolet.CRM.DataProvider.Mappers;
-using System.Collections.Generic;
-using System.IO;
 using Rollvolet.CRM.API.Mappers;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Microsoft.EntityFrameworkCore;
@@ -19,21 +16,20 @@ using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.API.Builders;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Rollvolet.CRM.API.Middleware.ExceptionHandling.Interfaces;
 using Rollvolet.CRM.API.Middleware.ExceptionHandling;
 using Rollvolet.CRM.API.Middleware.UrlRewrite;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using Rollvolet.CRM.API.Configuration;
-using Microsoft.Graph;
-using Rollvolet.CRM.DataProvider.MsGraph.Authentication;
 using Rollvolet.CRM.Domain.Contracts.MsGraph;
 using Rollvolet.CRM.DataProvider.MsGraph;
-using Microsoft.Identity.Client;
-using Microsoft.Extensions.Caching.Memory;
 using Rollvolet.CRM.Domain.Configuration;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using Microsoft.Graph;
+using Rollvolet.CRM.DataProvider.MsGraph.Authentication;
 
 namespace Rollvolet.CRM.API
 {
@@ -60,7 +56,7 @@ namespace Rollvolet.CRM.API
             services.Configure<DocumentGenerationConfiguration>(Configuration.GetSection("DocumentGeneration"));
             services.Configure<AccountancyConfiguration>(Configuration.GetSection("Accountancy"));
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
+/*             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
                 jwtOptions => {
                     AuthenticationConfiguration authConfig = Configuration.GetSection("Authentication").Get<AuthenticationConfiguration>();
                     jwtOptions.Audience = authConfig.ClientId; // aud value in JWT token
@@ -68,7 +64,13 @@ namespace Rollvolet.CRM.API
                     jwtOptions.Events = new JwtBearerEvents {};
                     jwtOptions.SaveToken = true; // token gets saved in AuthenticationProperties on the request
                 }
-            );
+            ); */
+
+            services.AddSignIn(Configuration)
+                    .AddProtectedWebApi(Configuration)
+                    .AddWebAppCallsProtectedWebApi(Configuration, new string[] { "User.Read", "Calendars.ReadWrite.Shared" })
+                    .AddInMemoryTokenCaches();
+            services.AddTransient<IAuthenticationProvider, OnBehalfOfMsGraphAuthenticationProvider>();
 
             services.AddSession();
             services.AddCorrelations();
@@ -88,23 +90,7 @@ namespace Rollvolet.CRM.API
                 return settings;
             };
 
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IExceptionToActionResultMapper, ExceptionToActionResultMapper>();
-
-            services.AddSingleton<IConfidentialClientApplication, ConfidentialClientApplication>(c =>
-            {
-                AuthenticationConfiguration authConfig = Configuration.GetSection("Authentication").Get<AuthenticationConfiguration>();
-
-                var clientCredential = new ClientCredential(authConfig.ClientSecret);
-                var httpContext = c.GetService<IHttpContextAccessor>().HttpContext;
-                // TODO cache access tokens for Graph API between requests
-                var tokenCache =  new TokenCache();
-
-                return new ConfidentialClientApplication(authConfig.ClientId, authConfig.Authority, authConfig.RedirectUri,
-                                                            clientCredential, tokenCache, null);
-            });
-            services.AddSingleton<IAuthenticationProvider, OnBehalfOfMsGraphAuthenticationProvider>();
-
             services.AddTransient<ICustomerDataProvider, CustomerDataProvider>();
             services.AddTransient<ICustomerManager, CustomerManager>();
             services.AddTransient<IContactDataProvider, ContactDataProvider>();
@@ -177,16 +163,17 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
             services.AddTransient<IIncludedCollector, IncludedCollector>();
 
-            services.AddMvc((opt) => {
+            services.AddControllers((opt) => {
                 opt.Filters.Add(typeof(ExceptionHandlerFilter));
                 opt.UseCentralRoutePrefix(new RouteAttribute("api"));
-            }).AddJsonOptions((jsonOpt) => {
+            }).AddNewtonsoftJson((jsonOpt) => {
+                // TODO convert to new JSON in .Net Core 3.1
                 jsonOpt.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
             });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // auto migrations
             // using (var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
@@ -201,27 +188,16 @@ namespace Rollvolet.CRM.API
 
             app.UseCorrelations();
 
+            app.UseRouting();
+
             app.UseAuthentication();
-            app.UseSession();
+            app.UseAuthorization();
+            //app.UseSession();
 
-            app.UseMvc();
-        }
-
-        private List<string> GetXmlCommentsPaths()
-        {
-            var app = PlatformServices.Default.Application;
-            var files = new List<string>()
-                        {
-                            "Rollvolet.CRM.API.xml"
-                        };
-
-            List<string> paths = new List<string>();
-            foreach (var file in files)
+            app.UseEndpoints(endpoints =>
             {
-                paths.Add(Path.Combine(app.ApplicationBasePath, file));
-            }
-
-            return paths;
+                endpoints.MapControllers();
+            });
         }
     }
 }
