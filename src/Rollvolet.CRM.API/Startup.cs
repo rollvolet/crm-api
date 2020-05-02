@@ -51,26 +51,20 @@ namespace Rollvolet.CRM.API
                     // options.EnableSensitiveDataLogging(); // Remove for production
                 });
 
+            // TODO merge AzureAd and Authentication configuration blocks
             services.Configure<AuthenticationConfiguration>(Configuration.GetSection("Authentication"));
             services.Configure<CalendarConfiguration>(Configuration.GetSection("Calendar"));
             services.Configure<DocumentGenerationConfiguration>(Configuration.GetSection("DocumentGeneration"));
             services.Configure<AccountancyConfiguration>(Configuration.GetSection("Accountancy"));
 
-/*             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
-                jwtOptions => {
-                    AuthenticationConfiguration authConfig = Configuration.GetSection("Authentication").Get<AuthenticationConfiguration>();
-                    jwtOptions.Audience = authConfig.ClientId; // aud value in JWT token
-                    jwtOptions.Authority = authConfig.Authority; // iss value in JWT token
-                    jwtOptions.Events = new JwtBearerEvents {};
-                    jwtOptions.SaveToken = true; // token gets saved in AuthenticationProperties on the request
-                }
-            ); */
-
-            services.AddSignIn(Configuration)
-                    .AddProtectedWebApi(Configuration)
-                    .AddWebAppCallsProtectedWebApi(Configuration, new string[] { "User.Read", "Calendars.ReadWrite.Shared" })
+            // Setup authentication using OAuth 2.0 auth code grant between frontend and backend
+            // and using OAuth 2.0 on-behalf-of flow to query downstream APIs (e.g. Graph API)
+            // See also: https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
+            // These service extensions expect an 'AzureAd' configuration section
+            services.AddProtectedWebApi(Configuration)
+                    .AddProtectedWebApiCallsProtectedWebApi(Configuration)
                     .AddInMemoryTokenCaches();
-            services.AddTransient<IAuthenticationProvider, OnBehalfOfMsGraphAuthenticationProvider>();
+            services.AddScoped<IAuthenticationProvider, OnBehalfOfMsGraphAuthenticationProvider>();
 
             services.AddSession();
             services.AddCorrelations();
