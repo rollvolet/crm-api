@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Web;
 using System;
 using Microsoft.AspNetCore;
+using Microsoft.Extensions.Hosting;
 
 namespace Rollvolet.CRM.API
 {

@@ -2,22 +2,22 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.API.Middleware.ExceptionHandling.Interfaces;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using Microsoft.Extensions.Hosting;
 
 namespace Rollvolet.CRM.API.Middleware.ExceptionHandling
 {
     public class
     ExceptionToActionResultMapper : IExceptionToActionResultMapper
     {
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly ILogger _logger;
 
-        public ExceptionToActionResultMapper(IHostingEnvironment hostingEnvironment, ILogger<ExceptionToActionResultMapper> logger)
+        public ExceptionToActionResultMapper(IWebHostEnvironment hostingEnvironment, ILogger<ExceptionToActionResultMapper> logger)
         {
             _hostingEnvironment = hostingEnvironment;
             _logger = logger;

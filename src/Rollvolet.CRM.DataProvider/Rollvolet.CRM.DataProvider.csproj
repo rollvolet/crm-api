@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>Rollvolet.CRM.DataProvider</AssemblyName>
     <PackageId>Rollvolet.CRM.DataProvider</PackageId>
     <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
@@ -10,17 +10,15 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="8.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="2.0.0-preview1-final" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.6" />
-    <PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="1.1.16" />
-    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="2.0.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="1.1.4-preview0002" /> <!-- TODO: is this still required? -->
-    <PackageReference Include="Microsoft.Graph" Version="1.16.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.3" />
+    <PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="3.0.0" />
+    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.48" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.12.0" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="0.1.1-preview" />
+    <PackageReference Include="Microsoft.Graph" Version="3.4.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Rollvolet.CRM.Domain\Rollvolet.CRM.Domain.csproj" />

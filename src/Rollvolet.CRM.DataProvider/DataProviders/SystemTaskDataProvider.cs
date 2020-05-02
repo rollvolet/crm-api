@@ -90,7 +90,7 @@ namespace Rollvolet.CRM.DataProviders
             foreach (var record in records)
             {
                 var searchName = DataProvider.Models.CustomerRecord.CalculateSearchName(record.Name);
-                await _context.Database.ExecuteSqlCommandAsync($"UPDATE dbo.tblData SET ZoekNaam = {searchName} FROM dbo.tblData AS [c] WHERE c.DataID = {record.Id}");
+                await _context.Database.ExecuteSqlRawAsync($"UPDATE dbo.tblData SET ZoekNaam = {searchName} FROM dbo.tblData AS [c] WHERE c.DataID = {record.Id}");
             }
         }
 
