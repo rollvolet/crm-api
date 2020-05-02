@@ -46,6 +46,8 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         // Include resources
         public Customer Customer { get; set; }
+        public Building Building { get; set; }
+        public Contact Contact { get; set; }
         public WayOfEntry WayOfEntry { get; set; }
         public Order Origin { get; set; }
         public Invoice Invoice { get; set; }
@@ -54,12 +56,5 @@ namespace Rollvolet.CRM.DataProvider.Models
         public PlanningEvent PlanningEvent { get; set; }
 
         public ICollection<InterventionTechnician> InterventionTechnicians { get; set; }
-
-
-        // Manually included resources
-        [NotMapped]
-        public Building Building { get; set; }
-        [NotMapped]
-        public Contact Contact { get; set; }
     }
 }

@@ -260,6 +260,18 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasPrincipalKey(e => e.Number);
 
             modelBuilder.Entity<Request>()
+                .HasOne(e => e.Building)
+                .WithMany()
+                .HasForeignKey(e => new { e.RelativeBuildingId, e.CustomerId })
+                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
+
+            modelBuilder.Entity<Request>()
+                .HasOne(e => e.Contact)
+                .WithMany()
+                .HasForeignKey(e => new { e.RelativeContactId, e.CustomerId })
+                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
+
+            modelBuilder.Entity<Request>()
                 .HasOne(e => e.WayOfEntry)
                 .WithMany()
                 .HasForeignKey(e => e.WayOfEntryId);
@@ -269,21 +281,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithOne(e => e.FollowUpRequest)
                 .HasForeignKey<Request>(e => e.OriginId)
                 .HasPrincipalKey<Intervention>(e => e.Id);
-
-            // The below configuration doesn't work since the FK may not include the CustomerId field on a derived type
-            // As a consequence the Building and Contact need to be embedded manually in the Request resources
-
-            // modelBuilder.Entity<Request>()
-            //     .HasOne(e => e.Building)
-            //     .WithMany()
-            //     .HasForeignKey(e => new { e.RelativeBuildingId, e.CustomerId })
-            //     .HasPrincipalKey(e => new { e.Number, e.CustomerId });
-
-            // modelBuilder.Entity<Request>()
-            //     .HasOne(e => e.Contact)
-            //     .WithMany()
-            //     .HasForeignKey(e => new { e.RelativeContactId, e.CustomerId })
-            //     .HasPrincipalKey(e => new { e.Number, e.CustomerId });
 
 
             // Visit
@@ -332,6 +329,18 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasPrincipalKey(e => e.Number);
 
             modelBuilder.Entity<Intervention>()
+                .HasOne(e => e.Building)
+                .WithMany()
+                .HasForeignKey(e => new { e.RelativeBuildingId, e.CustomerId })
+                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
+
+            modelBuilder.Entity<Intervention>()
+                .HasOne(e => e.Contact)
+                .WithMany()
+                .HasForeignKey(e => new { e.RelativeContactId, e.CustomerId })
+                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
+
+            modelBuilder.Entity<Intervention>()
                 .HasOne(e => e.Origin)
                 .WithMany(e => e.Interventions)
                 .HasForeignKey(e => e.OriginId)
@@ -365,6 +374,18 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithMany()
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.Number);
+
+            modelBuilder.Entity<Offer>()
+                .HasOne(e => e.Building)
+                .WithMany()
+                .HasForeignKey(e => new { e.RelativeBuildingId, e.CustomerId })
+                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
+
+            modelBuilder.Entity<Offer>()
+                .HasOne(e => e.Contact)
+                .WithMany()
+                .HasForeignKey(e => new { e.RelativeContactId, e.CustomerId })
+                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
 
             modelBuilder.Entity<Offer>()
                 .HasOne(e => e.VatRate)
@@ -421,6 +442,18 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithMany()
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.Number);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(e => e.Building)
+                .WithMany()
+                .HasForeignKey(e => new { e.RelativeBuildingId, e.CustomerId })
+                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
+
+            modelBuilder.Entity<Order>()
+                .HasOne(e => e.Contact)
+                .WithMany()
+                .HasForeignKey(e => new { e.RelativeContactId, e.CustomerId })
+                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
 
             modelBuilder.Entity<Order>()
                 .HasOne(e => e.Offer)
@@ -483,6 +516,18 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithMany()
                 .HasForeignKey(e => e.CustomerId)
                 .HasPrincipalKey(e => e.Number);
+
+            modelBuilder.Entity<Invoice>()
+                .HasOne(e => e.Building)
+                .WithMany()
+                .HasForeignKey(e => new { e.RelativeBuildingId, e.CustomerId })
+                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
+
+            modelBuilder.Entity<Invoice>()
+                .HasOne(e => e.Contact)
+                .WithMany()
+                .HasForeignKey(e => new { e.RelativeContactId, e.CustomerId })
+                .HasPrincipalKey(e => new { e.Number, e.CustomerId });
 
             modelBuilder.Entity<Invoice>()
                 .HasOne(e => e.Order)

@@ -112,17 +112,12 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Offer Offer { get; set; }
         public Invoice Invoice { get; set; }
         public Customer Customer { get; set; }
+        public Building Building { get; set; }
+        public Contact Contact { get; set; }
         public VatRate VatRate { get; set; }
         public IEnumerable<Deposit> Deposits { get; set; }
         public IEnumerable<DepositInvoiceHub> DepositInvoicesHubs { get; set; }
         public IEnumerable<Invoiceline> Invoicelines { get; set; }
         public IEnumerable<Intervention> Interventions { get; set; }
-
-
-        // Manually included resources
-        [NotMapped]
-        public Building Building { get; set; }
-        [NotMapped]
-        public Contact Contact { get; set; }
     }
 }

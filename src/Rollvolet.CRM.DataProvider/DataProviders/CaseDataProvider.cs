@@ -29,20 +29,21 @@ namespace Rollvolet.CRM.DataProviders
         {
             var source = _context.Requests
                 .Where(r => r.Id == requestId)
+                .Include(r => r.Customer)
+                .Include(r => r.Building)
+                .Include(r => r.Contact)
                 .Include(r => r.Offer)
                     .ThenInclude(o => o.Order)
                         .ThenInclude(o => o.Invoice);
 
-            var joinedSource = JoinBuildingAndContact(source);
-
-            var result = await joinedSource.Select(x => new Case {
-                    CustomerId = x.Source.CustomerId,
+            var result = await source.Select(x => new Case {
+                    CustomerId = x.CustomerId,
                     ContactId = x.Contact != null ? x.Contact.DataId : (int?) null,
                     BuildingId = x.Building != null ? x.Building.DataId : (int?) null,
-                    RequestId = x.Source.Id,
-                    OfferId = x.Source.Offer != null ? x.Source.Offer.Id : (int?) null,
-                    OrderId = x.Source.Offer != null && x.Source.Offer.Order != null ? x.Source.Offer.Order.Id : (int?) null,
-                    InvoiceId = x.Source.Offer != null && x.Source.Offer.Order != null && x.Source.Offer.Order.Invoice != null ? x.Source.Offer.Order.Invoice.Id : (int?) null
+                    RequestId = x.Id,
+                    OfferId = x.Offer != null ? x.Offer.Id : (int?) null,
+                    OrderId = x.Offer != null && x.Offer.Order != null ? x.Offer.Order.Id : (int?) null,
+                    InvoiceId = x.Offer != null && x.Offer.Order != null && x.Offer.Order.Invoice != null ? x.Offer.Order.Invoice.Id : (int?) null
                 })
                 .FirstOrDefaultAsync();
 
@@ -58,16 +59,17 @@ namespace Rollvolet.CRM.DataProviders
         {
             var source = _context.Interventions
                 .Where(r => r.Id == interventionId)
+                .Include(r => r.Customer)
+                .Include(r => r.Building)
+                .Include(r => r.Contact)
                 .Include(r => r.Invoice);
 
-            var joinedSource = JoinBuildingAndContact(source);
-
-            var result = await joinedSource.Select(x => new Case {
-                    CustomerId = x.Source.CustomerId,
+            var result = await source.Select(x => new Case {
+                    CustomerId = x.CustomerId,
                     ContactId = x.Contact != null ? x.Contact.DataId : (int?) null,
                     BuildingId = x.Building != null ? x.Building.DataId : (int?) null,
-                    InterventionId = x.Source.Id,
-                    InvoiceId = x.Source.Invoice != null ? x.Source.Invoice.Id : (int?) null
+                    InterventionId = x.Id,
+                    InvoiceId = x.Invoice != null ? x.Invoice.Id : (int?) null
                 })
                 .FirstOrDefaultAsync();
 
@@ -83,20 +85,21 @@ namespace Rollvolet.CRM.DataProviders
         {
             var source = _context.Offers
                 .Where(o => o.Id == offerId)
+                .Include(r => r.Customer)
+                .Include(r => r.Building)
+                .Include(r => r.Contact)
                 .Include(o => o.Request)
                 .Include(o => o.Order)
                     .ThenInclude(o => o.Invoice);
 
-            var joinedSource = JoinBuildingAndContact(source);
-
-            var result = await joinedSource.Select(x => new Case {
-                    CustomerId = x.Source.CustomerId,
+            var result = await source.Select(x => new Case {
+                    CustomerId = x.CustomerId,
                     ContactId = x.Contact != null ? x.Contact.DataId : (int?) null,
                     BuildingId = x.Building != null ? x.Building.DataId : (int?) null,
-                    RequestId = x.Source.RequestId,
-                    OfferId = x.Source.Id,
-                    OrderId = x.Source.Order != null ? x.Source.Order.Id : (int?) null,
-                    InvoiceId = x.Source.Order != null && x.Source.Order.Invoice != null ? x.Source.Order.Invoice.Id : (int?) null
+                    RequestId = x.RequestId,
+                    OfferId = x.Id,
+                    OrderId = x.Order != null ? x.Order.Id : (int?) null,
+                    InvoiceId = x.Order != null && x.Order.Invoice != null ? x.Order.Invoice.Id : (int?) null
                 })
                 .FirstOrDefaultAsync();
 
@@ -112,20 +115,21 @@ namespace Rollvolet.CRM.DataProviders
         {
             var source = _context.Orders
                 .Where(o => o.Id == orderId)
+                .Include(r => r.Customer)
+                .Include(r => r.Building)
+                .Include(r => r.Contact)
                 .Include(o => o.Offer)
                     .ThenInclude(o => o.Request)
                 .Include(o => o.Invoice);
 
-            var joinedSource = JoinBuildingAndContact(source);
-
-            var result = await joinedSource.Select(x => new Case {
-                    CustomerId = x.Source.CustomerId,
+            var result = await source.Select(x => new Case {
+                    CustomerId = x.CustomerId,
                     ContactId = x.Contact != null ? x.Contact.DataId : (int?) null,
                     BuildingId = x.Building != null ? x.Building.DataId : (int?) null,
-                    RequestId = x.Source.Offer != null && x.Source.Offer.Request != null ? x.Source.Offer.Request.Id : (int?) null,
-                    OfferId = x.Source.Offer != null ? x.Source.Offer.Id : (int?) null,
-                    OrderId = x.Source.Id,
-                    InvoiceId = x.Source.Invoice != null ? x.Source.Invoice.Id : (int?) null
+                    RequestId = x.Offer != null && x.Offer.Request != null ? x.Offer.Request.Id : (int?) null,
+                    OfferId = x.Offer != null ? x.Offer.Id : (int?) null,
+                    OrderId = x.Id,
+                    InvoiceId = x.Invoice != null ? x.Invoice.Id : (int?) null
                 })
                 .FirstOrDefaultAsync();
 
@@ -141,22 +145,23 @@ namespace Rollvolet.CRM.DataProviders
         {
             var source = _context.Invoices
                 .Where(x => x.Id == invoiceId)
+                .Include(r => r.Customer)
+                .Include(r => r.Building)
+                .Include(r => r.Contact)
                 .Include(x => x.Order)
                     .ThenInclude(o => o.Offer)
                         .ThenInclude(o => o.Request)
                 .Include(x => x.Intervention);
 
-            var joinedSource = JoinBuildingAndContact(source);
-
-            var result = await joinedSource.Select(x => new Case {
-                    CustomerId = x.Source.CustomerId,
+            var result = await source.Select(x => new Case {
+                    CustomerId = x.CustomerId,
                     ContactId = x.Contact != null ? x.Contact.DataId : (int?) null,
                     BuildingId = x.Building != null ? x.Building.DataId : (int?) null,
-                    RequestId = x.Source.Order != null && x.Source.Order.Offer != null && x.Source.Order.Offer.Request != null ? x.Source.Order.Offer.Request.Id : (int?) null,
-                    OfferId = x.Source.Order != null && x.Source.Order.Offer != null ? x.Source.Order.Offer.Id : (int?) null,
-                    OrderId = x.Source.Order != null ? x.Source.Order.Id : (int?) null,
-                    InterventionId = x.Source.Intervention != null ? x.Source.Intervention.Id : (int?) null,
-                    InvoiceId = x.Source.Id
+                    RequestId = x.Order != null && x.Order.Offer != null && x.Order.Offer.Request != null ? x.Order.Offer.Request.Id : (int?) null,
+                    OfferId = x.Order != null && x.Order.Offer != null ? x.Order.Offer.Id : (int?) null,
+                    OrderId = x.Order != null ? x.Order.Id : (int?) null,
+                    InterventionId = x.Intervention != null ? x.Intervention.Id : (int?) null,
+                    InvoiceId = x.Id
                 })
                 .FirstOrDefaultAsync();
 
@@ -166,28 +171,6 @@ namespace Rollvolet.CRM.DataProviders
             }
 
             return result;
-        }
-
-        // TODO this method is duplicated in CaseRelatedDataProvider
-        private IQueryable<CaseTriplet<T>> JoinBuildingAndContact<T>(IQueryable<T> source) where T : ICaseRelated
-        {
-            return source.GroupJoin(
-                    _context.Buildings.Include(b => b.HonorificPrefix),
-                    s => new { CustomerId = s.CustomerId, Number = s.RelativeBuildingId },
-                    b => new { CustomerId = (int?) b.CustomerId, Number = (int?) b.Number },
-                    (s, b) => new { Source = s, Buildings = b }
-                ).SelectMany(
-                    t => t.Buildings.DefaultIfEmpty(),
-                    (t, b) => new { Source = t.Source, Building = b }
-                ).GroupJoin(
-                    _context.Contacts.Include(c => c.HonorificPrefix),
-                    t => new { CustomerId = t.Source.CustomerId, Number = t.Source.RelativeContactId },
-                    c => new { CustomerId = (int?) c.CustomerId, Number = (int?) c.Number },
-                    (t, c) => new { Source = t.Source, Building = t.Building, Contacts = c }
-                ).SelectMany(
-                    u => u.Contacts.DefaultIfEmpty(),
-                    (u, c) => new CaseTriplet<T> { Source = u.Source, Building = u.Building, Contact = c}
-                );
         }
     }
 }

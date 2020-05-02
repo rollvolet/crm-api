@@ -46,8 +46,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-            var invoices = QueryListWithManualInclude(source, query);
+            var invoices = source.ForPage(query).AsEnumerable();
 
             var mappedInvoices = _mapper.Map<IEnumerable<Invoice>>(invoices);
 
@@ -239,7 +238,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            var invoices = QueryListWithManualInclude(source, query);
+            var invoices = source.ForPage(query).AsEnumerable();
 
             var mappedInvoices = _mapper.Map<IEnumerable<Invoice>>(invoices);
 

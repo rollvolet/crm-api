@@ -1,31 +1,33 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
-using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.DataProvider.Extensions;
 using Microsoft.Extensions.Logging;
-using LinqKit;
 using System;
-using Rollvolet.CRM.Domain.Exceptions;
 using System.Linq.Expressions;
 
 namespace Rollvolet.CRM.DataProviders
 {
-    public class BaseInvoiceDataProvider : CaseRelatedDataProvider<DataProvider.Models.Invoice>
+    public class BaseInvoiceDataProvider
     {
+        protected readonly CrmContext _context;
+        protected readonly IMapper _mapper;
+        protected readonly ILogger _logger;
         protected readonly ISequenceDataProvider _sequenceDataProvider;
         protected readonly IVatRateDataProvider _vatRateDataProvider;
 
         public BaseInvoiceDataProvider(ISequenceDataProvider sequenceDataProvider, IVatRateDataProvider vatRateDataProvider,
-                                    CrmContext context, IMapper mapper, ILogger<BaseInvoiceDataProvider> logger) : base(context, mapper, logger)
+                                    CrmContext context, IMapper mapper, ILogger<BaseInvoiceDataProvider> logger)
         {
             _sequenceDataProvider = sequenceDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
+            _context = context;
+            _mapper = mapper;
+            _logger = logger;
         }
 
         protected IQueryable<DataProvider.Models.Invoice> BaseQuery()
@@ -44,15 +46,9 @@ namespace Rollvolet.CRM.DataProviders
             var source = BaseQuery().Where(where);
 
             if (query != null)
-            {
-                source = source.Include(query, isDepositInvoice);
-                // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-                return await QueryWithManualIncludeAsync(source, query);
-            }
-            else
-            {
-                return await source.FirstOrDefaultAsync();
-            }
+                source = source.Include(query);
+
+            return await source.FirstOrDefaultAsync();
         }
 
         protected async Task EmbedCustomerAttributesAsync(DataProvider.Models.Invoice invoice)

@@ -15,12 +15,17 @@ using System;
 
 namespace Rollvolet.CRM.DataProviders
 {
-    public class OrderDataProvider : CaseRelatedDataProvider<DataProvider.Models.Order>, IOrderDataProvider
+    public class OrderDataProvider : IOrderDataProvider
     {
+        private readonly CrmContext _context;
+        private readonly IMapper _mapper;
+        private readonly ILogger _logger;
 
-        public OrderDataProvider(CrmContext context, IMapper mapper, ILogger<OrderDataProvider> logger) : base(context, mapper, logger)
+        public OrderDataProvider(CrmContext context, IMapper mapper, ILogger<OrderDataProvider> logger)
         {
-
+            _context = context;
+            _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<Paged<Order>> GetAllAsync(QuerySet query)
@@ -30,8 +35,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-            var orders = QueryListWithManualInclude(source, query);
+            var orders = source.ForPage(query).AsEnumerable();
 
             var mappedOrders = _mapper.Map<IEnumerable<Order>>(orders);
 
@@ -66,7 +70,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            var orders = QueryListWithManualInclude(source, query);
+            var orders = source.ForPage(query).AsEnumerable();
 
             var mappedOrders = _mapper.Map<IEnumerable<Order>>(orders);
 
@@ -214,15 +218,9 @@ namespace Rollvolet.CRM.DataProviders
             var source = _context.Orders.Where(where);
 
             if (query != null)
-            {
                 source = source.Include(query);
-                // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-                return await QueryWithManualIncludeAsync(source, query);
-            }
-            else
-            {
-                return await source.FirstOrDefaultAsync();
-            }
+
+            return await source.FirstOrDefaultAsync();
         }
     }
 }

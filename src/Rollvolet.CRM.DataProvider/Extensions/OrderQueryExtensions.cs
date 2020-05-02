@@ -78,6 +78,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             var selectors = new Dictionary<string, Expression<Func<Order, object>>>();
 
             selectors.Add("customer", c => c.Customer);
+            selectors.Add("building", c => c.Building);
+            selectors.Add("contact", c => c.Contact);
             selectors.Add("offer", c => c.Offer);
             selectors.Add("invoice", c => c.Invoice);
             selectors.Add("vat-rate", c => c.VatRate);
@@ -89,13 +91,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("customer.honorific-prefix", null);
             selectors.Add("deposit-invoices", null);
             selectors.Add("invoicelines.vat-rate", null);
-
-            // The selectors below won't work since we're not able to define the relationship in CrmContext
-            // They are manually mapped in the DataProvider
-            // selectors.Add("building", c => c.Building);
-            // selectors.Add("contact", c => c.Contact);
-            selectors.Add("building", null);
-            selectors.Add("contact", null);
 
             return source.Include<Order>(querySet, selectors);
         }
@@ -168,41 +163,31 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             if (buildingFilters.Count() > 0)
             {
-                var predicate = PredicateBuilder.New<CaseTuple<Order>>(true);
-
                 if (querySet.Filter.Fields.ContainsKey("building.name"))
                 {
                     var filterValue = querySet.Filter.Fields["building.name"].TextSearch();
-                    predicate.And(c => EF.Functions.Like(c.Building.SearchName, filterValue));
+                    source = source.Where(c => EF.Functions.Like(c.Building.SearchName, filterValue));
                 }
 
                 if (querySet.Filter.Fields.ContainsKey("building.postal-code"))
                 {
                     var filterValue = querySet.Filter.Fields["building.postal-code"].FilterWildcard();
-                    predicate.And(c => EF.Functions.Like(c.Building.EmbeddedPostalCode, filterValue));
+                    source = source.Where(c => EF.Functions.Like(c.Building.EmbeddedPostalCode, filterValue));
                 }
 
                 if (querySet.Filter.Fields.ContainsKey("building.city"))
                 {
                     var filterValue = querySet.Filter.Fields["building.city"].FilterWildcard();
-                    predicate.And(c => EF.Functions.Like(c.Building.EmbeddedCity, filterValue));
+                    source = source.Where(c => EF.Functions.Like(c.Building.EmbeddedCity, filterValue));
                 }
 
                 if (querySet.Filter.Fields.ContainsKey("building.street"))
                 {
                     var filterValue = querySet.Filter.Fields["building.street"].FilterWildcard();
-                    predicate.And(c => EF.Functions.Like(c.Building.Address1, filterValue)
+                    source = source.Where(c => EF.Functions.Like(c.Building.Address1, filterValue)
                                             || EF.Functions.Like(c.Building.Address2, filterValue)
                                             || EF.Functions.Like(c.Building.Address3, filterValue));
                 }
-
-                source = source.Join(
-                    context.Buildings,
-                    r => new { Number = r.RelativeBuildingId, CustomerId = r.CustomerId },
-                    b => new { Number = (int?) b.Number, CustomerId = (int?) b.CustomerId },
-                    (r, b) => new CaseTuple<Order> { Source = r, Building = b }
-                ).Where(predicate)
-                .Select(x => x.Source);
             }
 
             return source;

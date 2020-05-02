@@ -14,6 +14,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("ID")]
         public int Number { get; set; } // the public ID for Customer ; the relative number for Contact / Building
 
+        [Column("ParentID")]
+        public int CustomerId { get; set; } // the ID of the Customer for Contact / Building
+
         [Column("AanspreekID")]
         public int? HonorificPrefixId { get; set; }
 
@@ -67,6 +70,7 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("RegistratieDatum")]
         public DateTime Created { get; set; }
+
 
         // Included resources
         public HonorificPrefix HonorificPrefix { get; set; }

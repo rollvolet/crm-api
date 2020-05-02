@@ -14,6 +14,10 @@ namespace Rollvolet.CRM.DataProvider.Extensions
         {
             if (querySet.Include.Fields.Contains("intervention.customer"))
                 source = source.Include(x => x.Intervention).ThenInclude(x => x.Customer);
+            if (querySet.Include.Fields.Contains("intervention.building"))
+                source = source.Include(x => x.Intervention).ThenInclude(x => x.Building);
+            if (querySet.Include.Fields.Contains("intervention.contact"))
+                source = source.Include(x => x.Intervention).ThenInclude(x => x.Contact);
 
             var selectors = new Dictionary<string, Expression<Func<PlanningEvent, object>>>();
 
@@ -21,12 +25,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             // dummy entries for resources that are already included
             selectors.Add("intervention.customer", null);
-
-            // The selectors below won't work since we're not able to define the relationship in CrmContext
-            // They are manually mapped in the DataProvider
-            // selectors.Add("building", c => c.Building);
-            // selectors.Add("contact", c => c.Contact);
             selectors.Add("intervention.building", null);
+            selectors.Add("intervention.contact", null);
 
             return source.Include<PlanningEvent>(querySet, selectors);
         }

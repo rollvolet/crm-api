@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.DataProvider.Extensions;
-using Rollvolet.CRM.DataProvider.Models;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -83,83 +81,9 @@ namespace Rollvolet.CRM.DataProviders
                                                                                                 .Include(x => x.Intervention);
 
             if (query != null)
-            {
                 source = source.Include(query);
-                // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-                return await QueryWithManualIncludeAsync(source, query);
-            }
-            else
-            {
-                return await source.FirstOrDefaultAsync();
-            }
-        }
 
-        // TODO similar code is duplicated in the CaseDataProvider
-        private async Task<DataProvider.Models.PlanningEvent> QueryWithManualIncludeAsync(IQueryable<DataProvider.Models.PlanningEvent> source, QuerySet query)
-        {
-            if (query.Include.Fields.Contains("intervention.building")  || query.Include.Fields.Contains("intervention.contact"))
-            {
-                var joinedSource = JoinBuildingAndContact(source);
-                var triplet = await joinedSource.FirstOrDefaultAsync();
-
-                if (triplet != null)
-                    return EmbedBuildingAndContact(triplet);
-                else
-                    return default(DataProvider.Models.PlanningEvent);
-            }
-            else
-            {
-                return await source.FirstOrDefaultAsync();
-            }
-        }
-
-        // TODO this method is duplicated in CaseDataProvider
-        private IQueryable<CaseTriplet<DataProvider.Models.PlanningEvent>> JoinBuildingAndContact(IQueryable<DataProvider.Models.PlanningEvent> source)
-        {
-            return source.GroupJoin(
-                    _context.Buildings.Include(b => b.HonorificPrefix),
-                    s => new { CustomerId = s.Intervention.CustomerId, Number = s.Intervention.RelativeBuildingId },
-                    b => new { CustomerId = (int?) b.CustomerId, Number = (int?) b.Number },
-                    (s, b) => new { Source = s, Buildings = b }
-                ).SelectMany(
-                    t => t.Buildings.DefaultIfEmpty(),
-                    (t, b) => new { Source = t.Source, Building = b }
-                ).GroupJoin(
-                    _context.Contacts.Include(c => c.HonorificPrefix),
-                    t => new { CustomerId = t.Source.Intervention.CustomerId, Number = t.Source.Intervention.RelativeContactId },
-                    c => new { CustomerId = (int?) c.CustomerId, Number = (int?) c.Number },
-                    (t, c) => new { Source = t.Source, Building = t.Building, Contacts = c }
-                ).SelectMany(
-                    u => u.Contacts.DefaultIfEmpty(),
-                    (u, c) => new CaseTriplet<DataProvider.Models.PlanningEvent> { Source = u.Source, Building = u.Building, Contact = c}
-                );
-        }
-
-        private DataProvider.Models.PlanningEvent EmbedBuildingAndContact(CaseTriplet<DataProvider.Models.PlanningEvent> triplet)
-        {
-            var item = triplet.Source;
-
-            if (item != null) {
-                item.Intervention.Building = triplet.Building;
-                item.Intervention.Contact = triplet.Contact;
-            }
-
-            return item;
-        }
-
-        private IEnumerable<DataProvider.Models.PlanningEvent> EmbedBuildingAndContact(IEnumerable<CaseTriplet<DataProvider.Models.PlanningEvent>> triplets)
-        {
-            var items = new List<DataProvider.Models.PlanningEvent>();
-
-            foreach(var triplet in triplets)
-            {
-                var item = triplet.Source;
-                item.Intervention.Building = triplet.Building;
-                item.Intervention.Contact = triplet.Contact;
-                items.Add(item);
-            }
-
-            return items;
+            return await source.FirstOrDefaultAsync();
         }
     }
 }

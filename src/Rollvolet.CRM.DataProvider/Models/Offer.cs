@@ -83,20 +83,14 @@ namespace Rollvolet.CRM.DataProvider.Models
         // [Column("ProduktId")]
 
 
-
         // Include resources
         public Request Request { get; set; }
         public Customer Customer { get; set; }
+        public Building Building { get; set; }
+        public Contact Contact { get; set; }
         public VatRate VatRate { get; set; }
         public Order Order { get; set; }
         public IEnumerable<Offerline> Offerlines { get; set; }
-
-
-        // Manually included resources
-        [NotMapped]
-        public Building Building { get; set; }
-        [NotMapped]
-        public Contact Contact { get; set; }
 
 
         // Embedded properties

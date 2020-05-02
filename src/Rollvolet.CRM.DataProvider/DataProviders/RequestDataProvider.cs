@@ -15,11 +15,17 @@ using System;
 
 namespace Rollvolet.CRM.DataProviders
 {
-    public class RequestDataProvider : CaseRelatedDataProvider<DataProvider.Models.Request>, IRequestDataProvider
+    public class RequestDataProvider : IRequestDataProvider
     {
-        public RequestDataProvider(CrmContext context, IMapper mapper, ILogger<RequestDataProvider> logger) : base(context, mapper, logger)
-        {
+        private readonly CrmContext _context;
+        private readonly IMapper _mapper;
+        private readonly ILogger _logger;
 
+        public RequestDataProvider(CrmContext context, IMapper mapper, ILogger<RequestDataProvider> logger)
+        {
+            _context = context;
+            _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<Paged<Request>> GetAllAsync(QuerySet query)
@@ -30,8 +36,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-            var requests = QueryListWithManualInclude(source, query);
+            var requests = source.ForPage(query).AsEnumerable();
 
             var mappedRequests = _mapper.Map<IEnumerable<Request>>(requests);
 
@@ -182,7 +187,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            var requests = QueryListWithManualInclude(source, query);
+            var requests = source.ForPage(query).AsEnumerable();
 
             var mappedRequests = _mapper.Map<IEnumerable<Request>>(requests);
 
@@ -206,15 +211,9 @@ namespace Rollvolet.CRM.DataProviders
             var source = (IQueryable<DataProvider.Models.Request>) _context.Requests.Where(where).Include(r => r.Visit); // required inclusion to embed properties in domain object
 
             if (query != null)
-            {
                 source = source.Include(query);
-                // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-                return await QueryWithManualIncludeAsync(source, query);
-            }
-            else
-            {
-                return await source.FirstOrDefaultAsync();
-            }
+
+            return await source.FirstOrDefaultAsync();
         }
 
         private async Task EmbedCityAsync(DataProvider.Models.Request request)

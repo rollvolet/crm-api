@@ -108,6 +108,8 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         // Include resources
         public Customer Customer { get; set; }
+        public Building Building { get; set; }
+        public Contact Contact { get; set; }
         public Order Order { get; set; }
         public Intervention Intervention { get; set; }
         public VatRate VatRate { get; set; }
@@ -117,12 +119,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public IEnumerable<Invoiceline> Invoicelines { get; set; }
         public IEnumerable<DepositInvoiceHub> DepositInvoiceHubs { get; set; } // only set on normal invoices
         public DepositInvoiceHub MainInvoiceHub { get; set; } // only set on deposit invoices
-
-        // Manually included resources
-        [NotMapped]
-        public Building Building { get; set; }
-        [NotMapped]
-        public Contact Contact { get; set; }
 
 
 

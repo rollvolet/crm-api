@@ -15,11 +15,17 @@ using System;
 
 namespace Rollvolet.CRM.DataProviders
 {
-    public class InterventionDataProvider : CaseRelatedDataProvider<DataProvider.Models.Intervention>, IInterventionDataProvider
+    public class InterventionDataProvider : IInterventionDataProvider
     {
-        public InterventionDataProvider(CrmContext context, IMapper mapper, ILogger<InterventionDataProvider> logger) : base(context, mapper, logger)
-        {
+        private readonly CrmContext _context;
+        private readonly IMapper _mapper;
+        private readonly ILogger _logger;
 
+        public InterventionDataProvider(CrmContext context, IMapper mapper, ILogger<InterventionDataProvider> logger)
+        {
+            _context = context;
+            _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<Paged<Intervention>> GetAllAsync(QuerySet query)
@@ -29,8 +35,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-            var interventions = QueryListWithManualInclude(source, query);
+            var interventions = source.ForPage(query).AsEnumerable();
 
             var mappedInterventions = _mapper.Map<IEnumerable<Intervention>>(interventions);
 
@@ -177,7 +182,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            var interventions = QueryListWithManualInclude(source, query);
+            var interventions = source.ForPage(query).AsEnumerable();
 
             var mappedInterventions = _mapper.Map<IEnumerable<Intervention>>(interventions);
 
@@ -201,15 +206,9 @@ namespace Rollvolet.CRM.DataProviders
             var source = (IQueryable<DataProvider.Models.Intervention>) _context.Interventions.Where(where);
 
             if (query != null)
-            {
                 source = source.Include(query);
-                // EF Core doesn't support relationships with a derived type so we have to embed the related resource manually
-                return await QueryWithManualIncludeAsync(source, query);
-            }
-            else
-            {
-                return await source.FirstOrDefaultAsync();
-            }
+
+            return await source.FirstOrDefaultAsync();
         }
 
         private async Task<DataProvider.Models.PlanningEvent> CreatePlanningEventAsync(DataProvider.Models.Intervention interventionRecord)
