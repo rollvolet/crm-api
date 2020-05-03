@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.APIContracts.DTO.Orders
@@ -10,11 +9,9 @@ namespace Rollvolet.CRM.APIContracts.DTO.Orders
         public IRelationship Customer { get; set; }
         public IRelationship Building { get; set; }
         public IRelationship Contact { get; set; }
-        [JsonProperty("vat-rate")]
         public IRelationship VatRate { get; set; }
         public IRelationship Invoicelines { get; set; }
         public IRelationship Deposits { get; set; }
-        [JsonProperty("deposit-invoices")]
         public IRelationship DepositInvoices { get; set; }
         public IRelationship Interventions { get; set; }
     }

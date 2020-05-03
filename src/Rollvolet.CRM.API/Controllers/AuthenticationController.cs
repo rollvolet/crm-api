@@ -5,10 +5,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Rollvolet.CRM.APIContracts.DTO;
+using Rollvolet.CRM.APIContracts.DTO.AuthenticationTokens;
 using Rollvolet.CRM.API.Configuration;
 using System.Net.Http;
+using System.Text.Json;
+using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.API.Controllers
 {
@@ -17,6 +18,10 @@ namespace Rollvolet.CRM.API.Controllers
         private AuthenticationConfiguration _authenticationConfiguration;
         private readonly ILogger _logger;
         private HttpClient _httpClient;
+
+        private readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions {
+            PropertyNamingPolicy = new JsonApiNamingPolicy()
+        };
 
         public AuthenticationController(IOptions<AuthenticationConfiguration> authenticationConfiguration,
             Narato.Correlations.Http.Interfaces.IHttpClientFactory httpClientFactory, ILogger<AuthenticationController> logger)
@@ -53,7 +58,7 @@ namespace Rollvolet.CRM.API.Controllers
             }
             else
             {
-                return Ok(JsonConvert.DeserializeObject<AuthenticationTokenResponseDto>(responseString));
+                return Ok(JsonSerializer.Deserialize<AuthenticationTokenResponseDto>(responseString, jsonSerializerOptions));
             }
 
         }
@@ -86,7 +91,7 @@ namespace Rollvolet.CRM.API.Controllers
             }
             else
             {
-                return Ok(JsonConvert.DeserializeObject<AuthenticationTokenResponseDto>(responseString));
+                return Ok(JsonSerializer.Deserialize<AuthenticationTokenResponseDto>(responseString, jsonSerializerOptions));
             }
         }
 

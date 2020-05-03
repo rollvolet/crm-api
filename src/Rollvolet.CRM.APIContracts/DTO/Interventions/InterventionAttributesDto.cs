@@ -1,5 +1,4 @@
 using System;
-using Newtonsoft.Json;
 
 namespace Rollvolet.CRM.APIContracts.DTO.Interventions
 {
@@ -8,9 +7,7 @@ namespace Rollvolet.CRM.APIContracts.DTO.Interventions
         public DateTime? Date { get; set; }
         public string Description { get; set; }
         public string Comment { get; set; }
-        [JsonProperty("cancellation-date")]
         public DateTime? CancellationDate { get; set; }
-        [JsonProperty("cancellation-reason")]
         public string CancellationReason { get; set; }
     }
 }

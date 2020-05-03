@@ -24,12 +24,12 @@ using Rollvolet.CRM.API.Configuration;
 using Rollvolet.CRM.Domain.Contracts.MsGraph;
 using Rollvolet.CRM.DataProvider.MsGraph;
 using Rollvolet.CRM.Domain.Configuration;
-using Newtonsoft.Json;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.Graph;
 using Rollvolet.CRM.DataProvider.MsGraph.Authentication;
+using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.API
 {
@@ -75,13 +75,6 @@ namespace Rollvolet.CRM.API
             });
             mapperConfiguration.AssertConfigurationIsValid();
             services.AddSingleton(sp => mapperConfiguration.CreateMapper());
-
-            JsonConvert.DefaultSettings = () =>
-            {
-                var settings = new JsonSerializerSettings();
-                settings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                return settings;
-            };
 
             services.AddSingleton<IExceptionToActionResultMapper, ExceptionToActionResultMapper>();
             services.AddTransient<ICustomerDataProvider, CustomerDataProvider>();
@@ -159,9 +152,8 @@ namespace Rollvolet.CRM.API
             services.AddControllers((opt) => {
                 opt.Filters.Add(typeof(ExceptionHandlerFilter));
                 opt.UseCentralRoutePrefix(new RouteAttribute("api"));
-            }).AddNewtonsoftJson((jsonOpt) => {
-                // TODO convert to new JSON in .Net Core 3.1
-                jsonOpt.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+            }).AddJsonOptions((opt) => {
+                opt.JsonSerializerOptions.PropertyNamingPolicy = new JsonApiNamingPolicy();
             });
         }
 

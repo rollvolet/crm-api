@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.APIContracts.DTO
@@ -9,9 +8,7 @@ namespace Rollvolet.CRM.APIContracts.DTO
         {
             public int Id { get; set; }
             public short Type { get; set; }
-            [JsonProperty("last-name")]
             public string LastName { get; set; }
-            [JsonProperty("first-name")]
             public string FirstName { get; set; }
             public string Initials { get; set; }
             public string Comment { get; set; }
@@ -21,7 +18,6 @@ namespace Rollvolet.CRM.APIContracts.DTO
 
         public class RelationshipsDto
         {
-            [JsonProperty("working-hours")]
             public IRelationship WorkingHours { get; set; }
             public IRelationship Interventions { get; set; }
         }

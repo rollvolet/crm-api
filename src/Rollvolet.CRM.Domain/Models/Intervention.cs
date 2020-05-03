@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Rollvolet.CRM.Domain.Models.Interfaces;
 
 namespace Rollvolet.CRM.Domain.Models

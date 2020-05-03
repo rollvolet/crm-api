@@ -1,5 +1,4 @@
 using System;
-using Newtonsoft.Json;
 
 namespace Rollvolet.CRM.APIContracts.DTO.Buildings
 {
@@ -9,7 +8,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Buildings
         public string Address1 { get; set; }
         public string Address2 { get; set; }
         public string Address3 { get; set; }
-        [JsonProperty("postal-code")]
         public string PostalCode { get; set; }
         public string City { get; set; }
         public string Prefix { get; set; }
@@ -17,11 +15,8 @@ namespace Rollvolet.CRM.APIContracts.DTO.Buildings
         public string Email { get; set; }
         public string Email2 { get; set; }
         public string Url { get; set; }
-        [JsonProperty("print-prefix")]
         public bool PrintPrefix { get; set; }
-        [JsonProperty("print-suffix")]
         public bool PrintSuffix { get; set; }
-        [JsonProperty("print-in-front")]
         public bool PrintInFront { get; set; }
         public string Comment { get; set; }
         public int Number { get; set; }

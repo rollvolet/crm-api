@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
@@ -17,7 +18,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<ErrorNotification> CreateAsync(ErrorNotification errorNotification)
         {
             await Task.Run( () => {
-                var json = Newtonsoft.Json.JsonConvert.SerializeObject(errorNotification);
+                var json = JsonSerializer.Serialize(errorNotification);
                _logger.LogError("{Error}", json);
             });
             return errorNotification;

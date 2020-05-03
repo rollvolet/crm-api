@@ -1,4 +1,4 @@
-namespace Rollvolet.CRM.APIContracts.DTO
+namespace Rollvolet.CRM.APIContracts.DTO.AuthenticationTokens
 {
     public class AuthenticationTokenRequestDto
     {

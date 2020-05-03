@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.APIContracts.DTO.Buildings
@@ -7,7 +6,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Buildings
     {
         public OneRelationship Country { get; set; }
         public OneRelationship Language { get; set; }
-        [JsonProperty("honorific-prefix")]
         public OneRelationship HonorificPrefix { get; set; }
         public ManyRelationship Telephones { get; set; }
         public OneRelationship Customer { get; set; }

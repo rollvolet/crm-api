@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.APIContracts.DTO.Offers
@@ -10,7 +9,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Offers
         public OneRelationship Customer { get; set; }
         public OneRelationship Building { get; set; }
         public OneRelationship Contact { get; set; }
-        [JsonProperty("vat-rate")]
         public OneRelationship VatRate { get; set; }
         public ManyRelationship Offerlines { get; set; }
     }
