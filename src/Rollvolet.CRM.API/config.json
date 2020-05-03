@@ -2,12 +2,11 @@
   "DatabaseConfiguration": {
     "ConnectionString": ""
   },
-  "Authentication": {
-    "ClientId": "",
-    "ClientSecret": "",
-    "BaseUri": "",
+  "AzureAd": {
+    "Instance": "",
     "TenantId": "",
-    "RedirectUri": ""
+    "ClientId": "",
+    "ClientSecret": ""
   },
   "Calendar": {
     "KlantenbezoekCalendarId": "",

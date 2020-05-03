@@ -51,8 +51,7 @@ namespace Rollvolet.CRM.API
                     // options.EnableSensitiveDataLogging(); // Remove for production
                 });
 
-            // TODO merge AzureAd and Authentication configuration blocks
-            services.Configure<AuthenticationConfiguration>(Configuration.GetSection("Authentication"));
+            services.Configure<AuthenticationConfiguration>(Configuration.GetSection("AzureAd"));
             services.Configure<CalendarConfiguration>(Configuration.GetSection("Calendar"));
             services.Configure<DocumentGenerationConfiguration>(Configuration.GetSection("DocumentGeneration"));
             services.Configure<AccountancyConfiguration>(Configuration.GetSection("Accountancy"));

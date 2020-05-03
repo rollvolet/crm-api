@@ -30,14 +30,13 @@ namespace Rollvolet.CRM.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetTokenAsync([FromBody] AuthenticationTokenRequestDto requestDto)
         {
-            var path = $"{_authenticationConfiguration.BaseUri}/{_authenticationConfiguration.TenantId}/oauth2/v2.0/token";
+            var path = $"{_authenticationConfiguration.Instance}/{_authenticationConfiguration.TenantId}/oauth2/v2.0/token";
             var form = new Dictionary<string, string>();
             form.Add("grant_type", "authorization_code");
             form.Add("client_id", _authenticationConfiguration.ClientId);
-            form.Add("code", requestDto.AuthorizationCode);
-            form.Add("redirect_uri", _authenticationConfiguration.RedirectUri);
             form.Add("client_secret", _authenticationConfiguration.ClientSecret);
-            form.Add("scope", requestDto.Scope);
+            form.Add("code", requestDto.AuthorizationCode);
+            form.Add("redirect_uri", requestDto.RedirectUri);            form.Add("scope", requestDto.Scope);
 
             var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
 
@@ -63,13 +62,13 @@ namespace Rollvolet.CRM.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> RefreshTokenAsync([FromBody] AuthenticationTokenRefreshRequestDto requestDto)
         {
-            var path = $"{_authenticationConfiguration.BaseUri}/{_authenticationConfiguration.TenantId}/oauth2/v2.0/token";
+            var path = $"{_authenticationConfiguration.Instance}/{_authenticationConfiguration.TenantId}/oauth2/v2.0/token";
             var form = new Dictionary<string, string>();
             form.Add("grant_type", "refresh_token");
             form.Add("client_id", _authenticationConfiguration.ClientId);
+            form.Add("client_secret", _authenticationConfiguration.ClientSecret);
             form.Add("refresh_token", requestDto.RefreshToken);
             form.Add("redirect_uri", requestDto.RedirectUri);
-            form.Add("client_secret", _authenticationConfiguration.ClientSecret);
             form.Add("scope", requestDto.Scope);
 
             var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
