@@ -30,6 +30,7 @@ using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.Graph;
 using Rollvolet.CRM.DataProvider.MsGraph.Authentication;
 using Rollvolet.CRM.APIContracts.JsonApi;
+using System;
 
 namespace Rollvolet.CRM.API
 {
@@ -48,7 +49,7 @@ namespace Rollvolet.CRM.API
             services.AddDbContextPool<CrmContext>(
                 options => {
                     options.UseSqlServer(Configuration["DatabaseConfiguration:ConnectionString"]);
-                    // options.EnableSensitiveDataLogging(); // Remove for production
+                    options.EnableSensitiveDataLogging(); // Remove for production
                 });
 
             services.Configure<AuthenticationConfiguration>(Configuration.GetSection("AzureAd"));
@@ -154,6 +155,7 @@ namespace Rollvolet.CRM.API
                 opt.UseCentralRoutePrefix(new RouteAttribute("api"));
             }).AddJsonOptions((opt) => {
                 opt.JsonSerializerOptions.PropertyNamingPolicy = new JsonApiNamingPolicy();
+                opt.JsonSerializerOptions.Converters.Add(new IRelationshipConverter());
             });
         }
 
