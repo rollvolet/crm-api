@@ -73,65 +73,75 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Customer> GetByRequestIdAsync(int requestId)
         {
-            var customer = await _context.Requests.Where(r => r.Id == requestId).Select(r => r.Customer).Include(e => e.Memo).FirstOrDefaultAsync();
+            var customerNumber = await _context.Requests.Where(r => r.Id == requestId).Select(r => r.CustomerId).FirstOrDefaultAsync();
 
-            if (customer == null)
+            if (customerNumber == null)
             {
                 _logger.LogError($"No customer found for request id {requestId}");
                 throw new EntityNotFoundException();
             }
+
+            var customer = await FindByNumberAsync((int) customerNumber);
 
             return _mapper.Map<Customer>(customer);
         }
 
         public async Task<Customer> GetByInterventionIdAsync(int interventionId)
         {
-            var customer = await _context.Interventions.Where(r => r.Id == interventionId).Select(r => r.Customer).Include(e => e.Memo).FirstOrDefaultAsync();
+            var customerNumber = await _context.Interventions.Where(r => r.Id == interventionId).Select(r => r.CustomerId).FirstOrDefaultAsync();
 
-            if (customer == null)
+            if (customerNumber == null)
             {
                 _logger.LogError($"No customer found for intervention id {interventionId}");
                 throw new EntityNotFoundException();
             }
+
+            var customer = await FindByNumberAsync((int) customerNumber);
 
             return _mapper.Map<Customer>(customer);
         }
 
         public async Task<Customer> GetByOfferIdAsync(int offerId)
         {
-            var customer = await _context.Offers.Where(r => r.Id == offerId).Select(r => r.Customer).Include(e => e.Memo).FirstOrDefaultAsync();
+            var customerNumber = await _context.Offers.Where(r => r.Id == offerId).Select(r => r.CustomerId).FirstOrDefaultAsync();
 
-            if (customer == null)
+            if (customerNumber == null)
             {
                 _logger.LogError($"No customer found for offer id {offerId}");
                 throw new EntityNotFoundException();
             }
+
+            var customer = await FindByNumberAsync((int) customerNumber);
 
             return _mapper.Map<Customer>(customer);
         }
 
         public async Task<Customer> GetByOrderIdAsync(int orderId)
         {
-            var customer = await _context.Orders.Where(r => r.Id == orderId).Select(r => r.Customer).Include(e => e.Memo).FirstOrDefaultAsync();
+            var customerNumber = await _context.Orders.Where(r => r.Id == orderId).Select(r => r.CustomerId).FirstOrDefaultAsync();
 
-            if (customer == null)
+            if (customerNumber == null)
             {
                 _logger.LogError($"No customer found for order id {orderId}");
                 throw new EntityNotFoundException();
             }
+
+            var customer = await FindByNumberAsync((int) customerNumber);
 
             return _mapper.Map<Customer>(customer);
         }
 
         public async Task<Customer> GetByInvoiceIdAsync(int invoiceId)
         {
-            var customer = await _context.Invoices.Where(r => r.Id == invoiceId).Select(r => r.Customer).Include(e => e.Memo).FirstOrDefaultAsync();
+            var customerNumber = await _context.Invoices.Where(r => r.Id == invoiceId).Select(r => r.CustomerId).FirstOrDefaultAsync();
 
-            if (customer == null)
+            if (customerNumber == null)
             {
                 _logger.LogError($"No customer found for invoice id {invoiceId}");
                 throw new EntityNotFoundException();
             }
+
+            var customer = await FindByNumberAsync((int) customerNumber);
 
             return _mapper.Map<Customer>(customer);
         }
