@@ -6,6 +6,7 @@ using Rollvolet.CRM.Domain.Exceptions;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("[controller]")]
     [Authorize]
     public class CalendarsController : ControllerBase

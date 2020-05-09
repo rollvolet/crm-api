@@ -9,6 +9,7 @@ using Rollvolet.CRM.Domain.Managers.Interfaces;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("way-of-entries")]
     [Authorize]
     public class WayOfEntriesController : ControllerBase

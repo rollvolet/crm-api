@@ -13,6 +13,7 @@ using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("invoice-supplements")]
     [Authorize]
     public class InvoiceSupplementsController : ControllerBase

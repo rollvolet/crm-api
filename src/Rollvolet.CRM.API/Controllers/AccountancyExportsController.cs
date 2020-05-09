@@ -12,6 +12,7 @@ using Rollvolet.CRM.APIContracts.DTO.AccountancyExports;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("accountancy-exports")]
     [Authorize]
     public class AccountancyExportsController : ControllerBase

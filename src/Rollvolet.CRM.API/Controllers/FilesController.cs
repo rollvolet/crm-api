@@ -9,6 +9,7 @@ using Rollvolet.CRM.Domain.Managers.Interfaces;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("[controller]")]
     [AllowAnonymous]
     public class FilesController : ControllerBase

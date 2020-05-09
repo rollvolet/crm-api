@@ -22,6 +22,7 @@ using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("[controller]")]
     [Authorize]
     public class OffersController : ControllerBase

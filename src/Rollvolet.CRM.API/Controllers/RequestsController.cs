@@ -20,6 +20,7 @@ using Rollvolet.CRM.APIContracts.DTO.Interventions;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("[controller]")]
     [Authorize]
     public class RequestsController : ControllerBase

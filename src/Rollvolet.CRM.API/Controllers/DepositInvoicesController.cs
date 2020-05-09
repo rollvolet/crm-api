@@ -20,6 +20,7 @@ using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("deposit-invoices")]
     [Authorize]
     public class DepositInvoicesController : ControllerBase

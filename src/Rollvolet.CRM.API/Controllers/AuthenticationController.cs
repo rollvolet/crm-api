@@ -13,6 +13,7 @@ using Rollvolet.CRM.APIContracts.JsonApi;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     public class AuthenticationController : ControllerBase
     {
         private AuthenticationConfiguration _authenticationConfiguration;

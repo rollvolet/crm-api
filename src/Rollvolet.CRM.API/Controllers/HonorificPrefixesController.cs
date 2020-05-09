@@ -9,6 +9,7 @@ using Rollvolet.CRM.Domain.Managers.Interfaces;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("honorific-prefixes")]
     [Authorize]
     public class HonorificPrefixesController : ControllerBase

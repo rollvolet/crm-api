@@ -14,6 +14,7 @@ using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("planning-events")]
     [Authorize]
     public class PlanningEventsController : ControllerBase

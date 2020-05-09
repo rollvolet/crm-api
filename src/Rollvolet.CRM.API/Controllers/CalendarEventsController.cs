@@ -10,6 +10,7 @@ using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("calendar-events")]
     [Authorize]
     public class CalendarEventsController : ControllerBase

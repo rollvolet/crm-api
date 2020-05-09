@@ -11,6 +11,7 @@ using Rollvolet.CRM.Domain.Managers.Interfaces;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("vat-rates")]
     [Authorize]
     public class VatRatesController : ControllerBase

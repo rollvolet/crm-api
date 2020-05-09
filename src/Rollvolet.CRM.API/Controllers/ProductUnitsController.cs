@@ -9,6 +9,7 @@ using Rollvolet.CRM.Domain.Managers.Interfaces;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("product-units")]
     [Authorize]
     public class ProductUnitsController : ControllerBase

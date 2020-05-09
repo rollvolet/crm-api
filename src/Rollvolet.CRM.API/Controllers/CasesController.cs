@@ -7,6 +7,7 @@ using Rollvolet.CRM.Domain.Managers.Interfaces;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("[controller]")]
     [Authorize]
     public class CasesController : ControllerBase

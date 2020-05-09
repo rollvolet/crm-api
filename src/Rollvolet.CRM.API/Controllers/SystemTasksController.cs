@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("system-tasks")]
     [Authorize]
     public class SystemTasksController : ControllerBase

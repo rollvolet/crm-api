@@ -22,6 +22,7 @@ using Rollvolet.CRM.APIContracts.DTO.Orders;
 
 namespace Rollvolet.CRM.API.Controllers
 {
+    [ApiController]
     [Route("[controller]")]
     [Authorize]
     public class InterventionsController : ControllerBase
