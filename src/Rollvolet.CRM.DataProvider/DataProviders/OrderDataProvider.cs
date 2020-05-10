@@ -104,7 +104,7 @@ namespace Rollvolet.CRM.DataProviders
 
             if (order == null)
             {
-                _logger.LogError($"No offer found for offer-id {offerId}");
+                _logger.LogError($"No order found for offer-id {offerId}");
                 throw new EntityNotFoundException();
             }
 

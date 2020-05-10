@@ -83,7 +83,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsyncAsync([FromBody] ResourceRequest<DepositInvoiceRequestDto> resource)
+        public async Task<IActionResult> CreateAsync([FromBody] ResourceRequest<DepositInvoiceRequestDto> resource)
         {
             if (resource.Data.Type != "deposit-invoices") return StatusCode(409);
 
@@ -98,7 +98,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateAsyncAsync(string id, [FromBody] ResourceRequest<DepositInvoiceRequestDto> resource)
+        public async Task<IActionResult> UpdateAsync(string id, [FromBody] ResourceRequest<DepositInvoiceRequestDto> resource)
         {
             if (resource.Data.Type != "deposit-invoices" || resource.Data.Id != id) return StatusCode(409);
 

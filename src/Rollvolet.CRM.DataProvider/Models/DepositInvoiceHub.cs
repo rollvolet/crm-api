@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using Rollvolet.CRM.DataProvider.Models.Interfaces;
 
 namespace Rollvolet.CRM.DataProvider.Models
 {
@@ -9,13 +7,13 @@ namespace Rollvolet.CRM.DataProvider.Models
     {
         [Column("VoorschotId")]
         public int Id { get; set; }
-        
+
         [Column("KlantID")]
         public int? CustomerId { get; set; }
 
         [Column("OfferteID")]
         public int? OrderId { get; set; }
-        
+
         [Column("VoorschotFactuurID")]
         public int? DepositInvoiceId { get; set; }
 
@@ -30,6 +28,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Customer Customer { get; set; }
         public Order Order { get; set; }
         public Invoice DepositInvoice { get; set; }
-        public Invoice Invoice { get; set; }         
+        public Invoice Invoice { get; set; }
     }
 }
