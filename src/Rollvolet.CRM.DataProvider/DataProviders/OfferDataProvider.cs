@@ -141,6 +141,7 @@ namespace Rollvolet.CRM.DataProviders
             offerRecord.Currency = "EUR";
 
             _context.Offers.Add(offerRecord);
+            await _context.SaveChangesAsync();
             // EF Core requires to create an order record as well because offer and order share the same underlying SQL table
             var orderRecord = _mapper.Map<DataProvider.Models.Order>(offerRecord);
             _context.Orders.Add(orderRecord);
