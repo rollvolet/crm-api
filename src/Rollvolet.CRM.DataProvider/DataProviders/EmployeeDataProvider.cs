@@ -28,7 +28,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
-            var employees = await Task.Run(() => _context.Employees.OrderBy(c => c.FirstName).AsEnumerable());
+            var employees = await _context.Employees.OrderBy(c => c.FirstName).ToListAsync();
 
             return _mapper.Map<IEnumerable<Employee>>(employees);
         }
@@ -119,7 +119,7 @@ namespace Rollvolet.CRM.DataProviders
                                     .Include(o => o.Employee)
                                     .Select(o => o.Employee);
 
-            var employees = source.ForPage(query).AsEnumerable();
+            var employees = await source.ForPage(query).ToListAsync();
 
             var mappedEmployees = _mapper.Map<IEnumerable<Employee>>(employees);
 

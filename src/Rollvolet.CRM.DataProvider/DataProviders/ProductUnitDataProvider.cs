@@ -26,7 +26,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<IEnumerable<ProductUnit>> GetAllAsync()
         {
-            var productUnits = await Task.Run(() => _context.ProductUnits.OrderBy(c => c.Id).AsEnumerable());
+            var productUnits = await _context.ProductUnits.OrderBy(c => c.Id).ToListAsync();
 
             return _mapper.Map<IEnumerable<ProductUnit>>(productUnits);
         }

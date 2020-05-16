@@ -26,7 +26,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<IEnumerable<WayOfEntry>> GetAllAsync()
         {
-            var wayOfEntries = await Task.Run(() => _context.WayOfEntries.OrderBy(c => c.Position).AsEnumerable());
+            var wayOfEntries = await _context.WayOfEntries.OrderBy(c => c.Position).ToListAsync();
 
             return _mapper.Map<IEnumerable<WayOfEntry>>(wayOfEntries);
         }

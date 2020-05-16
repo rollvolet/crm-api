@@ -35,7 +35,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            var orders = source.ForPage(query).AsEnumerable();
+            var orders = await source.ForPage(query).ToListAsync();
 
             var mappedOrders = _mapper.Map<IEnumerable<Order>>(orders);
 
@@ -70,7 +70,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            var orders = source.ForPage(query).AsEnumerable();
+            var orders = await source.ForPage(query).ToListAsync();
 
             var mappedOrders = _mapper.Map<IEnumerable<Order>>(orders);
 

@@ -26,7 +26,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<IEnumerable<Country>> GetAllAsync()
         {
-            var countries = await Task.Run(() => _context.Countries.OrderBy(c => c.Name).AsEnumerable());
+            var countries = await _context.Countries.OrderBy(c => c.Name).ToListAsync();
 
             return _mapper.Map<IEnumerable<Country>>(countries);
         }

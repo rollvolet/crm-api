@@ -26,7 +26,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<IEnumerable<TelephoneType>> GetAllAsync()
         {
-            var telephoneTypes = await Task.Run(() => _context.TelephoneTypes.OrderBy(c => c.Name).AsEnumerable());
+            var telephoneTypes = await _context.TelephoneTypes.OrderBy(c => c.Name).ToListAsync();
 
             return _mapper.Map<IEnumerable<TelephoneType>>(telephoneTypes);
         }

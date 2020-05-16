@@ -37,7 +37,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query, true)
                             .Filter(query, _context, true);
 
-            var invoices = source.ForPage(query).AsEnumerable();
+            var invoices = await source.ForPage(query).ToListAsync();
 
             var mappedInvoices = _mapper.Map<IEnumerable<DepositInvoice>>(invoices);
 
@@ -72,7 +72,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query, true)
                             .Filter(query, _context, true);
 
-            var invoices = source.ForPage(query).AsEnumerable();
+            var invoices = await source.ForPage(query).ToListAsync();
 
             var mappedInvoices = _mapper.Map<IEnumerable<DepositInvoice>>(invoices);
 
@@ -94,7 +94,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query, true)
                             .Filter(query, _context, true);
 
-            var invoices = source.ForPage(query).AsEnumerable();
+            var invoices = await source.ForPage(query).ToListAsync();
 
             var mappedInvoices = _mapper.Map<IEnumerable<DepositInvoice>>(invoices);
 
@@ -116,7 +116,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query, true)
                             .Filter(query, _context, true);
 
-            var invoices = source.ForPage(query).AsEnumerable();
+            var invoices = await source.ForPage(query).ToListAsync();
 
             var mappedInvoices = _mapper.Map<IEnumerable<DepositInvoice>>(invoices);
 

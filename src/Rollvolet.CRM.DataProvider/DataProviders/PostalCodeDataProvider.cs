@@ -26,7 +26,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<IEnumerable<PostalCode>> GetAllAsync()
         {
-            var postalCodes = await Task.Run(() => _context.PostalCodes.OrderBy(c => c.Code).AsEnumerable());
+            var postalCodes = await _context.PostalCodes.OrderBy(c => c.Code).ToListAsync();
 
             return _mapper.Map<IEnumerable<PostalCode>>(postalCodes);
         }

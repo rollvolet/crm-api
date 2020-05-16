@@ -42,7 +42,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query);
 
-            var contacts = source.ForPage(query).AsEnumerable();
+            var contacts = await source.ForPage(query).ToListAsync();
 
             var count = await source.CountAsync();
 

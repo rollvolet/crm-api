@@ -50,7 +50,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Filter(query)
                             .ForPage(query);
 
-            var invoiceSupplements = source.AsEnumerable();
+            var invoiceSupplements = await source.ToListAsync();
 
             var count = await source.CountAsync();
 

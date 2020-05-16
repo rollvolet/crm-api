@@ -48,7 +48,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Include(query)
                             .Sort(query);
 
-            var offerlines = source.ForPage(query).AsEnumerable();
+            var offerlines = await source.ForPage(query).ToListAsync();
             var mappedOfferlines = _mapper.Map<IEnumerable<Offerline>>(offerlines);
 
             var count = await source.CountAsync();

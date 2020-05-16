@@ -38,7 +38,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query);
 
-            var accountancyExports = source.ForPage(query).AsEnumerable();
+            var accountancyExports = await source.ForPage(query).ToListAsync();
 
             var mappedAccountancyExports = _mapper.Map<IEnumerable<AccountancyExport>>(accountancyExports);
 

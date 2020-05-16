@@ -26,7 +26,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<IEnumerable<Payment>> GetAllAsync()
         {
-            var payments = await Task.Run(() => _context.Payments.OrderBy(c => c.Name).AsEnumerable());
+            var payments = await _context.Payments.OrderBy(c => c.Name).ToListAsync();
 
             return _mapper.Map<IEnumerable<Payment>>(payments);
         }

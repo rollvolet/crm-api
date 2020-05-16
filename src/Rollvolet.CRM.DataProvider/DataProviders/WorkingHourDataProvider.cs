@@ -49,7 +49,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query);
 
-            var workingHours = source.ForPage(query).AsEnumerable();
+            var workingHours = await source.ForPage(query).ToListAsync();
 
             var count = await source.CountAsync();
 

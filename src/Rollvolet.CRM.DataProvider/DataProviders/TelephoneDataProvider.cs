@@ -119,7 +119,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Include(query)
                             .Sort(query);
 
-            var telephones = source.ForPage(query).AsEnumerable();
+            var telephones = await source.ForPage(query).ToListAsync();
 
             var count = await source.CountAsync();
 

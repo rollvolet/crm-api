@@ -46,7 +46,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            var invoices = source.ForPage(query).AsEnumerable();
+            var invoices = await source.ForPage(query).ToListAsync();
 
             var mappedInvoices = _mapper.Map<IEnumerable<Invoice>>(invoices);
 
@@ -157,10 +157,17 @@ namespace Rollvolet.CRM.DataProviders
             if (invoiceRecord.OrderId != null)
             {
                 // Attach all deposits and deposit invoices of the order to the new invoice
-                _context.DepositInvoices.Where(hub => hub.OrderId == invoiceRecord.OrderId)
-                                        .Update(h => new DataProvider.Models.DepositInvoiceHub() { InvoiceId = invoiceRecord.Id });
-                _context.Deposits.Where(d => d.OrderId == invoiceRecord.OrderId)
-                                        .Update(d => new DataProvider.Models.Deposit() { InvoiceId = invoiceRecord.Id });
+                var depositInvoices = await _context.DepositInvoices.Where(hub => hub.OrderId == invoiceRecord.OrderId).ToListAsync();
+                foreach (var depositInvoice in depositInvoices)
+                {
+                    depositInvoice.InvoiceId = invoiceRecord.Id;
+                }
+                var deposits = await _context.Deposits.Where(d => d.OrderId == invoiceRecord.OrderId).ToListAsync();
+                foreach (var deposit in deposits)
+                {
+                    deposit.InvoiceId = invoiceRecord.Id;
+                }
+                await _context.SaveChangesAsync();
             }
 
             return _mapper.Map<Invoice>(invoiceRecord);
@@ -203,12 +210,18 @@ namespace Rollvolet.CRM.DataProviders
             var invoice = await FindByIdAsync(id);
 
             if (invoice != null)
-        {
+            {
                 // Detach all deposits and deposit invoices. They are still attached to the order
-                _context.DepositInvoices.Where(hub => hub.InvoiceId == invoice.Id)
-                                        .Update(h => new DataProvider.Models.DepositInvoiceHub() { InvoiceId = null });
-                _context.Deposits.Where(d => d.InvoiceId == invoice.Id)
-                                        .Update(d => new DataProvider.Models.Deposit() { InvoiceId = null });
+                var depositInvoices = await _context.DepositInvoices.Where(hub => hub.OrderId == invoice.OrderId).ToListAsync();
+                foreach (var depositInvoice in depositInvoices)
+                {
+                    depositInvoice.InvoiceId = null;
+                }
+                var deposits = await _context.Deposits.Where(d => d.OrderId == invoice.OrderId).ToListAsync();
+                foreach (var deposit in deposits)
+                {
+                    deposit.InvoiceId = null;
+                }
 
                 _context.Invoices.Remove(invoice);
                 await _context.SaveChangesAsync();
@@ -238,7 +251,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            var invoices = source.ForPage(query).AsEnumerable();
+            var invoices = await source.ForPage(query).ToListAsync();
 
             var mappedInvoices = _mapper.Map<IEnumerable<Invoice>>(invoices);
 

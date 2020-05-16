@@ -26,7 +26,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<IEnumerable<Language>> GetAllAsync()
         {
-            var languages = await Task.Run(() => _context.Languages.OrderBy(c => c.Name).AsEnumerable());
+            var languages = await _context.Languages.OrderBy(c => c.Name).ToListAsync();
 
             return _mapper.Map<IEnumerable<Language>>(languages);
         }

@@ -42,7 +42,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query);
 
-            var buildings = source.ForPage(query).AsEnumerable();
+            var buildings = await source.ForPage(query).ToListAsync();
 
             var count = await source.CountAsync();
 

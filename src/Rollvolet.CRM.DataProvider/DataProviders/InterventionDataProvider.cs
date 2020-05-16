@@ -35,7 +35,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            var interventions = source.ForPage(query).AsEnumerable();
+            var interventions = await source.ForPage(query).ToListAsync();
 
             var mappedInterventions = _mapper.Map<IEnumerable<Intervention>>(interventions);
 
@@ -182,7 +182,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Sort(query)
                             .Filter(query, _context);
 
-            var interventions = source.ForPage(query).AsEnumerable();
+            var interventions = await source.ForPage(query).ToListAsync();
 
             var mappedInterventions = _mapper.Map<IEnumerable<Intervention>>(interventions);
 

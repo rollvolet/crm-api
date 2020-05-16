@@ -26,7 +26,7 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<IEnumerable<HonorificPrefix>> GetAllAsync()
         {
-            var honorificPrefixes = await Task.Run(() => _context.HonorificPrefixes.OrderBy(c => c.Id).AsEnumerable());
+            var honorificPrefixes = await _context.HonorificPrefixes.OrderBy(c => c.Id).ToListAsync();
 
             return _mapper.Map<IEnumerable<HonorificPrefix>>(honorificPrefixes);
         }

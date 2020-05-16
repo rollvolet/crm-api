@@ -48,7 +48,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Include(query)
                             .Sort(query);
 
-            var invoicelines = source.ForPage(query).AsEnumerable();
+            var invoicelines = await source.ForPage(query).ToListAsync();
             var mappedInvoicelines = _mapper.Map<IEnumerable<Invoiceline>>(invoicelines);
 
             var count = await source.CountAsync();
@@ -68,7 +68,7 @@ namespace Rollvolet.CRM.DataProviders
                             .Include(query)
                             .Sort(query);
 
-            var invoicelines = source.ForPage(query).AsEnumerable();
+            var invoicelines = await source.ForPage(query).ToListAsync();
             var mappedInvoicelines = _mapper.Map<IEnumerable<Invoiceline>>(invoicelines);
 
             var count = await source.CountAsync();
