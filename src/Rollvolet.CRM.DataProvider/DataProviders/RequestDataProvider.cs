@@ -78,33 +78,28 @@ namespace Rollvolet.CRM.DataProviders
             return await GetAllWhereAsync(r => r.CustomerId == customerId && r.RelativeBuildingId == relativeBuildingId, query);
         }
 
-        public async Task<Request> GetByOfferIdAsync(int offerId)
+        public async Task<Request> GetByOfferIdAsync(int offerId, QuerySet query = null)
         {
-            var request = await _context.Offers.Where(r => r.Id == offerId)
-                                    .Select(r => r.Request)
-                                    .Include(r => r.Visit)  // required inclusion to embed properties in domain object
-                                    .FirstOrDefaultAsync();
+            var requestId = await _context.Offers.Where(r => r.Id == offerId).Select(r => r.RequestId).FirstOrDefaultAsync();
 
-            if (request == null)
+            if (requestId == null)
             {
                 _logger.LogError($"No request found for offer id {offerId}");
                 throw new EntityNotFoundException();
             }
 
+            var request = await FindByIdAsync((int) requestId, query);
             return _mapper.Map<Request>(request);
         }
 
-        public async Task<Request> GetByOrderIdAsync(int orderId)
+        public async Task<Request> GetByOrderIdAsync(int orderId, QuerySet query = null)
         {
-            return await GetByOfferIdAsync(orderId);
+            return await GetByOfferIdAsync(orderId, query);
         }
 
         public async Task<Request> GetByInterventionIdAsync(int interventionId)
         {
-            var request = await _context.Interventions.Where(r => r.Id == interventionId)
-                                    .Select(r => r.FollowUpRequest)
-                                    .Include(r => r.Visit)  // required inclusion to embed properties in domain object
-                                    .FirstOrDefaultAsync();
+            var request = await FindWhereAsync(r => r.OriginId == interventionId);
 
             if (request == null)
             {
