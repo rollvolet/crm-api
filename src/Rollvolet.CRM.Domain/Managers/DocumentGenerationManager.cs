@@ -958,6 +958,12 @@ namespace Rollvolet.CRM.Domain.Managers
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 DateTimeZoneHandling = DateTimeZoneHandling.Utc
             });
+            // Replace Newtonsoft.JSON with System.Text.Json once circular references can be ignored
+            // See https://github.com/dotnet/runtime/issues/30820
+            // var json = JsonSerializer.Serialize(data, new JsonSerializerOptions {
+            //     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            // });
+
             _logger.LogDebug("Generated JSON for request body: {0}", json);
 
             return new StringContent(json, Encoding.UTF8, "application/json");
