@@ -21,6 +21,7 @@ using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.APIContracts.DTO.Invoicelines;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
 using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
+using Rollvolet.CRM.Business.Models;
 
 namespace Rollvolet.CRM.API.Mappers
 {
@@ -53,6 +54,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<VatRate, EmptyRelationshipsDto>,
                                             ITypeConverter<Payment, EmptyRelationshipsDto>,
                                             ITypeConverter<AccountancyExport, EmptyRelationshipsDto>,
+                                            ITypeConverter<MonthlySalesEntry, EmptyRelationshipsDto>,
                                             ITypeConverter<ErrorNotification, EmptyRelationshipsDto>
     {
         CustomerRelationshipsDto ITypeConverter<Customer, CustomerRelationshipsDto>.Convert(Customer source, CustomerRelationshipsDto destination, ResolutionContext context)
@@ -315,6 +317,11 @@ namespace Rollvolet.CRM.API.Mappers
         }
 
         EmptyRelationshipsDto ITypeConverter<ErrorNotification, EmptyRelationshipsDto>.Convert(ErrorNotification source, EmptyRelationshipsDto destination, ResolutionContext context)
+        {
+            return new EmptyRelationshipsDto();
+        }
+
+        EmptyRelationshipsDto ITypeConverter<MonthlySalesEntry, EmptyRelationshipsDto>.Convert(MonthlySalesEntry source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
         }

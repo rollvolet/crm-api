@@ -1,7 +1,5 @@
-using System;
 using Microsoft.AspNetCore.Http;
 using Rollvolet.CRM.APIContracts.JsonApi;
-using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.Domain.Models.Interfaces;
 

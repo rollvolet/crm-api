@@ -30,7 +30,10 @@ using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.Graph;
 using Rollvolet.CRM.DataProvider.MsGraph.Authentication;
 using Rollvolet.CRM.APIContracts.JsonApi;
-using System;
+using Rollvolet.CRM.Business.Managers.Interfaces;
+using Rollvolet.CRM.Business.Managers;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Rollvolet.CRM.API
 {
@@ -51,6 +54,9 @@ namespace Rollvolet.CRM.API
                     options.UseSqlServer(Configuration["DatabaseConfiguration:ConnectionString"]);
                     options.EnableSensitiveDataLogging(); // Remove for production
                 });
+
+            var connectionString = Configuration["DatabaseConfiguration:ConnectionString"];
+            services.AddTransient<IDbConnection>(sp => new SqlConnection(connectionString));
 
             services.Configure<AuthenticationConfiguration>(Configuration.GetSection("AzureAd"));
             services.Configure<CalendarConfiguration>(Configuration.GetSection("Calendar"));
@@ -149,6 +155,7 @@ namespace Rollvolet.CRM.API
             services.AddTransient<ISequenceDataProvider, SequenceDataProvider>();
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
             services.AddTransient<IIncludedCollector, IncludedCollector>();
+            services.AddTransient<IReportManager, ReportManager>();
 
             services.AddControllers((opt) => {
                 opt.Filters.Add(typeof(ExceptionHandlerFilter));

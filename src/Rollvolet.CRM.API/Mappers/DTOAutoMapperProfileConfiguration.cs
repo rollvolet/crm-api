@@ -23,6 +23,8 @@ using Rollvolet.CRM.APIContracts.DTO.ProductUnits;
 using Rollvolet.CRM.APIContracts.DTO.Invoicelines;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
 using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
+using Rollvolet.CRM.Business.Models;
+using Rollvolet.CRM.APIContracts.DTO.Reports;
 
 namespace Rollvolet.CRM.API.Mappers
 {
@@ -1035,6 +1037,17 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
+
+            // Monthly Sales Entry mappings
+            CreateMap<MonthlySalesEntry, MonthlySalesEntryDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => $"{src.Month}/{src.Year}"))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "monthly-sales-entries"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<MonthlySalesEntry, MonthlySalesEntryAttributesDto>().ReverseMap();
+
+            CreateMap<MonthlySalesEntry, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
 
             // Error notification mappings

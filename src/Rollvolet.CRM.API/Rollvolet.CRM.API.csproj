@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Rollvolet.CRM.APIContracts\Rollvolet.CRM.APIContracts.csproj" />
+    <ProjectReference Include="..\Rollvolet.CRM.Business\Rollvolet.CRM.Business.csproj" />
     <ProjectReference Include="..\Rollvolet.CRM.Domain\Rollvolet.CRM.Domain.csproj" />
     <ProjectReference Include="..\Rollvolet.CRM.DataProvider\Rollvolet.CRM.DataProvider.csproj" />
   </ItemGroup>
