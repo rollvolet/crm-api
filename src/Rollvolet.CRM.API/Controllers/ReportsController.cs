@@ -29,6 +29,7 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("revenue")]
+        [Authorize(Roles = "board")]
         public async Task<IActionResult> GetMonthlySalesReport([FromQuery] int? fromYear, [FromQuery] int? toYear)
         {
             if (toYear == null)

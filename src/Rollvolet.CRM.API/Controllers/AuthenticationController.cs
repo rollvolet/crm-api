@@ -42,7 +42,8 @@ namespace Rollvolet.CRM.API.Controllers
             form.Add("client_id", _authenticationConfiguration.ClientId);
             form.Add("client_secret", _authenticationConfiguration.ClientSecret);
             form.Add("code", requestDto.AuthorizationCode);
-            form.Add("redirect_uri", requestDto.RedirectUri);            form.Add("scope", requestDto.Scope);
+            form.Add("redirect_uri", requestDto.RedirectUri);
+            form.Add("scope", requestDto.Scope);
 
             var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
 
