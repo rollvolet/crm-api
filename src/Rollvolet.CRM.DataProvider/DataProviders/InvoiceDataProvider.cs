@@ -311,6 +311,8 @@ namespace Rollvolet.CRM.DataProviders
             invoice.Amount = amount; // sum of base amount + all invoice supplements - all deposit invoices
             invoice.Vat = vat; // vat calculated on amount
             invoice.TotalAmount = amount + vat; // gross amount
+
+            _logger.LogDebug("Recalculated amount of invoice {0}: amount {1}} ; vat {2} ; total amount {3}", invoice.Id, invoice.Amount, invoice.Vat, invoice.TotalAmount);
         }
     }
 }

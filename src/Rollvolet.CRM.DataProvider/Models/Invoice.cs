@@ -51,7 +51,7 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("BasisBedrag")]
         // in Access: amount copied from order for invoice
-        // Now amount entered by user for deposit invoice and isolated invoice. Else null.
+        // Now amount entered by user for deposit invoice. Else null since the amount is expressed by invoicelines.
         public double? BaseAmount { get; set; }
 
         // Amount, Vat and TotalAmount are kept in sync by InvoiceDataProvider.CalculateAmountAndVatAsync
