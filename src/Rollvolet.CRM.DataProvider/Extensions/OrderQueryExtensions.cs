@@ -61,6 +61,11 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 source = source.Where(e => e.Invoice == null);
             }
 
+            if (querySet.Filter.Fields.ContainsKey("canceled") && querySet.Filter.Fields["canceled"] == "false")
+            {
+                source = source.Where(e => !e.Canceled);
+            }
+
             return source;
         }
 
