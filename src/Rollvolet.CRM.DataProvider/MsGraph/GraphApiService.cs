@@ -143,7 +143,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return calendarEvent;
         }
 
-        public async Task <PlanningEvent> EnrichPlanningEventAsync(PlanningEvent planningEvent)
+        public async Task<PlanningEvent> EnrichPlanningEventAsync(PlanningEvent planningEvent)
         {
             try
             {
@@ -185,7 +185,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
         {
             if (planningEvent.Date != null)
             {
-                var calendarItem = await GenerateCreateCalendarItemAsync(planningEvent);
+                var calendarItem = await GenerateCalendarItemAsync(planningEvent);
                 try
                 {
                     calendarItem = await _client.Users[_calendarConfig.PlanningCalendarId].Calendar.Events.Request().AddAsync(calendarItem);
@@ -214,8 +214,8 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             {
                 if (planningEvent.Date != null)
                 {
-                    planningEvent = await EnrichPlanningEventAsync(planningEvent);
-                    var updatedCalendarItem = requiresReschedule ? await GenerateCreateCalendarItemAsync(planningEvent) : await GenerateUpdateCalendarItemAsync(planningEvent);
+                    // planningEvent = await EnrichPlanningEventAsync(planningEvent);
+                    var updatedCalendarItem = await GenerateCalendarItemAsync(planningEvent);
 
                     try
                     {
@@ -434,7 +434,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return $"{period} {customer.Name} {address} ({calendarEvent.Request.Comment})";
         }
 
-        private async Task<Event> GenerateCreateCalendarItemAsync(PlanningEvent planningEvent)
+        private async Task<Event> GenerateCalendarItemAsync(PlanningEvent planningEvent)
         {
 
             var planningDate = (DateTime) planningEvent.Date;
@@ -460,15 +460,6 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                 End = end
             };
         }
-
-        private async Task<Event> GenerateUpdateCalendarItemAsync(PlanningEvent planningEvent)
-        {
-            return new Event
-            {
-                Subject = await GeneratePlanningEventSubjectAsync(planningEvent)
-            };
-        }
-
         private async Task<string> GeneratePlanningEventSubjectAsync(PlanningEvent planningEvent)
         {
             var period = FormatPeriodMessage(planningEvent.Period, planningEvent.FromHour, planningEvent.UntilHour);
