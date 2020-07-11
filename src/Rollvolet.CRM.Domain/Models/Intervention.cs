@@ -37,7 +37,7 @@ namespace Rollvolet.CRM.Domain.Models
                 {
                     var addressLines = string.Join(",", new string[3] { entity.Address1, entity.Address2, entity.Address3 }.Where(a => !String.IsNullOrEmpty(a)));
                     var address = $"{entity.PostalCode} {entity.City} ({addressLines})";
-                    return $"{Customer.Name} - {address} ** IR{Id} ({Comment})";
+                    return $"{Customer.Name} - {address} ** IR{Id} - {NbOfPersons}p";
                 }
                 else
                 {
