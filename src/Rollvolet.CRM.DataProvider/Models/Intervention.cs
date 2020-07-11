@@ -37,6 +37,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Comment")]
         public string Comment { get; set; }
 
+        [Column("NbOfPersons")]
+        public float? NbOfPersons { get; set; }
+
         [Column("CancellationDate")]
         public DateTime? CancellationDate { get; set; }
 
