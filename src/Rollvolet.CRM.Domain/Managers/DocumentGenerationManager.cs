@@ -569,6 +569,22 @@ namespace Rollvolet.CRM.Domain.Managers
             RemoveFile($"{_certificateUploadSourceLocation}{uploadFileName}");
         }
 
+        public async Task RecycleCertificateForInvoiceAsync(int invoiceId, int sourceInvoiceId, bool isDeposit)
+        {
+            try
+            {
+                var sourcePath = await FindReceivedCertificateFilePathAsync(sourceInvoiceId, isDeposit);
+                var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId);
+                _logger.LogInformation("Copying certificate of path {0} to path {1}", sourcePath, filePath);
+                File.Copy(sourcePath, filePath, true);
+            }
+            catch (EntityNotFoundException)
+            {
+                _logger.LogWarning("No file found for received certificate of invoice {0}. Cannot recycle certificate for invoice {1}", sourceInvoiceId, invoiceId);
+                throw new IllegalArgumentException("IllegalAttribute", "No certificate found to recycle");
+            }
+        }
+
         public async Task<FileStream> DownloadCertificateForInvoiceAsync(int invoiceId)
         {
             var filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
@@ -622,6 +638,22 @@ namespace Rollvolet.CRM.Domain.Managers
             UploadDocument(filePath, content);
 
             RemoveFile($"{_certificateUploadSourceLocation}{uploadFileName}");
+        }
+
+        public async Task RecycleCertificateForDepositInvoiceAsync(int invoiceId, int sourceInvoiceId, bool isDeposit)
+        {
+            try
+            {
+                var sourcePath = await FindReceivedCertificateFilePathAsync(sourceInvoiceId, isDeposit);
+                var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId);
+                _logger.LogInformation("Copying certificate of path {0} to path {1}", sourcePath, filePath);
+                File.Copy(sourcePath, filePath, true);
+            }
+            catch (EntityNotFoundException)
+            {
+                _logger.LogWarning("No file found for received certificate of invoice {0}. Cannot recycle certificate for deposit invoice {1}", sourceInvoiceId, invoiceId);
+                throw new IllegalArgumentException("IllegalAttribute", "No certificate found to recycle");
+            }
         }
 
         public async Task<FileStream> DownloadCertificateForDepositInvoiceAsync(int invoiceId)

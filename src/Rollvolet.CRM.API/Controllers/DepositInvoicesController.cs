@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -148,6 +149,16 @@ namespace Rollvolet.CRM.API.Controllers
                 await _documentGenerationManager.UploadCertificateForDepositInvoiceAsync(invoiceId, stream, file.FileName);
             }
 
+            return NoContent();
+        }
+
+        [HttpPost("{invoiceId}/certificate-recyclations")]
+        public async Task<IActionResult> RecycleCertificateAsync(int invoiceId, [FromBody] CertificateRecyclationDto body)
+        {
+            var sourceId = Int32.Parse(body.Id);
+            var isDeposit = body.Type == "deposit-invoices"; // type of the source invoice
+            await _documentGenerationManager.RecycleCertificateForDepositInvoiceAsync(invoiceId, sourceId, isDeposit);
+            // TODO return download location in Location header
             return NoContent();
         }
 

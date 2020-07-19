@@ -37,12 +37,14 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<FileStream> DownloadCertificateTemplateForInvoiceAsync(int invoiceId);
         Task DeleteCertificateTemplateForInvoiceAsync(int invoiceId);
         Task UploadCertificateForInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null);
+        Task RecycleCertificateForInvoiceAsync(int invoiceId, int sourceInvoiceId, bool isDeposit);
         Task<FileStream> DownloadCertificateForInvoiceAsync(int invoiceId);
         Task DeleteCertificateForInvoiceAsync(int invoiceId);
         Task CreateCertificateTemplateForDepositInvoiceAsync(int invoiceId);
         Task<FileStream> DownloadCertificateTemplateForDepositInvoiceAsync(int invoiceId);
         Task DeleteCertificateTemplateForDepositInvoiceAsync(int invoiceId);
         Task UploadCertificateForDepositInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null);
+        Task RecycleCertificateForDepositInvoiceAsync(int invoiceId, int sourceInvoiceId, bool isDeposit);
         Task<FileStream> DownloadCertificateForDepositInvoiceAsync(int invoiceId);
         Task DeleteCertificateForDepositInvoiceAsync(int invoiceId);
     }
