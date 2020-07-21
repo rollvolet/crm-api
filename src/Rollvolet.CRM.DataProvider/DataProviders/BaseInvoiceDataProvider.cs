@@ -46,7 +46,7 @@ namespace Rollvolet.CRM.DataProviders
             var source = BaseQuery().Where(where);
 
             if (query != null)
-                source = source.Include(query);
+                source = source.Include(query, isDepositInvoice);
 
             return await source.FirstOrDefaultAsync();
         }
