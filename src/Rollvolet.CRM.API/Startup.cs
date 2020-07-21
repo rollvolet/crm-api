@@ -163,6 +163,7 @@ namespace Rollvolet.CRM.API
             }).AddJsonOptions((opt) => {
                 opt.JsonSerializerOptions.PropertyNamingPolicy = new JsonApiNamingPolicy();
                 opt.JsonSerializerOptions.Converters.Add(new IRelationshipConverter());
+                opt.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
             });
         }
 
