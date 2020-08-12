@@ -34,6 +34,7 @@ using Rollvolet.CRM.Business.Managers.Interfaces;
 using Rollvolet.CRM.Business.Managers;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using Rollvolet.CRM.Domain.Contracts;
 
 namespace Rollvolet.CRM.API
 {
@@ -61,6 +62,7 @@ namespace Rollvolet.CRM.API
             services.Configure<AuthenticationConfiguration>(Configuration.GetSection("AzureAd"));
             services.Configure<CalendarConfiguration>(Configuration.GetSection("Calendar"));
             services.Configure<DocumentGenerationConfiguration>(Configuration.GetSection("DocumentGeneration"));
+            services.Configure<FileStorageConfiguration>(Configuration.GetSection("FileStorage"));
             services.Configure<AccountancyConfiguration>(Configuration.GetSection("Accountancy"));
 
             // Setup authentication using OAuth 2.0 auth code grant between frontend and backend
@@ -151,11 +153,17 @@ namespace Rollvolet.CRM.API
             services.AddTransient<ISystemTaskManager, SystemTaskManager>();
             services.AddTransient<ISystemTaskDataProvider, SystemTaskDataProvider>();
             services.AddTransient<IErrorNotificationManager, ErrorNotificationManager>();
-            services.AddTransient<IGraphApiService, GraphApiService>();
             services.AddTransient<ISequenceDataProvider, SequenceDataProvider>();
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
             services.AddTransient<IIncludedCollector, IncludedCollector>();
             services.AddTransient<IReportManager, ReportManager>();
+            services.AddTransient<IGraphApiCalendarService, GraphApiCalendarService>();
+
+            var fileStorageLocation = Configuration["FileStorage:Location"];
+            if (fileStorageLocation.ToLower() == "cloud")
+                services.AddTransient<IFileStorageService, GraphApiFileStorageService>();
+            else
+                services.AddTransient<IFileStorageService, LocalFileStorageService>();
 
             services.AddControllers((opt) => {
                 opt.Filters.Add(typeof(ExceptionHandlerFilter));

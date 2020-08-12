@@ -13,13 +13,13 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Rollvolet.CRM.Domain.Configuration;
+using Rollvolet.CRM.Domain.Contracts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Interfaces;
 using Rollvolet.CRM.Domain.Models.Query;
-using Rollvolet.CRM.Domain.Utils;
 
 namespace Rollvolet.CRM.Domain.Managers
 {
@@ -40,6 +40,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IVisitDataProvider _visitDataProvider;
         private readonly IEmployeeDataProvider _employeeDataProvider;
         private readonly HttpClient _httpClient;
+        private readonly IFileStorageService _fileStorageService;
         private readonly DocumentGenerationConfiguration _documentGenerationConfig;
         private readonly string _visitReportStorageLocation;
         private readonly string _interventionReportStorageLocation;
@@ -60,6 +61,7 @@ namespace Rollvolet.CRM.Domain.Managers
                                          IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDataProvider,
                                          IDepositInvoiceDataProvider depositInvoiceDataProvider, ITelephoneDataProvider telephoneDataProvider,
                                          IVisitDataProvider visitDataProvider, IEmployeeDataProvider employeeDataProvider,
+                                         IFileStorageService fileStorageService,
                                          IOptions<DocumentGenerationConfiguration> documentGenerationConfiguration,
                                          ILogger<DocumentGenerationManager> logger)
         {
@@ -76,20 +78,21 @@ namespace Rollvolet.CRM.Domain.Managers
             _visitDataProvider = visitDataProvider;
             _employeeDataProvider = employeeDataProvider;
             _httpClient = new HttpClient();
+            _fileStorageService = fileStorageService;
             _documentGenerationConfig = documentGenerationConfiguration.Value;
             _logger = logger;
 
-            _visitReportStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.VisitReportStorageLocation);
-            _interventionReportStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.InterventionReportStorageLocation);
-            _offerStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.OfferStorageLocation);
-            _orderStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.OrderStorageLocation);
-            _deliveryNoteStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.DeliveryNoteStorageLocation);
-            _invoiceStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.InvoiceStorageLocation);
-            _generatedProductionTicketStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.GeneratedProductionTicketStorageLocation);
-            _receivedProductionTicketStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.ReceivedProductionTicketStorageLocation);
-            _generatedCertificateStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.GeneratedCertificateStorageLocation);
-            _receivedCertificateStorageLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.ReceivedCertificateStorageLocation);
-            _certificateUploadSourceLocation = FileUtils.EnsureStorageDirectory(_documentGenerationConfig.CertificateUploadSourceLocation);
+            _visitReportStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.VisitReportStorageLocation);
+            _interventionReportStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.InterventionReportStorageLocation);
+            _offerStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.OfferStorageLocation);
+            _orderStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.OrderStorageLocation);
+            _deliveryNoteStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.DeliveryNoteStorageLocation);
+            _invoiceStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.InvoiceStorageLocation);
+            _generatedProductionTicketStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.GeneratedProductionTicketStorageLocation);
+            _receivedProductionTicketStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.ReceivedProductionTicketStorageLocation);
+            _generatedCertificateStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.GeneratedCertificateStorageLocation);
+            _receivedCertificateStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.ReceivedCertificateStorageLocation);
+            _certificateUploadSourceLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.CertificateUploadSourceLocation);
         }
 
         public async Task CreateAndStoreVisitReportAsync(int requestId)
@@ -139,23 +142,23 @@ namespace Rollvolet.CRM.Domain.Managers
             documentData.History = history;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/visit-report";
-            var filePath = ConstructVisitReportFilePath(request);
+            var fileDescriptor = await ConstructVisitReportFilePathAsync(request);
 
-            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            await GenerateAndStoreDocumentAsync(url, documentData, fileDescriptor);
         }
 
-        public async Task<FileStream> DownloadVisitReportAsync(int requestId)
+        public async Task<Stream> DownloadVisitReportAsync(int requestId)
         {
             var request = await _requestDataProvider.GetByIdAsync(requestId);
-            var filePath = ConstructVisitReportFilePath(request);
-            return DownloadDcument(filePath);
+            var fileDescriptor = await ConstructVisitReportFilePathAsync(request);
+            return await _fileStorageService.DownloadDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task DeleteVisitReportAsync(int requestId)
         {
             var request = await _requestDataProvider.GetByIdAsync(requestId);
-            var filePath = ConstructVisitReportFilePath(request);
-            RemoveFile(filePath);
+            var fileDescriptor = await ConstructVisitReportFilePathAsync(request);
+            await _fileStorageService.RemoveDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task CreateAndStoreInterventionReportAsync(int interventionId)
@@ -177,23 +180,23 @@ namespace Rollvolet.CRM.Domain.Managers
             documentData.Intervention = intervention;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/intervention-report";
-            var filePath = ConstructInterventionReportFilePath(intervention);
+            var fileDescriptor = await ConstructInterventionReportFilePathAsync(intervention);
 
-            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            await GenerateAndStoreDocumentAsync(url, documentData, fileDescriptor);
         }
 
-        public async Task<FileStream> DownloadInterventionReportAsync(int interventionId)
+        public async Task<Stream> DownloadInterventionReportAsync(int interventionId)
         {
             var intervention = await _interventionDataProvider.GetByIdAsync(interventionId);
-            var filePath = ConstructInterventionReportFilePath(intervention);
-            return DownloadDcument(filePath);
+            var fileDescriptor = await ConstructInterventionReportFilePathAsync(intervention);
+            return await _fileStorageService.DownloadDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task DeleteInterventionReportAsync(int interventionId)
         {
             var request = await _interventionDataProvider.GetByIdAsync(interventionId);
-            var filePath = ConstructInterventionReportFilePath(request);
-            RemoveFile(filePath);
+            var fileDescriptor = await ConstructInterventionReportFilePathAsync(request);
+            await _fileStorageService.RemoveDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task CreateAndStoreOfferDocumentAsync(int offerId)
@@ -214,23 +217,23 @@ namespace Rollvolet.CRM.Domain.Managers
             documentData.Visitor = visitorInitials;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/offer";
-            var filePath = ConstructOfferDocumentFilePath(offer);
+            var fileDescriptor = await ConstructOfferDocumentFilePathAsync(offer);
 
-            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            await GenerateAndStoreDocumentAsync(url, documentData, fileDescriptor);
         }
 
-        public async Task<FileStream> DownloadOfferDocumentAsync(int offerId)
+        public async Task<Stream> DownloadOfferDocumentAsync(int offerId)
         {
             var offer = await _offerDataProvider.GetByIdAsync(offerId);
-            var filePath = ConstructOfferDocumentFilePath(offer);
-            return DownloadDcument(filePath);
+            var fileDescriptor = await ConstructOfferDocumentFilePathAsync(offer);
+            return await _fileStorageService.DownloadDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task DeleteOfferDocumentAsync(int offerId)
         {
             var offer = await _offerDataProvider.GetByIdAsync(offerId);
-            var filePath = ConstructOfferDocumentFilePath(offer);
-            RemoveFile(filePath);
+            var fileDescriptor = await ConstructOfferDocumentFilePathAsync(offer);
+            await _fileStorageService.RemoveDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task CreateAndStoreOrderDocumentAsync(int orderId)
@@ -256,23 +259,23 @@ namespace Rollvolet.CRM.Domain.Managers
             documentData.Visitor = visitorInitials;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/order";
-            var filePath = ConstructOrderDocumentFilePath(order);
+            var fileDescriptor = await ConstructOrderDocumentFilePathAsync(order);
 
-            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            await GenerateAndStoreDocumentAsync(url, documentData, fileDescriptor);
         }
 
-        public async Task<FileStream> DownloadOrderDocumentAsync(int orderId)
+        public async Task<Stream> DownloadOrderDocumentAsync(int orderId)
         {
             var order = await _orderDataProvider.GetByIdAsync(orderId);
-            var filePath = ConstructOrderDocumentFilePath(order);
-            return DownloadDcument(filePath);
+            var fileDescriptor = await ConstructOrderDocumentFilePathAsync(order);
+            return await _fileStorageService.DownloadDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task DeleteOrderDocumentAsync(int orderId)
         {
             var order = await _orderDataProvider.GetByIdAsync(orderId);
-            var filePath = ConstructOrderDocumentFilePath(order);
-            RemoveFile(filePath);
+            var fileDescriptor = await ConstructOrderDocumentFilePathAsync(order);
+            await _fileStorageService.RemoveDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task CreateAndStoreDeliveryNoteAsync(int orderId)
@@ -298,23 +301,23 @@ namespace Rollvolet.CRM.Domain.Managers
             documentData.Visitor = visitorInitials;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/delivery-note";
-            var filePath = ConstructDeliveryNoteFilePath(order);
+            var fileDescriptor = await ConstructDeliveryNoteFilePathAsync(order);
 
-            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            await GenerateAndStoreDocumentAsync(url, documentData, fileDescriptor);
         }
 
-        public async Task<FileStream> DownloadDeliveryNoteAsync(int orderId)
+        public async Task<Stream> DownloadDeliveryNoteAsync(int orderId)
         {
             var order = await _orderDataProvider.GetByIdAsync(orderId);
-            var filePath = ConstructDeliveryNoteFilePath(order);
-            return DownloadDcument(filePath);
+            var fileDescriptor = await ConstructDeliveryNoteFilePathAsync(order);
+            return await _fileStorageService.DownloadDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task DeleteDeliveryNoteAsync(int orderId)
         {
             var order = await _orderDataProvider.GetByIdAsync(orderId);
-            var filePath = ConstructDeliveryNoteFilePath(order);
-            RemoveFile(filePath);
+            var fileDescriptor = await ConstructDeliveryNoteFilePathAsync(order);
+            await _fileStorageService.RemoveDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task CreateAndStoreProductionTicketTemplateAsync(int orderId)
@@ -341,36 +344,36 @@ namespace Rollvolet.CRM.Domain.Managers
             documentData.Visitor = visitorInitials;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/production-ticket";
-            var filePath = ConstructGeneratedProductionTicketFilePath(order);
+            var fileDescriptor = await ConstructGeneratedProductionTicketFilePathAsync(order);
 
-            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            await GenerateAndStoreDocumentAsync(url, documentData, fileDescriptor);
         }
 
-        public async Task<FileStream> DownloadProductionTicketTemplateAsync(int orderId)
+        public async Task<Stream> DownloadProductionTicketTemplateAsync(int orderId)
         {
             var order = await _orderDataProvider.GetByIdAsync(orderId);
-            var filePath = ConstructGeneratedProductionTicketFilePath(order);
-            return DownloadDcument(filePath);
+            var fileDescriptor = await ConstructGeneratedProductionTicketFilePathAsync(order);
+            return await _fileStorageService.DownloadDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task DeleteProductionTicketTemplateAsync(int orderId)
         {
             var order = await _orderDataProvider.GetByIdAsync(orderId);
-            var filePath = ConstructGeneratedProductionTicketFilePath(order);
-            RemoveFile(filePath);
+            var fileDescriptor = await ConstructGeneratedProductionTicketFilePathAsync(order);
+            await _fileStorageService.RemoveDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task UploadProductionTicketAsync(int orderId, Stream content)
         {
-            var filePath = await ConstructReceivedProductionTicketFilePathAsync(orderId);
-            _logger.LogDebug($"Uploading production ticket to {filePath}");
-            UploadDocument(filePath, content);
+            var fileDescriptor = await ConstructReceivedProductionTicketFilePathAsync(orderId);
+            _logger.LogDebug($"Uploading production ticket to {fileDescriptor.FilePath}");
+            await _fileStorageService.UploadDocumentAsync(fileDescriptor.Parent, fileDescriptor.FileName, content);
         }
 
-        public async Task<FileStream> DownloadProductionTicketAsync(int orderId)
+        public async Task<Stream> DownloadProductionTicketAsync(int orderId)
         {
             var filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
-            return DownloadDcument(filePath);
+            return await _fileStorageService.DownloadDocumentAsync(filePath);
         }
 
         public async Task DeleteProductionTicketAsync(int orderId)
@@ -378,7 +381,7 @@ namespace Rollvolet.CRM.Domain.Managers
             try
             {
                 var filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
-                RemoveFile(filePath);
+                await _fileStorageService.RemoveDocumentAsync(filePath);
             }
             catch (EntityNotFoundException)
             {
@@ -389,11 +392,11 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Stream> DownloadProductionTicketWithWatermarkAsync(int orderId)
         {
             var filePath = await FindReceivedProductionTicketFilePathAsync(orderId);
-            var file = DownloadDcument(filePath);
+            var file = await _fileStorageService.DownloadDocumentAsync(filePath);
             return await WatermarkProductionTicketAsync(file);
         }
 
-        private async Task<Stream> WatermarkProductionTicketAsync(FileStream productionTicketStream)
+        private async Task<Stream> WatermarkProductionTicketAsync(Stream productionTicketStream)
         {
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/production-ticket-watermark";
 
@@ -462,23 +465,23 @@ namespace Rollvolet.CRM.Domain.Managers
             documentData.Visitor = visitorInitials;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/invoice";
-            var filePath = ConstructInvoiceDocumentFilePath(invoice);
+            var fileDescriptor = await ConstructInvoiceDocumentFilePathAsync(invoice);
 
-            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            await GenerateAndStoreDocumentAsync(url, documentData, fileDescriptor);
         }
 
-        public async Task<FileStream> DownloadInvoiceDocumentAsync(int invoiceId)
+        public async Task<Stream> DownloadInvoiceDocumentAsync(int invoiceId)
         {
             var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
-            var filePath = ConstructInvoiceDocumentFilePath(invoice);
-            return DownloadDcument(filePath);
+            var fileDescriptor = await ConstructInvoiceDocumentFilePathAsync(invoice);
+            return await _fileStorageService.DownloadDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task DeleteInvoiceDocumentAsync(int invoiceId)
         {
             var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
-            var filePath = ConstructInvoiceDocumentFilePath(invoice);
-            RemoveFile(filePath);
+            var fileDescriptor = await ConstructInvoiceDocumentFilePathAsync(invoice);
+            await _fileStorageService.RemoveDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task CreateAndStoreDepositInvoiceDocumentAsync(int depositInvoiceId)
@@ -514,23 +517,23 @@ namespace Rollvolet.CRM.Domain.Managers
             documentData.Visitor = visitorInitials;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/deposit-invoice";
-            var filePath = ConstructInvoiceDocumentFilePath(depositInvoice);
+            var fileDescriptor = await ConstructInvoiceDocumentFilePathAsync(depositInvoice);
 
-            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            await GenerateAndStoreDocumentAsync(url, documentData, fileDescriptor);
         }
 
-        public async Task<FileStream> DownloadDepositInvoiceDocumentAsync(int depositInvoiceId)
+        public async Task<Stream> DownloadDepositInvoiceDocumentAsync(int depositInvoiceId)
         {
             var depositInvoice = await _depositInvoiceDataProvider.GetByIdAsync(depositInvoiceId);
-            var filePath = ConstructInvoiceDocumentFilePath(depositInvoice);
-            return DownloadDcument(filePath);
+            var fileDescriptor = await ConstructInvoiceDocumentFilePathAsync(depositInvoice);
+            return await _fileStorageService.DownloadDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task DeleteDepositInvoiceDocumentAsync(int depositInvoiceId)
         {
             var depositInvoice = await _depositInvoiceDataProvider.GetByIdAsync(depositInvoiceId);
-            var filePath = ConstructInvoiceDocumentFilePath(depositInvoice);
-            RemoveFile(filePath);
+            var fileDescriptor = await ConstructInvoiceDocumentFilePathAsync(depositInvoice);
+            await _fileStorageService.RemoveDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task CreateCertificateTemplateForInvoiceAsync(int invoiceId)
@@ -546,27 +549,25 @@ namespace Rollvolet.CRM.Domain.Managers
             await CreateCertificateAsync(invoice);
         }
 
-        public async Task<FileStream> DownloadCertificateTemplateForInvoiceAsync(int invoiceId)
+        public async Task<Stream> DownloadCertificateTemplateForInvoiceAsync(int invoiceId)
         {
             var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
-            var filePath = ConstructGeneratedCertificateFilePath(invoice);
-            return DownloadDcument(filePath);
+            var fileDescriptor = await ConstructGeneratedCertificateFilePathAsync(invoice);
+            return await _fileStorageService.DownloadDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task DeleteCertificateTemplateForInvoiceAsync(int invoiceId)
         {
             var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
-            var filePath = ConstructGeneratedCertificateFilePath(invoice);
-            RemoveFile(filePath);
+            var fileDescriptor = await ConstructGeneratedCertificateFilePathAsync(invoice);
+            await _fileStorageService.RemoveDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task UploadCertificateForInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null)
         {
-            var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId);
-            _logger.LogDebug($"Uploading certificate to {filePath}");
-            UploadDocument(filePath, content);
-
-            RemoveFile($"{_certificateUploadSourceLocation}{uploadFileName}");
+            var fileDescriptor = await ConstructReceivedCertificateFilePathAsync(invoiceId);
+            _logger.LogDebug($"Uploading certificate to {fileDescriptor.FilePath}");
+            await _fileStorageService.UploadDocumentAsync(fileDescriptor.Parent, fileDescriptor.FileName, content);
         }
 
         public async Task RecycleCertificateForInvoiceAsync(int invoiceId, int sourceInvoiceId, bool isDeposit)
@@ -574,9 +575,9 @@ namespace Rollvolet.CRM.Domain.Managers
             try
             {
                 var sourcePath = await FindReceivedCertificateFilePathAsync(sourceInvoiceId, isDeposit);
-                var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId);
-                _logger.LogInformation("Copying certificate of path {0} to path {1}", sourcePath, filePath);
-                File.Copy(sourcePath, filePath, true);
+                var fileDescriptor = await ConstructReceivedCertificateFilePathAsync(invoiceId);
+                _logger.LogInformation("Copying certificate of path {0} to path {1}", sourcePath, fileDescriptor.FilePath);
+                await _fileStorageService.CopyDocumentAsync(sourcePath, fileDescriptor.Parent, fileDescriptor.FileName);
             }
             catch (EntityNotFoundException)
             {
@@ -585,10 +586,10 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
-        public async Task<FileStream> DownloadCertificateForInvoiceAsync(int invoiceId)
+        public async Task<Stream> DownloadCertificateForInvoiceAsync(int invoiceId)
         {
             var filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
-            return DownloadDcument(filePath);
+            return await _fileStorageService.DownloadDocumentAsync(filePath);
         }
 
         public async Task DeleteCertificateForInvoiceAsync(int invoiceId)
@@ -596,7 +597,7 @@ namespace Rollvolet.CRM.Domain.Managers
             try
             {
                 var filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
-                RemoveFile(filePath);
+                await _fileStorageService.RemoveDocumentAsync(filePath);
             }
             catch (EntityNotFoundException)
             {
@@ -617,27 +618,25 @@ namespace Rollvolet.CRM.Domain.Managers
             await CreateCertificateAsync(depositInvoice);
         }
 
-        public async Task<FileStream> DownloadCertificateTemplateForDepositInvoiceAsync(int invoiceId)
+        public async Task<Stream> DownloadCertificateTemplateForDepositInvoiceAsync(int invoiceId)
         {
             var depositInvoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId);
-            var filePath = ConstructGeneratedCertificateFilePath(depositInvoice);
-            return DownloadDcument(filePath);
+            var fileDescriptor = await ConstructGeneratedCertificateFilePathAsync(depositInvoice);
+            return await _fileStorageService.DownloadDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task DeleteCertificateTemplateForDepositInvoiceAsync(int invoiceId)
         {
             var invoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId);
-            var filePath = ConstructGeneratedCertificateFilePath(invoice);
-            RemoveFile(filePath);
+            var fileDescriptor = await ConstructGeneratedCertificateFilePathAsync(invoice);
+            await _fileStorageService.RemoveDocumentAsync(fileDescriptor.FilePath);
         }
 
         public async Task UploadCertificateForDepositInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null)
         {
-            var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId, true);
-            _logger.LogDebug($"Uploading certificate to {filePath}");
-            UploadDocument(filePath, content);
-
-            RemoveFile($"{_certificateUploadSourceLocation}{uploadFileName}");
+            var fileDescriptor = await ConstructReceivedCertificateFilePathAsync(invoiceId, true);
+            _logger.LogDebug($"Uploading certificate to {fileDescriptor.FilePath}");
+            await _fileStorageService.UploadDocumentAsync(fileDescriptor.Parent, fileDescriptor.FileName, content);
         }
 
         public async Task RecycleCertificateForDepositInvoiceAsync(int invoiceId, int sourceInvoiceId, bool isDeposit)
@@ -645,9 +644,9 @@ namespace Rollvolet.CRM.Domain.Managers
             try
             {
                 var sourcePath = await FindReceivedCertificateFilePathAsync(sourceInvoiceId, isDeposit);
-                var filePath = await ConstructReceivedCertificateFilePathAsync(invoiceId);
-                _logger.LogInformation("Copying certificate of path {0} to path {1}", sourcePath, filePath);
-                File.Copy(sourcePath, filePath, true);
+                var fileDescriptor = await ConstructReceivedCertificateFilePathAsync(invoiceId);
+                _logger.LogInformation("Copying certificate of path {0} to path {1}", sourcePath, fileDescriptor.FilePath);
+                await _fileStorageService.CopyDocumentAsync(sourcePath, fileDescriptor.Parent, fileDescriptor.FileName);
             }
             catch (EntityNotFoundException)
             {
@@ -656,10 +655,10 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
-        public async Task<FileStream> DownloadCertificateForDepositInvoiceAsync(int invoiceId)
+        public async Task<Stream> DownloadCertificateForDepositInvoiceAsync(int invoiceId)
         {
             var filePath = await FindReceivedCertificateFilePathAsync(invoiceId, true);
-            return DownloadDcument(filePath);
+            return await _fileStorageService.DownloadDocumentAsync(filePath);
         }
 
         public async Task DeleteCertificateForDepositInvoiceAsync(int invoiceId)
@@ -667,7 +666,7 @@ namespace Rollvolet.CRM.Domain.Managers
             try
             {
                 var filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
-                RemoveFile(filePath);
+                await _fileStorageService.RemoveDocumentAsync(filePath);
             }
             catch (EntityNotFoundException)
             {
@@ -681,92 +680,73 @@ namespace Rollvolet.CRM.Domain.Managers
             documentData.Invoice = invoice;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/certificate";
-            var filePath = ConstructGeneratedCertificateFilePath(invoice);
+            var fileDescriptor = await ConstructGeneratedCertificateFilePathAsync(invoice);
 
-            await GenerateAndStoreDocumentAsync(url, documentData, filePath);
+            await GenerateAndStoreDocumentAsync(url, documentData, fileDescriptor);
         }
 
-        private string ConstructVisitReportFilePath(Request request)
+        private async Task<FileDescriptor> ConstructVisitReportFilePathAsync(Request request)
         {
             var year = request.RequestDate != null ? ((DateTime) request.RequestDate).Year : 0;
-            var directory = $"{_visitReportStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);
-
-            return $"{directory}AD{request.Id}.pdf";
+            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _visitReportStorageLocation);
+            return new FileDescriptor { Parent = directory, FileName = $"AD{request.Id}.pdf" };
         }
 
-        private string ConstructInterventionReportFilePath(Intervention intervention)
+        private async Task<FileDescriptor> ConstructInterventionReportFilePathAsync(Intervention intervention)
         {
             var year = intervention.Date != null ? ((DateTime) intervention.Date).Year : 0;
-            var directory = $"{_interventionReportStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);
-
-            return $"{directory}IR{intervention.Id}.pdf";
+            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _interventionReportStorageLocation);
+            return new FileDescriptor { Parent = directory, FileName = $"IR{intervention.Id}.pdf" };
         }
 
-        private string ConstructOfferDocumentFilePath(Offer offer)
+        private async Task<FileDescriptor> ConstructOfferDocumentFilePathAsync(Offer offer)
         {
             // Parse year from the offernumber, since the offerdate changes on each document generation
             // This will only work until 2099
             var year = $"20{int.Parse(offer.Number.Substring(0, 2)) - 10}";
-            var directory = $"{_offerStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);
-
+            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _offerStorageLocation);
             var number = $"{offer.Number.Substring(0, 8)}_${offer.Number.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
             var filename = _onlyAlphaNumeric.Replace($"{number}_{offer.DocumentVersion}", "");
-
-            return $"{directory}{filename}.pdf";
+            return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
-        private string ConstructOrderDocumentFilePath(Order order)
+        private async Task<FileDescriptor> ConstructOrderDocumentFilePathAsync(Order order)
         {
             var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
-            var directory = $"{_orderStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);
-
+            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _orderStorageLocation);
             var number = $"{order.OfferNumber.Substring(0, 8)}_${order.OfferNumber.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
             var filename = _onlyAlphaNumeric.Replace($"{number}", "");
-
-            return $"{directory}{filename}.pdf";
+            return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
-        private string ConstructDeliveryNoteFilePath(Order order)
+        private async Task<FileDescriptor> ConstructDeliveryNoteFilePathAsync(Order order)
         {
             var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
-            var directory = $"{_deliveryNoteStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);
-
+            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _deliveryNoteStorageLocation);
             var number = $"{order.OfferNumber.Substring(0, 8)}_${order.OfferNumber.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
             var filename = _onlyAlphaNumeric.Replace($"{number}", "");
-
-            return $"{directory}{filename}.pdf";
+            return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
-        private string ConstructGeneratedProductionTicketFilePath(Order order)
+        private async Task<FileDescriptor> ConstructGeneratedProductionTicketFilePathAsync(Order order)
         {
              var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
-            var directory = $"{_generatedProductionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);
-
+            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _generatedProductionTicketStorageLocation);
             var number = $"{order.OfferNumber.Substring(0, 8)}_${order.OfferNumber.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
             var filename = _onlyAlphaNumeric.Replace($"{number}", "");
-
-            return $"{directory}{filename}.pdf";
+            return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
-        private async Task<string> ConstructReceivedProductionTicketFilePathAsync(int orderId)
+        private async Task<FileDescriptor> ConstructReceivedProductionTicketFilePathAsync(int orderId)
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] { "customer" };
             var order = await _orderDataProvider.GetByIdAsync(orderId, query);
 
             var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
-            var directory = $"{_receivedProductionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);
-
+            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _receivedProductionTicketStorageLocation);
             var filename = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "") + _noNewlines.Replace($"_{order.Customer.Name}", "");
-
-            return $"{directory}{filename}.pdf";
+            return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
         private async Task<string> FindReceivedProductionTicketFilePathAsync(int orderId)
@@ -774,17 +754,16 @@ namespace Rollvolet.CRM.Domain.Managers
             var order = await _orderDataProvider.GetByIdAsync(orderId);
 
             var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
-            var directory = $"{_receivedProductionTicketStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);  // ensure directory exists
+            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _receivedProductionTicketStorageLocation);
 
             // only search on offernumber since customer name might have changed
             var filenameSearch = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "") + "*";
 
-            var matchingFiles = Directory.GetFiles(directory, filenameSearch);
+            var filePath = await _fileStorageService.FindDocumentAsync(directory, filenameSearch);
 
-            if (matchingFiles.Length > 0)
+            if (filePath != null)
             {
-                return matchingFiles[0];
+                return filePath;
             }
             else
             {
@@ -793,31 +772,23 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
-        private string ConstructInvoiceDocumentFilePath(BaseInvoice invoice)
+        private async Task<FileDescriptor> ConstructInvoiceDocumentFilePathAsync(BaseInvoice invoice)
         {
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
-
-            var directory = $"{_invoiceStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);
-
+            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _invoiceStorageLocation);
             var filename = _onlyAlphaNumeric.Replace($"F0{invoice.Number}", "");
-
-            return $"{directory}{filename}.pdf";
+            return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
-        private string ConstructGeneratedCertificateFilePath(BaseInvoice invoice)
+        private async Task<FileDescriptor> ConstructGeneratedCertificateFilePathAsync(BaseInvoice invoice)
         {
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
-
-            var directory = $"{_generatedCertificateStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);
-
+            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _generatedCertificateStorageLocation);
             var filename = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "");
-
-            return $"{directory}{filename}.pdf";
+            return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
-        private async Task<string> ConstructReceivedCertificateFilePathAsync(int invoiceId, bool isDeposit = false)
+        private async Task<FileDescriptor> ConstructReceivedCertificateFilePathAsync(int invoiceId, bool isDeposit = false)
         {
             BaseInvoice invoice = null;
             if (isDeposit)
@@ -826,13 +797,9 @@ namespace Rollvolet.CRM.Domain.Managers
                 invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
 
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
-
-            var directory = $"{_receivedCertificateStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);
-
+            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _receivedCertificateStorageLocation);
             var filename = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "") + _noNewlines.Replace($"_{invoice.CustomerName}", "");
-
-            return $"{directory}{filename}.pdf";
+            return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
         private async Task<string> FindReceivedCertificateFilePathAsync(int invoiceId, bool isDeposit = false)
@@ -844,18 +811,16 @@ namespace Rollvolet.CRM.Domain.Managers
                 invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
 
             var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
-
-            var directory = $"{_receivedCertificateStorageLocation}{year}{Path.DirectorySeparatorChar}";
-            Directory.CreateDirectory(directory);  // ensure directory exists
+            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _receivedCertificateStorageLocation);
 
             // only search on invoice number since customer name might have changed
-            var filenameSearch = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "") + "*";
+            var filenameSearch = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "");
 
-            var matchingFiles = Directory.GetFiles(directory, filenameSearch);
+            var filePath = await _fileStorageService.FindDocumentAsync(directory, filenameSearch);
 
-            if (matchingFiles.Length > 0)
+            if (filePath != null)
             {
-                return matchingFiles[0];
+                return filePath;
             }
             else
             {
@@ -923,7 +888,7 @@ namespace Rollvolet.CRM.Domain.Managers
             }
         }
 
-        private async Task GenerateAndStoreDocumentAsync(string url, Object data, string filePath)
+        private async Task GenerateAndStoreDocumentAsync(string url, Object data, FileDescriptor fileDescriptor)
         {
             var body = GenerateJsonBody(data);
             _logger.LogDebug("Send request to document generation service at {0}", url);
@@ -936,50 +901,13 @@ namespace Rollvolet.CRM.Domain.Managers
 
                 using (var inputStream = await response.Content.ReadAsStreamAsync())
                 {
-                    UploadDocument(filePath, inputStream);
+                    await _fileStorageService.UploadDocumentAsync(fileDescriptor.Parent, fileDescriptor.FileName, inputStream);
                 }
             }
             catch (Exception e)
             {
-                _logger.LogWarning("Something went wrong while generating and storing the document at {0}: {1}", filePath, e.Message);
+                _logger.LogWarning("Something went wrong while generating and storing the document at {0}: {1}", fileDescriptor.FilePath, e.Message);
                 throw e;
-            }
-        }
-
-        private void UploadDocument(string filePath, Stream content)
-        {
-            using (var fileStream = File.Create(filePath))
-            {
-                content.Seek(0, SeekOrigin.Begin);
-                content.CopyTo(fileStream);
-            }
-        }
-
-        private FileStream DownloadDcument(string filePath)
-        {
-            try
-            {
-                return new FileStream(filePath, FileMode.Open);
-            }
-            catch (FileNotFoundException)
-            {
-                _logger.LogWarning("Cannot find document at {1}", filePath);
-                throw new EntityNotFoundException();
-            }
-        }
-
-        private void RemoveFile(string path)
-        {
-            try
-            {
-                if (File.Exists(path))
-                    File.Delete(path);
-                else
-                    _logger.LogDebug("File {0} not found and will not be removed.", path);
-            }
-            catch (Exception)
-            {
-                _logger.LogDebug("Failed to remove file {0}.", path);
             }
         }
 
@@ -999,6 +927,20 @@ namespace Rollvolet.CRM.Domain.Managers
             _logger.LogDebug("Generated JSON for request body: {0}", json);
 
             return new StringContent(json, Encoding.UTF8, "application/json");
+        }
+
+        public class FileDescriptor
+        {
+            public string Parent { get; set; }
+            public string FileName { get; set; }
+
+            public string FilePath
+            {
+                get
+                {
+                    return $"{Parent}{Path.DirectorySeparatorChar}{FileName}";
+                }
+            }
         }
     }
 }

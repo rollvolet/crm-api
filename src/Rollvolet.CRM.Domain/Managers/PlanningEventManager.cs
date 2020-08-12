@@ -14,16 +14,16 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IPlanningEventDataProvider  _planningEventDataProvider;
         private readonly IInterventionDataProvider _interventionDataProvider;
         private readonly IEmployeeDataProvider _employeeDataProvider;
-        private readonly IGraphApiService _graphApiService;
+        private readonly IGraphApiCalendarService _calendarService;
         private readonly ILogger _logger;
 
         public PlanningEventManager(IPlanningEventDataProvider planningEventDataProvider, IInterventionDataProvider interventionDataProvider,
-                                IEmployeeDataProvider employeeDataProvider, IGraphApiService graphApiService, ILogger<InterventionManager> logger)
+                                IEmployeeDataProvider employeeDataProvider, IGraphApiCalendarService calendarService, ILogger<InterventionManager> logger)
         {
             _planningEventDataProvider = planningEventDataProvider;
             _interventionDataProvider = interventionDataProvider;
             _employeeDataProvider = employeeDataProvider;
-            _graphApiService = graphApiService;
+            _calendarService = calendarService;
             _logger = logger;
         }
 
@@ -32,7 +32,7 @@ namespace Rollvolet.CRM.Domain.Managers
             var planningEvent = await _planningEventDataProvider.GetByIdAsync(id, query);
 
             if (planningEvent.MsObjectId != null)
-                planningEvent = await _graphApiService.EnrichPlanningEventAsync(planningEvent);
+                planningEvent = await _calendarService.EnrichPlanningEventAsync(planningEvent);
 
             return planningEvent;
         }
@@ -42,7 +42,7 @@ namespace Rollvolet.CRM.Domain.Managers
             var planningEvent = await _planningEventDataProvider.GetByInterventionIdAsync(planningEventId);
 
             if (planningEvent.MsObjectId != null)
-                planningEvent = await _graphApiService.EnrichPlanningEventAsync(planningEvent);
+                planningEvent = await _calendarService.EnrichPlanningEventAsync(planningEvent);
 
             return planningEvent;
         }
@@ -62,17 +62,17 @@ namespace Rollvolet.CRM.Domain.Managers
             {
                 if (existingPlanningEvent.MsObjectId == null)
                 {
-                    planningEvent = await _graphApiService.CreateEventForPlanningAsync(planningEvent);
+                    planningEvent = await _calendarService.CreateEventForPlanningAsync(planningEvent);
                 }
                 else
                 {
                     var requiresReschedule = existingPlanningEvent.Date != planningEvent.Date;
-                    planningEvent = await _graphApiService.UpdateEventForPlanningAsync(planningEvent, requiresReschedule);
+                    planningEvent = await _calendarService.UpdateEventForPlanningAsync(planningEvent, requiresReschedule);
                 }
             }
             else if (planningEvent.Date == null && existingPlanningEvent.MsObjectId != null)
             {
-                planningEvent = await _graphApiService.DeleteEventForPlanningAsync(planningEvent);
+                planningEvent = await _calendarService.DeleteEventForPlanningAsync(planningEvent);
             }
 
             var savedPlanningEvent = await _planningEventDataProvider.UpdateAsync(planningEvent);

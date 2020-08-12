@@ -3,7 +3,7 @@ using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.Domain.Contracts.MsGraph
 {
-    public interface IGraphApiService
+    public interface IGraphApiCalendarService
     {
         Task<CalendarEvent> CreateEventForRequestAsync(CalendarEvent calendarEvent, Customer customer, Building building);
         Task<CalendarEvent> UpdateEventForRequestAsync(CalendarEvent calendarEvent, Customer customer, Building building, bool requiresReschedule);

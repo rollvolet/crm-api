@@ -22,18 +22,18 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly ICustomerDataProvider _customerDataProvider;
         private readonly IBuildingDataProvider _buildingDataProvider;
-        private readonly IGraphApiService _graphApiService;
+        private readonly IGraphApiCalendarService _calendarService;
         private readonly ILogger _logger;
 
         public CalendarEventManager(IVisitDataProvider visitDataProvider, IRequestDataProvider requestDataProvider,
                             ICustomerDataProvider customerDataProvider, IBuildingDataProvider buildingDataProvider,
-                            IGraphApiService graphApiService, ILogger<CalendarEventManager> logger)
+                            IGraphApiCalendarService calendarService, ILogger<CalendarEventManager> logger)
         {
             _visitDataProvider = visitDataProvider;
             _requestDataProvider = requestDataProvider;
             _customerDataProvider = customerDataProvider;
             _buildingDataProvider = buildingDataProvider;
-            _graphApiService = graphApiService;
+            _calendarService = calendarService;
             _logger = logger;
         }
 
@@ -96,7 +96,7 @@ namespace Rollvolet.CRM.Domain.Managers
             await EmbedRelations(calendarEvent);
 
             var tuple = await GetRelatedCustomerAndBuilding(calendarEvent);
-            calendarEvent = await _graphApiService.CreateEventForRequestAsync(calendarEvent, tuple.Item1, tuple.Item2);
+            calendarEvent = await _calendarService.CreateEventForRequestAsync(calendarEvent, tuple.Item1, tuple.Item2);
 
             return await _visitDataProvider.UpdateAsync(calendarEvent);
         }
@@ -139,7 +139,7 @@ namespace Rollvolet.CRM.Domain.Managers
             {
                 var tuple = await GetRelatedCustomerAndBuilding(calendarEvent);
                 var requiresReschedule = calendarEvent.VisitDate != existingCalendarEvent.VisitDate;
-                calendarEvent = await _graphApiService.UpdateEventForRequestAsync(calendarEvent, tuple.Item1, tuple.Item2, requiresReschedule);
+                calendarEvent = await _calendarService.UpdateEventForRequestAsync(calendarEvent, tuple.Item1, tuple.Item2, requiresReschedule);
             }
 
             return await _visitDataProvider.UpdateAsync(calendarEvent);
@@ -149,7 +149,7 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var calendarEvent = await _visitDataProvider.GetByIdAsync(id);
 
-            calendarEvent = await _graphApiService.DeleteEventForRequestAsync(calendarEvent);
+            calendarEvent = await _calendarService.DeleteEventForRequestAsync(calendarEvent);
 
             calendarEvent.VisitDate = null;
             await _visitDataProvider.UpdateAsync(calendarEvent);
@@ -193,7 +193,7 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             try
             {
-                var subject = await _graphApiService.GetVisitSubjectAsync(calendarEvent.MsObjectId);
+                var subject = await _calendarService.GetVisitSubjectAsync(calendarEvent.MsObjectId);
 
                 if (calendarEvent.CalendarSubject != subject)
                 {

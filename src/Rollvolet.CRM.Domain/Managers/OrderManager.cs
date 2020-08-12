@@ -22,7 +22,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IDepositDataProvider _depositDataProvider;
         private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
-        private readonly IGraphApiService _graphApiService;
+        private readonly IGraphApiCalendarService _calendarService;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly ILogger _logger;
 
@@ -31,7 +31,7 @@ namespace Rollvolet.CRM.Domain.Managers
                                 IBuildingDataProvider buildingDataProvider, IOfferDataProvider offerDataProvider,
                                 IInvoicelineDataProvider invoicelineDataProvider, IVatRateDataProvider vatRateDataProvider,
                                 IDepositDataProvider depositDataProvider, IDepositInvoiceDataProvider depositInvoiceDataProvider,
-                                IGraphApiService graphApiService, IDocumentGenerationManager documentGenerationManager,
+                                IGraphApiCalendarService calendarService, IDocumentGenerationManager documentGenerationManager,
                                 ILogger<OrderManager> logger)
         {
             _orderDataProvider = orderDataProvider;
@@ -44,7 +44,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _depositDataProvider = depositDataProvider;
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
-            _graphApiService = graphApiService;
+            _calendarService = calendarService;
             _documentGenerationManager = documentGenerationManager;
             _logger = logger;
         }
@@ -210,7 +210,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 try
                 {
                     var order = await _orderDataProvider.GetByIdAsync(id);
-                    await _graphApiService.DeleteEventForPlanningAsync(order);
+                    await _calendarService.DeleteEventForPlanningAsync(order);
                     await _documentGenerationManager.DeleteOrderDocumentAsync(id);
                     await _documentGenerationManager.DeleteDeliveryNoteAsync(id);
                     await _documentGenerationManager.DeleteProductionTicketTemplateAsync(id);
@@ -228,15 +228,15 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             if (order.PlanningMsObjectId != null && order.PlanningDate == null)
             {
-                await _graphApiService.DeleteEventForPlanningAsync(order);
+                await _calendarService.DeleteEventForPlanningAsync(order);
             }
             else if (order.PlanningMsObjectId != null && requiresUpdate)
             {
-                await _graphApiService.UpdateEventForPlanningAsync(order, requiresReschedule);
+                await _calendarService.UpdateEventForPlanningAsync(order, requiresReschedule);
             }
             else if (order.PlanningMsObjectId == null && String.IsNullOrEmpty(order.PlanningId) && order.PlanningDate != null)
             {
-                await _graphApiService.CreateEventForPlanningAsync(order);
+                await _calendarService.CreateEventForPlanningAsync(order);
             }
         }
 

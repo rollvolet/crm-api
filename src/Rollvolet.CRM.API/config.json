@@ -27,6 +27,10 @@
     "ReceivedCertificateStorageLocation": "",
     "CertificateUploadSourceLocation": ""
   },
+  "FileStorage": {
+    "Location": "",
+    "DriveId": ""
+  },
   "Accountancy": {
     "WinbooksExportLocation": "",
     "WinbooksInvoicesFile": "",

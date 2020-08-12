@@ -11,11 +11,11 @@ namespace Rollvolet.CRM.API.Controllers
     [Authorize]
     public class CalendarsController : ControllerBase
     {
-        private readonly IGraphApiService _graphApiService;
+        private readonly IGraphApiCalendarService _calendarService;
 
-        public CalendarsController(IGraphApiService graphApiService)
+        public CalendarsController(IGraphApiCalendarService calendarService)
         {
-            _graphApiService = graphApiService;
+            _calendarService = calendarService;
         }
 
         [HttpGet("planning/{msObjectId}/subject")]
@@ -23,7 +23,7 @@ namespace Rollvolet.CRM.API.Controllers
         {
             try
             {
-                var subject = await _graphApiService.GetPlanningSubjectAsync(msObjectId);
+                var subject = await _calendarService.GetPlanningSubjectAsync(msObjectId);
                 return Ok(new { Subject = subject });
             }
             catch (EntityNotFoundException)

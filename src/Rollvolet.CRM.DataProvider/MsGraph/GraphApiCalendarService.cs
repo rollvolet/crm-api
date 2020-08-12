@@ -1,4 +1,3 @@
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
@@ -14,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Rollvolet.CRM.DataProvider.MsGraph
 {
-    public class GraphApiService : IGraphApiService
+    public class GraphApiCalendarService : IGraphApiCalendarService
     {
         private readonly int VISIT_START_TIME = 17;
         private readonly int PLANNING_START_TIME = 19;
@@ -28,8 +27,8 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
         private readonly IEmployeeDataProvider _employeeDataProvider;
         private readonly ILogger _logger;
 
-        public GraphApiService(IAuthenticationProvider authenticationProvider, IOptions<CalendarConfiguration> calendarConfiguration,
-                                IEmployeeDataProvider employeeDataProvider, ILogger<GraphApiService> logger)
+        public GraphApiCalendarService(IAuthenticationProvider authenticationProvider, IOptions<CalendarConfiguration> calendarConfiguration,
+                                IEmployeeDataProvider employeeDataProvider, ILogger<GraphApiCalendarService> logger)
         {
             _client = new GraphServiceClient(authenticationProvider);
             _calendarConfig = calendarConfiguration.Value;
