@@ -4,19 +4,23 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Rollvolet.CRM.APIContracts.DTO.AuthenticationTokens;
-using Rollvolet.CRM.API.Configuration;
 using System.Net.Http;
 using System.Text.Json;
 using Rollvolet.CRM.APIContracts.JsonApi;
+using System;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Identity.Web;
+using Rollvolet.CRM.Domain.Authentication.Interfaces;
 
 namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private AuthenticationConfiguration _authenticationConfiguration;
+        private readonly IConfidentialClientApplicationProvider _applicationProvider;
         private readonly ILogger _logger;
         private HttpClient _httpClient;
 
@@ -24,78 +28,52 @@ namespace Rollvolet.CRM.API.Controllers
             PropertyNamingPolicy = new JsonApiNamingPolicy()
         };
 
-        public AuthenticationController(IOptions<AuthenticationConfiguration> authenticationConfiguration,
-            Narato.Correlations.Http.Interfaces.IHttpClientFactory httpClientFactory, ILogger<AuthenticationController> logger)
+        public AuthenticationController(IConfidentialClientApplicationProvider applicationProvider,
+            Narato.Correlations.Http.Interfaces.IHttpClientFactory httpClientFactory,
+            ILogger<AuthenticationController> logger)
         {
-            _authenticationConfiguration = authenticationConfiguration.Value;
+            _applicationProvider = applicationProvider;
             _httpClient = httpClientFactory.Create();
             _logger = logger;
         }
 
-        [HttpPost("authentication/token")]
+        [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetTokenAsync([FromBody] AuthenticationTokenRequestDto requestDto)
+        public async Task<IActionResult> Login([FromBody] AuthenticationTokenRequestDto requestDto)
         {
-            var path = $"{_authenticationConfiguration.Instance}/{_authenticationConfiguration.TenantId}/oauth2/v2.0/token";
-            var form = new Dictionary<string, string>();
-            form.Add("grant_type", "authorization_code");
-            form.Add("client_id", _authenticationConfiguration.ClientId);
-            form.Add("client_secret", _authenticationConfiguration.ClientSecret);
-            form.Add("code", requestDto.AuthorizationCode);
-            form.Add("redirect_uri", requestDto.RedirectUri);
-            form.Add("scope", requestDto.Scope);
+            var scopes = requestDto.Scope.Split(",");
+            var authenticationResult = await _applicationProvider.GetApplication()
+                                        .AcquireTokenByAuthorizationCode(scopes, requestDto.AuthorizationCode)
+                                        .ExecuteAsync();
 
-            var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
-
-            var response = await _httpClient.SendAsync(request);
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            _logger.LogDebug("Token response received: [{statusCode}] {message}", response.StatusCode, responseString);
-
-            response.EnsureSuccessStatusCode();
-
-            if (string.IsNullOrEmpty(responseString))
+            var claims = new List<Claim>
             {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
-            else
-            {
-                return Ok(JsonSerializer.Deserialize<AuthenticationTokenResponseDto>(responseString, jsonSerializerOptions));
-            }
+                new Claim(ClaimTypes.Upn, authenticationResult.Account.Username),
+                new Claim(ClaimConstants.Scope, String.Join(",", authenticationResult.Scopes))
+            };
 
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var user = new ClaimsPrincipal(claimsIdentity);
+            var authenticationProperties = new AuthenticationProperties
+            {
+                ExpiresUtc = authenticationResult.ExpiresOn
+            };
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user, authenticationProperties);
+
+            var expiresIn = (authenticationResult.ExpiresOn - DateTimeOffset.Now).TotalSeconds;
+            return Ok(new AuthenticationTokenResponseDto {
+                TokenType = "Bearer",
+                AccessToken = authenticationResult.AccessToken,
+                ExpiresIn = Convert.ToInt32(expiresIn),
+                Scope = String.Join(',', authenticationResult.Scopes)
+            });
         }
 
-        [HttpPost("authentication/refresh-token")]
-        [AllowAnonymous]
-        public async Task<IActionResult> RefreshTokenAsync([FromBody] AuthenticationTokenRefreshRequestDto requestDto)
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
         {
-            var path = $"{_authenticationConfiguration.Instance}/{_authenticationConfiguration.TenantId}/oauth2/v2.0/token";
-            var form = new Dictionary<string, string>();
-            form.Add("grant_type", "refresh_token");
-            form.Add("client_id", _authenticationConfiguration.ClientId);
-            form.Add("client_secret", _authenticationConfiguration.ClientSecret);
-            form.Add("refresh_token", requestDto.RefreshToken);
-            form.Add("redirect_uri", requestDto.RedirectUri);
-            form.Add("scope", requestDto.Scope);
-
-            var request = new HttpRequestMessage(HttpMethod.Post, path) { Content = new FormUrlEncodedContent(form) };
-
-            var response = await _httpClient.SendAsync(request);
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            _logger.LogDebug("Refresh token response received: [{statusCode}] {message}", response.StatusCode, responseString);
-
-            response.EnsureSuccessStatusCode();
-
-            if (string.IsNullOrEmpty(responseString))
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
-            else
-            {
-                return Ok(JsonSerializer.Deserialize<AuthenticationTokenResponseDto>(responseString, jsonSerializerOptions));
-            }
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return NoContent();
         }
-
     }
 }

@@ -20,7 +20,6 @@ using Rollvolet.CRM.API.Middleware.ExceptionHandling.Interfaces;
 using Rollvolet.CRM.API.Middleware.ExceptionHandling;
 using Rollvolet.CRM.API.Middleware.UrlRewrite;
 using Microsoft.AspNetCore.Mvc;
-using Rollvolet.CRM.API.Configuration;
 using Rollvolet.CRM.Domain.Contracts.MsGraph;
 using Rollvolet.CRM.DataProvider.MsGraph;
 using Rollvolet.CRM.Domain.Configuration;
@@ -35,6 +34,10 @@ using Rollvolet.CRM.Business.Managers;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using Rollvolet.CRM.Domain.Contracts;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Identity.Client;
+using Rollvolet.CRM.Domain.Authentication;
+using Rollvolet.CRM.Domain.Authentication.Interfaces;
 
 namespace Rollvolet.CRM.API
 {
@@ -59,7 +62,7 @@ namespace Rollvolet.CRM.API
             var connectionString = Configuration["DatabaseConfiguration:ConnectionString"];
             services.AddTransient<IDbConnection>(sp => new SqlConnection(connectionString));
 
-            services.Configure<AuthenticationConfiguration>(Configuration.GetSection("AzureAd"));
+            services.Configure<ConfidentialClientApplicationOptions>(Configuration.GetSection("AzureAd"));
             services.Configure<CalendarConfiguration>(Configuration.GetSection("Calendar"));
             services.Configure<DocumentGenerationConfiguration>(Configuration.GetSection("DocumentGeneration"));
             services.Configure<FileStorageConfiguration>(Configuration.GetSection("FileStorage"));
@@ -67,11 +70,12 @@ namespace Rollvolet.CRM.API
 
             // Setup authentication using OAuth 2.0 auth code grant between frontend and backend
             // and using OAuth 2.0 on-behalf-of flow to query downstream APIs (e.g. Graph API)
-            // See also: https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
-            // These service extensions expect an 'AzureAd' configuration section
-            services.AddProtectedWebApi(Configuration)
-                    .AddProtectedWebApiCallsProtectedWebApi(Configuration)
-                    .AddInMemoryTokenCaches();
+            // See also: https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-call-api-overview
+            // and the source code at https://github.com/AzureAD/microsoft-identity-web
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                    .AddCookie();
+            services.AddSingleton<IConfidentialClientApplicationProvider, ConfidentialClientApplicationProvider>();
+            services.AddInMemoryTokenCaches();
             services.AddScoped<IAuthenticationProvider, OnBehalfOfMsGraphAuthenticationProvider>();
 
             services.AddSession();
