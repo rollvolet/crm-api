@@ -8,6 +8,8 @@ using Rollvolet.CRM.APIContracts.JsonApi;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.Extensions.Hosting;
+using System.Security.Authentication;
+using Microsoft.Identity.Client;
 
 namespace Rollvolet.CRM.API.Middleware.ExceptionHandling
 {
@@ -80,6 +82,21 @@ namespace Rollvolet.CRM.API.Middleware.ExceptionHandling
                     Detail = typedEx.Message
                 };
                 return new BadRequestObjectResult(error);
+            }
+
+            if (ex is AuthenticationException)
+            {
+                return new UnauthorizedResult();
+            }
+
+            if (ex is MsalUiRequiredException)
+            {
+                return new UnauthorizedResult();
+            }
+
+            if (ex is UnauthorizedAccessException)
+            {
+                return new ForbidResult();
             }
 
             if (ex is InvalidDataException)

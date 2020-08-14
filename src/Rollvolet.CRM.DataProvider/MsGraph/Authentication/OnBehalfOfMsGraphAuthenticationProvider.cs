@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +12,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph.Authentication
 {
     public class OnBehalfOfMsGraphAuthenticationProvider : IAuthenticationProvider
     {
+        // TODO remove duplication
         private static readonly string[] SCOPES = new string[] { "User.Read", "Calendars.ReadWrite.Shared", "Files.ReadWrite.All" };
 
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -28,13 +30,21 @@ namespace Rollvolet.CRM.DataProvider.MsGraph.Authentication
         public async Task AuthenticateRequestAsync(HttpRequestMessage request)
         {
             var user = _httpContextAccessor.HttpContext.User;
-            var username = user.FindFirstValue(ClaimTypes.Upn);
 
-            _logger.LogInformation("Query token cache to get access token to query Graph API");
-            var authenticationResult = await _applicationProvider.GetApplication().AcquireTokenSilent(SCOPES, username).ExecuteAsync();
+            if (user.Identity.IsAuthenticated)
+            {
+                var username = user.FindFirstValue(ClaimTypes.Upn);
 
-            // Append the access token to the request
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authenticationResult.AccessToken);
+                _logger.LogInformation("Query token cache to get access token to query Graph API");
+                var authenticationResult = await _applicationProvider.GetApplication().AcquireTokenSilent(SCOPES, username).ExecuteAsync();
+
+                // Append the access token to the request
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authenticationResult.AccessToken);
+            }
+            else
+            {
+                throw new AuthenticationException();
+            }
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [AllowAnonymous]
+    [Authorize]
     public class FilesController : ControllerBase
     {
         private readonly IDocumentGenerationManager _documentGenerationManager;

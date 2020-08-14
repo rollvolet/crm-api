@@ -38,6 +38,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Identity.Client;
 using Rollvolet.CRM.Domain.Authentication;
 using Rollvolet.CRM.Domain.Authentication.Interfaces;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Rollvolet.CRM.API
 {
@@ -73,7 +75,18 @@ namespace Rollvolet.CRM.API
             // See also: https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-call-api-overview
             // and the source code at https://github.com/AzureAD/microsoft-identity-web
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                    .AddCookie();
+                    .AddCookie(options => {
+                        options.Cookie.Name = "RollvoletCRM";
+                        options.Cookie.SameSite = SameSiteMode.Strict;
+                        options.Events = new CookieAuthenticationEvents
+                        {
+                            OnRedirectToLogin = redirectContext =>
+                            {
+                                redirectContext.HttpContext.Response.StatusCode = 401;
+                                return Task.CompletedTask;
+                            }
+                        };
+                    });
             services.AddSingleton<IConfidentialClientApplicationProvider, ConfidentialClientApplicationProvider>();
             services.AddInMemoryTokenCaches();
             services.AddScoped<IAuthenticationProvider, OnBehalfOfMsGraphAuthenticationProvider>();
