@@ -62,7 +62,10 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             catch (ServiceException ex)
             {
                 _logger.LogWarning($"Creating directory {directory} on drive {_fileStorageConfig.DriveId} in {parentFolder} failed: {ex.ToString()}");
-                throw ex;
+                if (ex.InnerException != null && ex.InnerException.GetType() == typeof(Microsoft.Identity.Client.MsalUiRequiredException))
+                    throw ex.InnerException;
+                else
+                    throw ex;
             }
         }
 
