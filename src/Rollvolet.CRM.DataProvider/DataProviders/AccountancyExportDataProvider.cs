@@ -8,9 +8,11 @@ using AutoMapper;
 using CsvHelper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Rollvolet.CRM.DataProvider.Contexts;
 using Rollvolet.CRM.DataProvider.Extensions;
 using Rollvolet.CRM.Domain.Configuration;
+using Rollvolet.CRM.Domain.Contracts;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;
@@ -23,13 +25,22 @@ namespace Rollvolet.CRM.DataProviders
     {
         private readonly CrmContext _context;
         private readonly IMapper _mapper;
+        private readonly AccountancyConfiguration _accountancyConfig;
+        private readonly IFileStorageService _fileStorageService;
         private readonly ILogger _logger;
 
-        public AccountancyExportDataProvider(CrmContext context, IMapper mapper, ILogger<AccountancyExportDataProvider> logger)
+        public AccountancyExportDataProvider(CrmContext context, IMapper mapper,
+                                        IOptions<AccountancyConfiguration> accountancyConfiguration,
+                                        IFileStorageService fileStorageService,
+                                        ILogger<AccountancyExportDataProvider> logger)
         {
             _context = context;
             _mapper = mapper;
+            _accountancyConfig = accountancyConfiguration.Value;
+            _fileStorageService = fileStorageService;
             _logger = logger;
+
+            _accountancyConfig.WinbooksExportLocation = _fileStorageService.EnsureDirectory(_accountancyConfig.WinbooksExportLocation);
         }
 
         public async Task<Paged<AccountancyExport>> GetAllAsync(QuerySet query)
@@ -65,7 +76,7 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<AccountancyExport>(accountancyExport);
         }
 
-        public async Task<AccountancyExport> CreateAsync(AccountancyExport accountancyExport, AccountancyConfiguration configuration)
+        public async Task<AccountancyExport> CreateAsync(AccountancyExport accountancyExport)
         {
             var accountancyExportRecord = _mapper.Map<DataProvider.Models.AccountancyExport>(accountancyExport);
 
@@ -75,7 +86,7 @@ namespace Rollvolet.CRM.DataProviders
             {
                 try
                 {
-                    await GenerateExportFilesAsync((int) accountancyExport.FromNumber, (int) accountancyExport.UntilNumber, accountancyExport.IsDryRun, configuration);
+                    await GenerateExportFilesAsync((int) accountancyExport.FromNumber, (int) accountancyExport.UntilNumber, accountancyExport.IsDryRun);
                     await _context.SaveChangesAsync();
 
                     transaction.Commit();
@@ -90,16 +101,17 @@ namespace Rollvolet.CRM.DataProviders
             }
         }
 
-        private async Task GenerateExportFilesAsync(int fromNumber, int untilNumber, bool isDryRun, AccountancyConfiguration configuration)
+        private async Task GenerateExportFilesAsync(int fromNumber, int untilNumber, bool isDryRun)
         {
             var invoiceQuery = _context.Invoices
                                     .Where(i => i.Number >= fromNumber && i.Number <= untilNumber && i.BookingDate == null)
                                     .Include(i => i.VatRate);
             var invoiceRecords = await invoiceQuery.ToListAsync();
-            var customerRecords = await invoiceQuery.Select(i => i.Customer)
-                                                .Where(c => c != null) // Export all customer, also previously exported ones
+            var customerRecordIds = invoiceRecords.Select(i => i.CustomerId).Where(id => id != null).Distinct().ToList();
+            var customerRecords = await _context.Customers
+                                                .Where(c => customerRecordIds.Contains(c.Number)) // Export all customer, also previously exported ones
                                                 .Include(c => c.Country)
-                                                .Distinct().ToListAsync();
+                                                .ToListAsync();
 
             // TODO validate if there are gaps that have already been booked
 
@@ -116,20 +128,24 @@ namespace Rollvolet.CRM.DataProviders
             foreach (var invoiceRecord in invoiceRecords)
             {
                 EnsureValidityForExport(invoiceRecord);
-                invoiceLines.AddRange(GenerateInvoiceExportLines(invoiceRecord, configuration));
+                invoiceLines.AddRange(GenerateInvoiceExportLines(invoiceRecord));
                 _logger.LogDebug($"Exported invoice {invoiceRecord.Number} for accountancy export.");
 
                 if (!isDryRun)
                     invoiceRecord.BookingDate = now;
             }
 
-            using (var writer = new StreamWriter($"{configuration.WinbooksExportLocation}{configuration.WinbooksInvoicesFile}"))
+            using (var memoryStream = new MemoryStream())
+            using (var writer = new StreamWriter(memoryStream))
             using (var csv = new CsvWriter(writer))
             {
                 csv.Configuration.HasHeaderRecord = false;
                 csv.Configuration.Delimiter = ",";
                 csv.Configuration.ShouldQuote = (field, ctx) => { return false; };
                 csv.WriteRecords(invoiceLines);
+                writer.Flush();
+                memoryStream.Position = 0;
+                await _fileStorageService.UploadDocumentAsync(_accountancyConfig.WinbooksExportLocation, _accountancyConfig.WinbooksInvoicesFile, memoryStream);
             }
 
             // Customers export
@@ -138,20 +154,24 @@ namespace Rollvolet.CRM.DataProviders
 
             foreach (var customerRecord in customerRecords)
             {
-                customerLines.Add(GenerateCustomerExportLine(customerRecord, configuration));
+                customerLines.Add(GenerateCustomerExportLine(customerRecord));
                 _logger.LogDebug($"Exported customer {customerRecord.Number} for accountancy export.");
 
                 if (!isDryRun)
                     customerRecord.BookingDate = now;
             }
 
-            using (var writer = new StreamWriter($"{configuration.WinbooksExportLocation}{configuration.WinbooksCustomersFile}"))
+            using (var memoryStream = new MemoryStream())
+            using (var writer = new StreamWriter(memoryStream))
             using (var csv = new CsvWriter(writer))
             {
                 csv.Configuration.HasHeaderRecord = false;
                 csv.Configuration.Delimiter = ",";
                 csv.Configuration.ShouldQuote = (field, ctx) => { return false; };
                 csv.WriteRecords(customerLines);
+                writer.Flush();
+                memoryStream.Position = 0;
+                await _fileStorageService.UploadDocumentAsync(_accountancyConfig.WinbooksExportLocation, _accountancyConfig.WinbooksCustomersFile, memoryStream);
             }
         }
 
@@ -169,16 +189,16 @@ namespace Rollvolet.CRM.DataProviders
                 throw new InvalidDataException($"Invoice {invoice.Id} doesn't have a total amount and cannot be exported.");
         }
 
-        private IEnumerable<object> GenerateInvoiceExportLines(DataProvider.Models.Invoice invoice, AccountancyConfiguration configuration)
+        private IEnumerable<object> GenerateInvoiceExportLines(DataProvider.Models.Invoice invoice)
         {
             var invoiceDate = (DateTime) invoice.InvoiceDate;
             var invoiceDateStr = invoiceDate.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
             var dueDate = invoice.DueDate != null ? (DateTime) invoice.DueDate : (DateTime) invoice.InvoiceDate;
             var dueDateStr = dueDate.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
 
-            var startYear = Int32.Parse(configuration.WinbooksStart);
+            var startYear = Int32.Parse(_accountancyConfig.WinbooksStart);
             var bookYear = GetBookYear(invoiceDate, startYear);
-            var startBookYear = Int32.Parse(configuration.WinbooksBookYear);
+            var startBookYear = Int32.Parse(_accountancyConfig.WinbooksBookYear);
             var startMonth = startBookYear >= 100 ? startBookYear / 100 : 0;
             var period = GetPeriod(invoiceDate, startMonth);
 
@@ -195,7 +215,7 @@ namespace Rollvolet.CRM.DataProviders
 
             var grossAmountSalesLine = new {
                 DocType = "1",
-                DBKCode = configuration.WinbooksDiary,
+                DBKCode = _accountancyConfig.WinbooksDiary,
                 DBKType = "2",
                 DocNumber = ((int) invoice.Number).ToString("D5"), // format with minimal 5 digits
                 DocOrder = "001",
@@ -239,7 +259,7 @@ namespace Rollvolet.CRM.DataProviders
 
             var netAmountSalesLine = new {
                 DocType = "3",
-                DBKCode = configuration.WinbooksDiary,
+                DBKCode = _accountancyConfig.WinbooksDiary,
                 DBKType = "2",
                 DocNumber = ((int) invoice.Number).ToString("D5"), // format with minimal 5 digits
                 DocOrder = "002",
@@ -282,7 +302,7 @@ namespace Rollvolet.CRM.DataProviders
 
             var vatLine = new {
                 DocType = docType,
-                DBKCode = configuration.WinbooksDiary,
+                DBKCode = _accountancyConfig.WinbooksDiary,
                 DBKType = "2",
                 DocNumber = ((int) invoice.Number).ToString("D5"), // format with minimal 5 digits
                 DocOrder = "VAT",
@@ -324,7 +344,7 @@ namespace Rollvolet.CRM.DataProviders
             return new object[] { grossAmountSalesLine, netAmountSalesLine, vatLine };
         }
 
-        private object GenerateCustomerExportLine(DataProvider.Models.Customer customer, AccountancyConfiguration configuration)
+        private object GenerateCustomerExportLine(DataProvider.Models.Customer customer)
         {
             return new {
                 Number = customer.Number,

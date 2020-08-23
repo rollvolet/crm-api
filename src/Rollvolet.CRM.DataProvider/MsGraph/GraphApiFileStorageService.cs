@@ -122,6 +122,11 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                     throw new CodedException("UploadFailed", "Upload failed", $"Uploading file to drive {_fileStorageConfig.DriveId} on path {directory} failed.");
                 }
             }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogError($"Uploading file to drive {_fileStorageConfig.DriveId} on path {directory} failed: {ex.ToString()}");
+                throw ex;
+            }
             catch (ServiceException ex)
             {
                 _logger.LogError($"Uploading file to drive {_fileStorageConfig.DriveId} on path {directory} failed: {ex.ToString()}");
