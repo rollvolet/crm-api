@@ -105,7 +105,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
 
             // Create a callback that is invoked after each slice is uploaded
             IProgress<long> progress = new Progress<long>(progress => {
-                _logger.LogDebug($"Uploaded {progress} bytes of {content.Length} bytes");
+                _logger.LogDebug($"Uploaded {progress} bytes of stream");
             });
 
             try

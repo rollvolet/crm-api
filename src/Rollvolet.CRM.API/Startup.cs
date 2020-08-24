@@ -88,6 +88,7 @@ namespace Rollvolet.CRM.API
                         };
                     });
             services.AddSingleton<IConfidentialClientApplicationProvider, ConfidentialClientApplicationProvider>();
+            // TODO Use persistent storage for tokens instead of in memory cache
             services.AddInMemoryTokenCaches();
             services.AddScoped<IAuthenticationProvider, OnBehalfOfMsGraphAuthenticationProvider>();
 
