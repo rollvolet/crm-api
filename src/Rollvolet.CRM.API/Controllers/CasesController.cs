@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -33,11 +34,29 @@ namespace Rollvolet.CRM.API.Controllers
         [HttpPost("contact-and-building")]
         public async Task<IActionResult> UpdateContactAndBuildingAsync([FromBody] ContactAndBuildingDto contactAndBuildingDto)
         {
-            await _caseManager.UpdateContactAndBuildingAsync(contactAndBuildingDto.ContactId, contactAndBuildingDto.BuildingId,
-                                                        contactAndBuildingDto.RequestId, contactAndBuildingDto.InterventionId,
-                                                         contactAndBuildingDto.OfferId, contactAndBuildingDto.OrderId,
-                                                         contactAndBuildingDto.InvoiceId);
+            await _caseManager.UpdateContactAndBuildingAsync(
+                TryParseNullable(contactAndBuildingDto.ContactId),
+                TryParseNullable(contactAndBuildingDto.BuildingId),
+                TryParseNullable(contactAndBuildingDto.RequestId),
+                TryParseNullable(contactAndBuildingDto.InterventionId),
+                TryParseNullable(contactAndBuildingDto.OfferId),
+                TryParseNullable(contactAndBuildingDto.OrderId),
+                TryParseNullable(contactAndBuildingDto.InvoiceId));
+
             return NoContent();
+        }
+
+        public int? TryParseNullable(string val)
+        {
+            if (val == null)
+            {
+                return null;
+            }
+            else
+            {
+                int outValue;
+                return int.TryParse(val, out outValue) ? (int?) outValue : null;
+            }
         }
     }
 }

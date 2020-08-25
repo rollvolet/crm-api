@@ -5,20 +5,20 @@ namespace Rollvolet.CRM.APIContracts.DTO
     public class ContactAndBuildingDto
     {
         [JsonPropertyName("customerId")]
-        public int? CustomerId { get; set; }
+        public string CustomerId { get; set; }
         [JsonPropertyName("contactId")]
-        public int? ContactId { get; set; }
+        public string ContactId { get; set; }
         [JsonPropertyName("buildingId")]
-        public int? BuildingId { get; set; }
+        public string BuildingId { get; set; }
         [JsonPropertyName("requestId")]
-        public int? RequestId { get; set; }
+        public string RequestId { get; set; }
         [JsonPropertyName("interventionId")]
-        public int? InterventionId { get; set; }
+        public string InterventionId { get; set; }
         [JsonPropertyName("offerId")]
-        public int? OfferId { get; set; }
+        public string OfferId { get; set; }
         [JsonPropertyName("orderId")]
-        public int? OrderId { get; set; }
+        public string OrderId { get; set; }
         [JsonPropertyName("invoiceId")]
-        public int? InvoiceId { get; set; }
+        public string InvoiceId { get; set; }
     }
 }
