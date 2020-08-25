@@ -757,7 +757,7 @@ namespace Rollvolet.CRM.Domain.Managers
             var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _receivedProductionTicketStorageLocation);
 
             // only search on offernumber since customer name might have changed
-            var filenameSearch = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "") + "*";
+            var filenameSearch = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "");
 
             var filePath = await _fileStorageService.FindDocumentAsync(directory, filenameSearch);
 

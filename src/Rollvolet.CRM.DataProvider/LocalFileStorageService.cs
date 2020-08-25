@@ -81,6 +81,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
         public async Task<string> FindDocumentAsync(string directory, string search)
         {
             return await Task.Run(() => {
+                var searchWithWildcard = search + "*";
                 var matchingFiles = Directory.GetFiles(directory, search);
 
                 if (matchingFiles.Length > 0)
