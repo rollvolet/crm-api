@@ -17,9 +17,11 @@ namespace Rollvolet.CRM.APIContracts.JsonApi
       public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
       {
           Debug.Assert(typeToConvert == typeof(DateTime));
+          var dateTimeString = reader.GetString();
           // DateTime.Parse() seems to ignore the 'Z' timezone specification and interprets the datetime as local time
-          var localDateTime = DateTime.Parse(reader.GetString());
-          return DateTime.SpecifyKind(localDateTime, DateTimeKind.Utc);
+          // DateTimeOffset.Parse() takes the timezone into account
+          var localDateTime = DateTimeOffset.Parse(dateTimeString);
+          return localDateTime.UtcDateTime;
       }
 
       public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
