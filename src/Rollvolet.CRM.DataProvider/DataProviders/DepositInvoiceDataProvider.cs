@@ -140,7 +140,7 @@ namespace Rollvolet.CRM.DataProviders
 
                     depositInvoiceRecord.Number = await _sequenceDataProvider.GetNextInvoiceNumberAsync();
                     depositInvoiceRecord.Currency = "EUR";
-                    depositInvoiceRecord.Year = (short) DateTime.Now.Year;
+                    depositInvoiceRecord.Year = (short) DateTimeOffset.UtcNow.UtcDateTime.Year;
 
                     await EmbedCustomerAttributesAsync(depositInvoiceRecord);
                     await CalculateAmountAndVatAsync(depositInvoiceRecord);
@@ -151,7 +151,7 @@ namespace Rollvolet.CRM.DataProviders
                     var depositInvoiceHub = new DepositInvoiceHub();
                     depositInvoiceHub.CustomerId = depositInvoice.Customer.Id;
                     depositInvoiceHub.OrderId = depositInvoice.Order.Id;
-                    depositInvoiceHub.Date = DateTime.Now;
+                    depositInvoiceHub.Date = DateTimeOffset.UtcNow.UtcDateTime;
                     depositInvoiceHub.DepositInvoiceId = depositInvoiceRecord.Id;
 
                     var invoice = await _context.Orders.Where(o => o.Id == depositInvoice.Order.Id).Select(o => o.Invoice).FirstOrDefaultAsync();

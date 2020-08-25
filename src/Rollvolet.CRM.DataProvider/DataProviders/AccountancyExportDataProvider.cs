@@ -118,7 +118,7 @@ namespace Rollvolet.CRM.DataProviders
             // Invoices export
 
             var invoiceLines = new List<object>();
-            var now = DateTime.Now;
+            var now = DateTimeOffset.UtcNow.UtcDateTime;
 
             if (isDryRun)
                 _logger.LogInformation($"Starting dry run of accountancy export. Simulating booking of {invoiceRecords.Count} invoices and {customerRecords.Count} customers..");

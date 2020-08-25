@@ -156,7 +156,7 @@ namespace Rollvolet.CRM.DataProviders
             var customerRecord = _mapper.Map<DataProvider.Models.Customer>(customer);
 
             customerRecord.Number = await _sequenceDataProvider.GetNextCustomerNumberAsync();
-            customerRecord.Created = DateTime.Now;
+            customerRecord.Created = DateTimeOffset.UtcNow.UtcDateTime;
             customerRecord.SearchName = DataProvider.Models.CustomerRecord.CalculateSearchName(customer.Name);
             // customer name is already uppercased by the frontend
 

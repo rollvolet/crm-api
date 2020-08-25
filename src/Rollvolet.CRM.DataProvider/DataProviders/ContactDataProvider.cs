@@ -168,7 +168,7 @@ namespace Rollvolet.CRM.DataProviders
             var customerId = contact.Customer.Id;
             contactRecord.Number = await _sequenceDataProvider.GetNextRelativeContactNumberAsync(customerId);
             contactRecord.CustomerId = customerId;
-            contactRecord.Created = DateTime.Now;
+            contactRecord.Created = DateTimeOffset.UtcNow.UtcDateTime;
             contactRecord.SearchName = DataProvider.Models.CustomerRecord.CalculateSearchName(contact.Name);
 
             await HydratePostalCodeAsync(contact, contactRecord);

@@ -33,7 +33,7 @@ namespace Rollvolet.CRM.API.Controllers
         public async Task<IActionResult> GetMonthlySalesReport([FromQuery] int? fromYear, [FromQuery] int? toYear)
         {
             if (toYear == null)
-                toYear = DateTime.Now.Year;
+                toYear = DateTimeOffset.UtcNow.UtcDateTime.Year;
             if (fromYear == null)
                 fromYear = toYear - 4;
 

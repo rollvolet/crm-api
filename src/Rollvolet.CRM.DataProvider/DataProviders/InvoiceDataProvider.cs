@@ -146,7 +146,7 @@ namespace Rollvolet.CRM.DataProviders
 
             invoiceRecord.Number = await _sequenceDataProvider.GetNextInvoiceNumberAsync();
             invoiceRecord.Currency = "EUR";
-            invoiceRecord.Year = (short) DateTime.Now.Year;
+            invoiceRecord.Year = (short) DateTimeOffset.UtcNow.UtcDateTime.Year;
 
             await EmbedCustomerAttributesAsync(invoiceRecord);
             await CalculateAmountAndVatAsync(invoiceRecord);

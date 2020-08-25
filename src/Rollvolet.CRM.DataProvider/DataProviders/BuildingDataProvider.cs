@@ -168,7 +168,7 @@ namespace Rollvolet.CRM.DataProviders
             var customerId = building.Customer.Id;
             buildingRecord.Number = await _sequenceDataProvider.GetNextRelativeBuildingNumberAsync(customerId);
             buildingRecord.CustomerId = customerId;
-            buildingRecord.Created = DateTime.Now;
+            buildingRecord.Created = DateTimeOffset.UtcNow.UtcDateTime;
             buildingRecord.SearchName = DataProvider.Models.CustomerRecord.CalculateSearchName(building.Name);
 
             await HydratePostalCodeAsync(building, buildingRecord);

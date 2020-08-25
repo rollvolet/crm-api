@@ -130,7 +130,7 @@ namespace Rollvolet.CRM.DataProviders
             var offerRecord = _mapper.Map<DataProvider.Models.Offer>(offer);
 
             // offernumber is set on creation and doesn't change afterwards. No matter what happens to the offer date
-            var date = offer.OfferDate == null ? DateTime.Now : (DateTime) offer.OfferDate;
+            var date = offer.OfferDate == null ? DateTimeOffset.UtcNow.UtcDateTime : (DateTime) offer.OfferDate;
             var offerNumberDate = $"{(date.Year + 10).ToString().Substring(2, 2)}/{date.ToString("MM")}/{date.ToString("dd")}/";
             var sequenceNumber = await _sequenceDataProvider.GetNextOfferSequenceNumberAsync(offerNumberDate);
             offerRecord.SequenceNumber = sequenceNumber;
