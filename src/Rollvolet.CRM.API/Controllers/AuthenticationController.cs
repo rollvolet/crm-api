@@ -97,8 +97,8 @@ namespace Rollvolet.CRM.API.Controllers
             var roles = jwt.Claims.FirstOrDefault(claim => claim.Type == "roles");
             return new SessionInfoDto {
                 Account = authenticationResult.Account.Username,
-                Name = name != null ? name.Value : null,
-                Roles = roles != null ? roles.Value : null
+                Name = name != null ? name.Value : "",
+                Roles = roles != null ? roles.Value : ""
             };
         }
     }
