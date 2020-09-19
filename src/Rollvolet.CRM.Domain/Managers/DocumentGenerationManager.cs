@@ -751,15 +751,25 @@ namespace Rollvolet.CRM.Domain.Managers
 
         private async Task<string> FindReceivedProductionTicketFilePathAsync(int orderId)
         {
-            var order = await _orderDataProvider.GetByIdAsync(orderId);
+            string filePath = null;
+            string notFoundWarning = null;
+            if (_documentGenerationConfig.IsSearchEnabled)
+            {
+                var order = await _orderDataProvider.GetByIdAsync(orderId);
 
-            var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
-            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _receivedProductionTicketStorageLocation);
-
-            // only search on offernumber since customer name might have changed
-            var filenameSearch = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "");
-
-            var filePath = await _fileStorageService.FindDocumentAsync(directory, filenameSearch);
+                var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
+                var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _receivedProductionTicketStorageLocation);
+                // only search on offernumber since customer name might have changed
+                var filenameSearch = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "");
+                filePath = await _fileStorageService.FindDocumentAsync(directory, filenameSearch);
+                notFoundWarning = $"Cannot find production-ticket file for order {orderId} starting with '{filenameSearch}' in directory {directory}";
+            }
+            else
+            {
+                var fileDescriptor = await ConstructReceivedProductionTicketFilePathAsync(orderId);
+                filePath = fileDescriptor.FilePath;
+                notFoundWarning = $"Cannot find production-ticket file for order {orderId} at {filePath}";
+            }
 
             if (filePath != null)
             {
@@ -767,7 +777,7 @@ namespace Rollvolet.CRM.Domain.Managers
             }
             else
             {
-                _logger.LogWarning($"Cannot find production-ticket file for order {orderId} starting with '{filenameSearch}' in directory {directory}");
+                _logger.LogWarning(notFoundWarning);
                 throw new EntityNotFoundException();
             }
         }
@@ -804,19 +814,30 @@ namespace Rollvolet.CRM.Domain.Managers
 
         private async Task<string> FindReceivedCertificateFilePathAsync(int invoiceId, bool isDeposit = false)
         {
-            BaseInvoice invoice = null;
-            if (isDeposit)
-                invoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId);
+            string filePath = null;
+            string notFoundWarning = null;
+            if (_documentGenerationConfig.IsSearchEnabled)
+            {
+                BaseInvoice invoice = null;
+                if (isDeposit)
+                    invoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId);
+                else
+                    invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
+
+                var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
+                var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _receivedCertificateStorageLocation);
+
+                // only search on invoice number since customer name might have changed
+                var filenameSearch = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "");
+                filePath = await _fileStorageService.FindDocumentAsync(directory, filenameSearch);
+                notFoundWarning = $"Cannot find production-ticket file for invoice {invoiceId} starting with '{filenameSearch}' in directory {directory}";
+            }
             else
-                invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
-
-            var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
-            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _receivedCertificateStorageLocation);
-
-            // only search on invoice number since customer name might have changed
-            var filenameSearch = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "");
-
-            var filePath = await _fileStorageService.FindDocumentAsync(directory, filenameSearch);
+            {
+                var fileDescriptor = await ConstructReceivedCertificateFilePathAsync(invoiceId);
+                filePath = fileDescriptor.FilePath;
+                notFoundWarning = $"Cannot find production-ticket file for invoice {invoiceId} at {filePath}";
+            }
 
             if (filePath != null)
             {
@@ -824,7 +845,7 @@ namespace Rollvolet.CRM.Domain.Managers
             }
             else
             {
-                _logger.LogWarning($"Cannot find certificate file for invoice {invoiceId} starting with '{filenameSearch}' in directory {directory}");
+                _logger.LogWarning(notFoundWarning);
                 throw new EntityNotFoundException();
             }
         }

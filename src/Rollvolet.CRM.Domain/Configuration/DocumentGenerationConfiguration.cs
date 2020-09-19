@@ -3,6 +3,7 @@ namespace Rollvolet.CRM.Domain.Configuration
     public class DocumentGenerationConfiguration
     {
         public string BaseUrl { get; set; }
+        public bool? DisableSearch { get; set; }
         public string VisitReportStorageLocation { get; set; }
         public string InterventionReportStorageLocation { get; set; }
         public string OfferStorageLocation { get; set; }
@@ -14,5 +15,13 @@ namespace Rollvolet.CRM.Domain.Configuration
         public string GeneratedCertificateStorageLocation { get; set; }
         public string ReceivedCertificateStorageLocation { get; set; }
         public string CertificateUploadSourceLocation { get; set; }
+
+        public bool IsSearchEnabled
+        {
+            get
+            {
+                return DisableSearch == null || DisableSearch == false;
+            }
+        }
     }
 }

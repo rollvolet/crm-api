@@ -15,6 +15,7 @@
   },
   "DocumentGeneration": {
     "BaseUrl": "",
+    "DisableSearch": true,
     "VisitReportStorageLocation": "",
     "InterventionReportStorageLocation": "",
     "OfferStorageLocation": "",
