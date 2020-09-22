@@ -49,9 +49,9 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                 {
                     msEvent = await _client.Users[_calendarConfig.KlantenbezoekCalendarId].Calendar.Events.Request().AddAsync(msEvent);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    _logger.LogWarning("Something went wrong while creating MS event for calendar event {1}.", calendarEvent.Id);
+                    _logger.LogWarning(e, "Something went wrong while creating MS event for calendar event {1}.", calendarEvent.Id);
                 }
 
                 calendarEvent.MsObjectId = msEvent.Id;
@@ -90,9 +90,9 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                             throw e;
                         }
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        _logger.LogWarning("Something went wrong while updating MS event {0} for calendar event {1}. Event will be decoupled.", calendarEvent.MsObjectId, calendarEvent.Id);
+                        _logger.LogWarning(e, "Something went wrong while updating MS event {0} for calendar event {1}. Event will be decoupled.", calendarEvent.MsObjectId, calendarEvent.Id);
                         return await DeleteEventForRequestAsync(calendarEvent);
                     }
 
@@ -189,9 +189,9 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                 {
                     calendarItem = await _client.Users[_calendarConfig.PlanningCalendarId].Calendar.Events.Request().AddAsync(calendarItem);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    _logger.LogWarning("Something went wrong while creating calendar item for planning event {1}.", planningEvent.Id);
+                    _logger.LogWarning(e, "Something went wrong while creating calendar item for planning event {0}.", planningEvent.Id);
                 }
 
                 planningEvent.MsObjectId = calendarItem.Id;
@@ -235,9 +235,9 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                             throw e;
                         }
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        _logger.LogWarning("Something went wrong while updating calendar item {0} for planning event {1}. Event will be decoupled.",
+                        _logger.LogWarning(e, "Something went wrong while updating calendar item {0} for planning event {1}. Event will be decoupled.",
                                             planningEvent.MsObjectId, planningEvent.Id);
                         return await DeleteEventForPlanningAsync(planningEvent);
                     }
@@ -267,7 +267,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                     _logger.LogDebug("Delete planning-event in calendar {0} with id {1}", _calendarConfig.PlanningCalendarId, planningEvent.MsObjectId);
                 }
                 catch(Exception e) {
-                    _logger.LogWarning("Something went wrong while deleting calendar item {0} for planning-event {1}. Event will be decoupled.",
+                    _logger.LogWarning(e, "Something went wrong while deleting calendar item {0} for planning-event {1}. Event will be decoupled.",
                                         planningEvent.MsObjectId, planningEvent.Id, e);
                 }
                 planningEvent.MsObjectId = null;
@@ -291,9 +291,9 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                 {
                     calendarEvent = await _client.Users[_calendarConfig.PlanningCalendarId].Calendar.Events.Request().AddAsync(calendarEvent);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    _logger.LogWarning("Something went wrong while creating planning event for order {1}.", order.Id);
+                    _logger.LogWarning(e, "Something went wrong while creating planning event for order {0}.", order.Id);
                 }
 
                 order.PlanningMsObjectId = calendarEvent.Id;
@@ -332,9 +332,9 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                             throw e;
                         }
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        _logger.LogWarning("Something went wrong while updating planning event {0} for order {1}. Event will be decoupled.", order.PlanningMsObjectId, order.Id);
+                        _logger.LogWarning(e, "Something went wrong while updating planning event {0} for order {1}. Event will be decoupled.", order.PlanningMsObjectId, order.Id);
                         return await DeleteEventForPlanningAsync(order);
                     }
 
@@ -363,7 +363,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                     _logger.LogDebug("Delete planning event in calendar {0} with id {1}", _calendarConfig.PlanningCalendarId, order.PlanningMsObjectId);
                 }
                 catch(Exception e) {
-                    _logger.LogWarning("Something went wrong while deleting planning event {0} for order {1}. Event will be decoupled.", order.PlanningMsObjectId, order.Id, e);
+                    _logger.LogWarning(e, "Something went wrong while deleting planning event {0} for order {1}. Event will be decoupled.", order.PlanningMsObjectId, order.Id, e);
                 }
                 order.PlanningMsObjectId = null;
                 order.PlanningDate = null;
