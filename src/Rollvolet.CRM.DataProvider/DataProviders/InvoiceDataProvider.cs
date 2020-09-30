@@ -211,16 +211,19 @@ namespace Rollvolet.CRM.DataProviders
 
             if (invoice != null)
             {
-                // Detach all deposits and deposit invoices. They are still attached to the order
-                var depositInvoices = await _context.DepositInvoices.Where(hub => hub.OrderId == invoice.OrderId).ToListAsync();
-                foreach (var depositInvoice in depositInvoices)
+                if (invoice.OrderId != null)
                 {
-                    depositInvoice.InvoiceId = null;
-                }
-                var deposits = await _context.Deposits.Where(d => d.OrderId == invoice.OrderId).ToListAsync();
-                foreach (var deposit in deposits)
-                {
-                    deposit.InvoiceId = null;
+                    // Detach all deposits and deposit invoices. They are still attached to the order
+                    var depositInvoices = await _context.DepositInvoices.Where(hub => hub.OrderId == invoice.OrderId).ToListAsync();
+                    foreach (var depositInvoice in depositInvoices)
+                    {
+                        depositInvoice.InvoiceId = null;
+                    }
+                    var deposits = await _context.Deposits.Where(d => d.OrderId == invoice.OrderId).ToListAsync();
+                    foreach (var deposit in deposits)
+                    {
+                        deposit.InvoiceId = null;
+                    }
                 }
 
                 _context.Invoices.Remove(invoice);
