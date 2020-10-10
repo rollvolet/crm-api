@@ -50,7 +50,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 source = source.Where(e => e.Invoice == null);
 
             if (querySet.Filter.Fields.ContainsKey("canceled") && querySet.Filter.Fields["canceled"] == "false")
-                source = source.Where(e => e.CancellationDate == null);
+                source = source.Where(e => e.CancellationDate == null && e.FollowUpRequest.OriginId == null);
 
             source = source.FilterCase(querySet, context);
 
