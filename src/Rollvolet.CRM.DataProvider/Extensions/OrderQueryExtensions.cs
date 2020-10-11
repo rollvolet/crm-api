@@ -80,6 +80,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Include.Fields.Contains("invoicelines.vat-rate"))
                 source = source.Include(x => x.Invoicelines).ThenInclude(x => x.VatRate);
 
+            if (querySet.Include.Fields.Contains("technicians"))
+                source = source.Include(x => x.OrderTechnicians).ThenInclude(x => x.Employee);
+
             var selectors = new Dictionary<string, Expression<Func<Order, object>>>();
 
             selectors.Add("customer", c => c.Customer);
@@ -96,6 +99,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("customer.honorific-prefix", null);
             selectors.Add("deposit-invoices", null);
             selectors.Add("invoicelines.vat-rate", null);
+            selectors.Add("technicians", null);
 
             return source.Include<Order>(querySet, selectors);
         }

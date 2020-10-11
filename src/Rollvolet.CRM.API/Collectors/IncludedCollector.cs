@@ -333,6 +333,8 @@ namespace Rollvolet.CRM.API.Collectors
                 included.UnionWith(_mapper.Map<IEnumerable<DepositInvoiceDto>>(order.DepositInvoices));
             if (includeQuery.Contains("interventions") && order.Interventions.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<InterventionDto>>(order.Interventions));
+            if (includeQuery.Contains("technicians") && order.Technicians.Count() > 0)
+                included.UnionWith(_mapper.Map<IEnumerable<EmployeeDto>>(order.Technicians));
 
             return included;
         }

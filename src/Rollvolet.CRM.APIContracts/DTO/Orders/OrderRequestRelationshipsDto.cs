@@ -14,5 +14,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Orders
         public ManyRelationship Deposits { get; set; }
         public ManyRelationship DepositInvoices { get; set; }
         public ManyRelationship Interventions { get; set; }
+        public ManyRelationship Technicians { get; set; }
     }
 }

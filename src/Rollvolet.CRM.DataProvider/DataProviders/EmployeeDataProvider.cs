@@ -132,5 +132,26 @@ namespace Rollvolet.CRM.DataProviders
                 PageSize = query.Page.Size
             };
         }
+
+        public async Task<Paged<Employee>> GetAllByOrderIdAsync(int orderId, QuerySet query)
+        {
+            var source = _context.OrderTechnicians
+                                    .Where(o => o.OrderId == orderId)
+                                    .Include(o => o.Employee)
+                                    .Select(o => o.Employee);
+
+            var employees = await source.ForPage(query).ToListAsync();
+
+            var mappedEmployees = _mapper.Map<IEnumerable<Employee>>(employees);
+
+            var count = await source.CountAsync();
+
+            return new Paged<Employee>() {
+                Items = mappedEmployees,
+                Count = count,
+                PageNumber = query.Page.Number,
+                PageSize = query.Page.Size
+            };
+        }
     }
 }

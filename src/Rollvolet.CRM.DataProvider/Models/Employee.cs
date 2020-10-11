@@ -33,5 +33,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         // Included resources
         public IEnumerable<WorkingHour> WorkingHours { get; set; }
         public ICollection<InterventionTechnician> InterventionTechnicians { get; set; }
+        public ICollection<OrderTechnician> OrderTechnicians { get; set; }
     }
 }

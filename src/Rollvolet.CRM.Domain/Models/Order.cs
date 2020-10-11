@@ -17,6 +17,7 @@ namespace Rollvolet.CRM.Domain.Models
         public IEnumerable<Deposit> Deposits { get; set; }
         public IEnumerable<DepositInvoice> DepositInvoices { get; set; }
         public IEnumerable<Intervention> Interventions { get; set; }
+        public IEnumerable<Employee> Technicians { get; set; }
 
         public DateTime? OrderDate { get; set; }
         public int? RequestNumber { get; set; }

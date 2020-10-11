@@ -172,6 +172,7 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Deposits = GetManyRelationship<Deposit>("orders", source.Id, "deposits", source.Deposits, context);
             relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("orders", source.Id, "deposit-invoices", source.DepositInvoices, context);
             relationships.Interventions = GetManyRelationship<Intervention>("orders", source.Id, "interventions", source.Interventions, context);
+            relationships.Technicians = GetManyRelationship<Employee>("orders", source.Id, "technicians", source.Technicians, context);
             return relationships;
         }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
@@ -22,6 +23,7 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IDepositDataProvider _depositDataProvider;
         private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
+        private readonly IEmployeeDataProvider _employeeDataProvider;
         private readonly IGraphApiCalendarService _calendarService;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly ILogger _logger;
@@ -31,6 +33,7 @@ namespace Rollvolet.CRM.Domain.Managers
                                 IBuildingDataProvider buildingDataProvider, IOfferDataProvider offerDataProvider,
                                 IInvoicelineDataProvider invoicelineDataProvider, IVatRateDataProvider vatRateDataProvider,
                                 IDepositDataProvider depositDataProvider, IDepositInvoiceDataProvider depositInvoiceDataProvider,
+                                IEmployeeDataProvider employeeDataProvider,
                                 IGraphApiCalendarService calendarService, IDocumentGenerationManager documentGenerationManager,
                                 ILogger<OrderManager> logger)
         {
@@ -44,6 +47,7 @@ namespace Rollvolet.CRM.Domain.Managers
             _depositDataProvider = depositDataProvider;
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
+            _employeeDataProvider = employeeDataProvider;
             _calendarService = calendarService;
             _documentGenerationManager = documentGenerationManager;
             _logger = logger;
@@ -137,7 +141,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Order> UpdateAsync(Order order)
         {
             var query = new QuerySet();
-            query.Include.Fields = new string[] { "customer", "building", "contact", "offer", "vat-rate" };
+            query.Include.Fields = new string[] { "customer", "building", "contact", "offer", "vat-rate", "technicians" };
             var existingOrder = await _orderDataProvider.GetByIdAsync(order.Id, query);
 
             if (order.Id != existingOrder.Id)
@@ -268,6 +272,14 @@ namespace Rollvolet.CRM.Domain.Managers
                     else
                         order.VatRate = await _vatRateDataProvider.GetByIdAsync(int.Parse(order.VatRate.Id));
                 }
+
+                var technicians = new List<Employee>();
+                foreach (var technicianRelation in order.Technicians)
+                {
+                    var technician = await _employeeDataProvider.GetByIdAsync(technicianRelation.Id);
+                    technicians.Add(technician);
+                }
+                order.Technicians = technicians;
 
                 // Customer cannot be updated. Take customer of oldOrder on update.
                 if (oldOrder != null)

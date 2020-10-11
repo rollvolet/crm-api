@@ -33,6 +33,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<VatRate> VatRates { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<InterventionTechnician> InterventionTechnicians { get; set; }
+        public DbSet<OrderTechnician> OrderTechnicians { get; set; }
         public DbSet<Visit> Visits { get; set; }
         public DbSet<PlanningEvent> PlanningEvents { get; set; }
         public DbSet<Payment> Payments { get; set; }
@@ -657,6 +658,25 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             modelBuilder.Entity<InterventionTechnician>()
                 .HasOne(e => e.Employee)
                 .WithMany(e => e.InterventionTechnicians)
+                .HasForeignKey(e => e.EmployeeId);
+
+
+            // OrderTechnician
+
+            modelBuilder.Entity<OrderTechnician>()
+                .ToTable("TblOrderTechnician", schema: "dbo");
+
+            modelBuilder.Entity<OrderTechnician>()
+                .HasKey(e => new { e.OrderId, e.EmployeeId });
+
+            modelBuilder.Entity<OrderTechnician>()
+                .HasOne(e => e.Order)
+                .WithMany(e => e.OrderTechnicians)
+                .HasForeignKey(e => e.OrderId);
+
+            modelBuilder.Entity<OrderTechnician>()
+                .HasOne(e => e.Employee)
+                .WithMany(e => e.OrderTechnicians)
                 .HasForeignKey(e => e.EmployeeId);
 
 

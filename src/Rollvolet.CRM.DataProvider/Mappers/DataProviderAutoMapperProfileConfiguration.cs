@@ -262,6 +262,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.RequiredDate, opt => opt.MapFrom(src => ParseDate(src.RequiredDate)))
                 .ForMember(dest => dest.PlanningDate, opt => opt.MapFrom(src => ParseDate(src.PlanningDate)))
                 .ForMember(dest => dest.DepositInvoices, opt => opt.MapFrom(src => src.DepositInvoicesHubs.Select(x => x.DepositInvoice)))
+                .ForMember(dest => dest.Technicians, opt => opt.Ignore())
                 .PreserveReferences()
                 .ReverseMap()
                 .ForMember(dest => dest.ExpectedDate, opt => opt.MapFrom(src => src.ExpectedDate != null ? ((DateTime) src.ExpectedDate).ToString("d/MM/yyyy") : null))
@@ -281,7 +282,14 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Invoicelines, opt => opt.Ignore())
                 .ForMember(dest => dest.Deposits, opt => opt.Ignore())
                 .ForMember(dest => dest.Interventions, opt => opt.Ignore())
+                .ForMember(dest => dest.OrderTechnicians, opt => opt.MapFrom(src => src.Technicians))
                 .ForMember(dest => dest.OfferNumber, opt => opt.Ignore()) // Offer number cannot be updated through Order
+                .AfterMap((src, dest) => {
+                    foreach(var joinEntry in dest.OrderTechnicians)
+                    {
+                        joinEntry.OrderId = dest.Id;
+                    }
+                })
                 .PreserveReferences();
 
             CreateMap<Models.Invoiceline, Domain.Models.Invoiceline>()
@@ -360,9 +368,11 @@ namespace Rollvolet.CRM.DataProvider.Mappers
 
             CreateMap<Models.Employee, Domain.Models.Employee>()
                 .ForMember(dest => dest.Interventions, opt => opt.MapFrom(src => src.InterventionTechnicians))
+                .ForMember(dest => dest.Orders, opt => opt.MapFrom(src => src.OrderTechnicians))
                 .PreserveReferences()
                 .ReverseMap()
                 .ForMember(dest => dest.InterventionTechnicians, opt => opt.Ignore())
+                .ForMember(dest => dest.OrderTechnicians, opt => opt.Ignore())
                 .PreserveReferences();
 
             CreateMap<Models.InterventionTechnician, Domain.Models.Intervention>()
@@ -374,6 +384,18 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<Domain.Models.Employee, Models.InterventionTechnician>()
+                .ForMember(dest => dest.EmployeeId, opt => opt.MapFrom(src => src.Id))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<Models.OrderTechnician, Domain.Models.Order>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.OrderId))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<Models.OrderTechnician, Domain.Models.Employee>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EmployeeId))
+                .ForAllOtherMembers(opt => opt.Ignore());
+
+            CreateMap<Domain.Models.Employee, Models.OrderTechnician>()
                 .ForMember(dest => dest.EmployeeId, opt => opt.MapFrom(src => src.Id))
                 .ForAllOtherMembers(opt => opt.Ignore());
 

@@ -42,6 +42,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IVatRateManager _vatRateManager;
         private readonly IInterventionManager _interventionManager;
         private readonly IInvoicelineManager _invoicelineManager;
+        private readonly IEmployeeManager _employeeManager;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
@@ -51,7 +52,7 @@ namespace Rollvolet.CRM.API.Controllers
                                 ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
                                 IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager, IVatRateManager vatRateManager,
                                 IInterventionManager interventionManager, IInvoicelineManager invoicelineManager,
-                                IDocumentGenerationManager documentGenerationManager,
+                                IEmployeeManager employeeManager, IDocumentGenerationManager documentGenerationManager,
                                 IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _orderManager = orderManager;
@@ -65,6 +66,7 @@ namespace Rollvolet.CRM.API.Controllers
             _vatRateManager = vatRateManager;
             _interventionManager = interventionManager;
             _invoicelineManager = invoicelineManager;
+            _employeeManager = employeeManager;
             _documentGenerationManager = documentGenerationManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
@@ -370,6 +372,22 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedInvoicelines);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = invoicelineDtos, Included = included });
+        }
+
+        [HttpGet("{orderId}/technicians")]
+        [HttpGet("{orderId}/links/technicians")]
+        public async Task<IActionResult> GetRelatedTechniciansByIdAsync(int orderId)
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedEmployees = await _employeeManager.GetAllByOrderIdAsync(orderId, querySet);
+
+            var employeeDtos = _mapper.Map<IEnumerable<EmployeeDto>>(pagedEmployees.Items, opt => opt.Items["include"] = querySet.Include);
+            var included = _includedCollector.CollectIncluded(pagedEmployees.Items, querySet.Include);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedEmployees);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedEmployees);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = employeeDtos, Included = included });
         }
     }
 }
