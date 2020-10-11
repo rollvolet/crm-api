@@ -167,6 +167,15 @@ namespace Rollvolet.CRM.Domain.Managers
                     else
                         offer.VatRate = await _vatRateDataProvider.GetByIdAsync(int.Parse(offer.VatRate.Id));
                 }
+                else
+                {
+                    // Offer must have a VAT rate. Take VAT rate of oldOffer if none is passed.
+                    if (oldOffer != null)
+                    {
+                        offer.VatRate = oldOffer.VatRate;
+                        _logger.LogDebug("Received an update for offer {0} without a VAT rate", offer.Id);
+                    }
+                }
 
                 // Customer cannot be updated. Take customer of oldOffer on update.
                 if (oldOffer != null)
@@ -203,7 +212,7 @@ namespace Rollvolet.CRM.Domain.Managers
             }
             catch (EntityNotFoundException)
             {
-                _logger.LogDebug($"Failed to find a related entity");
+                _logger.LogDebug("Failed to find a related entity");
                 throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
             }
         }
