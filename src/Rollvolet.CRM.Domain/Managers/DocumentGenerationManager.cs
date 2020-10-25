@@ -26,7 +26,7 @@ namespace Rollvolet.CRM.Domain.Managers
     public class DocumentGenerationManager : IDocumentGenerationManager
     {
         private readonly Regex _onlyAlphaNumeric = new Regex("[^a-zA-Z0-9_]");
-        private readonly Regex _noNewlines = new Regex("\r|\n|\r\n", RegexOptions.Multiline);
+        private readonly Regex _noNewlines = new Regex("\r|\n|\r\n|/", RegexOptions.Multiline);
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly IInterventionDataProvider _interventionDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
