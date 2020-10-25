@@ -706,7 +706,11 @@ namespace Rollvolet.CRM.Domain.Managers
             var year = $"20{int.Parse(offer.Number.Substring(0, 2)) - 10}";
             var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _offerStorageLocation);
             var number = $"{offer.Number.Substring(0, 8)}_${offer.Number.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
-            var filename = _onlyAlphaNumeric.Replace($"{number}_{offer.DocumentVersion}", "");
+            string filename;
+            if (offer.DocumentVersion != null)
+                filename = _onlyAlphaNumeric.Replace($"{number}_{offer.DocumentVersion}", "");
+            else
+                filename = _onlyAlphaNumeric.Replace($"{number}", "");
             return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
