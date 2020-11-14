@@ -55,6 +55,7 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Payment, EmptyRelationshipsDto>,
                                             ITypeConverter<AccountancyExport, EmptyRelationshipsDto>,
                                             ITypeConverter<MonthlySalesEntry, EmptyRelationshipsDto>,
+                                            ITypeConverter<OutstandingJob, EmptyRelationshipsDto>,
                                             ITypeConverter<ErrorNotification, EmptyRelationshipsDto>
     {
         CustomerRelationshipsDto ITypeConverter<Customer, CustomerRelationshipsDto>.Convert(Customer source, CustomerRelationshipsDto destination, ResolutionContext context)
@@ -323,6 +324,11 @@ namespace Rollvolet.CRM.API.Mappers
         }
 
         EmptyRelationshipsDto ITypeConverter<MonthlySalesEntry, EmptyRelationshipsDto>.Convert(MonthlySalesEntry source, EmptyRelationshipsDto destination, ResolutionContext context)
+        {
+            return new EmptyRelationshipsDto();
+        }
+
+        EmptyRelationshipsDto ITypeConverter<OutstandingJob, EmptyRelationshipsDto>.Convert(OutstandingJob source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
         }

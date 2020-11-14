@@ -43,5 +43,19 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Data = entryDtos });
         }
 
+
+        [HttpGet("outstanding-jobs")]
+        public async Task<IActionResult> GetOutstandingJobs()
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var pagedOutstandingJobs = await _reportManager.GetOutstandingJobs(querySet);
+
+            var outstandingJobDtos = _mapper.Map<IEnumerable<OutstandingJobDto>>(pagedOutstandingJobs.Items);
+            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedOutstandingJobs);
+            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedOutstandingJobs);
+
+            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = outstandingJobDtos });
+        }
     }
 }

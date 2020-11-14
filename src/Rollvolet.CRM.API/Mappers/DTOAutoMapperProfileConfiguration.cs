@@ -25,6 +25,8 @@ using Rollvolet.CRM.APIContracts.DTO.Interventions;
 using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
 using Rollvolet.CRM.Business.Models;
 using Rollvolet.CRM.APIContracts.DTO.Reports;
+using System;
+using System.Globalization;
 
 namespace Rollvolet.CRM.API.Mappers
 {
@@ -1055,6 +1057,22 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<MonthlySalesEntry, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
 
+            // Outstanding Job mappings
+            CreateMap<OutstandingJob, OutstandingJobDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => $"{src.RequestId}"))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "outstanding-jobs"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<OutstandingJob, OutstandingJobAttributesDto>()
+                .ForMember(dest => dest.ExpectedDate, opt => opt.MapFrom(src => ParseDate(src.ExpectedDate)))
+                .ForMember(dest => dest.RequiredDate, opt => opt.MapFrom(src => ParseDate(src.RequiredDate)))
+                .ForMember(dest => dest.PlanningDate, opt => opt.MapFrom(src => ParseDate(src.PlanningDate)))
+                .ReverseMap();
+
+            CreateMap<OutstandingJob, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+
             // Error notification mappings
 
             CreateMap<ErrorNotification, ErrorNotificationDto>()
@@ -1072,5 +1090,24 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForAllOtherMembers(opt => opt.Ignore());
         }
 
+        private DateTime? ParseDate(string dateString)
+        {
+            if (dateString == null)
+            {
+                return null;
+            }
+            else
+            {
+                DateTime dateTime;
+                if (DateTime.TryParseExact(dateString, "d/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
+                    return dateTime;
+                else if (DateTime.TryParseExact(dateString, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
+                    return dateTime;
+                else if (DateTime.TryParseExact(dateString, "d/MM/yy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
+                    return dateTime;
+                else
+                    return null;
+            }
+        }
     }
 }
