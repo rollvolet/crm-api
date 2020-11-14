@@ -46,11 +46,29 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                     throw new IllegalArgumentException("IllegalFilter", "Order id filter must be a integer.");
             }
 
-            if (querySet.Filter.Fields.ContainsKey("invoice") && querySet.Filter.Fields["invoice"] == "false")
-                source = source.Where(e => e.Invoice == null);
+            if (querySet.Filter.Fields.ContainsKey("hasInvoice"))
+            {
+                if (Int32.Parse(querySet.Filter.Fields["hasInvoice"]) == 0)
+                    source = source.Where(e => e.Invoice == null);
+                else if (Int32.Parse(querySet.Filter.Fields["hasInvoice"]) == 1)
+                    source = source.Where(e => e.Invoice != null);
+            }
 
-            if (querySet.Filter.Fields.ContainsKey("canceled") && querySet.Filter.Fields["canceled"] == "false")
-                source = source.Where(e => e.CancellationDate == null && e.FollowUpRequest.OriginId == null);
+            if (querySet.Filter.Fields.ContainsKey("isCancelled"))
+            {
+                if (Int32.Parse(querySet.Filter.Fields["isCancelled"]) == 0)
+                    source = source.Where(e => e.CancellationDate == null && e.FollowUpRequest.OriginId == null);
+                else if (Int32.Parse(querySet.Filter.Fields["isCancelled"]) == 1)
+                    source = source.Where(e => e.CancellationDate != null || e.FollowUpRequest.OriginId != null);
+            }
+
+            if (querySet.Filter.Fields.ContainsKey("isPlanned"))
+            {
+                if (Int32.Parse(querySet.Filter.Fields["isPlanned"]) == 0)
+                    source = source.Where(e => e.PlanningEvent.Date == null);
+                else if (Int32.Parse(querySet.Filter.Fields["isPlanned"]) == 1)
+                    source = source.Where(e => e.PlanningEvent.Date != null);
+            }
 
             source = source.FilterCase(querySet, context);
 
