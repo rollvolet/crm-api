@@ -56,17 +56,17 @@ namespace Rollvolet.CRM.Business.Managers
             var filterFields = querySet.Filter.Fields;
             var filters = new List<string>();
             if (filterFields.ContainsKey("visitor"))
-                filters.Add($"AND b.Bezoeker = '{filterFields["visitor"].Replace("'", "''")}'");
+                filters.Add($" AND b.Bezoeker = '{filterFields["visitor"].Replace("'", "''")}'");
             if (filterFields.ContainsKey("hasProductionTicket") && Int32.Parse(filterFields["hasProductionTicket"]) >= 0)
-                filters.Add($"AND o.Produktiebon = {Int32.Parse(filterFields["hasProductionTicket"])}");
+                filters.Add($" AND o.Produktiebon = {Int32.Parse(filterFields["hasProductionTicket"])}");
             if (filterFields.ContainsKey("mustBeInstalled") && Int32.Parse(filterFields["mustBeInstalled"]) >= 0)
-                filters.Add($"AND o.Plaatsing = {Int32.Parse(filterFields["mustBeInstalled"])}");
+                filters.Add($" AND o.Plaatsing = {Int32.Parse(filterFields["mustBeInstalled"])}");
             if (filterFields.ContainsKey("mustBeDelivered") && Int32.Parse(filterFields["mustBeDelivered"]) >= 0)
-                filters.Add($"AND o.TeLeveren = {Int32.Parse(filterFields["mustBeDelivered"])}");
+                filters.Add($" AND o.TeLeveren = {Int32.Parse(filterFields["mustBeDelivered"])}");
             if (filterFields.ContainsKey("isProductReady") && Int32.Parse(filterFields["isProductReady"]) >= 0)
-                filters.Add($"AND o.ProductKlaar = {Int32.Parse(filterFields["isProductReady"])}");
+                filters.Add($" AND o.ProductKlaar = {Int32.Parse(filterFields["isProductReady"])}");
             if (filterFields.ContainsKey("orderDate")) // order date format yyyy-mm-dd
-                filters.Add($"AND o.BestelDatum >= '{filterFields["orderDate"].Replace("'", "''")} 00:00:00'");
+                filters.Add($" AND o.BestelDatum >= '{filterFields["orderDate"].Replace("'", "''")} 00:00:00'");
 
             var filterQuery = String.Join("", filters);
 
