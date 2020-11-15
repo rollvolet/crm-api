@@ -272,6 +272,15 @@ namespace Rollvolet.CRM.Domain.Managers
                     else
                         order.VatRate = await _vatRateDataProvider.GetByIdAsync(int.Parse(order.VatRate.Id));
                 }
+                else
+                {
+                    // Order must have a VAT rate. Take VAT rate of oldOrder if none is passed.
+                    if (oldOrder != null)
+                    {
+                        order.VatRate = oldOrder.VatRate;
+                        _logger.LogDebug("Received an update for order {0} without a VAT rate", order.Id);
+                    }
+                }
 
                 var technicians = new List<Employee>();
                 foreach (var technicianRelation in order.Technicians)
