@@ -20,6 +20,5 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             await _systemTaskDataProvider.RecalcalulateSearchNames();
         }
-
     }
 }

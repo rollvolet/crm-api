@@ -11,7 +11,7 @@ namespace Rollvolet.CRM.Domain.Contracts
         Task UploadDocumentAsync(string directory, string fileName, Stream content);
         Task<Stream> DownloadDocumentAsync(string filePath);
         Task<string> FindDocumentAsync(string directory, string search);
-        Task CopyDocumentAsync(string sourcePath, string directory, string fileName);
+        Task CopyDocumentAsync(string sourcePath, string directory, string fileName, bool isRetry = false);
         Task RemoveDocumentAsync(string filePath);
     }
 }

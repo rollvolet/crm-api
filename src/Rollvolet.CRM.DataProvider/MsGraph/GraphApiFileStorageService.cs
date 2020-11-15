@@ -33,7 +33,8 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             // See https://docs.microsoft.com/en-gb/graph/json-batching?context=graph%2Fapi%2F1.0&view=graph-rest-1.0
             foreach (var directory in directories)
             {
-                parent = await CreateDirectoryAsync(directory, parent);
+                if (directory.Trim().Length > 0)
+                    parent = await CreateDirectoryAsync(directory, parent);
             }
             return parent;
         }
@@ -177,7 +178,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return null;
         }
 
-        public async Task CopyDocumentAsync(string sourcePath, string directory, string fileName)
+        public async Task CopyDocumentAsync(string sourcePath, string directory, string fileName, bool isRetry = false)
         {
             try
             {
@@ -200,11 +201,11 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             }
             catch (ServiceException ex)
             {
-                if (ex.StatusCode == HttpStatusCode.NotFound)
+                if (!isRetry && ex.StatusCode == HttpStatusCode.NotFound)
                 {
                     var directories = directory.Split("/");
                     await CreateDirectoryPathAsync(directories);
-                    await CopyDocumentAsync(sourcePath, directory, fileName); // folder has been created, try again...
+                    await CopyDocumentAsync(sourcePath, directory, fileName, true); // folder has been created, try again...
                 }
                 else
                 {

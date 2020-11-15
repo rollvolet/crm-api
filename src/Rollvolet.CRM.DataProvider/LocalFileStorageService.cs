@@ -91,7 +91,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             });
         }
 
-        public async Task CopyDocumentAsync(string sourcePath, string directory, string fileName)
+        public async Task CopyDocumentAsync(string sourcePath, string directory, string fileName, bool isRetry = false)
         {
             var filePath = $"{directory}{Path.DirectorySeparatorChar}{fileName}";
             await Task.Run(() => {
