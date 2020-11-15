@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace Rollvolet.CRM.APIContracts.DTO
 {
     public class CertificateRecyclationDto

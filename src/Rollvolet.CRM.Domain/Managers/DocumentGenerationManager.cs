@@ -644,7 +644,7 @@ namespace Rollvolet.CRM.Domain.Managers
             try
             {
                 var sourcePath = await FindReceivedCertificateFilePathAsync(sourceInvoiceId, isDeposit);
-                var fileDescriptor = await ConstructReceivedCertificateFilePathAsync(invoiceId);
+                var fileDescriptor = await ConstructReceivedCertificateFilePathAsync(invoiceId, true);
                 _logger.LogInformation("Copying certificate of path {0} to path {1}", sourcePath, fileDescriptor.FilePath);
                 await _fileStorageService.CopyDocumentAsync(sourcePath, fileDescriptor.Parent, fileDescriptor.FileName);
             }
