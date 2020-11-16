@@ -49,9 +49,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("hasInvoice"))
             {
                 if (Int32.Parse(querySet.Filter.Fields["hasInvoice"]) == 0)
-                    source = source.Where(e => e.Invoice == null);
+                    source = source.Where(e => e.Invoice.InterventionId == null);
                 else if (Int32.Parse(querySet.Filter.Fields["hasInvoice"]) == 1)
-                    source = source.Where(e => e.Invoice != null);
+                    source = source.Where(e => e.Invoice.InterventionId != null);
             }
 
             if (querySet.Filter.Fields.ContainsKey("isCancelled"))
