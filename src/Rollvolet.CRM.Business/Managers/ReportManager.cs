@@ -94,7 +94,7 @@ namespace Rollvolet.CRM.Business.Managers
                     c.Postcode as customerPostalCode, c.Gemeente as customerCity, g.Naam as buildingName,
                     g.Adres1 as buildingAddress1, g.Adres2 as buildingAddress2, g.Adres3 as buildingAddress3,
                     g.Postcode as buildingPostalCode, g.Gemeente as buildingCity,
-                    o.VastgelegdeDatum as plannedDate, o.VerwachteDatum as expectedDate, o.VereisteDatum as requiredDate,
+                    o.VastgelegdeDatum as planningDate, o.VerwachteDatum as expectedDate, o.VereisteDatum as requiredDate,
                     o.UrenGepland as scheduledNbOfHours, o.ManGepland as scheduledNbOfPersons,
                     o.Produktiebon as hasProductionTicket, o.Plaatsing as mustBeInstalled,
                     o.TeLeveren as mustBeDelivered, o.ProductKlaar as productIsReady

@@ -24,9 +24,9 @@ namespace Rollvolet.CRM.APIContracts.DTO.Reports
         public string BuildingCity { get; set; }
         public float? ScheduledNbOfHours { get; set; }
         public float? ScheduledNbOfPersons { get; set; }
-        public DateTime ExpectedDate { get; set; }
-        public DateTime RequiredDate { get; set; }
-        public DateTime PlanningDate { get; set; }
+        public DateTime? ExpectedDate { get; set; }
+        public DateTime? RequiredDate { get; set; }
+        public DateTime? PlanningDate { get; set; }
         public bool HasProductionTicket { get; set; }
         public bool ProductIsReady { get; set; }
         public bool MustBeDelivered { get; set; }
