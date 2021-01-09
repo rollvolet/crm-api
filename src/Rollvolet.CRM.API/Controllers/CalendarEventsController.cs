@@ -12,7 +12,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("calendar-events")]
-    [Authorize]
     public class CalendarEventsController : ControllerBase
     {
         private readonly ICalendarEventManager _calendarEventManager;

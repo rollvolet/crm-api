@@ -28,7 +28,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class OrdersController : ControllerBase
     {
         private readonly IOrderManager _orderManager;

@@ -11,7 +11,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("postal-codes")]
-    [Authorize]
     public class PostalCodesontroller : ControllerBase
     {
         private readonly IPostalCodeManager _postalCodeManager;

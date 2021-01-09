@@ -15,7 +15,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("invoice-supplements")]
-    [Authorize]
     public class InvoiceSupplementsController : ControllerBase
     {
         private readonly IInvoiceSupplementManager _invoiceSupplementManager;

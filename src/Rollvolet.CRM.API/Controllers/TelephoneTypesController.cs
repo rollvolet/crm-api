@@ -11,7 +11,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("telephone-types")]
-    [Authorize]
     public class TelephoneTypesController : ControllerBase
     {
         private readonly ITelephoneTypeManager _telephoneTypeManager;

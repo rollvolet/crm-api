@@ -11,7 +11,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("error-notifications")]
-    [Authorize]
     public class ErrorNotificationsController : ControllerBase
     {
         private readonly IErrorNotificationManager _errorNotificationManager;

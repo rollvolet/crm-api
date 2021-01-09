@@ -29,6 +29,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph.Authentication
 
         public async Task AuthenticateRequestAsync(HttpRequestMessage request)
         {
+            // TODO query access token from triplestore based on mu-session header
             var user = _httpContextAccessor.HttpContext.User;
 
             if (user.Identity.IsAuthenticated)

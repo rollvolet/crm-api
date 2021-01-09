@@ -24,7 +24,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class OffersController : ControllerBase
     {
         private readonly IOfferManager _offerManager;

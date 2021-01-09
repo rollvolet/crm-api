@@ -11,7 +11,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("honorific-prefixes")]
-    [Authorize]
     public class HonorificPrefixesController : ControllerBase
     {
         private readonly IHonorificPrefixManager _honorificPrefixManager;

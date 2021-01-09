@@ -19,7 +19,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class ContactsController : ControllerBase
     {
         private readonly IContactManager _contactManager;

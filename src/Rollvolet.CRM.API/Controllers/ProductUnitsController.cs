@@ -11,7 +11,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("product-units")]
-    [Authorize]
     public class ProductUnitsController : ControllerBase
     {
         private readonly IProductUnitManager _productUnitManager;

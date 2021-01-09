@@ -23,7 +23,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("deposit-invoices")]
-    [Authorize]
     public class DepositInvoicesController : ControllerBase
     {
         private readonly IDepositInvoiceManager _depositInvoiceManager;

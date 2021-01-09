@@ -18,7 +18,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class InvoicelinesController : ControllerBase
     {
         private readonly IInvoicelineManager _invoicelineManager;

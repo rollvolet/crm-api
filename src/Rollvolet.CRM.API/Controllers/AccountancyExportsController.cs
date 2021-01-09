@@ -14,7 +14,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("accountancy-exports")]
-    [Authorize]
     public class AccountancyExportsController : ControllerBase
     {
         private readonly IAccountancyExportManager _accountancyExportManager;

@@ -24,7 +24,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class InterventionsController : ControllerBase
     {
         private readonly IInterventionManager _interventionManager;

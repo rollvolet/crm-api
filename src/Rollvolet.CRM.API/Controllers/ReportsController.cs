@@ -14,7 +14,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class ReportsController : ControllerBase
     {
         private readonly IReportManager _reportManager;
@@ -29,7 +28,6 @@ namespace Rollvolet.CRM.API.Controllers
         }
 
         [HttpGet("revenue")]
-        [Authorize(Roles = "board")]
         public async Task<IActionResult> GetMonthlySalesReport([FromQuery] int? fromYear, [FromQuery] int? toYear)
         {
             if (toYear == null)

@@ -8,7 +8,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class CalendarsController : ControllerBase
     {
         private readonly IGraphApiCalendarService _calendarService;

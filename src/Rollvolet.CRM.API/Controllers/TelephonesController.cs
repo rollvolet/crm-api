@@ -18,7 +18,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class TelephonesController : ControllerBase
     {
         private readonly ITelephoneManager _telephoneManager;

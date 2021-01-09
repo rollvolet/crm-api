@@ -11,7 +11,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("way-of-entries")]
-    [Authorize]
     public class WayOfEntriesController : ControllerBase
     {
         private readonly IWayOfEntryManager _wayOfEntryManager;

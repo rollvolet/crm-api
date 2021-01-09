@@ -11,7 +11,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class CountriesController : ControllerBase
     {
         private readonly ICountryManager _countryManager;

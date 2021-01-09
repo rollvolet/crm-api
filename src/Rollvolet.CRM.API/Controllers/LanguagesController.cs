@@ -11,7 +11,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class LanguagesController : ControllerBase
     {
         private readonly ILanguageManager _languageManager;

@@ -14,9 +14,8 @@ using Rollvolet.CRM.Domain.Models;
 
 namespace Rollvolet.CRM.API.Controllers
 {
-    [ApiController] 
+    [ApiController]
     [Route("working-hours")]
-    [Authorize]
     public class WorkingHoursController : ControllerBase
     {
         private readonly IWorkingHourManager _workingHourManager;

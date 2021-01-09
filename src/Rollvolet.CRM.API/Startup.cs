@@ -70,26 +70,7 @@ namespace Rollvolet.CRM.API
             services.Configure<FileStorageConfiguration>(Configuration.GetSection("FileStorage"));
             services.Configure<AccountancyConfiguration>(Configuration.GetSection("Accountancy"));
 
-            // Setup authentication using OAuth 2.0 auth code grant between frontend and backend
-            // and using OAuth 2.0 on-behalf-of flow to query downstream APIs (e.g. Graph API)
-            // See also: https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-call-api-overview
-            // and the source code at https://github.com/AzureAD/microsoft-identity-web
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                    .AddCookie(options => {
-                        options.Cookie.Name = "RollvoletCRM";
-                        options.Cookie.SameSite = SameSiteMode.Strict;
-                        options.Events = new CookieAuthenticationEvents
-                        {
-                            OnRedirectToLogin = redirectContext =>
-                            {
-                                redirectContext.HttpContext.Response.StatusCode = 401;
-                                return Task.CompletedTask;
-                            }
-                        };
-                    });
             services.AddSingleton<IConfidentialClientApplicationProvider, ConfidentialClientApplicationProvider>();
-            // TODO Use persistent storage for tokens instead of in memory cache
-            services.AddInMemoryTokenCaches();
             services.AddScoped<IAuthenticationProvider, OnBehalfOfMsGraphAuthenticationProvider>();
 
             services.AddSession();
@@ -197,12 +178,6 @@ namespace Rollvolet.CRM.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // auto migrations
-            // using (var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            // {
-            //     scope.ServiceProvider.GetRequiredService<CrmContext>().Database.Migrate();
-            // }
-
             if (env.IsDevelopment())
             {
                 app.UseExecutionTiming();
@@ -211,10 +186,6 @@ namespace Rollvolet.CRM.API
             app.UseCorrelations();
 
             app.UseRouting();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-            //app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

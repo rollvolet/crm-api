@@ -22,7 +22,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class RequestsController : ControllerBase
     {
         private readonly IRequestManager _requestManager;

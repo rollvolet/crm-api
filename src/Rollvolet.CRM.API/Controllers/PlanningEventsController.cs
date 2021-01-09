@@ -16,7 +16,6 @@ namespace Rollvolet.CRM.API.Controllers
 {
     [ApiController]
     [Route("planning-events")]
-    [Authorize]
     public class PlanningEventsController : ControllerBase
     {
         private readonly IPlanningEventManager _planningEventManager;
