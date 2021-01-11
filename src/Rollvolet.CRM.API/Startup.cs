@@ -69,9 +69,7 @@ namespace Rollvolet.CRM.API
             services.Configure<DocumentGenerationConfiguration>(Configuration.GetSection("DocumentGeneration"));
             services.Configure<FileStorageConfiguration>(Configuration.GetSection("FileStorage"));
             services.Configure<AccountancyConfiguration>(Configuration.GetSection("Accountancy"));
-
-            services.AddSingleton<IConfidentialClientApplicationProvider, ConfidentialClientApplicationProvider>();
-            services.AddScoped<IAuthenticationProvider, OnBehalfOfMsGraphAuthenticationProvider>();
+            services.Configure<SparqlConfiguration>(Configuration.GetSection("Sparql"));
 
             services.AddSession();
             services.AddCorrelations();
@@ -83,6 +81,9 @@ namespace Rollvolet.CRM.API
             });
             mapperConfiguration.AssertConfigurationIsValid();
             services.AddSingleton(sp => mapperConfiguration.CreateMapper());
+
+            services.AddSingleton<IConfidentialClientApplicationProvider, ConfidentialClientApplicationProvider>();
+            services.AddScoped<IAuthenticationProvider, OnBehalfOfMsGraphAuthenticationProvider>();
 
             services.AddSingleton<IExceptionToActionResultMapper, ExceptionToActionResultMapper>();
             services.AddTransient<ICustomerDataProvider, CustomerDataProvider>();

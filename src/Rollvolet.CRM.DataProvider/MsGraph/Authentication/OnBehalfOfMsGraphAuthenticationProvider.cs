@@ -1,49 +1,72 @@
+using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Authentication;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Graph;
 using Rollvolet.CRM.Domain.Authentication.Interfaces;
+using Rollvolet.CRM.Domain.Configuration;
+using VDS.RDF.Query;
 
 namespace Rollvolet.CRM.DataProvider.MsGraph.Authentication
 {
     public class OnBehalfOfMsGraphAuthenticationProvider : IAuthenticationProvider
     {
-        // TODO remove duplication
-        private static readonly string[] SCOPES = new string[] { "User.Read", "Calendars.ReadWrite.Shared", "Files.ReadWrite.All" };
-
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfidentialClientApplicationProvider _applicationProvider;
+        private readonly SparqlRemoteEndpoint _sparqlEndpoint;
         private readonly ILogger _logger;
 
         public OnBehalfOfMsGraphAuthenticationProvider(IHttpContextAccessor httpContextAccessor,
-            IConfidentialClientApplicationProvider applicationProvider, ILogger<OnBehalfOfMsGraphAuthenticationProvider> logger)
+            IConfidentialClientApplicationProvider applicationProvider,
+            IOptions<SparqlConfiguration> sparqlConfiguration,
+            ILogger<OnBehalfOfMsGraphAuthenticationProvider> logger)
         {
             _httpContextAccessor = httpContextAccessor;
             _applicationProvider = applicationProvider;
+            _sparqlEndpoint = new SparqlRemoteEndpoint(new Uri(sparqlConfiguration.Value.Endpoint));
             _logger = logger;
         }
 
         public async Task AuthenticateRequestAsync(HttpRequestMessage request)
         {
-            // TODO query access token from triplestore based on mu-session header
-            var user = _httpContextAccessor.HttpContext.User;
+            var sessionHeader = _httpContextAccessor.HttpContext.Request.Headers["mu-session-id"];
 
-            if (user.Identity.IsAuthenticated)
+            if (!StringValues.IsNullOrEmpty(sessionHeader))
             {
-                var username = user.FindFirstValue(ClaimTypes.Upn);
+                var session = sessionHeader.ToString();
 
-                _logger.LogInformation("Query token cache to get access token to query Graph API");
-                var authenticationResult = await _applicationProvider.GetApplication().AcquireTokenSilent(SCOPES, username).ExecuteAsync();
+                _logger.LogDebug($"Retrieved session <{session}> from request headers");
+                var resultSet = _sparqlEndpoint.QueryWithResultSet($@"
+                    PREFIX oauth: <http://data.rollvolet.be/vocabularies/oauth-2.0/>
+                    SELECT ?accessToken
+                    WHERE {{
+                        GRAPH <http://mu.semte.ch/graphs/sessions> {{
+                            ?oauthSession oauth:authenticates <${session}> ;
+                                    oauth:tokenValue ?accessToken .
+                        }}
+                    }} LIMIT 1
+                ");
 
-                // Append the access token to the request
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authenticationResult.AccessToken);
+                if (resultSet.Count > 0)
+                {
+                    var accessToken = resultSet.Results.First()["accessToken"].ToString();
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                }
+                else
+                {
+                    _logger.LogWarning($"No access token found for session <{session}>");
+                    throw new AuthenticationException();
+                }
             }
             else
             {
+                _logger.LogWarning($"No session header found on request");
                 throw new AuthenticationException();
             }
         }
