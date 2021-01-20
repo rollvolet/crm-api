@@ -97,10 +97,17 @@ namespace Rollvolet.CRM.Business.Managers
                     o.VastgelegdeDatum as planningDate, o.VerwachteDatum as expectedDate, o.VereisteDatum as requiredDate,
                     o.UrenGepland as scheduledNbOfHours, o.ManGepland as scheduledNbOfPersons,
                     o.Produktiebon as hasProductionTicket, o.Plaatsing as mustBeInstalled,
-                    o.TeLeveren as mustBeDelivered, o.ProductKlaar as productIsReady
+                    o.TeLeveren as mustBeDelivered, o.ProductKlaar as productIsReady, o.Opmerking as comment,
+                    (
+                        SELECT STRING_AGG(t.Voornaam, ', ') WITHIN GROUP (ORDER BY t.Voornaam ASC)
+                        FROM TblOrderTechnician ot
+                        LEFT JOIN TblPersoneel t ON ot.EmployeeId = t.PersoneelId
+                        WHERE ot.OrderId = o.OfferteID
+                        GROUP BY ot.OrderId
+                    ) as technicians
                 FROM tblOfferte o
-                INNER JOIN tblData c ON c.ID = o.KlantID
-                LEFT JOIN tblData g ON g.ID = o.GebouwID AND g.ParentID = c.ID
+                INNER JOIN tblData c ON c.ID = o.KlantID AND c.DataType = 'KLA'
+                LEFT JOIN tblData g ON g.ID = o.GebouwID AND g.ParentID = c.ID AND g.DataType = 'GEB'
                 LEFT JOIN TblFactuur f ON f.OfferteID = o.OfferteID
                 INNER JOIN TblAanvraag r ON o.AanvraagId = r.AanvraagID
                 LEFT JOIN TblBezoek b ON b.AanvraagId = r.AanvraagID

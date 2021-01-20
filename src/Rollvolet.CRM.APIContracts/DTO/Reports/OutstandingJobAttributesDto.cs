@@ -31,5 +31,7 @@ namespace Rollvolet.CRM.APIContracts.DTO.Reports
         public bool ProductIsReady { get; set; }
         public bool MustBeDelivered { get; set; }
         public bool MustBeInstalled { get; set; }
+        public string Comment { get; set; }
+        public string Technicians { get; set; }
     }
 }
