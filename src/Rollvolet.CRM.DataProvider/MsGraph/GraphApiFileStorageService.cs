@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -63,7 +64,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             catch (ServiceException ex)
             {
                 _logger.LogWarning($"Creating directory {directory} on drive {_fileStorageConfig.DriveId} in {parentFolder} failed: {ex.ToString()}");
-                if (ex.InnerException != null && ex.InnerException.GetType() == typeof(Microsoft.Identity.Client.MsalUiRequiredException))
+                if (ex.InnerException != null && ex.InnerException.GetType() == typeof(AuthenticationException))
                     throw ex.InnerException;
                 else
                     throw ex;

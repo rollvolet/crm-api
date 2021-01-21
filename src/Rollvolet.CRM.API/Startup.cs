@@ -24,8 +24,6 @@ using Rollvolet.CRM.Domain.Contracts.MsGraph;
 using Rollvolet.CRM.DataProvider.MsGraph;
 using Rollvolet.CRM.Domain.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.Graph;
 using Rollvolet.CRM.DataProvider.MsGraph.Authentication;
 using Rollvolet.CRM.APIContracts.JsonApi;
@@ -34,12 +32,9 @@ using Rollvolet.CRM.Business.Managers;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using Rollvolet.CRM.Domain.Contracts;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Identity.Client;
 using Rollvolet.CRM.Domain.Authentication;
 using Rollvolet.CRM.Domain.Authentication.Interfaces;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace Rollvolet.CRM.API
 {

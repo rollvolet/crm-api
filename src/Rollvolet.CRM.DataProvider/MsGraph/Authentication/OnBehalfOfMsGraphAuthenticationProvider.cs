@@ -42,16 +42,16 @@ namespace Rollvolet.CRM.DataProvider.MsGraph.Authentication
                 var session = sessionHeader.ToString();
 
                 _logger.LogDebug($"Retrieved session <{session}> from request headers");
-                var resultSet = _sparqlEndpoint.QueryWithResultSet($@"
+                var query = $@"
                     PREFIX oauth: <http://data.rollvolet.be/vocabularies/oauth-2.0/>
                     SELECT ?accessToken
                     WHERE {{
                         GRAPH <http://mu.semte.ch/graphs/sessions> {{
-                            ?oauthSession oauth:authenticates <${session}> ;
+                            ?oauthSession oauth:authenticates <{session}> ;
                                     oauth:tokenValue ?accessToken .
                         }}
-                    }} LIMIT 1
-                ");
+                    }} LIMIT 1";
+                var resultSet = _sparqlEndpoint.QueryWithResultSet(query);
 
                 if (resultSet.Count > 0)
                 {
