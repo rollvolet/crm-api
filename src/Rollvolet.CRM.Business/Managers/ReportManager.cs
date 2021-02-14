@@ -73,8 +73,8 @@ namespace Rollvolet.CRM.Business.Managers
             var countSql = $@"
                 SELECT COUNT(*)
                 FROM tblOfferte o
-                INNER JOIN tblData c ON c.ID = o.KlantID
-                LEFT JOIN tblData g ON g.ID = o.GebouwID AND g.ParentID = c.ID
+                INNER JOIN tblData c ON c.ID = o.KlantID AND c.DataType = 'KLA'
+                LEFT JOIN tblData g ON g.ID = o.GebouwID AND g.ParentID = c.ID AND g.DataType = 'GEB'
                 LEFT JOIN TblFactuur f ON f.OfferteID = o.OfferteID
                 INNER JOIN TblAanvraag r ON o.AanvraagId = r.AanvraagID
                 LEFT JOIN TblBezoek b ON b.AanvraagId = r.AanvraagID
