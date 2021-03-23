@@ -146,6 +146,11 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                     .Request()
                     .GetAsync();
             }
+            catch (NullReferenceException)
+            {
+                _logger.LogInformation($"Cannot find file on drive {_fileStorageConfig.DriveId} on path {filePath}");
+                throw new EntityNotFoundException();
+            }
             catch (ServiceException ex)
             {
                 if (ex.StatusCode == HttpStatusCode.NotFound)
@@ -199,6 +204,10 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                     .Request()
                     .PostAsync();
             }
+            catch (NullReferenceException)
+            {
+                _logger.LogInformation($"File on path {sourcePath} not found. nothing to copy.");
+            }
             catch (ServiceException ex)
             {
                 if (!isRetry && ex.StatusCode == HttpStatusCode.NotFound)
@@ -224,9 +233,13 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
                     .Request()
                     .DeleteAsync();
             }
+            catch (NullReferenceException)
+            {
+                _logger.LogInformation($"File on path {filePath} not found. nothing to delete.");
+            }
             catch (ServiceException ex)
             {
-                _logger.LogWarning($"SDeleting file from drive {_fileStorageConfig.DriveId} on path {filePath} failed: {ex.ToString()}");
+                _logger.LogWarning($"Deleting file from drive {_fileStorageConfig.DriveId} on path {filePath} failed: {ex.ToString()}");
             }
         }
     }
