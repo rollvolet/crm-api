@@ -138,7 +138,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 int i = 0;
                 foreach (Expression<Func<T, object>> selector in selectorsForField)
                 {
-                    if (i ==0)
+                    if (i == 0)
                     {
                         source = querySet.Sort.IsAscending ? source.OrderBy(selector) : source.OrderByDescending(selector);
                     }

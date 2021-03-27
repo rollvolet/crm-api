@@ -1,7 +1,10 @@
+using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Extensions.Logging;
@@ -94,10 +97,10 @@ namespace Rollvolet.CRM.Business.Managers
                     c.Postcode as customerPostalCode, c.Gemeente as customerCity, g.Naam as buildingName,
                     g.Adres1 as buildingAddress1, g.Adres2 as buildingAddress2, g.Adres3 as buildingAddress3,
                     g.Postcode as buildingPostalCode, g.Gemeente as buildingCity,
-                    o.VastgelegdeDatum as planningDate, o.VerwachteDatum as expectedDate, o.VereisteDatum as requiredDate,
                     o.UrenGepland as scheduledNbOfHours, o.ManGepland as scheduledNbOfPersons,
                     o.Produktiebon as hasProductionTicket, o.Plaatsing as mustBeInstalled,
                     o.TeLeveren as mustBeDelivered, o.ProductKlaar as productIsReady, o.Opmerking as comment,
+                    o.VastgelegdeDatum as planningDateStr, o.VerwachteDatum as expectedDateStr, o.VereisteDatum as requiredDateStr,
                     (
                         SELECT STRING_AGG(t.Voornaam, ', ') WITHIN GROUP (ORDER BY t.Voornaam ASC)
                         FROM TblOrderTechnician ot
@@ -118,19 +121,47 @@ namespace Rollvolet.CRM.Business.Managers
                     AND f.OfferteID IS NULL
                     AND o.MuntBestel = 'EUR'
                     {filterQuery}
-                ORDER BY o.BestelDatum ASC
             ";
 
             _logger.LogInformation(sql);
 
+            var types = new[] { typeof(OutstandingJob), typeof(String), typeof(String), typeof(String) };
+            Func<object[], OutstandingJob> mapper = (objects) =>
+            {
+                var outstandingJob = (OutstandingJob) objects[0];
+                outstandingJob.PlanningDate = ParseDate((string) objects[1]);
+                outstandingJob.ExpectedDate = ParseDate((string) objects[2]);
+                outstandingJob.RequiredDate = ParseDate((string) objects[3]);
+                return outstandingJob;
+            };
+
+            var sortField = querySet.Sort.Field;
+            Func<OutstandingJob, DateTime?> sort = null;
+            switch (sortField)
+            {
+                case "expected-date":
+                    sort = (job) => job.ExpectedDate;
+                    break;
+                case "required-date":
+                    sort = (job) => job.RequiredDate;
+                    break;
+                case "planning-date":
+                    sort = (job) => job.PlanningDate;
+                    break;
+                default:
+                    sort = (job) => job.OrderDate;
+                    break;
+            }
+
             using (_dbConnection)
             {
                 var count = _dbConnection.Query<int>(countSql).First();
-                // TODO pagination should be embedded in the SQL query instead of taking a subset of the resultset,
+                // TODO pagination and sorting should be embedded in the SQL query instead of taking a subset of the resultset,
                 // but when JOINS are used in the SQL query this entails more than just adding 'OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY'
-                var entries = _dbConnection.Query<OutstandingJob>(sql)
-                                    .Skip(querySet.Page.Skip)
-                                    .Take(querySet.Page.Take);
+                var entries = _dbConnection.Query<OutstandingJob>(sql, types, mapper, splitOn: "planningDateStr,expectedDateStr,requiredDateStr");
+                entries = querySet.Sort.IsAscending ? entries.OrderBy(sort) : entries.OrderByDescending(sort);
+                entries = entries.Skip(querySet.Page.Skip).Take(querySet.Page.Take);
+
                 return await Task.Run(() => new Paged<OutstandingJob>() {
                     Items = entries,
                     Count = count,
@@ -139,5 +170,25 @@ namespace Rollvolet.CRM.Business.Managers
                 });
             }
         }
+
+        private DateTime? ParseDate(string dateString)
+        {
+            if (dateString == null)
+            {
+                return null;
+            }
+            else
+            {
+                DateTime dateTime;
+                if (DateTime.TryParseExact(dateString, "d/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
+                    return dateTime;
+                else if (DateTime.TryParseExact(dateString, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
+                    return dateTime;
+                else if (DateTime.TryParseExact(dateString, "d/MM/yy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
+                    return dateTime;
+                else
+                    return null;
+            }
+        }        
     }
 }
