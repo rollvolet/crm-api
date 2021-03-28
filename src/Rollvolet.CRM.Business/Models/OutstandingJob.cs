@@ -24,12 +24,9 @@ namespace Rollvolet.CRM.Business.Models
         public string BuildingCity { get; set; }
         public float? ScheduledNbOfHours { get; set; }
         public float? ScheduledNbOfPersons { get; set; }
-        // TODO convert to DateTime
-        public string ExpectedDate { get; set; }
-        // TODO convert to DateTime
-        public string RequiredDate { get; set; }
-        // TODO convert to DateTime
-        public string PlanningDate { get; set; }
+        public DateTime? ExpectedDate { get; set; }
+        public DateTime? RequiredDate { get; set; }
+        public DateTime? PlanningDate { get; set; }
         public bool HasProductionTicket { get; set; }
         public bool ProductIsReady { get; set; }
         public bool MustBeDelivered { get; set; }

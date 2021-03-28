@@ -1065,9 +1065,6 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
 
             CreateMap<OutstandingJob, OutstandingJobAttributesDto>()
-                .ForMember(dest => dest.ExpectedDate, opt => opt.MapFrom(src => ParseDate(src.ExpectedDate)))
-                .ForMember(dest => dest.RequiredDate, opt => opt.MapFrom(src => ParseDate(src.RequiredDate)))
-                .ForMember(dest => dest.PlanningDate, opt => opt.MapFrom(src => ParseDate(src.PlanningDate)))
                 .ReverseMap();
 
             CreateMap<OutstandingJob, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
@@ -1088,26 +1085,6 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<ErrorNotificationRequestDto, ErrorNotification>()
                 .ConstructUsing((src, context) => context.Mapper.Map<ErrorNotification>(src.Attributes))
                 .ForAllOtherMembers(opt => opt.Ignore());
-        }
-
-        private DateTime? ParseDate(string dateString)
-        {
-            if (dateString == null)
-            {
-                return null;
-            }
-            else
-            {
-                DateTime dateTime;
-                if (DateTime.TryParseExact(dateString, "d/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
-                    return dateTime;
-                else if (DateTime.TryParseExact(dateString, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
-                    return dateTime;
-                else if (DateTime.TryParseExact(dateString, "d/MM/yy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
-                    return dateTime;
-                else
-                    return null;
-            }
         }
     }
 }
