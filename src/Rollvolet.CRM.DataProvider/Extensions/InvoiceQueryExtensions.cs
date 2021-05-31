@@ -18,22 +18,25 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("number"))
             {
                 var filterValue = querySet.Filter.Fields["number"].Replace("/", "");
-                int number;
-                if (Int32.TryParse(filterValue, out number))
-                 {
-                    var predicate = PredicateBuilder.New<Invoice>(x => x.Number == number);
-                    var i = 10;
-                    while (i * number < 10000000) {
-                        var from = i * number;
-                        var to = i * (number + 1);
-                        predicate.Or(c => c.Number >= from && c.Number <= to);
-                        i = i * 10;
-                    }
-                    source = source.Where(predicate);
-                }
-                else
+                if (!String.IsNullOrEmpty(filterValue))
                 {
-                    throw new IllegalArgumentException("IllegalFilter", "Number filter must be a integer.");
+                    int number;
+                    if (Int32.TryParse(filterValue, out number))
+                    {
+                        var predicate = PredicateBuilder.New<Invoice>(x => x.Number == number);
+                        var i = 10;
+                        while (i * number < 10000000) {
+                            var from = i * number;
+                            var to = i * (number + 1);
+                            predicate.Or(c => c.Number >= from && c.Number <= to);
+                            i = i * 10;
+                        }
+                        source = source.Where(predicate);
+                    }
+                    else
+                    {
+                        throw new IllegalArgumentException("IllegalFilter", "Number filter must be a integer.");
+                    }
                 }
             }
 
@@ -46,17 +49,20 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("order.id"))
             {
                 var filterValue = querySet.Filter.Fields["order.id"];
-                int orderId;
-                if (Int32.TryParse(filterValue, out orderId))
+                if (!String.IsNullOrEmpty(filterValue))
                 {
-                    if (isDepositInvoice)
-                        source = source.Where(c => c.MainInvoiceHub.OrderId == orderId);
+                    int orderId;
+                    if (Int32.TryParse(filterValue, out orderId))
+                    {
+                        if (isDepositInvoice)
+                            source = source.Where(c => c.MainInvoiceHub.OrderId == orderId);
+                        else
+                            source = source.Where(c => c.OrderId == orderId);
+                    }
                     else
-                        source = source.Where(c => c.OrderId == orderId);
-                }
-                else
-                {
-                    throw new IllegalArgumentException("IllegalFilter", "Order id filter must be a integer.");
+                    {
+                        throw new IllegalArgumentException("IllegalFilter", "Order id filter must be a integer.");
+                    }
                 }
             }
 
@@ -73,36 +79,39 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("offer.request-number"))
             {
                 var filterValue = querySet.Filter.Fields["offer.request-number"];
-                int number;
-                if (Int32.TryParse(filterValue, out number)) {
-                    if (isDepositInvoice)
-                    {
-                        var predicate = PredicateBuilder.New<Invoice>(x => x.MainInvoiceHub.Order.RequestId == number);
-                        var i = 10;
-                        while (i * number < 1000000) {
-                            var from = i * number;
-                            var to = i * (number + 1);
-                            predicate.Or(c => c.MainInvoiceHub.Order.RequestId >= from && c.MainInvoiceHub.Order.RequestId <= to);
-                            i = i * 10;
+                if (!String.IsNullOrEmpty(filterValue))
+                {
+                    int number;
+                    if (Int32.TryParse(filterValue, out number)) {
+                        if (isDepositInvoice)
+                        {
+                            var predicate = PredicateBuilder.New<Invoice>(x => x.MainInvoiceHub.Order.RequestId == number);
+                            var i = 10;
+                            while (i * number < 1000000) {
+                                var from = i * number;
+                                var to = i * (number + 1);
+                                predicate.Or(c => c.MainInvoiceHub.Order.RequestId >= from && c.MainInvoiceHub.Order.RequestId <= to);
+                                i = i * 10;
+                            }
+                            source = source.Where(predicate);
                         }
-                        source = source.Where(predicate);
+                        else
+                        {
+                            var predicate = PredicateBuilder.New<Invoice>(x => x.Order.RequestId == number);
+                            var i = 10;
+                            while (i * number < 1000000) {
+                                var from = i * number;
+                                var to = i * (number + 1);
+                                predicate.Or(c => c.Order.RequestId >= from && c.Order.RequestId <= to);
+                                i = i * 10;
+                            }
+                            source = source.Where(predicate);
+                        }
                     }
                     else
                     {
-                        var predicate = PredicateBuilder.New<Invoice>(x => x.Order.RequestId == number);
-                        var i = 10;
-                        while (i * number < 1000000) {
-                            var from = i * number;
-                            var to = i * (number + 1);
-                            predicate.Or(c => c.Order.RequestId >= from && c.Order.RequestId <= to);
-                            i = i * 10;
-                        }
-                        source = source.Where(predicate);
+                        throw new IllegalArgumentException("IllegalFilter", "Request number filter must be a integer.");
                     }
-                }
-                else
-                {
-                    throw new IllegalArgumentException("IllegalFilter", "Request number filter must be a integer.");
                 }
             }
 
@@ -188,12 +197,15 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("customer.number"))
             {
                 var filterValue = querySet.Filter.Fields["customer.number"];
-                int number;
-                if (Int32.TryParse(filterValue, out number)) {
-                    source = source.Where(c => c.Customer.Number == number);
-                } else
+                if (!String.IsNullOrEmpty(filterValue))
                 {
-                    throw new IllegalArgumentException("IllegalFilter", "Customer number filter must be a integer.");
+                    int number;
+                    if (Int32.TryParse(filterValue, out number)) {
+                        source = source.Where(c => c.Customer.Number == number);
+                    } else
+                    {
+                        throw new IllegalArgumentException("IllegalFilter", "Customer number filter must be a integer.");
+                    }
                 }
             }
 
