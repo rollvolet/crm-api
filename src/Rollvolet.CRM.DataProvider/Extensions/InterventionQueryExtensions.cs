@@ -125,12 +125,15 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("customer.number"))
             {
                 var filterValue = querySet.Filter.Fields["customer.number"];
-                int number;
-                if (Int32.TryParse(filterValue, out number)) {
-                    source = source.Where(c => c.Customer.Number == number);
-                } else
+                if (!String.IsNullOrEmpty(filterValue))
                 {
-                    throw new IllegalArgumentException("IllegalFilter", "Customer number filter must be a integer.");
+                    int number;
+                    if (Int32.TryParse(filterValue, out number)) {
+                        source = source.Where(c => c.Customer.Number == number);
+                    } else
+                    {
+                        throw new IllegalArgumentException("IllegalFilter", "Customer number filter must be a integer.");
+                    }
                 }
             }
 
