@@ -119,6 +119,7 @@ namespace Rollvolet.CRM.DataProviders
 
             var invoiceLines = new List<object>();
             var now = DateTimeOffset.UtcNow.UtcDateTime;
+            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
 
             if (isDryRun)
                 _logger.LogInformation($"Starting dry run of accountancy export. Simulating booking of {invoiceRecords.Count} invoices and {customerRecords.Count} customers..");
@@ -146,6 +147,9 @@ namespace Rollvolet.CRM.DataProviders
                 writer.Flush();
                 memoryStream.Position = 0;
                 await _fileStorageService.UploadDocumentAsync(_accountancyConfig.WinbooksExportLocation, _accountancyConfig.WinbooksInvoicesFile, memoryStream);
+                memoryStream.Position = 0;
+                var timestampedFile = $"{timestamp}-{_accountancyConfig.WinbooksInvoicesFile}";
+                await _fileStorageService.UploadDocumentAsync(_accountancyConfig.WinbooksExportLocation, timestampedFile, memoryStream);
             }
 
             // Customers export
@@ -172,6 +176,10 @@ namespace Rollvolet.CRM.DataProviders
                 writer.Flush();
                 memoryStream.Position = 0;
                 await _fileStorageService.UploadDocumentAsync(_accountancyConfig.WinbooksExportLocation, _accountancyConfig.WinbooksCustomersFile, memoryStream);
+                memoryStream.Position = 0;
+                var timestampedFile = $"{timestamp}-{_accountancyConfig.WinbooksCustomersFile}";
+                await _fileStorageService.UploadDocumentAsync(_accountancyConfig.WinbooksExportLocation, timestampedFile, memoryStream);
+           
             }
         }
 
