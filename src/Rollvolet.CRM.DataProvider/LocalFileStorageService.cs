@@ -26,7 +26,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return await Task.Run(() => {
                 var path = String.Join(Path.DirectorySeparatorChar, directories);
                 if (parent != null)
-                  path = $"${parent}{Path.DirectorySeparatorChar}{path}";
+                  path = $"{parent}{Path.DirectorySeparatorChar}{path}";
                 Directory.CreateDirectory(path);
                 return path;
             });
@@ -37,7 +37,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             return await Task.Run(() => {
                 var path = directory;
                 if (parent != null)
-                  path = $"${parent}{Path.DirectorySeparatorChar}{path}";
+                  path = $"{parent}{Path.DirectorySeparatorChar}{path}";
                 Directory.CreateDirectory(path);
                 return path;
             });
