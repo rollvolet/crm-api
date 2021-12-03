@@ -1,10 +1,8 @@
-using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Extensions.Logging;
@@ -54,40 +52,46 @@ namespace Rollvolet.CRM.Business.Managers
             }
         }
 
+        public async Task<OutstandingJobReport> GetOutstandingJobReport(QuerySet querySet)
+        {
+            var whereClause = GetOutstandingJobsSqlWhereClause(querySet);
+
+            var totalHoursSql = $@"
+                SELECT SUM(o.UrenGepland * o.ManGepland) as totalHours
+                {whereClause}
+            ";
+
+            var numberOverdueSql = $@"
+                SELECT o.OfferteID as orderId, o.VastgelegdeDatum as planningDateStr, 
+                o.VerwachteDatum as expectedDateStr, o.VereisteDatum as requiredDateStr
+                {whereClause}
+            ";
+
+            using (_dbConnection)
+            {
+                var totalHours = _dbConnection.Query<double>(totalHoursSql).First();
+
+                // TODO count overdue jobs using an SQL query once the required date
+                // is stored as datetime instead of string in the DB 
+                var types = new[] { typeof(OutstandingJob), typeof(String), typeof(String), typeof(String) };
+                Func<object[], OutstandingJob> mapper = GetOutstandingJobMapper();
+                var entries = _dbConnection.Query<OutstandingJob>(numberOverdueSql, types, mapper, splitOn: "planningDateStr,expectedDateStr,requiredDateStr");
+                var numberOverdue = entries.Where(o => o.RequiredDate <= DateTime.Now).Count();
+
+                return await Task.Run(() => new OutstandingJobReport() {
+                    TotalHours = totalHours,
+                    NumberOverdue = numberOverdue
+                });
+            }
+        }
+
         public async Task<Paged<OutstandingJob>> GetOutstandingJobs(QuerySet querySet)
         {
-            var filterFields = querySet.Filter.Fields;
-            var filters = new List<string>();
-            if (filterFields.ContainsKey("visitor"))
-                filters.Add($" AND b.Bezoeker = '{filterFields["visitor"].Replace("'", "''")}'");
-            if (filterFields.ContainsKey("hasProductionTicket") && Int32.Parse(filterFields["hasProductionTicket"]) >= 0)
-                filters.Add($" AND o.Produktiebon = {Int32.Parse(filterFields["hasProductionTicket"])}");
-            if (filterFields.ContainsKey("mustBeInstalled") && Int32.Parse(filterFields["mustBeInstalled"]) >= 0)
-                filters.Add($" AND o.Plaatsing = {Int32.Parse(filterFields["mustBeInstalled"])}");
-            if (filterFields.ContainsKey("mustBeDelivered") && Int32.Parse(filterFields["mustBeDelivered"]) >= 0)
-                filters.Add($" AND o.TeLeveren = {Int32.Parse(filterFields["mustBeDelivered"])}");
-            if (filterFields.ContainsKey("isProductReady") && Int32.Parse(filterFields["isProductReady"]) >= 0)
-                filters.Add($" AND o.ProductKlaar = {Int32.Parse(filterFields["isProductReady"])}");
-            if (filterFields.ContainsKey("orderDate")) // order date format yyyy-mm-dd
-                filters.Add($" AND o.BestelDatum >= '{filterFields["orderDate"].Replace("'", "''")} 00:00:00'");
-
-            var filterQuery = String.Join("", filters);
+            var whereClause = GetOutstandingJobsSqlWhereClause(querySet);
 
             var countSql = $@"
                 SELECT COUNT(*)
-                FROM tblOfferte o
-                INNER JOIN tblData c ON c.ID = o.KlantID AND c.DataType = 'KLA'
-                LEFT JOIN tblData g ON g.ID = o.GebouwID AND g.ParentID = c.ID AND g.DataType = 'GEB'
-                LEFT JOIN TblFactuur f ON f.OfferteID = o.OfferteID
-                INNER JOIN TblAanvraag r ON o.AanvraagId = r.AanvraagID
-                LEFT JOIN TblBezoek b ON b.AanvraagId = r.AanvraagID
-                WHERE
-                    o.Afgesloten = 0
-                    AND o.AfgeslotenBestelling = 0
-                    AND o.Besteld = 1
-                    AND f.OfferteID IS NULL
-                    AND o.MuntBestel = 'EUR'
-                    {filterQuery}
+                {whereClause}
             ";
 
             var sql = $@"
@@ -108,32 +112,13 @@ namespace Rollvolet.CRM.Business.Managers
                         WHERE ot.OrderId = o.OfferteID
                         GROUP BY ot.OrderId
                     ) as technicians
-                FROM tblOfferte o
-                INNER JOIN tblData c ON c.ID = o.KlantID AND c.DataType = 'KLA'
-                LEFT JOIN tblData g ON g.ID = o.GebouwID AND g.ParentID = c.ID AND g.DataType = 'GEB'
-                LEFT JOIN TblFactuur f ON f.OfferteID = o.OfferteID
-                INNER JOIN TblAanvraag r ON o.AanvraagId = r.AanvraagID
-                LEFT JOIN TblBezoek b ON b.AanvraagId = r.AanvraagID
-                WHERE
-                    o.Afgesloten = 0
-                    AND o.AfgeslotenBestelling = 0
-                    AND o.Besteld = 1
-                    AND f.OfferteID IS NULL
-                    AND o.MuntBestel = 'EUR'
-                    {filterQuery}
+                {whereClause}
             ";
 
             _logger.LogInformation(sql);
 
             var types = new[] { typeof(OutstandingJob), typeof(String), typeof(String), typeof(String) };
-            Func<object[], OutstandingJob> mapper = (objects) =>
-            {
-                var outstandingJob = (OutstandingJob) objects[0];
-                outstandingJob.PlanningDate = ParseDate((string) objects[1]);
-                outstandingJob.ExpectedDate = ParseDate((string) objects[2]);
-                outstandingJob.RequiredDate = ParseDate((string) objects[3]);
-                return outstandingJob;
-            };
+            Func<object[], OutstandingJob> mapper = GetOutstandingJobMapper();
 
             var sortField = querySet.Sort.Field;
             Func<OutstandingJob, DateTime?> sort = null;
@@ -158,6 +143,8 @@ namespace Rollvolet.CRM.Business.Managers
                 var count = _dbConnection.Query<int>(countSql).First();
                 // TODO pagination and sorting should be embedded in the SQL query instead of taking a subset of the resultset,
                 // but when JOINS are used in the SQL query this entails more than just adding 'OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY'
+                // TODO sorting on planning/expected/required date can only be done once the values are stored 
+                // as dateTime instead of string in the database
                 var entries = _dbConnection.Query<OutstandingJob>(sql, types, mapper, splitOn: "planningDateStr,expectedDateStr,requiredDateStr");
                 entries = querySet.Sort.IsAscending ? entries.OrderBy(sort) : entries.OrderByDescending(sort);
                 entries = entries.Skip(querySet.Page.Skip).Take(querySet.Page.Take);
@@ -169,6 +156,55 @@ namespace Rollvolet.CRM.Business.Managers
                     PageSize = querySet.Page.Size
                 });
             }
+        }
+
+        private string GetOutstandingJobsSqlWhereClause(QuerySet querySet)
+        {
+            var filterFields = querySet.Filter.Fields;
+            var filters = new List<string>();
+            if (filterFields.ContainsKey("visitor"))
+                filters.Add($" AND b.Bezoeker = '{filterFields["visitor"].Replace("'", "''")}'");
+            if (filterFields.ContainsKey("hasProductionTicket") && Int32.Parse(filterFields["hasProductionTicket"]) >= 0)
+                filters.Add($" AND o.Produktiebon = {Int32.Parse(filterFields["hasProductionTicket"])}");
+            if (filterFields.ContainsKey("mustBeInstalled") && Int32.Parse(filterFields["mustBeInstalled"]) >= 0)
+                filters.Add($" AND o.Plaatsing = {Int32.Parse(filterFields["mustBeInstalled"])}");
+            if (filterFields.ContainsKey("mustBeDelivered") && Int32.Parse(filterFields["mustBeDelivered"]) >= 0)
+                filters.Add($" AND o.TeLeveren = {Int32.Parse(filterFields["mustBeDelivered"])}");
+            if (filterFields.ContainsKey("isProductReady") && Int32.Parse(filterFields["isProductReady"]) >= 0)
+                filters.Add($" AND o.ProductKlaar = {Int32.Parse(filterFields["isProductReady"])}");
+            if (filterFields.ContainsKey("orderDate")) // order date format yyyy-mm-dd
+                filters.Add($" AND o.BestelDatum >= '{filterFields["orderDate"].Replace("'", "''")} 00:00:00'");
+
+            var filterQuery = String.Join("", filters);
+
+            return $@"
+                FROM tblOfferte o
+                INNER JOIN tblData c ON c.ID = o.KlantID AND c.DataType = 'KLA'
+                LEFT JOIN tblData g ON g.ID = o.GebouwID AND g.ParentID = c.ID AND g.DataType = 'GEB'
+                LEFT JOIN TblFactuur f ON f.OfferteID = o.OfferteID
+                INNER JOIN TblAanvraag r ON o.AanvraagId = r.AanvraagID
+                LEFT JOIN TblBezoek b ON b.AanvraagId = r.AanvraagID
+                WHERE
+                    o.Afgesloten = 0
+                    AND o.AfgeslotenBestelling = 0
+                    AND o.Besteld = 1
+                    AND f.OfferteID IS NULL
+                    AND o.MuntBestel = 'EUR'
+                    {filterQuery}
+            ";            
+        }
+
+        private Func<object[], OutstandingJob> GetOutstandingJobMapper()
+        {
+            // var types = new[] { typeof(OutstandingJob), typeof(String), typeof(String), typeof(String) };
+            return (objects) =>
+            {
+                var outstandingJob = (OutstandingJob) objects[0];
+                outstandingJob.PlanningDate = ParseDate((string) objects[1]);
+                outstandingJob.ExpectedDate = ParseDate((string) objects[2]);
+                outstandingJob.RequiredDate = ParseDate((string) objects[3]);
+                return outstandingJob;
+            };
         }
 
         private DateTime? ParseDate(string dateString)

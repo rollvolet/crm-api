@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.APIContracts.DTO.Reports;
@@ -41,7 +40,6 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Data = entryDtos });
         }
 
-
         [HttpGet("outstanding-jobs")]
         public async Task<IActionResult> GetOutstandingJobs()
         {
@@ -54,6 +52,17 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedOutstandingJobs);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = outstandingJobDtos });
+        }
+
+        [HttpGet("outstanding-job-report")]
+        public async Task<IActionResult> GetOutstandingJobReport()
+        {
+            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
+
+            var report = await _reportManager.GetOutstandingJobReport(querySet);
+            var reportDto = _mapper.Map<OutstandingJobReportDto>(report);
+
+            return Ok(new ResourceResponse() { Data = reportDto });
         }
     }
 }

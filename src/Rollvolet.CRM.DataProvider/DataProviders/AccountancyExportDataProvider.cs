@@ -179,7 +179,6 @@ namespace Rollvolet.CRM.DataProviders
                 memoryStream.Position = 0;
                 var timestampedFile = $"{timestamp}-{_accountancyConfig.WinbooksCustomersFile}";
                 await _fileStorageService.UploadDocumentAsync(_accountancyConfig.WinbooksExportLocation, timestampedFile, memoryStream);
-           
             }
         }
 

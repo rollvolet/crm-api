@@ -10,5 +10,6 @@ namespace Rollvolet.CRM.Business.Managers.Interfaces
     {
         Task<IEnumerable<MonthlySalesEntry>> GetMonthlySalesReport(int fromYear, int toYear);
         Task<Paged<OutstandingJob>> GetOutstandingJobs(QuerySet querySet);
+        Task<OutstandingJobReport> GetOutstandingJobReport(QuerySet querySet);
     }
 }

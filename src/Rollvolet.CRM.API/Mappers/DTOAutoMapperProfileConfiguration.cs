@@ -1069,6 +1069,17 @@ namespace Rollvolet.CRM.API.Mappers
 
             CreateMap<OutstandingJob, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
+            CreateMap<OutstandingJobReport, OutstandingJobReportDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => $"{System.Guid.NewGuid()}"))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "outstanding-job-reports"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<OutstandingJobReport, OutstandingJobReportAttributesDto>()
+                .ReverseMap();
+
+            CreateMap<OutstandingJobReport, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
 
             // Error notification mappings
 
