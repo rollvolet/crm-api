@@ -77,6 +77,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         public static IQueryable<Intervention> Include(this IQueryable<Intervention> source, QuerySet querySet)
         {
+            if (querySet.Include.Fields.Contains("customer"))
+                source = source.Include(x => x.Customer).ThenInclude(x => x.Memo);
             if (querySet.Include.Fields.Contains("customer.honorific-prefix"))
                 source = source.Include(x => x.Customer).ThenInclude(x => x.HonorificPrefix);
             if (querySet.Include.Fields.Contains("customer.language"))
@@ -86,7 +88,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             var selectors = new Dictionary<string, Expression<Func<Intervention, object>>>();
 
-            selectors.Add("customer", c => c.Customer);
             selectors.Add("building", c => c.Building);
             selectors.Add("contact", c => c.Contact);
             selectors.Add("way-of-entry", c => c.WayOfEntry);
@@ -97,6 +98,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("planning-event", x => x.PlanningEvent);
 
             // dummy entries for resources that are already included
+            selectors.Add("customer", null);
             selectors.Add("customer.honorific-prefix", null);
             selectors.Add("customer.language", null);
             selectors.Add("technicians", null);

@@ -127,6 +127,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
         public static IQueryable<Invoice> Include(this IQueryable<Invoice> source, QuerySet querySet, bool isDepositInvoice = false)
         {
+            if (querySet.Include.Fields.Contains("customer"))
+                source = source.Include(x => x.Customer).ThenInclude(x => x.Memo);
+
             if (querySet.Include.Fields.Contains("customer.honorific-prefix"))
                 source = source.Include(x => x.Customer).ThenInclude(x => x.HonorificPrefix);
 
@@ -138,13 +141,13 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             var selectors = new Dictionary<string, Expression<Func<Invoice, object>>>();
 
-            selectors.Add("customer", c => c.Customer);
             selectors.Add("building", c => c.Building);
             selectors.Add("contact", c => c.Contact);
             selectors.Add("vat-rate", c => c.VatRate);
             selectors.Add("invoicelines", c => c.Invoicelines);
 
             // dummy entries for resources that are already included
+            selectors.Add("customer", null);
             selectors.Add("customer.honorific-prefix", null);
             selectors.Add("supplements.unit", null);
             selectors.Add("invoicelines.vat-rate", null);
