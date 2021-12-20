@@ -57,7 +57,7 @@ namespace Rollvolet.CRM.Business.Managers
             var whereClause = GetOutstandingJobsSqlWhereClause(querySet);
 
             var totalHoursSql = $@"
-                SELECT SUM(o.UrenGepland * o.ManGepland) as totalHours
+                SELECT COALESCE(SUM(o.UrenGepland * o.ManGepland), 0) as totalHours
                 {whereClause}
             ";
 
