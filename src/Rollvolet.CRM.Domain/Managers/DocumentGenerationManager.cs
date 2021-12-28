@@ -26,7 +26,7 @@ namespace Rollvolet.CRM.Domain.Managers
     public class DocumentGenerationManager : IDocumentGenerationManager
     {
         private readonly Regex _onlyAlphaNumeric = new Regex("[^a-zA-Z0-9_]");
-        private readonly Regex _noNewlines = new Regex("\r|\n|\r\n|/", RegexOptions.Multiline);
+        private readonly Regex _noNewlines = new Regex("\r|\n|\r\n|\t|\"|/", RegexOptions.Multiline);
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly IInterventionDataProvider _interventionDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
@@ -702,9 +702,10 @@ namespace Rollvolet.CRM.Domain.Managers
         private async Task<FileDescriptor> ConstructOfferDocumentFilePathAsync(Offer offer)
         {
             // Parse year from the offernumber, since the offerdate changes on each document generation
-            // This will only work until 2099
-            var year = $"20{int.Parse(offer.Number.Substring(0, 2)) - 10}";
-            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _offerStorageLocation);
+            // TODO This will only work until 2099
+            var year = int.Parse(offer.Number.Substring(0, 2)) - 10;
+            var fullYear = year < 10 ? $"200{year}" : $"20{year}";
+            var directory = await _fileStorageService.CreateDirectoryAsync(fullYear.ToString(), _offerStorageLocation);
             var number = $"{offer.Number.Substring(0, 8)}_${offer.Number.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
             string filename;
             if (offer.DocumentVersion != null)

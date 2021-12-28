@@ -39,7 +39,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                         while (i * number < 1000000) {
                             var from = i * number;
                             var to = i * (number + 1);
-                            predicate.Or(c => c.RequestId >= from && c.RequestId <= to);
+                            predicate.Or(c => c.RequestId >= from && c.RequestId < to);
                             i = i * 10;
                         }
                         source = source.Where(predicate);
