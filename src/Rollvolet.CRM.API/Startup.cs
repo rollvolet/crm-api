@@ -146,6 +146,7 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IPlanningEventDataProvider, PlanningEventDataProvider>();
             services.AddTransient<IDocumentGenerationManager, DocumentGenerationManager>();
             services.AddTransient<ISystemTaskManager, SystemTaskManager>();
+            services.AddTransient<IGraphApiSystemTaskService, GraphApiFileStorageService>();
             services.AddTransient<ISystemTaskDataProvider, SystemTaskDataProvider>();
             services.AddTransient<IErrorNotificationManager, ErrorNotificationManager>();
             services.AddTransient<ISequenceDataProvider, SequenceDataProvider>();

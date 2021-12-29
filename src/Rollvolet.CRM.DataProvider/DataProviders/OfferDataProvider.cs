@@ -86,6 +86,20 @@ namespace Rollvolet.CRM.DataProviders
             };
         }
 
+        public async Task<Offer> GetByOfferNumberAsync(string offerNumber, QuerySet query = null)
+        {
+            var offer = await FindWhereAsync(r => r.Number == offerNumber, query);
+
+            if (offer == null)
+            {
+                _logger.LogError($"No offer found for offer-number {offerNumber}");
+                throw new EntityNotFoundException();
+            }
+
+            return _mapper.Map<Offer>(offer);
+        }
+
+
         public async Task<Offer> GetByRequestIdAsync(int requestId, QuerySet query = null)
         {
             var offer = await FindWhereAsync(r => r.RequestId == requestId, query);

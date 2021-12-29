@@ -706,12 +706,12 @@ namespace Rollvolet.CRM.Domain.Managers
             var year = int.Parse(offer.Number.Substring(0, 2)) - 10;
             var fullYear = year < 10 ? $"200{year}" : $"20{year}";
             var directory = await _fileStorageService.CreateDirectoryAsync(fullYear.ToString(), _offerStorageLocation);
-            var number = $"{offer.Number.Substring(0, 8)}_${offer.Number.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
+            var number = $"AD{offer.RequestNumber}";
             string filename;
             if (offer.DocumentVersion != null)
                 filename = _onlyAlphaNumeric.Replace($"{number}_{offer.DocumentVersion}", "");
             else
-                filename = _onlyAlphaNumeric.Replace($"{number}", "");
+                filename = number;
             return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
@@ -719,8 +719,7 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
             var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _orderStorageLocation);
-            var number = $"{order.OfferNumber.Substring(0, 8)}_${order.OfferNumber.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
-            var filename = _onlyAlphaNumeric.Replace($"{number}", "");
+            var filename = $"AD{order.RequestNumber}";
             return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
@@ -728,17 +727,15 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
             var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _deliveryNoteStorageLocation);
-            var number = $"{order.OfferNumber.Substring(0, 8)}_${order.OfferNumber.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
-            var filename = _onlyAlphaNumeric.Replace($"{number}", "");
+            var filename = $"AD{order.RequestNumber}";
             return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
         private async Task<FileDescriptor> ConstructGeneratedProductionTicketFilePathAsync(Order order)
         {
-             var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
+            var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
             var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _generatedProductionTicketStorageLocation);
-            var number = $"{order.OfferNumber.Substring(0, 8)}_${order.OfferNumber.Substring(9)}"; // YY/MM/DD_nb  eg. 29/01/30_20
-            var filename = _onlyAlphaNumeric.Replace($"{number}", "");
+            var filename = $"AD{order.RequestNumber}";
             return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
@@ -750,7 +747,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
             var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
             var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _receivedProductionTicketStorageLocation);
-            var filename = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "") + _noNewlines.Replace($"_{order.Customer.Name}", "");
+            var filename = $"AD{order.RequestNumber}" + _noNewlines.Replace($"_{order.Customer.Name}", "");
             return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
@@ -765,7 +762,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 var year = order.OrderDate != null ? ((DateTime) order.OrderDate).Year : 0;
                 var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _receivedProductionTicketStorageLocation);
                 // only search on offernumber since customer name might have changed
-                var filenameSearch = _onlyAlphaNumeric.Replace($"{order.OfferNumber}", "");
+                var filenameSearch = $"AD{order.RequestNumber}";
                 filePath = await _fileStorageService.FindDocumentAsync(directory, filenameSearch);
                 notFoundWarning = $"Cannot find production-ticket file for order {orderId} starting with '{filenameSearch}' in directory {directory}";
             }

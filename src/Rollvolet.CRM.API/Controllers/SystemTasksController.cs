@@ -19,6 +19,13 @@ namespace Rollvolet.CRM.API.Controllers
             _systemTaskExecutor = systemTaskExecutor;
         }
 
+        [HttpPost("rename-offer-documents")]
+        public async Task<IActionResult> RenameOfferDocuments()
+        {
+            await _systemTaskManager.RenameOfferDocuments();
+            return Accepted();
+        }
+
         [HttpPost("recalculate-search-names")]
         public async Task<IActionResult> RecalculateCustomersSearchName()
         {
