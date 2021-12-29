@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Business.Managers.Interfaces;
-using Rollvolet.CRM.Domain.Contracts;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 
 namespace Rollvolet.CRM.Business.Managers

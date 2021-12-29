@@ -4,8 +4,6 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.DataProvider.Contexts;
-using Rollvolet.CRM.DataProvider.Models;
-using Rollvolet.CRM.DataProvider.Models.Interfaces;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Models;

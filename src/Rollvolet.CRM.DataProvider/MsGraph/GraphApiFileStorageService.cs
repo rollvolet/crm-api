@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,21 +9,26 @@ using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Rollvolet.CRM.Domain.Configuration;
 using Rollvolet.CRM.Domain.Contracts;
+using Rollvolet.CRM.Domain.Contracts.DataProviders;
+using Rollvolet.CRM.Domain.Contracts.MsGraph;
 using Rollvolet.CRM.Domain.Exceptions;
 
 namespace Rollvolet.CRM.DataProvider.MsGraph
 {
-    public class GraphApiFileStorageService : IFileStorageService
+    public class GraphApiFileStorageService : IFileStorageService, IGraphApiSystemTaskService
     {
         private readonly IGraphServiceClient _client;
+        private readonly IOfferDataProvider _offerDataProvider;
         private readonly FileStorageConfiguration _fileStorageConfig;
         private readonly ILogger _logger;
 
         public GraphApiFileStorageService(IAuthenticationProvider authenticationProvider,
+                                            IOfferDataProvider offerDataProvider,
                                             IOptions<FileStorageConfiguration> fileStorageConfiguration,
                                             ILogger<GraphApiFileStorageService> logger)
         {
             _client = new GraphServiceClient(authenticationProvider);
+            _offerDataProvider = offerDataProvider;
             _fileStorageConfig = fileStorageConfiguration.Value;
             _logger = logger;
         }
@@ -241,6 +247,79 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             {
                 _logger.LogWarning($"Deleting file from drive {_fileStorageConfig.DriveId} on path {filePath} failed: {ex.ToString()}");
             }
+        }
+
+        public async Task RenameOfferDocumentsAsync(string directory, int pageSize = 999)
+        {
+            var fileNameRegex = new Regex(@"^([0-9]{2})([0-9]{2})([0-9]{2})_*([0-9]{2})_*(.*)\.pdf$", RegexOptions.Multiline);
+
+            Dictionary<string, string> driveItems = new Dictionary<string, string>();
+
+            try {
+                var driveItemsPage = await _client.Drives[_fileStorageConfig.DriveId].Root
+                    .ItemWithPath(directory)
+                    .Children
+                    .Request()
+                    .Top(pageSize)
+                    .GetAsync();
+
+                var pageIterator = PageIterator<DriveItem>.CreatePageIterator(
+                    _client,
+                    driveItemsPage,
+                    (driveItem) => 
+                    {
+                        driveItems.Add(driveItem.Id, driveItem.Name);
+                        return true;
+                    }
+                );
+
+                await pageIterator.IterateAsync();
+
+                _logger.LogInformation($"Found {driveItems.Count} drive items in {directory} that need to be renamed.");
+
+                foreach (var entry in driveItems)
+                {
+                    string driveItemId = entry.Key;
+                    string fileName = entry.Value;
+
+                    var match = fileNameRegex.Match(fileName);
+                    if (match.Success)
+                    {
+                        var offerNumber = $"{match.Groups[1].Value}/{match.Groups[2].Value}/{match.Groups[3].Value}/{match.Groups[4].Value}";
+                        try
+                        {
+                            var offer = await _offerDataProvider.GetByOfferNumberAsync(offerNumber);
+                            var postfix = String.IsNullOrEmpty(match.Groups[5].Value) ? "" : $"_{match.Groups[5].Value}";
+                            var adFileName = $"AD{offer.RequestNumber}{postfix}.pdf";
+
+                            var renamedDriveItem = new DriveItem { Name = adFileName };
+                            await _client.Drives[_fileStorageConfig.DriveId]
+                                .Items[driveItemId]
+                                .Request()
+                                .UpdateAsync(renamedDriveItem);
+                        }
+                        catch (EntityNotFoundException)
+                        {
+                            _logger.LogWarning($"Cannot find offer with number {offerNumber}. Unable to rename document.");
+                    
+                        }
+                        catch (ServiceException ex)
+                        {
+                            _logger.LogWarning($"Something went wrong renaming file {fileName}: {ex.ToString()}");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Ignoring file {fileName} from drive {_fileStorageConfig.DriveId} in directory {directory} because it doesn't have a standardized offer document name");
+                    }
+                }
+            }
+            catch (ServiceException)
+            {
+                _logger.LogWarning($"Something went wrong listing files in {directory}");
+            }
+
+
         }
     }
 }

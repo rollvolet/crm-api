@@ -7,18 +7,35 @@ using Rollvolet.CRM.DataProvider.Extensions;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using System.Collections.Generic;
+using Rollvolet.CRM.Domain.Contracts.MsGraph;
 
 namespace Rollvolet.CRM.DataProviders
 {
     public class SystemTaskDataProvider : ISystemTaskDataProvider
     {
         private readonly CrmContext _context;
+        private readonly IGraphApiSystemTaskService _graphApiSystemTask;
         private readonly ILogger _logger;
 
-        public SystemTaskDataProvider(CrmContext context, ILogger<SystemTaskDataProvider> logger)
+        public SystemTaskDataProvider(CrmContext context, IGraphApiSystemTaskService graphApiSystemTask,
+                                        ILogger<SystemTaskDataProvider> logger)
         {
             _context = context;
+            _graphApiSystemTask = graphApiSystemTask;
             _logger = logger;
+        }
+
+        public async Task RenameOfferDocuments(string[] locations)
+        {
+            foreach (var location in locations)
+            {
+                for (var year = 1995; year < 2022; year++)
+                {
+                    var directory = $"{location}/{year}";
+                    _logger.LogInformation($"Start renaming documents in folder {directory}");
+                    await _graphApiSystemTask.RenameOfferDocumentsAsync(directory);
+                }
+            }
         }
 
         public async Task RecalcalulateSearchNames()
@@ -28,7 +45,7 @@ namespace Rollvolet.CRM.DataProviders
             await RecalcalulateBuildingSearchNames();
         }
 
-        public async Task RecalcalulateCustomerSearchNames()
+        private async Task RecalcalulateCustomerSearchNames()
         {
             var total = await _context.Customers.CountAsync();
 
@@ -47,7 +64,7 @@ namespace Rollvolet.CRM.DataProviders
             }
         }
 
-        public async Task RecalcalulateContactSearchNames()
+        private async Task RecalcalulateContactSearchNames()
         {
             var total = await _context.Contacts.CountAsync();
 
@@ -66,7 +83,7 @@ namespace Rollvolet.CRM.DataProviders
             }
         }
 
-        public async Task RecalcalulateBuildingSearchNames()
+        private async Task RecalcalulateBuildingSearchNames()
         {
             var total = await _context.Buildings.CountAsync();
 
