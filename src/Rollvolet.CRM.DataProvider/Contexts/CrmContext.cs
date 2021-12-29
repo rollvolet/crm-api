@@ -362,7 +362,8 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasKey(e => e.Id)
                 .HasName("tblOfferte$PrimaryKey");
 
-            modelBuilder.Entity<Offer>();
+            modelBuilder.Entity<Offer>()
+                .HasQueryFilter(e => e.Currency == "EUR");
 
             modelBuilder.Entity<Offer>()
                 .HasOne(e => e.Request)
@@ -584,7 +585,7 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasName("TblVoorschot$PrimaryKey");
 
             modelBuilder.Entity<Deposit>()
-                .HasQueryFilter(e => e.IsDeposit);
+                .HasQueryFilter(e => e.Currency == "EUR" && e.IsDeposit);
 
             modelBuilder.Entity<Deposit>()
                 .HasOne(e => e.Customer)
