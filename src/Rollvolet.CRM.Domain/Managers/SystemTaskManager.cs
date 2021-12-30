@@ -39,9 +39,9 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task RenameOfferDocuments()
         {
             var locations = new string[] { 
-                _offerStorageLocation, 
+                _offerStorageLocation,
                 _orderStorageLocation,
-                _deliveryNoteStorageLocation, 
+                _deliveryNoteStorageLocation,
                 _generatedProductionTicketStorageLocation,
                 _receivedProductionTicketStorageLocation
             };
