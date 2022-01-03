@@ -13,7 +13,6 @@ namespace Rollvolet.CRM.Domain.Models
         public Building Building { get; set; }
         public Contact Contact { get; set; }
         public VatRate VatRate { get; set; }
-        public IEnumerable<Offerline> Offerlines { get; set; }
 
         public string Number { get; set; }
         public int? RequestNumber { get; set; }

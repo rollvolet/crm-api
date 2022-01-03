@@ -53,7 +53,7 @@ namespace Rollvolet.CRM.API
             services.AddDbContextPool<CrmContext>(
                 options => {
                     options.UseSqlServer(Configuration["DatabaseConfiguration:ConnectionString"]);
-                    options.EnableSensitiveDataLogging(); // Remove for production
+                    // options.EnableSensitiveDataLogging(); // Remove for production
                 });
 
             var connectionString = Configuration["DatabaseConfiguration:ConnectionString"];
@@ -97,8 +97,6 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IInterventionManager, InterventionManager>();
             services.AddTransient<IOfferDataProvider, OfferDataProvider>();
             services.AddTransient<IOfferManager, OfferManager>();
-            services.AddTransient<IOfferlineDataProvider, OfferlineDataProvider>();
-            services.AddTransient<IOfferlineManager, OfferlineManager>();
             services.AddTransient<IOrderDataProvider, OrderDataProvider>();
             services.AddTransient<IOrderManager, OrderManager>();
             services.AddTransient<IInvoicelineDataProvider, InvoicelineDataProvider>();

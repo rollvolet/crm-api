@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.API.Builders.Interfaces;
@@ -11,7 +10,6 @@ using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Buildings;
 using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
-using Rollvolet.CRM.APIContracts.DTO.Offerlines;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
@@ -33,7 +31,6 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IRequestManager _requestManager;
         private readonly IOrderManager _orderManager;
         private readonly IVatRateManager _vatRateManager;
-        private readonly IOfferlineManager _offerlineManager;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
@@ -42,7 +39,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         public OffersController(IOfferManager offerManager, IRequestManager requestManager, IOrderManager orderManager,
                                     ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
-                                    IVatRateManager vatRateManager, IOfferlineManager offerlineManager,
+                                    IVatRateManager vatRateManager,
                                     IDocumentGenerationManager documentGenerationManager, IIncludedCollector includedCollector,
                                     IMapper mapper, IJsonApiBuilder jsonApiBuilder, ILogger<OffersController> logger)
         {
@@ -53,7 +50,6 @@ namespace Rollvolet.CRM.API.Controllers
             _requestManager = requestManager;
             _orderManager = orderManager;
             _vatRateManager = vatRateManager;
-            _offerlineManager = offerlineManager;
             _documentGenerationManager = documentGenerationManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
@@ -248,23 +244,6 @@ namespace Rollvolet.CRM.API.Controllers
 
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
             return Ok(new ResourceResponse() { Links = links, Data = vatRateDto });
-        }
-
-        [HttpGet("{offerId}/offerlines")]
-        [HttpGet("{offerId}/links/offerlines")]
-        public async Task<IActionResult> GetRelatedOfferlinesByOfferIdAsync(int offerId)
-        {
-            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
-            querySet.Include.Fields = querySet.Include.Fields.Concat(new string[] { "vat-rate" }).ToArray();
-
-            var pagedOfferlines = await _offerlineManager.GetAllByOfferIdAsync(offerId, querySet);
-
-            var offerDtos = _mapper.Map<IEnumerable<OfferlineDto>>(pagedOfferlines.Items, opt => opt.Items["include"] = querySet.Include);
-            var included = _includedCollector.CollectIncluded(pagedOfferlines.Items, querySet.Include);
-            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedOfferlines);
-            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedOfferlines);
-
-            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = offerDtos, Included = included });
         }
     }
 }

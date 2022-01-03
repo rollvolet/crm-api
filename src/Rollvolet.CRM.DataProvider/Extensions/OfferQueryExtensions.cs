@@ -78,22 +78,17 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Include.Fields.Contains("request") || querySet.Include.Fields.Contains("request.calendar-event"))
                 source = source.Include(x => x.Request).ThenInclude(x => x.Visit);
 
-            if (querySet.Include.Fields.Contains("offerlines.vat-rate"))
-                source = source.Include(x => x.Offerlines).ThenInclude(x => x.VatRate);
-
             var selectors = new Dictionary<string, Expression<Func<Offer, object>>>();
 
             selectors.Add("building", c => c.Building);
             selectors.Add("contact", c => c.Contact);
             selectors.Add("vat-rate", c => c.VatRate);
-            selectors.Add("offerlines", c => c.Offerlines);
 
             // dummy entries for resources that are already included
             selectors.Add("customer", null);
             selectors.Add("customer.honorific-prefix", null);
             selectors.Add("request", null);
             selectors.Add("request.calendar-event", null);
-            selectors.Add("offerlines.vat-rate", null);
 
             return source.Include<Offer>(querySet, selectors);
         }

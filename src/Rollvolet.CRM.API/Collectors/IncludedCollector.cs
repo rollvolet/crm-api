@@ -9,7 +9,6 @@ using Rollvolet.CRM.APIContracts.DTO.Deposits;
 using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.DTO.InvoiceSupplements;
 using Rollvolet.CRM.APIContracts.DTO.DepositInvoices;
-using Rollvolet.CRM.APIContracts.DTO.Offerlines;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
@@ -264,10 +263,6 @@ namespace Rollvolet.CRM.API.Collectors
             if (includeQuery.Contains("request.calendar-event") && offer.Request != null && offer.Request.CalendarEvent != null)
                 included.Add(_mapper.Map<CalendarEventDto>(offer.Request.CalendarEvent));
 
-            // many-relations
-            if (includeQuery.Contains("offerlines") && offer.Offerlines.Count() > 0)
-                included.UnionWith(_mapper.Map<IEnumerable<OfferlineDto>>(offer.Offerlines));
-
             return included;
         }
 
@@ -276,29 +271,6 @@ namespace Rollvolet.CRM.API.Collectors
             ISet<IResource> included = new HashSet<IResource>();
 
             foreach (var offer in offers)
-                included.UnionWith(CollectIncluded(offer, includeQuery));
-
-            return included;
-        }
-
-        public IEnumerable<IResource> CollectIncluded(Offerline offerline, IncludeQuery includeQuery)
-        {
-            ISet<IResource> included = new HashSet<IResource>();
-
-            // one-relations
-            if (includeQuery.Contains("offer") && offerline.Offer != null)
-                included.Add(_mapper.Map<OfferDto>(offerline.Offer));
-            if (includeQuery.Contains("vat-rate") && offerline.VatRate != null)
-                included.Add(_mapper.Map<VatRateDto>(offerline.VatRate));
-
-            return included;
-        }
-
-        public IEnumerable<IResource> CollectIncluded(IEnumerable<Offerline> offerlines, IncludeQuery includeQuery)
-        {
-            ISet<IResource> included = new HashSet<IResource>();
-
-            foreach (var offer in offerlines)
                 included.UnionWith(CollectIncluded(offer, includeQuery));
 
             return included;

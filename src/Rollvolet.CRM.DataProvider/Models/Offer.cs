@@ -90,7 +90,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Contact Contact { get; set; }
         public VatRate VatRate { get; set; }
         public Order Order { get; set; }
-        public IEnumerable<Offerline> Offerlines { get; set; }
 
 
         // Embedded properties

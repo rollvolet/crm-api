@@ -203,11 +203,10 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
-                "offerlines", "offerlines.vat-rate", "customer", "request", "contact", "building"
+                "customer", "request", "contact", "building"
             };
             var offer = await _offerDataProvider.GetByIdAsync(offerId, includeQuery);
 
-            offer.Offerlines = offer.Offerlines.OrderBy(l => l.SequenceNumber);
             await EmbedCustomerAndContactTelephonesAsync(offer);
 
             var visitorInitials = offer.Request != null ? await GetVisitorInitialsByOfferIdAsync(offer.Id) : null;
