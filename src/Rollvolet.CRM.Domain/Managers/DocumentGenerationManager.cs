@@ -238,14 +238,13 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task CreateAndStoreOrderDocumentAsync(int orderId)
         {
             var includeQuery = new QuerySet();
-            includeQuery.Include.Fields = new string[] { "customer", "contact", "building", "invoicelines", "invoicelines.vat-rate" };
+            includeQuery.Include.Fields = new string[] { "customer", "contact", "building" };
             var order = await _orderDataProvider.GetByIdAsync(orderId, includeQuery);
 
             var offerIncludeQuery = new QuerySet();
             offerIncludeQuery.Include.Fields = new string[] { "request" };
             var offer = await _offerDataProvider.GetByOrderIdAsync(orderId, offerIncludeQuery);
 
-            order.Invoicelines = order.Invoicelines.OrderBy(l => l.SequenceNumber);
             offer.Order = null; // Remove duplicated nested data before sending
             order.Offer = offer;
 
@@ -280,14 +279,13 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task CreateAndStoreDeliveryNoteAsync(int orderId)
         {
             var includeQuery = new QuerySet();
-            includeQuery.Include.Fields = new string[] { "customer", "contact", "building", "invoicelines", "invoicelines.vat-rate" };
+            includeQuery.Include.Fields = new string[] { "customer", "contact", "building" };
             var order = await _orderDataProvider.GetByIdAsync(orderId, includeQuery);
 
             var offerIncludeQuery = new QuerySet();
             offerIncludeQuery.Include.Fields = new string[] { "request" };
             var offer = await _offerDataProvider.GetByOrderIdAsync(orderId, offerIncludeQuery);
 
-            order.Invoicelines = order.Invoicelines.OrderBy(l => l.SequenceNumber);
             offer.Order = null; // Remove duplicated nested data before sending
             order.Offer = offer;
 
@@ -426,11 +424,10 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var includeQuery = new QuerySet();
             includeQuery.Include.Fields = new string[] {
-                "customer", "contact", "building", "order", "intervention", "vat-rate", "supplements", "supplements.unit", "deposits", "deposit-invoices", "invoicelines", "invoicelines.vat-rate"
+                "customer", "contact", "building", "order", "intervention", "vat-rate", 
+                "supplements", "supplements.unit", "deposits", "deposit-invoices"
             };
             var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId, includeQuery);
-
-            invoice.Invoicelines = invoice.Invoicelines.OrderBy(l => l.SequenceNumber);
 
             string visitorInitials = null;
             if (invoice.Order != null)
@@ -455,7 +452,6 @@ namespace Rollvolet.CRM.Domain.Managers
             // Remove duplicated nested data before sending
             foreach (var deposit in invoice.Deposits) { deposit.Customer = null; deposit.Order = null; }
             foreach (var depositInvoice in invoice.DepositInvoices) { depositInvoice.Customer = null; depositInvoice.Order = null; }
-            foreach (var invoiceline in invoice.Invoicelines) { invoiceline.Order = null; }
 
             await EmbedCustomerAndContactTelephonesAsync(invoice);
 
@@ -495,9 +491,8 @@ namespace Rollvolet.CRM.Domain.Managers
             if (depositInvoice.Order != null)
             {
                 var orderIncludeQuery = new QuerySet();
-                orderIncludeQuery.Include.Fields = new string[] { "offer", "invoicelines", "invoicelines.vat-rate" };
+                orderIncludeQuery.Include.Fields = new string[] { "offer" };
                 var order = await _orderDataProvider.GetByIdAsync(depositInvoice.Order.Id, orderIncludeQuery);
-                order.Invoicelines = order.Invoicelines.OrderBy(l => l.SequenceNumber);
                 depositInvoice.Order = order;
 
                 visitorInitials = await GetVisitorInitialsByOfferIdAsync(depositInvoice.Order.Offer.Id);

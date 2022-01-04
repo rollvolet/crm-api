@@ -12,7 +12,6 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<Order> GetByInterventionIdAsync(int interventionId, QuerySet query = null);
         Task<Order> GetByOfferIdAsync(int offerId, QuerySet query = null);
         Task<Order> GetByInvoiceIdAsync(int invoiceId, QuerySet query = null);
-        Task<Order> GetByInvoicelineIdAsync(int invoicelineId, QuerySet query = null);
         Task<Order> GetByDepositInvoiceIdAsync(int depositInvoiceId, QuerySet query = null);
         Task<Order> CreateAsync(Order order);
         Task<Order> UpdateAsync(Order order);

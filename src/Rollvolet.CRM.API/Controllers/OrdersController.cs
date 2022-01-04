@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Rollvolet.CRM.API.Builders.Interfaces;
@@ -15,7 +14,6 @@ using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.DepositInvoices;
 using Rollvolet.CRM.APIContracts.DTO.Deposits;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
-using Rollvolet.CRM.APIContracts.DTO.Invoicelines;
 using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
@@ -40,7 +38,6 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IDepositInvoiceManager _depositInvoiceManager;
         private readonly IVatRateManager _vatRateManager;
         private readonly IInterventionManager _interventionManager;
-        private readonly IInvoicelineManager _invoicelineManager;
         private readonly IEmployeeManager _employeeManager;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly IIncludedCollector _includedCollector;
@@ -50,7 +47,7 @@ namespace Rollvolet.CRM.API.Controllers
         public OrdersController(IOrderManager orderManager, IOfferManager offerManager, IInvoiceManager invoiceManager,
                                 ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
                                 IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager, IVatRateManager vatRateManager,
-                                IInterventionManager interventionManager, IInvoicelineManager invoicelineManager,
+                                IInterventionManager interventionManager,
                                 IEmployeeManager employeeManager, IDocumentGenerationManager documentGenerationManager,
                                 IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
@@ -64,7 +61,6 @@ namespace Rollvolet.CRM.API.Controllers
             _depositInvoiceManager = depositInvoiceManager;
             _vatRateManager = vatRateManager;
             _interventionManager = interventionManager;
-            _invoicelineManager = invoicelineManager;
             _employeeManager = employeeManager;
             _documentGenerationManager = documentGenerationManager;
             _includedCollector = includedCollector;
@@ -354,23 +350,6 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedInterventions);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = interventionDtos, Included = included });
-        }
-
-        [HttpGet("{orderId}/invoicelines")]
-        [HttpGet("{orderId}/links/invoicelines")]
-        public async Task<IActionResult> GetRelatedInvoicelinesByOrderIdAsync(int orderId)
-        {
-            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
-            querySet.Include.Fields = querySet.Include.Fields.Concat(new string[] { "vat-rate" }).ToArray();
-
-            var pagedInvoicelines = await _invoicelineManager.GetAllByOrderIdAsync(orderId, querySet);
-
-            var invoicelineDtos = _mapper.Map<IEnumerable<InvoicelineDto>>(pagedInvoicelines.Items, opt => opt.Items["include"] = querySet.Include);
-            var included = _includedCollector.CollectIncluded(pagedInvoicelines.Items, querySet.Include);
-            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedInvoicelines);
-            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedInvoicelines);
-
-            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = invoicelineDtos, Included = included });
         }
 
         [HttpGet("{orderId}/technicians")]

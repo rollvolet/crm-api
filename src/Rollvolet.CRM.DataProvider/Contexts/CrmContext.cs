@@ -23,7 +23,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<CustomerTag> CustomerTags { get; set; }
         public DbSet<Offer> Offers { get; set; }
         public DbSet<Order> Orders { get; set; }
-        public DbSet<Invoiceline> Invoicelines { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<Deposit> Deposits { get; set; }
         public DbSet<DepositInvoiceHub> DepositInvoices { get; set; }
@@ -450,33 +449,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasMany(e => e.Deposits)
                 .WithOne(e => e.Order)
                 .HasForeignKey(e => e.OrderId);
-
-
-            // Invoiceline
-
-            modelBuilder.Entity<Invoiceline>()
-                .ToTable("TblInvoiceline", schema: "dbo");
-
-            modelBuilder.Entity<Invoiceline>()
-                .HasKey(e => e.Id)
-                .HasName("TblInvoiceline$PrimaryKey");
-
-            modelBuilder.Entity<Invoiceline>()
-                .HasOne(e => e.Order)
-                .WithMany(e => e.Invoicelines)
-                .HasForeignKey(e => e.OrderId)
-                .HasPrincipalKey(e => e.Id);
-
-            modelBuilder.Entity<Invoiceline>()
-                .HasOne(e => e.Invoice)
-                .WithMany(e => e.Invoicelines)
-                .HasForeignKey(e => e.InvoiceId)
-                .HasPrincipalKey(e => e.Id);
-
-            modelBuilder.Entity<Invoiceline>()
-                .HasOne(e => e.VatRate)
-                .WithMany()
-                .HasForeignKey(e => e.VatRateId);
 
 
             // Invoice

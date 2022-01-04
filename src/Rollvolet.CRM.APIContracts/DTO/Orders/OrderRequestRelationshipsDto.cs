@@ -10,7 +10,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Orders
         public OneRelationship Building { get; set; }
         public OneRelationship Contact { get; set; }
         public OneRelationship VatRate { get; set; }
-        public ManyRelationship Invoicelines { get; set; }
         public ManyRelationship Deposits { get; set; }
         public ManyRelationship DepositInvoices { get; set; }
         public ManyRelationship Interventions { get; set; }

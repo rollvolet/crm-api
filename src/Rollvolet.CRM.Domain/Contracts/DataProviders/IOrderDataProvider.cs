@@ -12,7 +12,6 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
         Task<Order> GetByInterventionIdAsync(int interventionId, QuerySet query = null);
         Task<Order> GetByOfferIdAsync(int offerId, QuerySet query = null);
         Task<Order> GetByInvoiceIdAsync(int invoiceId, QuerySet query = null);
-        Task<Order> GetByInvoicelineIdAsync(int invoicelineId);
         Task<Order> GetByDepositInvoiceIdAsync(int invoiceId, QuerySet query = null);
         Task<Order> CreateAsync(Order order);
         Task<Order> UpdateAsync(Order order);

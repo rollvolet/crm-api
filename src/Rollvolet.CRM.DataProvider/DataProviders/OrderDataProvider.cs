@@ -125,19 +125,6 @@ namespace Rollvolet.CRM.DataProviders
             return await GetByIdAsync((int) orderId, query);
         }
 
-        public async Task<Order> GetByInvoicelineIdAsync(int invoicelineId)
-        {
-            var order = await _context.Invoicelines.Where(o => o.Id == invoicelineId).Select(o => o.Order).FirstOrDefaultAsync();
-
-            if (order == null)
-            {
-                _logger.LogError($"No order found for invoiceline-id {invoicelineId}");
-                throw new EntityNotFoundException();
-            }
-
-            return _mapper.Map<Order>(order);
-        }
-
         public async Task<Order> GetByDepositInvoiceIdAsync(int invoiceId, QuerySet query = null)
         {
             return await GetByInvoiceIdAsync(invoiceId, query);

@@ -136,21 +136,16 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Include.Fields.Contains("supplements.unit"))
                 source = source.Include(x => x.Supplements).ThenInclude(x => x.Unit);
 
-            if (querySet.Include.Fields.Contains("invoicelines.vat-rate"))
-                source = source.Include(x => x.Invoicelines).ThenInclude(x => x.VatRate);
-
             var selectors = new Dictionary<string, Expression<Func<Invoice, object>>>();
 
             selectors.Add("building", c => c.Building);
             selectors.Add("contact", c => c.Contact);
             selectors.Add("vat-rate", c => c.VatRate);
-            selectors.Add("invoicelines", c => c.Invoicelines);
 
             // dummy entries for resources that are already included
             selectors.Add("customer", null);
             selectors.Add("customer.honorific-prefix", null);
             selectors.Add("supplements.unit", null);
-            selectors.Add("invoicelines.vat-rate", null);
 
             if (!isDepositInvoice) // only available on normal invoices
             {

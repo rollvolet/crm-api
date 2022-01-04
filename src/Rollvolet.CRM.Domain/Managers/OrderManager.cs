@@ -19,7 +19,6 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IBuildingDataProvider _buildingDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IInvoiceDataProvider _invoiceDataProvider;
-        private readonly IInvoicelineDataProvider _invoicelineDataProvider;
         private readonly IDepositDataProvider _depositDataProvider;
         private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
@@ -31,7 +30,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public OrderManager(IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDataProvider,
                                 ICustomerDataProvider customerDataProvider, IContactDataProvider contactDataProvider,
                                 IBuildingDataProvider buildingDataProvider, IOfferDataProvider offerDataProvider,
-                                IInvoicelineDataProvider invoicelineDataProvider, IVatRateDataProvider vatRateDataProvider,
+                                IVatRateDataProvider vatRateDataProvider,
                                 IDepositDataProvider depositDataProvider, IDepositInvoiceDataProvider depositInvoiceDataProvider,
                                 IEmployeeDataProvider employeeDataProvider,
                                 IGraphApiCalendarService calendarService, IDocumentGenerationManager documentGenerationManager,
@@ -43,7 +42,6 @@ namespace Rollvolet.CRM.Domain.Managers
             _buildingDataProvider = buildingDataProvider;
             _offerDataProvider = offerDataProvider;
             _invoiceDataProvider = invoiceDataProvider;
-            _invoicelineDataProvider = invoicelineDataProvider;
             _depositDataProvider = depositDataProvider;
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
@@ -93,11 +91,6 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Order> GetByInvoiceIdAsync(int invoiceId, QuerySet query = null)
         {
             return await _orderDataProvider.GetByInvoiceIdAsync(invoiceId, query);
-        }
-
-        public async Task<Order> GetByInvoicelineIdAsync(int invoicelineId, QuerySet query = null)
-        {
-            return await _orderDataProvider.GetByInvoicelineIdAsync(invoicelineId);
         }
 
         public async Task<Order> GetByDepositInvoiceIdAsync(int depositInvoiceId, QuerySet query = null)
@@ -199,14 +192,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 if (deposits.Count > 0)
                 {
                     var message = $"Order {id} cannot be deleted because {deposits.Count} deposits are attached to it.";
-                    _logger.LogError(message);
-                    throw new InvalidOperationException(message);
-                }
-
-                var invoicelines = await _invoicelineDataProvider.GetAllByOrderIdAsync(id, pageQuery);
-                if (invoicelines.Count > 0)
-                {
-                    var message = $"Order {id} cannot be deleted because {invoicelines.Count} invoicelines are attached to it.";
                     _logger.LogError(message);
                     throw new InvalidOperationException(message);
                 }

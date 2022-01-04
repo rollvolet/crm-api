@@ -17,7 +17,6 @@ using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
-using Rollvolet.CRM.APIContracts.DTO.Invoicelines;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
 using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
 using Rollvolet.CRM.Business.Models;
@@ -33,7 +32,6 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Intervention, InterventionRelationshipsDto>,
                                             ITypeConverter<Offer, OfferRelationshipsDto>,
                                             ITypeConverter<Order, OrderRelationshipsDto>,
-                                            ITypeConverter<Invoiceline, InvoicelineRelationshipsDto>,
                                             ITypeConverter<Invoice, InvoiceRelationshipsDto>,
                                             ITypeConverter<DepositInvoice, DepositInvoiceRelationshipsDto>,
                                             ITypeConverter<Deposit, DepositRelationshipsDto>,
@@ -159,20 +157,10 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Building = GetOneRelationship<Building>("orders", source.Id, "building", source.Building, context);
             relationships.Contact = GetOneRelationship<Contact>("orders", source.Id, "contact", source.Contact, context);
             relationships.VatRate = GetOneRelationship<VatRate>("orders", source.Id, "vat-rate", source.VatRate, context);
-            relationships.Invoicelines = GetManyRelationship<Invoiceline>("orders", source.Id, "invoicelines", source.Invoicelines, context);
             relationships.Deposits = GetManyRelationship<Deposit>("orders", source.Id, "deposits", source.Deposits, context);
             relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("orders", source.Id, "deposit-invoices", source.DepositInvoices, context);
             relationships.Interventions = GetManyRelationship<Intervention>("orders", source.Id, "interventions", source.Interventions, context);
             relationships.Technicians = GetManyRelationship<Employee>("orders", source.Id, "technicians", source.Technicians, context);
-            return relationships;
-        }
-
-        InvoicelineRelationshipsDto ITypeConverter<Invoiceline, InvoicelineRelationshipsDto>.Convert(Invoiceline source, InvoicelineRelationshipsDto destination, ResolutionContext context)
-        {
-            var relationships = new InvoicelineRelationshipsDto();
-            relationships.Order = GetOneRelationship<Order>("invoicelines", source.Id, "order", source.Order, context);
-            relationships.Invoice = GetOneRelationship<Invoice>("invoicelines", source.Id, "invoice", source.Invoice, context);
-            relationships.VatRate = GetOneRelationship<VatRate>("invoicelines", source.Id, "vat-rate", source.VatRate, context);
             return relationships;
         }
 
@@ -186,7 +174,6 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Contact = GetOneRelationship<Contact>("invoices", source.Id, "contact", source.Contact, context);
             relationships.VatRate = GetOneRelationship<VatRate>("invoices", source.Id, "vat-rate", source.VatRate, context);
             relationships.Supplements = GetManyRelationship<InvoiceSupplement>("invoices", source.Id, "supplements", source.Supplements, context);
-            relationships.Invoicelines = GetManyRelationship<Invoiceline>("invoices", source.Id, "invoicelines", source.Invoicelines, context);
             relationships.Deposits = GetManyRelationship<Deposit>("invoices", source.Id, "deposits", source.Deposits, context);
             relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("invoices", source.Id, "deposit-invoices", source.DepositInvoices, context);
             relationships.WorkingHours = GetManyRelationship<WorkingHour>("invoices", source.Id, "working-hours", source.WorkingHours, context);

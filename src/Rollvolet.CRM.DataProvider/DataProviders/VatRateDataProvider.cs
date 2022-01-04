@@ -71,19 +71,6 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<VatRate>(vatRate);
         }
 
-        public async Task<VatRate> GetByInvoicelineIdAsync(int invoicelineId)
-        {
-            var vatRate = await _context.Invoicelines.Where(c => c.Id == invoicelineId).Select(c => c.VatRate).FirstOrDefaultAsync();
-
-            if (vatRate == null)
-            {
-                _logger.LogError($"No vat-rate found for invoiceline with id {invoicelineId}");
-                throw new EntityNotFoundException();
-            }
-
-            return _mapper.Map<VatRate>(vatRate);
-        }
-
         public async Task<VatRate> GetByInvoiceIdAsync(int invoiceId)
         {
             var vatRate = await _context.Invoices.Where(c => c.Id == invoiceId).Select(c => c.VatRate).FirstOrDefaultAsync();

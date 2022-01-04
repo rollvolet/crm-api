@@ -83,9 +83,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Include.Fields.Contains("deposit-invoices"))
                 source = source.Include(c => c.DepositInvoicesHubs).ThenInclude(d => d.DepositInvoice);
 
-            if (querySet.Include.Fields.Contains("invoicelines.vat-rate"))
-                source = source.Include(x => x.Invoicelines).ThenInclude(x => x.VatRate);
-
             if (querySet.Include.Fields.Contains("technicians"))
                 source = source.Include(x => x.OrderTechnicians).ThenInclude(x => x.Employee);
 
@@ -97,14 +94,12 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("invoice", c => c.Invoice);
             selectors.Add("vat-rate", c => c.VatRate);
             selectors.Add("deposits", c => c.Deposits);
-            selectors.Add("invoicelines", c => c.Invoicelines);
             selectors.Add("interventions", c => c.Interventions);
 
             // dummy entries for resources that are already included
             selectors.Add("customer", null);
             selectors.Add("customer.honorific-prefix", null);
             selectors.Add("deposit-invoices", null);
-            selectors.Add("invoicelines.vat-rate", null);
             selectors.Add("technicians", null);
 
             return source.Include<Order>(querySet, selectors);
