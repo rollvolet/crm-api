@@ -51,7 +51,7 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("BasisBedrag")]
         // in Access: amount copied from order for invoice
-        // Now amount entered by user for deposit invoice. Else sum of invoicelines (as calculated by frontend).
+        // Now amount entered by user for deposit invoice. Sum of invoicelines for regular invoice (as calculated by frontend).
         public double? BaseAmount { get; set; }
 
         // Amount, Vat and TotalAmount are kept in sync by InvoiceDataProvider.CalculateAmountAndVatAsync
@@ -104,6 +104,9 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("MuntEenheid")]
         public string Currency { get; set; }
+
+        [Column("Origin")]
+        public string Origin { get; set; }
 
 
         // Include resources

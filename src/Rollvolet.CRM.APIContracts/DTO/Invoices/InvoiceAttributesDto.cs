@@ -21,5 +21,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Invoices
         public string Qualification { get; set; }
         public string DocumentOutro { get; set; }
         public string Reference { get; set; }
+        public string Origin { get; set; }
     }
 }

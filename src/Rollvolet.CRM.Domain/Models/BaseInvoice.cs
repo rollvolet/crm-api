@@ -26,6 +26,7 @@ namespace Rollvolet.CRM.Domain.Models
         public string Qualification { get; set; }
         public string DocumentOutro { get; set; }
         public string Reference { get; set; }
+        public string Origin { get; set; }
 
 
         // Embedded Customer properties
