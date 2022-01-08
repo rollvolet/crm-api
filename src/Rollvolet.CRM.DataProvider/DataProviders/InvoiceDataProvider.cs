@@ -18,16 +18,13 @@ namespace Rollvolet.CRM.DataProviders
 {
     public class InvoiceDataProvider : BaseInvoiceDataProvider, IInvoiceDataProvider
     {
-        private readonly IInvoiceSupplementDataProvider _invoiceSupplementDataProvider;
         private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
 
-        public InvoiceDataProvider(IInvoiceSupplementDataProvider invoiceSupplementDataProvider,
-                                    IDepositInvoiceDataProvider depositInvoiceDataProvider,
+        public InvoiceDataProvider(IDepositInvoiceDataProvider depositInvoiceDataProvider,
                                     ISequenceDataProvider sequenceDataProvider, IVatRateDataProvider vatRateDataProvider,
                                     CrmContext context, IMapper mapper, ILogger<InvoiceDataProvider> logger)
                                     : base(sequenceDataProvider, vatRateDataProvider, context, mapper, logger)
         {
-            _invoiceSupplementDataProvider = invoiceSupplementDataProvider;
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
         }
 
@@ -166,7 +163,6 @@ namespace Rollvolet.CRM.DataProviders
             invoiceRecord.Currency = "EUR";
             await EmbedCustomerAttributesAsync(invoiceRecord);
 
-            // Updates by a change in other resources (e.g. invoice supplements) are triggered through SyncAmountAndVatAsync
             await CalculateAmountAndVatAsync(invoiceRecord);
 
             _context.Invoices.Update(invoiceRecord);
@@ -215,21 +211,6 @@ namespace Rollvolet.CRM.DataProviders
            }
         }
 
-        public async Task SyncAmountAndVatAsync(int id)
-        {
-            _logger.LogDebug("Recalculation of amount and VAT of invoice {0} triggered", id);
-
-            var invoiceRecord = await FindByIdAsync(id);
-
-            if (invoiceRecord != null)
-            {
-                await CalculateAmountAndVatAsync(invoiceRecord);
-                _context.Invoices.Update(invoiceRecord);
-                await _context.SaveChangesAsync();
-                _logger.LogDebug("Successfully recalculated amount and VAT of invoice {0}", id);
-            }
-        }
-
         private async Task<Paged<Invoice>> GetAllWhereAsync(Expression<Func<DataProvider.Models.Invoice, bool>> where, QuerySet query)
         {
             var source = BaseQuery()
@@ -266,17 +247,8 @@ namespace Rollvolet.CRM.DataProviders
                 depositInvoicesTotal = depositInvoices.Items.Select(s => s.IsCreditNote ? s.Amount * -1.0 : s.Amount).Sum() ?? 0.0;
             }
 
-            var invoiceSupplementsTotal = 0.0;
-            if (invoice.Id != 0)  // invoice supplements can only be attached to an existing invoice
-            {
-                var query = new QuerySet();
-                query.Page.Size = 1000; // TODO we assume 1 invoice doesn't have more than 1000 supplements. Ideally, we should query by page.
-                var invoiceSupplements = await _invoiceSupplementDataProvider.GetAllByInvoiceIdAsync(invoice.Id, query);
-                invoiceSupplementsTotal = invoiceSupplements.Items.Select(s => s.Amount).Sum() ?? 0.0;
-            }
-
             var baseAmount = invoice.BaseAmount ?? 0.0; // sum of invoicelines (as calculated by frontend)
-            var amount = baseAmount + invoiceSupplementsTotal - depositInvoicesTotal;
+            var amount = baseAmount - depositInvoicesTotal;
 
             var vat = 0.0;
             if (invoice.VatRateId != null)
@@ -286,7 +258,7 @@ namespace Rollvolet.CRM.DataProviders
                 vat = amount * (vatRate.Rate / 100.0);
             }
 
-            invoice.Amount = amount; // sum of base amount + all invoice supplements - all deposit invoices
+            invoice.Amount = amount; // sum of base amount - all deposit invoices
             invoice.Vat = vat; // vat calculated on amount
             invoice.TotalAmount = amount + vat; // gross amount
 

@@ -7,7 +7,6 @@ using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.DepositInvoices;
 using Rollvolet.CRM.APIContracts.DTO.Deposits;
 using Rollvolet.CRM.APIContracts.DTO.Invoices;
-using Rollvolet.CRM.APIContracts.DTO.InvoiceSupplements;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
@@ -18,7 +17,6 @@ using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.APIContracts.DTO.AccountancyExports;
 using Rollvolet.CRM.APIContracts.DTO.ErrorNotifications;
-using Rollvolet.CRM.APIContracts.DTO.ProductUnits;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
 using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
 using Rollvolet.CRM.Business.Models;
@@ -476,34 +474,6 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForAllOtherMembers(opt => opt.Ignore());
 
 
-            // Product unit mappings
-
-            CreateMap<ProductUnit, ProductUnitDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "product-units"))
-                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
-
-            CreateMap<ProductUnit, ProductUnitAttributesDto>();
-
-            CreateMap<ProductUnit, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
-
-            CreateMap<ProductUnit, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "product-units"));
-
-            CreateMap<OneRelationship, ProductUnit>()
-                .ConstructUsing((src, context) => context.Mapper.Map<ProductUnit>(src.Data))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<ManyRelationship, IEnumerable<ProductUnit>>()
-                .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<ProductUnit>>(src.Data))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<RelatedResource, ProductUnit>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-
             // Visit mappings
 
             CreateMap<CalendarEvent, CalendarEventDto>()
@@ -679,7 +649,6 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.VatRate, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.VatRate : null))
                 .ForMember(dest => dest.Deposits, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Deposits : null))
                 .ForMember(dest => dest.DepositInvoices, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.DepositInvoices : null))
-                .ForMember(dest => dest.Supplements, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Supplements : null))
                 .ForMember(dest => dest.WorkingHours, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.WorkingHours : null))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
@@ -730,41 +699,6 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<RelatedResource, DepositInvoice>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-
-            // Invoice supplement mappings
-
-            CreateMap<InvoiceSupplement, InvoiceSupplementDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "invoice-supplements"))
-                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
-
-            CreateMap<InvoiceSupplement, InvoiceSupplementAttributesDto>().ReverseMap();
-
-            CreateMap<InvoiceSupplement, InvoiceSupplementRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
-
-            CreateMap<InvoiceSupplement, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "invoice-supplements"));
-
-            CreateMap<InvoiceSupplementRequestDto, InvoiceSupplement>()
-                .ConstructUsing((src, context) => context.Mapper.Map<InvoiceSupplement>(src.Attributes))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Invoice : null))
-                .ForMember(dest => dest.Unit, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Unit : null))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<OneRelationship, InvoiceSupplement>()
-                .ConstructUsing((src, context) => context.Mapper.Map<InvoiceSupplement>(src.Data))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<ManyRelationship, IEnumerable<InvoiceSupplement>>()
-                .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<InvoiceSupplement>>(src.Data))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<RelatedResource, InvoiceSupplement>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForAllOtherMembers(opt => opt.Ignore());
 

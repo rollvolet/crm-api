@@ -51,13 +51,15 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("BasisBedrag")]
         // in Access: amount copied from order for invoice
-        // Now amount entered by user for deposit invoice. Sum of invoicelines for regular invoice (as calculated by frontend).
+        // in RKB:
+        // - manually entered by user for deposit invoice
+        // - sum of invoicelines for regular invoice (as calculated by frontend)
         public double? BaseAmount { get; set; }
 
         // Amount, Vat and TotalAmount are kept in sync by InvoiceDataProvider.CalculateAmountAndVatAsync
 
         [Column("Bedrag")]
-        public double? Amount { get; set; }  // baseAmount + all InvoiceSupplements - all DepositInvoices
+        public double? Amount { get; set; }  // baseAmount - all DepositInvoices
 
         [Column("BTWBedrag")]
         public double? Vat { get; set; } // VAT calculated on Amount
@@ -116,7 +118,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Order Order { get; set; }
         public Intervention Intervention { get; set; }
         public VatRate VatRate { get; set; }
-        public IEnumerable<InvoiceSupplement> Supplements { get; set; }
         public IEnumerable<Deposit> Deposits { get; set; }
         public IEnumerable<WorkingHour> WorkingHours { get; set; }
         public IEnumerable<DepositInvoiceHub> DepositInvoiceHubs { get; set; } // only set on normal invoices

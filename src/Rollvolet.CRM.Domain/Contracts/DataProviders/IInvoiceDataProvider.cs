@@ -18,6 +18,5 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
         Task<Invoice> UpdateAsync(Invoice invoice);
         Task<Invoice> UpdateContactAndBuildingAsync(int id, int? relativeContactId, int? relativeBuildingId);
         Task DeleteByIdAsync(int id);
-        Task SyncAmountAndVatAsync(int id);
     }
 }

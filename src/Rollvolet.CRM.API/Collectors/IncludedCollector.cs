@@ -7,7 +7,6 @@ using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.Deposits;
 using Rollvolet.CRM.APIContracts.DTO.Invoices;
-using Rollvolet.CRM.APIContracts.DTO.InvoiceSupplements;
 using Rollvolet.CRM.APIContracts.DTO.DepositInvoices;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
@@ -18,7 +17,6 @@ using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
-using Rollvolet.CRM.APIContracts.DTO.ProductUnits;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
 using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
 
@@ -326,7 +324,6 @@ namespace Rollvolet.CRM.API.Collectors
             ISet<IResource> included = new HashSet<IResource>();
 
             var customerIncludeQuery = includeQuery.NestedInclude("customer");
-            var supplementsIncludeQuery = includeQuery.NestedInclude("supplements");
             var workingHoursIncludeQuery = includeQuery.NestedInclude("working-hours");
 
             // one-relations
@@ -344,10 +341,6 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<VatRateDto>(invoice.VatRate));
 
             // many-relations
-            if (includeQuery.Contains("supplements") && invoice.Supplements.Count() > 0)
-                included.UnionWith(_mapper.Map<IEnumerable<InvoiceSupplementDto>>(invoice.Supplements, opt => opt.Items["include"] = supplementsIncludeQuery));
-            if (includeQuery.Contains("supplements.unit") && invoice.Supplements.Count() > 0)
-                included.UnionWith(_mapper.Map<IEnumerable<EmployeeDto>>(invoice.Supplements.Select(x => x.Unit).Where(x => x != null)));
             if (includeQuery.Contains("deposits") && invoice.Deposits.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<DepositDto>>(invoice.Deposits));
             if (includeQuery.Contains("deposit-invoices") && invoice.DepositInvoices.Count() > 0)
@@ -483,29 +476,6 @@ namespace Rollvolet.CRM.API.Collectors
 
             foreach (var workingHour in workingHours)
                 included.UnionWith(CollectIncluded(workingHour, includeQuery));
-
-            return included;
-        }
-
-        public IEnumerable<IResource> CollectIncluded(InvoiceSupplement invoiceSupplement, IncludeQuery includeQuery)
-        {
-            ISet<IResource> included = new HashSet<IResource>();
-
-            // one-relations
-            if (includeQuery.Contains("invoice") && invoiceSupplement.Invoice != null)
-                included.Add(_mapper.Map<InvoiceDto>(invoiceSupplement.Invoice));
-            if (includeQuery.Contains("product-unit") && invoiceSupplement.Unit != null)
-                included.Add(_mapper.Map<ProductUnitDto>(invoiceSupplement.Unit));
-
-            return included;
-        }
-
-        public IEnumerable<IResource> CollectIncluded(IEnumerable<InvoiceSupplement> invoiceSupplements, IncludeQuery includeQuery)
-        {
-            ISet<IResource> included = new HashSet<IResource>();
-
-            foreach (var invoiceSupplement in invoiceSupplements)
-                included.UnionWith(CollectIncluded(invoiceSupplement, includeQuery));
 
             return included;
         }

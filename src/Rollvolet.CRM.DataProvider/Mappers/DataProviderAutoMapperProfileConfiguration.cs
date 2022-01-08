@@ -143,11 +143,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ReverseMap()
                 .PreserveReferences();
 
-            CreateMap<Models.ProductUnit, Domain.Models.ProductUnit>()
-                .PreserveReferences()
-                .ReverseMap()
-                .PreserveReferences();
-
             CreateMap<Models.Visit, Domain.Models.Request>()
                 // only merge the fields from visit that needs to be public in the request object
                 .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
@@ -298,7 +293,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Intervention, opt => opt.Ignore())
                 .ForMember(dest => dest.InterventionId, opt => opt.MapFrom(src => src.Intervention != null ? src.Intervention.Id : (int?) null))
                 .ForMember(dest => dest.Deposits, opt => opt.Ignore())
-                .ForMember(dest => dest.Supplements, opt => opt.Ignore())
                 .ForMember(dest => dest.DepositInvoiceHubs, opt => opt.Ignore())
                 .PreserveReferences();
 
@@ -318,16 +312,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.Order, opt => opt.Ignore())
                 .ForMember(dest => dest.OrderId, opt => opt.Ignore()) // order id is not set on invoice record, but on deposit invoice hub record
                 .ForMember(dest => dest.Deposits, opt => opt.Ignore())
-                .ForMember(dest => dest.Supplements, opt => opt.Ignore())
                 .ForMember(dest => dest.DepositInvoiceHubs, opt => opt.Ignore())
-                .PreserveReferences();
-
-            CreateMap<Models.InvoiceSupplement, Domain.Models.InvoiceSupplement>()
-                .PreserveReferences()
-                .ReverseMap()
-                .ForMember(dest => dest.Invoice, opt => opt.Ignore())
-                .ForMember(dest => dest.InvoiceId, opt => opt.MapFrom(src => src.Invoice != null ? src.Invoice.Id : (int?) null))
-                .ForMember(dest => dest.UnitId, opt => opt.MapFrom(src => src.Unit != null ? src.Unit.Id : (int?) null))
                 .PreserveReferences();
 
             CreateMap<Models.Deposit, Domain.Models.Deposit>()

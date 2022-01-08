@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +15,6 @@ using Rollvolet.CRM.APIContracts.DTO.DepositInvoices;
 using Rollvolet.CRM.APIContracts.DTO.Deposits;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
 using Rollvolet.CRM.APIContracts.DTO.Invoices;
-using Rollvolet.CRM.APIContracts.DTO.InvoiceSupplements;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
@@ -40,7 +38,6 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IWorkingHourManager _workingHourManager;
         private readonly IDepositManager _depositManager;
         private readonly IDepositInvoiceManager _depositInvoiceManager;
-        private readonly IInvoiceSupplementManager _invoiceSupplementManager;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
@@ -49,8 +46,7 @@ namespace Rollvolet.CRM.API.Controllers
         public InvoicesController(IInvoiceManager invoiceManager, ICustomerManager customerManager, IContactManager contactManager,
                                     IBuildingManager buildingManager, IOrderManager orderManager, IInterventionManager interventionManager,
                                     IVatRateManager vatRateManager, IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager,
-                                    IInvoiceSupplementManager invoiceSupplementManager, IWorkingHourManager workingHourManager,
-                                    IDocumentGenerationManager documentGenerationManager,
+                                    IWorkingHourManager workingHourManager, IDocumentGenerationManager documentGenerationManager,
                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _invoiceManager = invoiceManager;
@@ -62,7 +58,6 @@ namespace Rollvolet.CRM.API.Controllers
             _vatRateManager = vatRateManager;
             _depositManager = depositManager;
             _depositInvoiceManager = depositInvoiceManager;
-            _invoiceSupplementManager = invoiceSupplementManager;
             _workingHourManager = workingHourManager;
             _documentGenerationManager = documentGenerationManager;
             _includedCollector = includedCollector;
@@ -346,22 +341,6 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedDepositInvoices);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = depositInvoiceDtos, Included = included });
-        }
-
-        [HttpGet("{invoiceId}/supplements")]
-        [HttpGet("{invoiceId}/links/supplements")]
-        public async Task<IActionResult> GetRelatedSupplementsByInvoiceIdAsync(int invoiceId)
-        {
-            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
-
-            var pagedSupplements = await _invoiceSupplementManager.GetAllByInvoiceIdAsync(invoiceId, querySet);
-
-            var supplementDtos = _mapper.Map<IEnumerable<InvoiceSupplementDto>>(pagedSupplements.Items, o => o.Items["include"] = querySet.Include);
-            var included = _includedCollector.CollectIncluded(pagedSupplements.Items, querySet.Include);
-            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedSupplements);
-            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedSupplements);
-
-            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = supplementDtos, Included = included });
         }
     }
 }

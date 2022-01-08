@@ -17,7 +17,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Request> Requests { get; set; }
         public DbSet<Intervention> Interventions { get; set; }
         public DbSet<WayOfEntry> WayOfEntries { get; set; }
-        public DbSet<ProductUnit> ProductUnits { get; set; }
         public DbSet<Memo> Memos { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<CustomerTag> CustomerTags { get; set; }
@@ -27,7 +26,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Deposit> Deposits { get; set; }
         public DbSet<DepositInvoiceHub> DepositInvoices { get; set; }
         public DbSet<WorkingHour> WorkingHours { get; set; }
-        public DbSet<InvoiceSupplement> InvoiceSupplements { get; set; }
         public DbSet<VatRate> VatRates { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<InterventionTechnician> InterventionTechnicians { get; set; }
@@ -147,16 +145,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             modelBuilder.Entity<Language>()
                 .HasKey(e => e.Id)
                 .HasName("TblTaal$PrimaryKey");
-
-
-            // Product unit
-
-            modelBuilder.Entity<ProductUnit>()
-                .ToTable("TblProductUnit", schema: "dbo");
-
-            modelBuilder.Entity<ProductUnit>()
-                .HasKey(e => e.Id)
-                .HasName("TblProductUnit$PrimaryKey");
 
 
             // PostalCode
@@ -502,28 +490,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasMany(e => e.Deposits)
                 .WithOne(e => e.Invoice)
                 .HasForeignKey(e => e.InvoiceId);
-
-
-            // Invoice supplement
-            modelBuilder.Entity<InvoiceSupplement>()
-                .ToTable("TblFactuurExtra", schema: "dbo");
-
-            modelBuilder.Entity<InvoiceSupplement>()
-                .HasKey(e => e.Id)
-                .HasName("TblFactuurExtra$PrimaryKey");
-
-            // modelBuilder.Entity<InvoiceSupplement>()
-            //     .HasQueryFilter(e => e.Currency == "EUR");
-
-            modelBuilder.Entity<InvoiceSupplement>()
-                .HasOne(e => e.Invoice)
-                .WithMany(e => e.Supplements)
-                .HasForeignKey(e => e.InvoiceId);
-
-            modelBuilder.Entity<InvoiceSupplement>()
-                .HasOne(e => e.Unit)
-                .WithMany()
-                .HasForeignKey(e => e.UnitId);
 
 
             // Deposit

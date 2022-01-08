@@ -81,7 +81,7 @@ namespace Rollvolet.CRM.Domain.Managers
             await _workingHourDataProvider.DeleteByIdAsync(id);
         }
 
-        // Embed relations in invoice supplement resource: reuse old relation if there is one and it hasn't changed
+        // Embed relations in working-hour resource: reuse old relation if there is one and it hasn't changed
         private async Task EmbedRelationsAsync(WorkingHour workingHour, WorkingHour oldWorkingHour = null)
         {
         try {
