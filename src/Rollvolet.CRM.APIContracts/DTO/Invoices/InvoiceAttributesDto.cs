@@ -12,9 +12,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Invoices
         public DateTime? PaymentDate { get; set; }
         public DateTime? CancellationDate { get; set; }
         public double? BaseAmount { get; set; }
-        public bool CertificateRequired { get; set; }
-        public bool CertificateReceived { get; set; }
-        public bool CertificateClosed { get; set; }
         public bool IsCreditNote { get; set; }
         public bool HasProductionTicket { get; set; }
         public string Comment { get; set; }

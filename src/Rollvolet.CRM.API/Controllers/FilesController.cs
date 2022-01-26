@@ -73,34 +73,10 @@ namespace Rollvolet.CRM.API.Controllers
             return await ViewStreamAsync(_documentGenerationManager.DownloadInvoiceDocumentAsync, id);
         }
 
-        [HttpGet("invoices/{id}/certificate-template")]
-        public async Task<IActionResult> ViewVatCertificateTemplateForInvoiceAsync(int id)
-        {
-            return await ViewStreamAsync(_documentGenerationManager.DownloadCertificateTemplateForInvoiceAsync, id);
-        }
-
-        [HttpGet("invoices/{id}/certificate")]
-        public async Task<IActionResult> ViewVatCertificateForInvoiceAsync(int id)
-        {
-            return await ViewStreamAsync(_documentGenerationManager.DownloadCertificateForInvoiceAsync, id);
-        }
-
         [HttpGet("deposit-invoices/{id}")]
         public async Task<IActionResult> ViewDepositInvoiceDocumentAsync(int id)
         {
             return await ViewStreamAsync(_documentGenerationManager.DownloadDepositInvoiceDocumentAsync, id);
-        }
-
-        [HttpGet("deposit-invoices/{id}/certificate-template")]
-        public async Task<IActionResult> ViewVatCertificateTemplateForDepositInvoiceAsync(int id)
-        {
-            return await ViewStreamAsync(_documentGenerationManager.DownloadCertificateTemplateForDepositInvoiceAsync, id);
-        }
-
-        [HttpGet("deposit-invoices/{id}/certificate")]
-        public async Task<IActionResult> ViewVatCertificateForDepositInvoiceAsync(int id)
-        {
-            return await ViewStreamAsync(_documentGenerationManager.DownloadCertificateForDepositInvoiceAsync, id);
         }
 
         private async Task<IActionResult> ViewStreamAsync<T>(Func<int, Task<T>> downloadFileAsync, int id) where T : Stream

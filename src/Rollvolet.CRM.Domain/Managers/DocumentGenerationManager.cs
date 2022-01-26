@@ -50,9 +50,6 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly string _generatedProductionTicketStorageLocation;
         private readonly string _receivedProductionTicketStorageLocation;
         private readonly string _invoiceStorageLocation;
-        private readonly string _generatedCertificateStorageLocation;
-        private readonly string _receivedCertificateStorageLocation;
-        private readonly string _certificateUploadSourceLocation;
         private readonly ILogger _logger;
 
         public DocumentGenerationManager(IRequestDataProvider requestDataProvider, IInterventionDataProvider interventionDataProvider,
@@ -90,9 +87,6 @@ namespace Rollvolet.CRM.Domain.Managers
             _invoiceStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.InvoiceStorageLocation);
             _generatedProductionTicketStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.GeneratedProductionTicketStorageLocation);
             _receivedProductionTicketStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.ReceivedProductionTicketStorageLocation);
-            _generatedCertificateStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.GeneratedCertificateStorageLocation);
-            _receivedCertificateStorageLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.ReceivedCertificateStorageLocation);
-            _certificateUploadSourceLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.CertificateUploadSourceLocation);
         }
 
         public async Task CreateAndStoreVisitReportAsync(int requestId)
@@ -529,155 +523,6 @@ namespace Rollvolet.CRM.Domain.Managers
             await _fileStorageService.RemoveDocumentAsync(fileDescriptor.FilePath);
         }
 
-        public async Task CreateCertificateTemplateForInvoiceAsync(int invoiceId)
-        {
-            var query = new QuerySet();
-            query.Include.Fields = new string[] {
-                "customer", "building", "contact"
-            };
-            var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId, query);
-
-            await EmbedCustomerAndContactTelephonesAsync(invoice);  // required to include customer/contact language and honorific prefix
-
-            await CreateCertificateAsync(invoice);
-        }
-
-        public async Task<Stream> DownloadCertificateTemplateForInvoiceAsync(int invoiceId)
-        {
-            var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
-            var fileDescriptor = await ConstructGeneratedCertificateFilePathAsync(invoice);
-            return await _fileStorageService.DownloadDocumentAsync(fileDescriptor.FilePath);
-        }
-
-        public async Task DeleteCertificateTemplateForInvoiceAsync(int invoiceId)
-        {
-            var invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
-            var fileDescriptor = await ConstructGeneratedCertificateFilePathAsync(invoice);
-            await _fileStorageService.RemoveDocumentAsync(fileDescriptor.FilePath);
-        }
-
-        public async Task UploadCertificateForInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null)
-        {
-            var fileDescriptor = await ConstructReceivedCertificateFilePathAsync(invoiceId);
-            _logger.LogDebug($"Uploading certificate to {fileDescriptor.FilePath}");
-            await _fileStorageService.UploadDocumentAsync(fileDescriptor.Parent, fileDescriptor.FileName, content);
-        }
-
-        public async Task RecycleCertificateForInvoiceAsync(int invoiceId, int sourceInvoiceId, bool isDeposit)
-        {
-            try
-            {
-                var sourcePath = await FindReceivedCertificateFilePathAsync(sourceInvoiceId, isDeposit);
-                var fileDescriptor = await ConstructReceivedCertificateFilePathAsync(invoiceId);
-                _logger.LogInformation("Copying certificate of path {0} to path {1}", sourcePath, fileDescriptor.FilePath);
-                await _fileStorageService.CopyDocumentAsync(sourcePath, fileDescriptor.Parent, fileDescriptor.FileName);
-            }
-            catch (EntityNotFoundException)
-            {
-                _logger.LogWarning("No file found for received certificate of invoice {0}. Cannot recycle certificate for invoice {1}", sourceInvoiceId, invoiceId);
-                throw new IllegalArgumentException("IllegalAttribute", "No certificate found to recycle");
-            }
-        }
-
-        public async Task<Stream> DownloadCertificateForInvoiceAsync(int invoiceId)
-        {
-            var filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
-            return await _fileStorageService.DownloadDocumentAsync(filePath);
-        }
-
-        public async Task DeleteCertificateForInvoiceAsync(int invoiceId)
-        {
-            try
-            {
-                var filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
-                await _fileStorageService.RemoveDocumentAsync(filePath);
-            }
-            catch (EntityNotFoundException)
-            {
-                _logger.LogInformation("No file found for received certificate of invoice {0}. Nothing to delete on disk.", invoiceId);
-            }
-        }
-
-        public async Task CreateCertificateTemplateForDepositInvoiceAsync(int invoiceId)
-        {
-            var query = new QuerySet();
-            query.Include.Fields = new string[] {
-                "customer", "building", "contact"
-            };
-            var depositInvoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId, query);
-
-            await EmbedCustomerAndContactTelephonesAsync(depositInvoice);  // required to include customer/contact language and honorific prefix
-
-            await CreateCertificateAsync(depositInvoice);
-        }
-
-        public async Task<Stream> DownloadCertificateTemplateForDepositInvoiceAsync(int invoiceId)
-        {
-            var depositInvoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId);
-            var fileDescriptor = await ConstructGeneratedCertificateFilePathAsync(depositInvoice);
-            return await _fileStorageService.DownloadDocumentAsync(fileDescriptor.FilePath);
-        }
-
-        public async Task DeleteCertificateTemplateForDepositInvoiceAsync(int invoiceId)
-        {
-            var invoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId);
-            var fileDescriptor = await ConstructGeneratedCertificateFilePathAsync(invoice);
-            await _fileStorageService.RemoveDocumentAsync(fileDescriptor.FilePath);
-        }
-
-        public async Task UploadCertificateForDepositInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null)
-        {
-            var fileDescriptor = await ConstructReceivedCertificateFilePathAsync(invoiceId, true);
-            _logger.LogDebug($"Uploading certificate to {fileDescriptor.FilePath}");
-            await _fileStorageService.UploadDocumentAsync(fileDescriptor.Parent, fileDescriptor.FileName, content);
-        }
-
-        public async Task RecycleCertificateForDepositInvoiceAsync(int invoiceId, int sourceInvoiceId, bool isDeposit)
-        {
-            try
-            {
-                var sourcePath = await FindReceivedCertificateFilePathAsync(sourceInvoiceId, isDeposit);
-                var fileDescriptor = await ConstructReceivedCertificateFilePathAsync(invoiceId, true);
-                _logger.LogInformation("Copying certificate of path {0} to path {1}", sourcePath, fileDescriptor.FilePath);
-                await _fileStorageService.CopyDocumentAsync(sourcePath, fileDescriptor.Parent, fileDescriptor.FileName);
-            }
-            catch (EntityNotFoundException)
-            {
-                _logger.LogWarning("No file found for received certificate of invoice {0}. Cannot recycle certificate for deposit invoice {1}", sourceInvoiceId, invoiceId);
-                throw new IllegalArgumentException("IllegalAttribute", "No certificate found to recycle");
-            }
-        }
-
-        public async Task<Stream> DownloadCertificateForDepositInvoiceAsync(int invoiceId)
-        {
-            var filePath = await FindReceivedCertificateFilePathAsync(invoiceId, true);
-            return await _fileStorageService.DownloadDocumentAsync(filePath);
-        }
-
-        public async Task DeleteCertificateForDepositInvoiceAsync(int invoiceId)
-        {
-            try
-            {
-                var filePath = await FindReceivedCertificateFilePathAsync(invoiceId);
-                await _fileStorageService.RemoveDocumentAsync(filePath);
-            }
-            catch (EntityNotFoundException)
-            {
-                _logger.LogInformation("No file found for received certificate of deposit invoice {0}. Nothing to delete on disk.", invoiceId);
-            }
-        }
-
-        private async Task CreateCertificateAsync(BaseInvoice invoice)
-        {
-            dynamic documentData = new ExpandoObject();
-            documentData.Invoice = invoice;
-
-            var url = $"{_documentGenerationConfig.BaseUrl}/documents/certificate";
-            var fileDescriptor = await ConstructGeneratedCertificateFilePathAsync(invoice);
-
-            await GenerateAndStoreDocumentAsync(url, documentData, fileDescriptor);
-        }
-
         private async Task<FileDescriptor> ConstructVisitReportFilePathAsync(Request request)
         {
             var year = request.RequestDate != null ? ((DateTime) request.RequestDate).Year : 0;
@@ -783,66 +628,6 @@ namespace Rollvolet.CRM.Domain.Managers
             var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _invoiceStorageLocation);
             var filename = _onlyAlphaNumeric.Replace($"F0{invoice.Number}", "");
             return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
-        }
-
-        private async Task<FileDescriptor> ConstructGeneratedCertificateFilePathAsync(BaseInvoice invoice)
-        {
-            var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
-            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _generatedCertificateStorageLocation);
-            var filename = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "");
-            return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
-        }
-
-        private async Task<FileDescriptor> ConstructReceivedCertificateFilePathAsync(int invoiceId, bool isDeposit = false)
-        {
-            BaseInvoice invoice = null;
-            if (isDeposit)
-                invoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId);
-            else
-                invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
-
-            var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
-            var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _receivedCertificateStorageLocation);
-            var filename = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "") + _noNewlines.Replace($"_{invoice.CustomerName}", "");
-            return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
-        }
-
-        private async Task<string> FindReceivedCertificateFilePathAsync(int invoiceId, bool isDeposit = false)
-        {
-            string filePath = null;
-            string notFoundWarning = null;
-            if (_documentGenerationConfig.IsSearchEnabled)
-            {
-                BaseInvoice invoice = null;
-                if (isDeposit)
-                    invoice = await _depositInvoiceDataProvider.GetByIdAsync(invoiceId);
-                else
-                    invoice = await _invoiceDataProvider.GetByIdAsync(invoiceId);
-
-                var year = invoice.InvoiceDate != null ? ((DateTime) invoice.InvoiceDate).Year : 0;
-                var directory = await _fileStorageService.CreateDirectoryAsync(year.ToString(), _receivedCertificateStorageLocation);
-
-                // only search on invoice number since customer name might have changed
-                var filenameSearch = _onlyAlphaNumeric.Replace($"A0{invoice.Number}", "");
-                filePath = await _fileStorageService.FindDocumentAsync(directory, filenameSearch);
-                notFoundWarning = $"Cannot find production-ticket file for invoice {invoiceId} starting with '{filenameSearch}' in directory {directory}";
-            }
-            else
-            {
-                var fileDescriptor = await ConstructReceivedCertificateFilePathAsync(invoiceId);
-                filePath = fileDescriptor.FilePath;
-                notFoundWarning = $"Cannot find production-ticket file for invoice {invoiceId} at {filePath}";
-            }
-
-            if (filePath != null)
-            {
-                return filePath;
-            }
-            else
-            {
-                _logger.LogWarning(notFoundWarning);
-                throw new EntityNotFoundException();
-            }
         }
 
         private async Task EmbedCustomerAndContactTelephonesAsync(ICaseRelated resource)

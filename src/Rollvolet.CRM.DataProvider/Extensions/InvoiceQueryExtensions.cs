@@ -115,11 +115,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 }
             }
 
-            if (querySet.Filter.Fields.ContainsKey("certificate-received") && querySet.Filter.Fields["certificate-received"] == "true")
-            {
-                source = source.Where(e => e.CertificateReceived);
-            }
-
             source = source.FilterCase(querySet, context);
 
             return source;

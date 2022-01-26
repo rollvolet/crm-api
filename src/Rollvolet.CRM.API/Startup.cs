@@ -145,7 +145,6 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IJsonApiBuilder, JsonApiBuilder>();
             services.AddTransient<IIncludedCollector, IncludedCollector>();
             services.AddTransient<IReportManager, ReportManager>();
-            services.AddTransient<ISystemTaskExecutor, SystemTaskExecutor>();
             services.AddTransient<IGraphApiCalendarService, GraphApiCalendarService>();
 
             var fileStorageLocation = Configuration["FileStorage:Location"];

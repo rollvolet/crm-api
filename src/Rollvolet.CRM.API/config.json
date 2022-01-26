@@ -26,10 +26,7 @@
     "DeliveryNoteStorageLocation": "",
     "GeneratedProductionTicketStorageLocation": "",
     "ReceivedProductionTicketStorageLocation": "",
-    "InvoiceStorageLocation": "",
-    "GeneratedCertificateStorageLocation": "",
-    "ReceivedCertificateStorageLocation": "",
-    "CertificateUploadSourceLocation": ""
+    "InvoiceStorageLocation": ""
   },
   "FileStorage": {
     "Location": "",

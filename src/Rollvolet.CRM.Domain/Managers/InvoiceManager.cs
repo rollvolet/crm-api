@@ -207,8 +207,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 }
 
                 await _documentGenerationManager.DeleteInvoiceDocumentAsync(id);
-                await _documentGenerationManager.DeleteCertificateTemplateForInvoiceAsync(id);
-                await _documentGenerationManager.DeleteCertificateForInvoiceAsync(id);
                 await _invoiceDataProvider.DeleteByIdAsync(id);
             }
             catch (EntityNotFoundException)

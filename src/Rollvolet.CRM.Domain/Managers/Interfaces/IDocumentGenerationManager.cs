@@ -33,19 +33,5 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task CreateAndStoreDepositInvoiceDocumentAsync(int depositInvoiceId);
         Task<Stream> DownloadDepositInvoiceDocumentAsync(int depositInvoiceId);
         Task DeleteDepositInvoiceDocumentAsync(int depositInvoiceId);
-        Task CreateCertificateTemplateForInvoiceAsync(int invoiceId);
-        Task<Stream> DownloadCertificateTemplateForInvoiceAsync(int invoiceId);
-        Task DeleteCertificateTemplateForInvoiceAsync(int invoiceId);
-        Task UploadCertificateForInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null);
-        Task RecycleCertificateForInvoiceAsync(int invoiceId, int sourceInvoiceId, bool isDeposit);
-        Task<Stream> DownloadCertificateForInvoiceAsync(int invoiceId);
-        Task DeleteCertificateForInvoiceAsync(int invoiceId);
-        Task CreateCertificateTemplateForDepositInvoiceAsync(int invoiceId);
-        Task<Stream> DownloadCertificateTemplateForDepositInvoiceAsync(int invoiceId);
-        Task DeleteCertificateTemplateForDepositInvoiceAsync(int invoiceId);
-        Task UploadCertificateForDepositInvoiceAsync(int invoiceId, Stream content, string uploadFileName = null);
-        Task RecycleCertificateForDepositInvoiceAsync(int invoiceId, int sourceInvoiceId, bool isDeposit);
-        Task<Stream> DownloadCertificateForDepositInvoiceAsync(int invoiceId);
-        Task DeleteCertificateForDepositInvoiceAsync(int invoiceId);
     }
 }

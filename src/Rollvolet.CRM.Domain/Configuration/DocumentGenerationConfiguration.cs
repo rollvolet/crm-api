@@ -12,9 +12,6 @@ namespace Rollvolet.CRM.Domain.Configuration
         public string GeneratedProductionTicketStorageLocation { get; set; }
         public string ReceivedProductionTicketStorageLocation { get; set; }
         public string InvoiceStorageLocation { get; set; }
-        public string GeneratedCertificateStorageLocation { get; set; }
-        public string ReceivedCertificateStorageLocation { get; set; }
-        public string CertificateUploadSourceLocation { get; set; }
 
         public bool IsSearchEnabled
         {

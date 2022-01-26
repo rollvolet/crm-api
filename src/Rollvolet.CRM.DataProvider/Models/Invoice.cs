@@ -71,25 +71,27 @@ namespace Rollvolet.CRM.DataProvider.Models
         // [Column("Kontant")]
         // public bool IsPaidInCash { get; set; }
 
-        [Column("Attest")]
-        public bool CertificateRequired { get; set; }
+        // @Deprecated
+        // [Column("Attest")]
+        // public bool CertificateRequired { get; set; }
 
-        [Column("AttestTerug")]
-        public bool CertificateReceived { get; set; }
+        // @Deprecated
+        // [Column("AttestTerug")]
+        // public bool CertificateReceived { get; set; }
 
-        // TODO what's the use of this field? wheter certificate may be reused on other invoices?
-        [Column("AttestAfgesloten")]
-        public bool CertificateClosed { get; set; }
+        // @Deprecated
+        // [Column("AttestAfgesloten")]
+        // public bool CertificateClosed { get; set; }
+
+        // @Deprecated Contained the invoice number of the invoice who's VAT certificate is reused. Same certificate needs to be re-uploaded now
+        // [Column("AttestLink")]
+        // public string CertificateUrl { get; set; }
 
         [Column("CreditNota")]
         public bool IsCreditNote { get; set; }
 
         [Column("Produktiebon")]
         public bool? HasProductionTicket { get; set; }
-
-        // @Deprecated Contained the invoice number of the invoice who's VAT certificate is reused. Same certificate needs to be re-uploaded now
-        // [Column("AttestLink")]
-        // public string CertificateUrl { get; set; }
 
         [Column("Opmerking")] // kept in sync with order comment in frontend
         public string Comment { get; set; }
