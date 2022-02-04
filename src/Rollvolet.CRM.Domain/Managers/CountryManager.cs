@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
-using Rollvolet.CRM.Domain.Models.Query;
 
 namespace Rollvolet.CRM.Domain.Managers
 {
@@ -39,11 +38,6 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Country> GetByBuildingIdAsync(int id)
         {
             return await _countryDataProvider.GetByBuildingIdAsync(id);
-        }
-
-        public async Task<Country> GetByTelephoneIdAsync(string id)
-        {
-            return await _countryDataProvider.GetByTelephoneIdAsync(id);
         }
     }
 }

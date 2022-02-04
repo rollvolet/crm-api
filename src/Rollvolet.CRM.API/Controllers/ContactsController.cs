@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
@@ -9,7 +8,6 @@ using Rollvolet.CRM.APIContracts.DTO;
 using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
-using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
@@ -22,7 +20,7 @@ namespace Rollvolet.CRM.API.Controllers
     public class ContactsController : ControllerBase
     {
         private readonly IContactManager _contactManager;
-        private readonly ITelephoneManager _telephoneManager;
+
         private readonly ICountryManager _countryManager;
         private readonly ILanguageManager _languageManager;
         private readonly IHonorificPrefixManager _honorificPrefixManager;
@@ -32,13 +30,12 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IMapper _mapper;
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
-        public ContactsController(IContactManager contactManager, ITelephoneManager telephoneManager, ICountryManager countryManager,
+        public ContactsController(IContactManager contactManager, ICountryManager countryManager,
                                     ILanguageManager languageManager, IHonorificPrefixManager honorificPrefixManager,
                                     IRequestManager requestManager, IInvoiceManager invoiceManager,
                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _contactManager = contactManager;
-            _telephoneManager = telephoneManager;
             _countryManager = countryManager;
             _languageManager = languageManager;
             _honorificPrefixManager = honorificPrefixManager;
@@ -146,23 +143,6 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedInvoices);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = invoiceDtos, Included = included });
-        }
-
-        [HttpGet("{contactId}/telephones")]
-        [HttpGet("{contactId}/links/telephones")]
-        public async Task<IActionResult> GetRelatedTelephonesByIdAsync(int contactId)
-        {
-            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
-            querySet.Include.Fields = new string[] {"country", "telephone-type"};
-
-            var pagedTelephones = await _telephoneManager.GetAllByContactIdAsync(contactId, querySet);
-
-            var telephoneDtos = _mapper.Map<IEnumerable<TelephoneDto>>(pagedTelephones.Items, opt => opt.Items["include"] = querySet.Include);
-            var included = _includedCollector.CollectIncluded(pagedTelephones.Items, querySet.Include);
-            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedTelephones);
-            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedTelephones);
-
-            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = telephoneDtos, Included = included });
         }
 
         [HttpGet("{contactId}/country")]

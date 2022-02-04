@@ -63,7 +63,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("honorific-prefix", c => c.HonorificPrefix);
             selectors.Add("contacts", c => c.Contacts);
             selectors.Add("buildings", c => c.Buildings);
-            selectors.Add("telephones", c => c.Telephones);
 
             source = source.Include<Customer>(querySet, selectors);
 
@@ -120,7 +119,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("language", c => c.Language);
             selectors.Add("honorific-prefix", c => c.HonorificPrefix);
             selectors.Add("customer", c => c.Customer);
-            selectors.Add("telephones", c => c.Telephones);
 
             return source.Include<Contact>(querySet, selectors);
         }
@@ -170,7 +168,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("language", c => c.Language);
             selectors.Add("honorific-prefix", c => c.HonorificPrefix);
             selectors.Add("customer", c => c.Customer);
-            selectors.Add("telephones", c => c.Telephones);
 
             return source.Include<Building>(querySet, selectors);
         }
@@ -215,14 +212,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 source = source.Where(c => EF.Functions.Like(c.Address1, filterValue)
                                         || EF.Functions.Like(c.Address2, filterValue)
                                         || EF.Functions.Like(c.Address3, filterValue));
-            }
-
-            if (querySet.Filter.Fields.ContainsKey("telephone"))
-            {
-                var search = querySet.Filter.Fields["telephone"];
-                var predicate = search.ConstructTelephoneQuery();
-
-                source = source.AsExpandable().Where(c => c.Telephones.Any(t => predicate.Invoke(t)));
             }
 
             if (querySet.Filter.Fields.ContainsKey("ids"))

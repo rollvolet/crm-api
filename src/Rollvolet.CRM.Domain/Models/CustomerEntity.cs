@@ -18,7 +18,6 @@ namespace Rollvolet.CRM.Domain.Models
         public Language Language { get; set; }
         public string Prefix { get; set; }
         public string Suffix { get; set; }
-        public IEnumerable<Telephone> Telephones { get; set; }
         public string Email { get; set; }
         public string Email2 { get; set; }
         public string Url { get; set; }

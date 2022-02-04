@@ -56,21 +56,6 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Customer>(customer);
         }
 
-        public async Task<Customer> GetByTelephoneIdAsync(string telephoneId)
-        {
-            var id = DataProvider.Models.Telephone.DecomposeCustomerRecordId(telephoneId);
-
-            var customer = await FindByDataIdAsync(id);
-
-            if (customer == null)
-            {
-                _logger.LogError($"No customer found for data id {id}, extracted from telephone id {telephoneId}");
-                throw new EntityNotFoundException();
-            }
-
-            return _mapper.Map<Customer>(customer);
-        }
-
         public async Task<Customer> GetByRequestIdAsync(int requestId)
         {
             var customerNumber = await _context.Requests.Where(r => r.Id == requestId).Select(r => r.CustomerId).FirstOrDefaultAsync();

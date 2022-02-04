@@ -138,14 +138,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                                         || EF.Functions.Like(c.Customer.Address3, filterValue));
             }
 
-            if (querySet.Filter.Fields.ContainsKey("customer.telephone"))
-            {
-                var search = querySet.Filter.Fields["customer.telephone"];
-                var predicate = search.ConstructTelephoneQuery();
-
-                source = source.AsExpandable().Where(c => c.Customer.Telephones.Any(t => predicate.Invoke(t)));
-            }
-
             var buildingFilters = querySet.Filter.Fields.Keys.Where(k => k.StartsWith("building"));
 
             if (buildingFilters.Count() > 0)

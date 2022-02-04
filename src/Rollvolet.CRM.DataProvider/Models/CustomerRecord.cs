@@ -76,7 +76,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public HonorificPrefix HonorificPrefix { get; set; }
         public Country Country { get; set; }
         public Language Language { get; set; }
-        public IEnumerable<Telephone> Telephones { get; set; }
 
 
         // Embedded properties

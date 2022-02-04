@@ -11,7 +11,6 @@ using Rollvolet.CRM.APIContracts.DTO.DepositInvoices;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
-using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.DTO.CalendarEvents;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
@@ -48,8 +47,6 @@ namespace Rollvolet.CRM.API.Collectors
                 included.UnionWith(_mapper.Map<IEnumerable<ContactDto>>(customer.Contacts));
             if (includeQuery.Contains("buildings") && customer.Buildings.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<BuildingDto>>(customer.Buildings));
-            if (includeQuery.Contains("telephones") && customer.Telephones.Count() > 0)
-                included.UnionWith(_mapper.Map<IEnumerable<TelephoneDto>>(customer.Telephones));
             if (includeQuery.Contains("tags") && customer.Tags.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<TagDto>>(customer.Tags));
 
@@ -80,10 +77,6 @@ namespace Rollvolet.CRM.API.Collectors
             if (includeQuery.Contains("customer") && contact.Customer != null)
                 included.Add(_mapper.Map<CustomerDto>(contact.Customer));
 
-            // many-relations
-            if (includeQuery.Contains("telephones") && contact.Telephones.Count() > 0)
-                included.UnionWith(_mapper.Map<IEnumerable<TelephoneDto>>(contact.Telephones));
-
             return included;
         }
 
@@ -111,10 +104,6 @@ namespace Rollvolet.CRM.API.Collectors
             if (includeQuery.Contains("customer") && building.Customer != null)
                 included.Add(_mapper.Map<CustomerDto>(building.Customer));
 
-            // many-relations
-            if (includeQuery.Contains("telephones") && building.Telephones.Count() > 0)
-                included.UnionWith(_mapper.Map<IEnumerable<TelephoneDto>>(building.Telephones));
-
             return included;
         }
 
@@ -124,34 +113,6 @@ namespace Rollvolet.CRM.API.Collectors
 
             foreach (var building in buildings)
                 included.UnionWith(CollectIncluded(building, includeQuery));
-
-            return included;
-        }
-
-        public IEnumerable<IResource> CollectIncluded(Telephone telephone, IncludeQuery includeQuery)
-        {
-            ISet<IResource> included = new HashSet<IResource>();
-
-            if (includeQuery.Contains("country") && telephone.Country != null)
-                included.Add(_mapper.Map<CountryDto>(telephone.Country));
-            if (includeQuery.Contains("telephone-type") && telephone.TelephoneType != null)
-                included.Add(_mapper.Map<TelephoneTypeDto>(telephone.TelephoneType));
-            if (includeQuery.Contains("customer") && telephone.Customer != null)
-                included.Add(_mapper.Map<CustomerDto>(telephone.Customer));
-            if (includeQuery.Contains("contact") && telephone.Contact != null)
-                included.Add(_mapper.Map<ContactDto>(telephone.Contact));
-            if (includeQuery.Contains("builidng") && telephone.Building != null)
-                included.Add(_mapper.Map<BuildingDto>(telephone.Building));
-
-            return included;
-        }
-
-        public IEnumerable<IResource> CollectIncluded(IEnumerable<Telephone> telephones, IncludeQuery includeQuery)
-        {
-            ISet<IResource> included = new HashSet<IResource>();
-
-            foreach (var telephone in telephones)
-                included.UnionWith(CollectIncluded(telephone, includeQuery));
 
             return included;
         }

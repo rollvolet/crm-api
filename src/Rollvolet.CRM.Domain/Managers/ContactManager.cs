@@ -69,11 +69,6 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _contactDataProvider.GetByIdAsync(id, query);
         }
 
-        public async Task<Contact> GetByTelephoneIdAsync(string telephoneId)
-        {
-            return await _contactDataProvider.GetByTelephoneIdAsync(telephoneId);
-        }
-
         public async Task<Contact> GetByRequestIdAsync(int requestId)
         {
             return await _contactDataProvider.GetByRequestIdAsync(requestId);
@@ -112,12 +107,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Contact cannot have a number on create.");
             if ((contact.PostalCode != null && contact.City == null) || (contact.PostalCode == null && contact.City != null))
                 throw new IllegalArgumentException("IllegalAttribute", "Contact's postal-code and city must be both filled in or not filled.");
-            if (contact.Telephones != null)
-            {
-                var message = "Telephones cannot be added to a contact on creation.";
-                _logger.LogDebug(message);
-                throw new IllegalArgumentException("IllegalAttribute", message);
-            }
             if (contact.Customer == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer is required on contact creation.");
             if (contact.Country == null)
@@ -149,12 +138,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Language is required.");
             if (contact.Customer != null && contact.Customer.Id != existingContact.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer cannot be updated.");
-            if (contact.Telephones != null)
-            {
-                var message = "Telephones cannot be changed during contact update.";
-                _logger.LogDebug(message);
-                throw new IllegalArgumentException("IllegalAttribute", message);
-            }
 
             await EmbedRelations(contact, existingContact);
 

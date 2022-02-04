@@ -82,19 +82,5 @@ namespace Rollvolet.CRM.DataProviders
 
             return _mapper.Map<Country>(country);
         }
-
-        public async Task<Country> GetByTelephoneIdAsync(string composedId)
-        {
-            var countryId = DataProvider.Models.Telephone.DecomposeCountryId(composedId);
-            var country = await _context.Countries.Where(c => c.Id == countryId).FirstOrDefaultAsync();
-
-            if (country == null)
-            {
-                _logger.LogError($"No country found for telephone with id {composedId}");
-                throw new EntityNotFoundException();
-            }
-
-            return _mapper.Map<Country>(country);
-        }
     }
 }
