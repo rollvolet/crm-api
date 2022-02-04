@@ -214,6 +214,12 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                                         || EF.Functions.Like(c.Address3, filterValue));
             }
 
+            if (querySet.Filter.Fields.ContainsKey("telephone")) // telephones contain comma-seperated list of customer ids
+            {
+                var ids = querySet.Filter.Fields["telephone"].Split(",").Select(int.Parse).ToList();
+                source = source.Where(c => ids.Contains(c.DataId));
+            }
+
             if (querySet.Filter.Fields.ContainsKey("ids"))
             {
                 var ids = querySet.Filter.Fields["ids"].Split(",").Select(int.Parse).ToList();
