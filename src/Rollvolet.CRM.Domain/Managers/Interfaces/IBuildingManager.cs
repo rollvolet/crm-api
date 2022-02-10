@@ -9,7 +9,6 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<Paged<Building>> GetAllAsync(QuerySet query);
         Task<Paged<Building>> GetAllByCustomerIdAsync(int customerId, QuerySet query);
         Task<Building> GetByIdAsync(int id, QuerySet query);
-        Task<Building> GetByTelephoneIdAsync(string telephoneId);
         Task<Building> GetByRequestIdAsync(int requestId);
         Task<Building> GetByInterventionIdAsync(int interventionId);
         Task<Building> GetByOfferIdAsync(int offerId);

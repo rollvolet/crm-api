@@ -10,7 +10,6 @@ using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
-using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.DTO.CalendarEvents;
 using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
@@ -57,7 +56,6 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Country : null))
                 .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Language : null))
                 .ForMember(dest => dest.HonorificPrefix, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.HonorificPrefix : null))
-                .ForMember(dest => dest.Telephones, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Telephones : null))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Tags : null))
                 .ForMember(dest => dest.Buildings, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Buildings : null))
                 .ForMember(dest => dest.Contacts, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Contacts : null))
@@ -258,75 +256,6 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<RelatedResource, PostalCode>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-
-            // Telephone mappings
-
-            CreateMap<Telephone, TelephoneDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "telephones"))
-                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
-
-            CreateMap<Telephone, TelephoneAttributesDto>()
-                .ReverseMap()
-                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => Telephone.SerializeNumber(src.Number)))
-                .ForMember(dest => dest.Area, opt => opt.MapFrom(src => Telephone.SerializeArea(src.Area)));
-
-            CreateMap<Telephone, TelephoneRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
-
-            CreateMap<Telephone, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "telephones"));
-
-            CreateMap<TelephoneRequestDto, Telephone>()
-                .ConstructUsing((src, context) => context.Mapper.Map<Telephone>(src.Attributes))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Country : null))
-                .ForMember(dest => dest.TelephoneType, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.TelephoneType : null))
-                .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Customer : null))
-                .ForMember(dest => dest.Contact, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Contact : null))
-                .ForMember(dest => dest.Building, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Building : null))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<OneRelationship, Telephone>()
-                .ConstructUsing((src, context) => context.Mapper.Map<Telephone>(src.Data))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<ManyRelationship, IEnumerable<Telephone>>()
-                .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<Telephone>>(src.Data))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<RelatedResource, Telephone>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-
-            // Telephone type mappings
-
-            CreateMap<TelephoneType, TelephoneTypeDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "telephone-types"))
-                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
-
-            CreateMap<TelephoneType, TelephoneTypeDto.AttributesDto>();
-
-            CreateMap<TelephoneType, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
-
-            CreateMap<TelephoneType, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "telephone-types"));
-
-            CreateMap<OneRelationship, TelephoneType>()
-                .ConstructUsing((src, context) => context.Mapper.Map<TelephoneType>(src.Data))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<ManyRelationship, IEnumerable<TelephoneType>>()
-                .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<TelephoneType>>(src.Data))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<RelatedResource, TelephoneType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForAllOtherMembers(opt => opt.Ignore());
 

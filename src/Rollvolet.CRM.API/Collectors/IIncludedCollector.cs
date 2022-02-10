@@ -13,8 +13,6 @@ namespace Rollvolet.CRM.API.Collectors
         IEnumerable<IResource> CollectIncluded(IEnumerable<Contact> contacts, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(Building building, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(IEnumerable<Building> buildings, IncludeQuery includeQuery);
-        IEnumerable<IResource> CollectIncluded(Telephone telephone, IncludeQuery includeQuery);
-        IEnumerable<IResource> CollectIncluded(IEnumerable<Telephone> telephones, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(Request request, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(IEnumerable<Request> requests, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(Intervention intervention, IncludeQuery includeQuery);

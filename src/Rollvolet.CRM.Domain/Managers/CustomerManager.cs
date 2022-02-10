@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
@@ -56,11 +54,6 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _customerDataProvider.GetByNumberAsync(id, query);
         }
 
-        public async Task<Customer> GetByTelephoneIdAsync(string telephoneId)
-        {
-            return await _customerDataProvider.GetByTelephoneIdAsync(telephoneId);
-        }
-
         public async Task<Customer> GetByRequestIdAsync(int requestId)
         {
             return await _customerDataProvider.GetByRequestIdAsync(requestId);
@@ -105,9 +98,9 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Country is required on customer creation.");
             if (customer.Language == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Language is required on customer creation.");
-            if (customer.Telephones != null || customer.Contacts != null || customer.Buildings != null)
+            if (customer.Contacts != null || customer.Buildings != null)
             {
-                var message = "Telephones, contacts, buildings, requests, offers, orders, deposit-invoices or invoices cannot be added to a customer on creation.";
+                var message = "Contacts, buildings, requests, offers, orders, deposit-invoices or invoices cannot be added to a customer on creation.";
                 _logger.LogDebug(message);
                 throw new IllegalArgumentException("IllegalAttribute", message);
             }
@@ -138,13 +131,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Country is required.");
             if (customer.Language == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Language is required.");
-
-            if (customer.Telephones != null)
-            {
-                var message = "Telephones cannot be change during customer update.";
-                _logger.LogDebug(message);
-                throw new IllegalArgumentException("IllegalAttribute", message);
-            }
 
             if (string.IsNullOrEmpty(customer.Memo))
                 customer.Memo = null;

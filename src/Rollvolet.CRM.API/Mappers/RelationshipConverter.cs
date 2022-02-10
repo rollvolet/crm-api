@@ -10,7 +10,6 @@ using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
-using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.DTO.CalendarEvents;
 using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
@@ -25,7 +24,6 @@ namespace Rollvolet.CRM.API.Mappers
     public class RelationshipsConverter : ITypeConverter<Customer, CustomerRelationshipsDto>,
                                             ITypeConverter<Contact, ContactRelationshipsDto>,
                                             ITypeConverter<Building, BuildingRelationshipsDto>,
-                                            ITypeConverter<Telephone, TelephoneRelationshipsDto>,
                                             ITypeConverter<Request, RequestRelationshipsDto>,
                                             ITypeConverter<CalendarEvent, CalendarEventRelationshipsDto>,
                                             ITypeConverter<Intervention, InterventionRelationshipsDto>,
@@ -40,7 +38,6 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Country, EmptyRelationshipsDto>,
                                             ITypeConverter<Language, EmptyRelationshipsDto>,
                                             ITypeConverter<PostalCode, EmptyRelationshipsDto>,
-                                            ITypeConverter<TelephoneType, EmptyRelationshipsDto>,
                                             ITypeConverter<Tag, EmptyRelationshipsDto>,
                                             ITypeConverter<HonorificPrefix, EmptyRelationshipsDto>,
                                             ITypeConverter<WayOfEntry, EmptyRelationshipsDto>,
@@ -60,7 +57,6 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Country = GetOneRelationship<Country>("customers", source.Id, "country", source.Country, context);
             relationships.Language = GetOneRelationship<Language>("customers", source.Id, "language", source.Language, context);
             relationships.HonorificPrefix = GetOneRelationship<HonorificPrefix>("customers", source.Id, "honorific-prefix", source.HonorificPrefix, context);
-            relationships.Telephones = GetManyRelationship<Telephone>("customers", source.Id, "telephones", source.Telephones, context);
             relationships.Tags = GetManyRelationship<Tag>("customers", source.Id, "tags", source.Tags, context);
             relationships.Requests = GetManyRelationship<Request>("customers", source.Id, "requests", new List<Request>(), context);
             relationships.Interventions = GetManyRelationship<Intervention>("customers", source.Id, "interventions", new List<Intervention>(), context);
@@ -78,7 +74,6 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Language = GetOneRelationship<Language>("contacts", source.Id, "language", source.Language, context);
             relationships.HonorificPrefix = GetOneRelationship<HonorificPrefix>("contacts", source.Id, "honorific-prefix", source.HonorificPrefix, context);
             relationships.Customer = GetOneRelationship<Customer>("contacts", source.Id, "customer", source.Customer, context);
-            relationships.Telephones = GetManyRelationship<Telephone>("contacts", source.Id, "telephones", source.Telephones, context);
             return relationships;
         }
 
@@ -89,18 +84,6 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Language = GetOneRelationship<Language>("buildings", source.Id, "language", source.Language, context);
             relationships.HonorificPrefix = GetOneRelationship<HonorificPrefix>("buildings", source.Id, "honorific-prefix", source.HonorificPrefix, context);
             relationships.Customer = GetOneRelationship<Customer>("buildings", source.Id, "customer", source.Customer, context);
-            relationships.Telephones = GetManyRelationship<Telephone>("buildings", source.Id, "telephones", source.Telephones, context);
-            return relationships;
-        }
-
-        TelephoneRelationshipsDto ITypeConverter<Telephone, TelephoneRelationshipsDto>.Convert(Telephone source, TelephoneRelationshipsDto destination, ResolutionContext context)
-        {
-            var relationships = new TelephoneRelationshipsDto();
-            relationships.Country = GetOneRelationship<Country>("telephones", source.Id, "country", source.Country, context);
-            relationships.TelephoneType = GetOneRelationship<TelephoneType>("telephones", source.Id, "telephone-type", source.TelephoneType, context);
-            relationships.Customer = GetOneRelationship<Customer>("telephones", source.Id, "customer", source.Customer, context);
-            relationships.Contact = GetOneRelationship<Contact>("telephones", source.Id, "contact", source.Contact, context);
-            relationships.Building = GetOneRelationship<Building>("telephones", source.Id, "building", source.Building, context);
             return relationships;
         }
 
@@ -239,11 +222,6 @@ namespace Rollvolet.CRM.API.Mappers
         }
 
         EmptyRelationshipsDto ITypeConverter<PostalCode, EmptyRelationshipsDto>.Convert(PostalCode source, EmptyRelationshipsDto destination, ResolutionContext context)
-        {
-            return new EmptyRelationshipsDto();
-        }
-
-        EmptyRelationshipsDto ITypeConverter<TelephoneType, EmptyRelationshipsDto>.Convert(TelephoneType source, EmptyRelationshipsDto destination, ResolutionContext context)
         {
             return new EmptyRelationshipsDto();
         }

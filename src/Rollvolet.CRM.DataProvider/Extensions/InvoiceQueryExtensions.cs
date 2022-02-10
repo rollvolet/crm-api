@@ -223,12 +223,18 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                                         || EF.Functions.Like(c.Customer.Address3, filterValue));
             }
 
-            if (querySet.Filter.Fields.ContainsKey("customer.telephone"))
+            if (querySet.Filter.Fields.ContainsKey("customer.telephone")) // telephones contain comma-seperated list of customer ids
             {
-                var search = querySet.Filter.Fields["customer.telephone"];
-                var predicate = search.ConstructTelephoneQuery();
-
-                source = source.AsExpandable().Where(c => c.Customer.Telephones.Any(t => predicate.Invoke(t)));
+                if (String.IsNullOrEmpty(querySet.Filter.Fields["customer.telephone"]))
+                {
+                    // No telephone-numbers are found, so force that no matching result will be returned
+                    source = source.Where(c =>  c.Id < 0);
+                }
+                else
+                {
+                    var ids = querySet.Filter.Fields["customer.telephone"].Split(",").Select(int.Parse).ToList();
+                    source = source.Where(c => ids.Contains(c.Customer.DataId));
+                }
             }
 
             var buildingFilters = querySet.Filter.Fields.Keys.Where(k => k.StartsWith("building"));

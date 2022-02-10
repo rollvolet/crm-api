@@ -69,11 +69,6 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _buildingDataProvider.GetByIdAsync(id, query);
         }
 
-        public async Task<Building> GetByTelephoneIdAsync(string telephoneId)
-        {
-            return await _buildingDataProvider.GetByTelephoneIdAsync(telephoneId);
-        }
-
         public async Task<Building> GetByRequestIdAsync(int requestId)
         {
             return await _buildingDataProvider.GetByRequestIdAsync(requestId);
@@ -113,12 +108,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Building cannot have a number on create.");
             if ((building.PostalCode != null && building.City == null) || (building.PostalCode == null && building.City != null))
                 throw new IllegalArgumentException("IllegalAttribute", "Building's postal-code and city must be both filled in or not filled.");
-            if (building.Telephones != null)
-            {
-                var message = "Telephones cannot be added to a building on creation.";
-                _logger.LogDebug(message);
-                throw new IllegalArgumentException("IllegalAttribute", message);
-            }
             if (building.Customer == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer is required on building creation.");
             if (building.Country == null)
@@ -150,12 +139,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Language is required.");
             if (building.Customer != null && building.Customer.Id != existingBuilding.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", "Customer cannot be updated.");
-            if (building.Telephones != null)
-            {
-                var message = "Telephones cannot be change during building update.";
-                _logger.LogDebug(message);
-                throw new IllegalArgumentException("IllegalAttribute", message);
-            }
 
             await EmbedRelations(building, existingBuilding);
 

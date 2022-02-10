@@ -36,7 +36,6 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly ICustomerDataProvider _customerDataProvider;
         private readonly IContactDataProvider _contactDataProvider;
         private readonly IBuildingDataProvider _buildingDataProvider;
-        private readonly ITelephoneDataProvider _telephoneDataProvider;
         private readonly IVisitDataProvider _visitDataProvider;
         private readonly IEmployeeDataProvider _employeeDataProvider;
         private readonly HttpClient _httpClient;
@@ -56,7 +55,7 @@ namespace Rollvolet.CRM.Domain.Managers
                                          IOfferDataProvider offerDataProvider, ICustomerDataProvider customerDataProvider,
                                          IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                                          IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDataProvider,
-                                         IDepositInvoiceDataProvider depositInvoiceDataProvider, ITelephoneDataProvider telephoneDataProvider,
+                                         IDepositInvoiceDataProvider depositInvoiceDataProvider,
                                          IVisitDataProvider visitDataProvider, IEmployeeDataProvider employeeDataProvider,
                                          IFileStorageService fileStorageService,
                                          IOptions<DocumentGenerationConfiguration> documentGenerationConfiguration,
@@ -71,7 +70,6 @@ namespace Rollvolet.CRM.Domain.Managers
             _customerDataProvider = customerDataProvider;
             _contactDataProvider = contactDataProvider;
             _buildingDataProvider = buildingDataProvider;
-            _telephoneDataProvider = telephoneDataProvider;
             _visitDataProvider = visitDataProvider;
             _employeeDataProvider = employeeDataProvider;
             _httpClient = new HttpClient();
@@ -97,7 +95,7 @@ namespace Rollvolet.CRM.Domain.Managers
             };
             var request = await _requestDataProvider.GetByIdAsync(requestId, query);
 
-            await EmbedCustomerAndContactTelephonesAsync(request);
+            await EmbedCustomerAndContactAsync(request);
 
             var offerQuery = new QuerySet();
             offerQuery.Sort.Order = SortQuery.ORDER_DESC;
@@ -168,7 +166,7 @@ namespace Rollvolet.CRM.Domain.Managers
             var technicians = await _employeeDataProvider.GetAllByInterventionIdAsync(interventionId, techniciansQuery);
             intervention.Technicians = technicians.Items.OrderBy(t => t.FirstName);
 
-            await EmbedCustomerAndContactTelephonesAsync(intervention);
+            await EmbedCustomerAndContactAsync(intervention);
 
             dynamic documentData = new ExpandoObject();
             documentData.Intervention = intervention;
@@ -201,7 +199,7 @@ namespace Rollvolet.CRM.Domain.Managers
             };
             var offer = await _offerDataProvider.GetByIdAsync(offerId, includeQuery);
 
-            await EmbedCustomerAndContactTelephonesAsync(offer);
+            await EmbedCustomerAndContactAsync(offer);
 
             var visitorInitials = offer.Request != null ? await GetVisitorInitialsByOfferIdAsync(offer.Id) : null;
 
@@ -242,7 +240,7 @@ namespace Rollvolet.CRM.Domain.Managers
             offer.Order = null; // Remove duplicated nested data before sending
             order.Offer = offer;
 
-            await EmbedCustomerAndContactTelephonesAsync(order);
+            await EmbedCustomerAndContactAsync(order);
 
             var visitorInitials = offer.Request != null ? await GetVisitorInitialsByOfferIdAsync(offer.Id) : null;
 
@@ -283,7 +281,7 @@ namespace Rollvolet.CRM.Domain.Managers
             offer.Order = null; // Remove duplicated nested data before sending
             order.Offer = offer;
 
-            await EmbedCustomerAndContactTelephonesAsync(order);
+            await EmbedCustomerAndContactAsync(order);
 
             var visitorInitials = offer.Request != null ? await GetVisitorInitialsByOfferIdAsync(offer.Id) : null;
 
@@ -325,8 +323,8 @@ namespace Rollvolet.CRM.Domain.Managers
 
             order.Offer = offer;
 
-            await EmbedCustomerAndContactTelephonesAsync(order);
-            await EmbedBuildingTelephoneAsync(order);
+            await EmbedCustomerAndContactAsync(order);
+            await EmbedBuildingAsync(order);
 
             var visitorInitials = offer.Request != null ? await GetVisitorInitialsByOfferIdAsync(offer.Id) : null;
 
@@ -446,7 +444,7 @@ namespace Rollvolet.CRM.Domain.Managers
             foreach (var deposit in invoice.Deposits) { deposit.Customer = null; deposit.Order = null; }
             foreach (var depositInvoice in invoice.DepositInvoices) { depositInvoice.Customer = null; depositInvoice.Order = null; }
 
-            await EmbedCustomerAndContactTelephonesAsync(invoice);
+            await EmbedCustomerAndContactAsync(invoice);
 
             dynamic documentData = new ExpandoObject();
             documentData.Invoice = invoice;
@@ -497,7 +495,7 @@ namespace Rollvolet.CRM.Domain.Managers
                 depositInvoice.Order.Offer.Building = null; depositInvoice.Order.Offer.Order = null;
             }
 
-            await EmbedCustomerAndContactTelephonesAsync(depositInvoice);
+            await EmbedCustomerAndContactAsync(depositInvoice);
 
             dynamic documentData = new ExpandoObject();
             documentData.Invoice = depositInvoice;
@@ -630,21 +628,13 @@ namespace Rollvolet.CRM.Domain.Managers
             return new FileDescriptor { Parent = directory, FileName = $"{filename}.pdf" };
         }
 
-        private async Task EmbedCustomerAndContactTelephonesAsync(ICaseRelated resource)
+        private async Task EmbedCustomerAndContactAsync(ICaseRelated resource)
         {
-            var telephoneQuery = new QuerySet();
-            telephoneQuery.Sort.Field = "order";
-            telephoneQuery.Sort.Order = SortQuery.ORDER_ASC;
-            telephoneQuery.Include.Fields = new string[] { "country", "telephone-type" };
-
             if (resource.Customer != null)
             {
                 var customerIncludeQuery = new QuerySet();
                 customerIncludeQuery.Include.Fields = new string[] { "honorific-prefix", "language" };
                 resource.Customer = await _customerDataProvider.GetByNumberAsync(resource.Customer.Number, customerIncludeQuery);
-
-                var telephones = await _telephoneDataProvider.GetAllByCustomerIdAsync(resource.Customer.Id, telephoneQuery);
-                resource.Customer.Telephones = telephones.Items;
             }
 
             if (resource.Contact != null)
@@ -652,27 +642,16 @@ namespace Rollvolet.CRM.Domain.Managers
                 var contactIncludeQuery = new QuerySet();
                 contactIncludeQuery.Include.Fields = new string[] { "honorific-prefix", "language" };
                 resource.Contact = await _contactDataProvider.GetByIdAsync(resource.Contact.Id, contactIncludeQuery);
-
-                var telephones = await _telephoneDataProvider.GetAllByContactIdAsync(resource.Contact.Id, telephoneQuery);
-                resource.Contact.Telephones = telephones.Items;
             }
         }
 
-        private async Task EmbedBuildingTelephoneAsync(ICaseRelated resource)
+        private async Task EmbedBuildingAsync(ICaseRelated resource)
         {
-            var telephoneQuery = new QuerySet();
-            telephoneQuery.Sort.Field = "order";
-            telephoneQuery.Sort.Order = SortQuery.ORDER_ASC;
-            telephoneQuery.Include.Fields = new string[] { "country", "telephone-type" };
-
             if (resource.Building != null)
             {
                 var buildingIncludeQuery = new QuerySet();
                 buildingIncludeQuery.Include.Fields = new string[] { "honorific-prefix", "language" };
                 resource.Building = await _buildingDataProvider.GetByIdAsync(resource.Building.Id, buildingIncludeQuery);
-
-                var telephones = await _telephoneDataProvider.GetAllByBuildingIdAsync(resource.Building.Id, telephoneQuery);
-                resource.Building.Telephones = telephones.Items;
             }
         }
 

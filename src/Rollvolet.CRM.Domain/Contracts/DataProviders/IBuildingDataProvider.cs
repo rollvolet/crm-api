@@ -8,7 +8,6 @@ namespace Rollvolet.CRM.Domain.Contracts.DataProviders
     {
         Task<Building> GetByIdAsync(int id, QuerySet query = null);
         Task<Paged<Building>> GetAllByCustomerIdAsync(int customerId, QuerySet query);
-        Task<Building> GetByTelephoneIdAsync(string telephoneId);
         Task<Building> GetByRequestIdAsync(int requestId);
         Task<Building> GetByInterventionIdAsync(int interventionId);
         Task<Building> GetByOfferIdAsync(int offerId);

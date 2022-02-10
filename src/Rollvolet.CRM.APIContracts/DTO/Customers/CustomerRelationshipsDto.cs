@@ -9,7 +9,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Customers
         public IRelationship Country { get; set; }
         public IRelationship Language { get; set; }
         public IRelationship HonorificPrefix { get; set; }
-        public IRelationship Telephones { get; set; }
         public IRelationship Requests { get; set; }
         public IRelationship Interventions { get; set; }
         public IRelationship Offers { get; set; }

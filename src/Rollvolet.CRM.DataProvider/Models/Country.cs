@@ -12,9 +12,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         
         [Column("LandOmschrijving")]
         public string Name { get; set; }
-
-        [Column("LandTel")]
-        public string TelephonePrefix { get; set; }
     }
   
 }

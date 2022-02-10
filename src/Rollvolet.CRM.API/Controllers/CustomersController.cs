@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
@@ -15,7 +14,6 @@ using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
-using Rollvolet.CRM.APIContracts.DTO.Telephones;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
@@ -30,7 +28,6 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly ICustomerManager _customerManager;
         private readonly IContactManager _contactManager;
         private readonly IBuildingManager _buildingManager;
-        private readonly ITelephoneManager _telephoneManager;
         private readonly IRequestManager _requestManager;
         private readonly IInterventionManager _interventionManager;
         private readonly IOfferManager _offerManager;
@@ -46,7 +43,7 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IJsonApiBuilder _jsonApiBuilder;
 
         public CustomersController(ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
-                                    ITelephoneManager telephoneManager, IRequestManager requestManager,
+                                    IRequestManager requestManager,
                                     IInterventionManager interventionManager, IOfferManager offerManager,
                                     IOrderManager orderManager, IDepositInvoiceManager depositInvoiceManager, IInvoiceManager invoiceManager,
                                     ITagManager tagManager, ICountryManager countryManager, ILanguageManager languageManager,
@@ -56,7 +53,6 @@ namespace Rollvolet.CRM.API.Controllers
             _customerManager = customerManager;
             _contactManager = contactManager;
             _buildingManager = buildingManager;
-            _telephoneManager = telephoneManager;
             _requestManager = requestManager;
             _interventionManager = interventionManager;
             _offerManager = offerManager;
@@ -169,23 +165,6 @@ namespace Rollvolet.CRM.API.Controllers
             var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedBuildings);
 
             return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = buildingDtos, Included = included });
-        }
-
-        [HttpGet("{customerId}/telephones")]
-        [HttpGet("{customerId}/links/telephones")]
-        public async Task<IActionResult> GetRelatedTelephonesByIdAsync(int customerId)
-        {
-            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
-            querySet.Include.Fields = new string[] {"country", "telephone-type"};
-
-            var pagedTelephones = await _telephoneManager.GetAllByCustomerIdAsync(customerId, querySet);
-
-            var telephoneDtos = _mapper.Map<IEnumerable<TelephoneDto>>(pagedTelephones.Items, opt => opt.Items["include"] = querySet.Include);
-            var included = _includedCollector.CollectIncluded(pagedTelephones.Items, querySet.Include);
-            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedTelephones);
-            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedTelephones);
-
-            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = telephoneDtos, Included = included });
         }
 
         [HttpGet("{customerId}/requests")]

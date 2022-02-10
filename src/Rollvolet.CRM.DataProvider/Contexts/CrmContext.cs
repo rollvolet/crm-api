@@ -12,8 +12,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<HonorificPrefix> HonorificPrefixes { get; set; }
         public DbSet<Language> Languages { get; set; }
         public DbSet<PostalCode> PostalCodes { get; set; }
-        public DbSet<Telephone> Telephones { get; set; }
-        public DbSet<TelephoneType> TelephoneTypes { get; set; }
         public DbSet<Request> Requests { get; set; }
         public DbSet<Intervention> Interventions { get; set; }
         public DbSet<WayOfEntry> WayOfEntries { get; set; }
@@ -155,42 +153,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
             modelBuilder.Entity<PostalCode>()
                 .HasKey(e => e.Id)
                 .HasName("TblPostCode$PrimaryKey");
-
-
-            // Telephone
-
-            modelBuilder.Entity<Telephone>()
-                .ToTable("tblTel", schema: "dbo");
-
-            modelBuilder.Entity<Telephone>()
-                .HasKey(e => new { e.CustomerRecordId, e.TelephoneTypeId, e.CountryId, e.Area, e.Number })
-                .HasName("tblTel$PrimaryKey");
-
-            modelBuilder.Entity<Telephone>()
-                .HasOne(e => e.CustomerRecord)
-                .WithMany(e => e.Telephones)
-                .HasForeignKey(e => e.CustomerRecordId)
-                .HasPrincipalKey(e => e.DataId);
-
-            modelBuilder.Entity<Telephone>()
-                .HasOne(e => e.Country)
-                .WithMany()
-                .HasForeignKey(e => e.CountryId);
-
-            modelBuilder.Entity<Telephone>()
-                .HasOne(e => e.TelephoneType)
-                .WithMany()
-                .HasForeignKey(e => e.TelephoneTypeId);
-
-
-            // Telephone Type
-
-            modelBuilder.Entity<TelephoneType>()
-                .ToTable("TblTelType", schema: "dbo");
-
-            modelBuilder.Entity<TelephoneType>()
-                .HasKey(e => e.Id)
-                .HasName("TblTelType$PrimaryKey");
 
 
             // Memo

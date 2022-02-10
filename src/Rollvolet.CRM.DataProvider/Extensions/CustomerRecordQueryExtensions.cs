@@ -63,7 +63,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("honorific-prefix", c => c.HonorificPrefix);
             selectors.Add("contacts", c => c.Contacts);
             selectors.Add("buildings", c => c.Buildings);
-            selectors.Add("telephones", c => c.Telephones);
 
             source = source.Include<Customer>(querySet, selectors);
 
@@ -120,7 +119,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("language", c => c.Language);
             selectors.Add("honorific-prefix", c => c.HonorificPrefix);
             selectors.Add("customer", c => c.Customer);
-            selectors.Add("telephones", c => c.Telephones);
 
             return source.Include<Contact>(querySet, selectors);
         }
@@ -170,7 +168,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("language", c => c.Language);
             selectors.Add("honorific-prefix", c => c.HonorificPrefix);
             selectors.Add("customer", c => c.Customer);
-            selectors.Add("telephones", c => c.Telephones);
 
             return source.Include<Building>(querySet, selectors);
         }
@@ -217,12 +214,18 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                                         || EF.Functions.Like(c.Address3, filterValue));
             }
 
-            if (querySet.Filter.Fields.ContainsKey("telephone"))
+            if (querySet.Filter.Fields.ContainsKey("telephone")) // telephones contain comma-seperated list of customer ids
             {
-                var search = querySet.Filter.Fields["telephone"];
-                var predicate = search.ConstructTelephoneQuery();
-
-                source = source.AsExpandable().Where(c => c.Telephones.Any(t => predicate.Invoke(t)));
+                if (String.IsNullOrEmpty(querySet.Filter.Fields["telephone"]))
+                {
+                    // No telephone-numbers are found, so force that no matching result will be returned
+                    source = source.Where(c =>  c.DataId < 0);
+                }
+                else
+                {
+                    var ids = querySet.Filter.Fields["telephone"].Split(",").Select(int.Parse).ToList();
+                    source = source.Where(c => ids.Contains(c.DataId));
+                }
             }
 
             if (querySet.Filter.Fields.ContainsKey("ids"))

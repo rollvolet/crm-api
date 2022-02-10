@@ -28,7 +28,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.LanguageId, opt => opt.MapFrom(src => src.Language != null ? src.Language.Id : null))
                 .ForMember(dest => dest.HonorificPrefix, opt => opt.Ignore())
                 .ForMember(dest => dest.HonorificPrefixId, opt =>opt.MapFrom(src => Models.HonorificPrefix.DecomposeEntityId(src.HonorificPrefix.Id)))
-                .ForMember(dest => dest.Telephones, opt => opt.Ignore())
                 .ForMember(dest => dest.CustomerTags, opt => opt.Ignore())
                 .PreserveReferences();
 
@@ -46,7 +45,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
                 .ForMember(dest => dest.HonorificPrefix, opt => opt.Ignore())
                 .ForMember(dest => dest.HonorificPrefixId, opt =>opt.MapFrom(src => Models.HonorificPrefix.DecomposeEntityId(src.HonorificPrefix.Id)))
-                .ForMember(dest => dest.Telephones, opt => opt.Ignore())
                 .PreserveReferences();
 
             CreateMap<Models.Building, Domain.Models.Building>()
@@ -63,7 +61,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.Customer.Id))
                 .ForMember(dest => dest.HonorificPrefix, opt => opt.Ignore())
                 .ForMember(dest => dest.HonorificPrefixId, opt =>opt.MapFrom(src => Models.HonorificPrefix.DecomposeEntityId(src.HonorificPrefix.Id)))
-                .ForMember(dest => dest.Telephones, opt => opt.Ignore())
                 .PreserveReferences();
 
             CreateMap<Models.Country, Domain.Models.Country>()
@@ -85,28 +82,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences();
 
             CreateMap<Models.PostalCode, Domain.Models.PostalCode>()
-                .PreserveReferences()
-                .ReverseMap()
-                .PreserveReferences();
-
-            CreateMap<Models.Telephone, Domain.Models.Telephone>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ComposedId))
-                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => Domain.Models.Telephone.SerializeNumber(src.Number)))
-                .ForMember(dest => dest.Customer, opt => opt.Ignore())
-                .ForMember(dest => dest.Building, opt => opt.Ignore())
-                .ForMember(dest => dest.Contact, opt => opt.Ignore())
-                .PreserveReferences()
-                .ReverseMap()
-                .ForMember(dest => dest.CustomerRecordId, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.DataId : (src.Contact != null ? src.Contact.Id : src.Building.Id)))
-                .ForMember(dest => dest.Number, opt => opt.MapFrom(src => Models.Telephone.SerializeNumber(src.Number)))
-                .ForMember(dest => dest.CustomerRecord, opt => opt.Ignore())
-                .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.Country.Id))
-                .ForMember(dest => dest.Country, opt => opt.Ignore())
-                .ForMember(dest => dest.TelephoneTypeId, opt => opt.MapFrom(src => src.TelephoneType.Id))
-                .ForMember(dest => dest.TelephoneType, opt => opt.Ignore())
-                .PreserveReferences();
-
-            CreateMap<Models.TelephoneType, Domain.Models.TelephoneType>()
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();
