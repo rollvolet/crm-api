@@ -216,8 +216,16 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             if (querySet.Filter.Fields.ContainsKey("telephone")) // telephones contain comma-seperated list of customer ids
             {
-                var ids = querySet.Filter.Fields["telephone"].Split(",").Select(int.Parse).ToList();
-                source = source.Where(c => ids.Contains(c.DataId));
+                if (String.IsNullOrEmpty(querySet.Filter.Fields["telephone"]))
+                {
+                    // No telephone-numbers are found, so force that no matching result will be returned
+                    source = source.Where(c =>  c.DataId < 0);
+                }
+                else
+                {
+                    var ids = querySet.Filter.Fields["telephone"].Split(",").Select(int.Parse).ToList();
+                    source = source.Where(c => ids.Contains(c.DataId));
+                }
             }
 
             if (querySet.Filter.Fields.ContainsKey("ids"))
