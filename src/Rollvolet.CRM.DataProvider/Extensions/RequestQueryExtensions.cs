@@ -45,8 +45,13 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 source = source.Where(e => EF.Functions.Like(e.Visit.Visitor, filterValue));
             }
 
-            if (querySet.Filter.Fields.ContainsKey("offer") && querySet.Filter.Fields["offer"] == "false")
-                source = source.Where(e => e.Offer == null);
+            if (querySet.Filter.Fields.ContainsKey("hasOffer"))
+            {
+                if (Int32.Parse(querySet.Filter.Fields["hasOffer"]) == 0)
+                    source = source.Where(e => e.Offer == null);
+                else if (Int32.Parse(querySet.Filter.Fields["hasOffer"]) == 1)
+                    source = source.Where(e => e.Offer != null);
+            }
 
             source = source.FilterCase(querySet, context);
 

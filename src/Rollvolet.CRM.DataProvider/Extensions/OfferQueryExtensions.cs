@@ -57,12 +57,15 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 source = source.Where(e => EF.Functions.Like(e.Request.Visit.Visitor, filterValue));
             }
 
-            source = source.FilterCase(querySet, context);
-
-            if (querySet.Filter.Fields.ContainsKey("order") && querySet.Filter.Fields["order"] == "false")
+            if (querySet.Filter.Fields.ContainsKey("hasOrder"))
             {
-                source = source.Where(e => e.Order == null);
+                if (Int32.Parse(querySet.Filter.Fields["hasOrder"]) == 0)
+                    source = source.Where(e => e.Order == null);
+                else if (Int32.Parse(querySet.Filter.Fields["hasOrder"]) == 1)
+                    source = source.Where(e => e.Order != null);
             }
+
+            source = source.FilterCase(querySet, context);
 
             return source;
         }
