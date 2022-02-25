@@ -65,6 +65,14 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                     source = source.Where(e => e.Invoice != null);
             }
 
+            if (querySet.Filter.Fields.ContainsKey("hasProductionTicket"))
+            {
+                if (Int32.Parse(querySet.Filter.Fields["hasProductionTicket"]) == 0)
+                    source = source.Where(e => !e.HasProductionTicket);
+                else if (Int32.Parse(querySet.Filter.Fields["hasProductionTicket"]) == 1)
+                    source = source.Where(e => e.HasProductionTicket);
+            }
+
             if (querySet.Filter.Fields.ContainsKey("isCancelled"))
             {
                 if (Int32.Parse(querySet.Filter.Fields["isCancelled"]) == 0)
