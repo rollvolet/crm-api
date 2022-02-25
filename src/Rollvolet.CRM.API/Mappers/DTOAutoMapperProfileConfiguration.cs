@@ -843,6 +843,18 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<MonthlySalesEntry, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
 
 
+            // Average duration report mappings
+            CreateMap<AverageDurationReport, AverageDurationReportDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => "1"))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "average-duration-reports"))
+                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
+
+            CreateMap<AverageDurationReport, AverageDurationReportAttributesDto>().ReverseMap();
+
+            CreateMap<AverageDurationReport, EmptyRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
+
+
             // Outstanding Job mappings
             CreateMap<OutstandingJob, OutstandingJobDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => $"{src.RequestId}"))

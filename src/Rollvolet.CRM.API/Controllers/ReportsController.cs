@@ -40,6 +40,18 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Data = entryDtos });
         }
 
+        [HttpGet("average-duration-report")]
+        public async Task<IActionResult> GetAverageDurationReport([FromQuery] int? nbOfCases)
+        {
+            if (nbOfCases == null)
+                nbOfCases = 100;
+
+            var entry = await _reportManager.GetAverageDurationReport((int) nbOfCases);
+            var entryDto = _mapper.Map<AverageDurationReportDto>(entry);
+
+            return Ok(new ResourceResponse() { Data = entryDto });
+        }
+
         [HttpGet("outstanding-jobs")]
         public async Task<IActionResult> GetOutstandingJobs()
         {

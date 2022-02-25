@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using MathNet.Numerics.Statistics;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Business.Managers.Interfaces;
 using Rollvolet.CRM.Business.Models;
@@ -22,6 +23,41 @@ namespace Rollvolet.CRM.Business.Managers
         {
             _dbConnection = dbConnection;
             _logger = logger;
+        }
+
+        public async Task<AverageDurationReport> GetAverageDurationReport(int nbOfCases)
+        {
+            var averagePlacementSql = @"
+                SELECT DATEDIFF(day, o.BestelDatum, f.Datum) 
+                FROM TblFactuur f 
+                INNER JOIN tblOfferte o ON f.OfferteID = o.OfferteID 
+                WHERE o.Plaatsing = 1
+                ORDER BY f.Datum DESC
+                OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY
+            ";
+
+            var averageInterventionSql = @"
+                SELECT DATEDIFF(day, i.[Date], f.Datum) 
+                FROM TblFactuur f 
+                INNER JOIN TblIntervention i ON f.InterventionId  = i.Id  
+                ORDER BY f.Datum DESC
+                OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY
+            ";
+
+            using (_dbConnection)
+            {
+                var placementPeriods = _dbConnection.Query<double>(averagePlacementSql, new { Skip = 0, Take = nbOfCases });
+                var interventionPeriods = _dbConnection.Query<double>(averageInterventionSql, new { Skip = 0, Take = nbOfCases });
+
+                var avgPlacement = placementPeriods.Median();
+                var avgIntervention = interventionPeriods.Median();
+
+                return await Task.Run(() => new AverageDurationReport() {
+                    AveragePlacementDuration = avgPlacement,
+                    AverageInterventionDuration = avgIntervention
+                });
+            }
+
         }
 
         public async Task<IEnumerable<MonthlySalesEntry>> GetMonthlySalesReport(int fromYear, int toYear)
