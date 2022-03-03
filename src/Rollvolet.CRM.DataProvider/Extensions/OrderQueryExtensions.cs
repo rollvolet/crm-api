@@ -57,6 +57,12 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 source = source.Where(e => EF.Functions.Like(e.Offer.Request.Visit.Visitor, filterValue));
             }
 
+            if (querySet.Filter.Fields.ContainsKey(":gt:order-date"))
+            {
+                var filterValue = DateTimeOffset.Parse(querySet.Filter.Fields[":gt:order-date"]);
+                source = source.Where(e => e.OrderDate > filterValue);
+            }
+
             if (querySet.Filter.Fields.ContainsKey("hasInvoice"))
             {
                 if (Int32.Parse(querySet.Filter.Fields["hasInvoice"]) == 0)
