@@ -10,7 +10,6 @@ namespace Rollvolet.CRM.Domain.Models
         public DateTime? RequestDate { get; set; }
         public string Comment { get; set; }
         public string Employee { get; set; }
-        public bool OfferExpected { get; set; }
         public string Visitor { get; set; }
 
         public Customer Customer { get; set; }

@@ -242,8 +242,7 @@ namespace Rollvolet.CRM.DataProviders
                 RelativeBuildingId = requestRecord.RelativeBuildingId,
                 EmbeddedCity = requestRecord.EmbeddedCity,
                 Comment =  request == null ? null : request.Comment,
-                Visitor = request == null ? null : request.Visitor,
-                OfferExpected = request == null ? false : request.OfferExpected
+                Visitor = request == null ? null : request.Visitor
             };
 
             _context.Visits.Add(visitRecord);
@@ -272,7 +271,6 @@ namespace Rollvolet.CRM.DataProviders
                 if (request != null)
                 {
                     visit.Visitor = request.Visitor;
-                    visit.OfferExpected = request.OfferExpected;
                     visit.Comment = request.Comment;
                 }
 
