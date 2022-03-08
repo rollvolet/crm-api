@@ -42,7 +42,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("visitor"))
             {
                 var filterValue = querySet.Filter.Fields["visitor"].FilterWildcard();
-                source = source.Where(e => EF.Functions.Like(e.Visit.Visitor, filterValue));
+                source = source.Where(e => EF.Functions.Like(e.Visitor, filterValue));
             }
 
             if (querySet.Filter.Fields.ContainsKey(":gt:request-date"))

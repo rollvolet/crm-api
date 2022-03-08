@@ -11,9 +11,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("AanvraagId")]
         public int? RequestId { get; set; }
 
-        [Column("Bezoeker")]
-        public string Visitor { get; set; }
-
         [Column("Bezoekdatum")]
         public DateTime? VisitDate { get; set; }
 
@@ -25,9 +22,6 @@ namespace Rollvolet.CRM.DataProvider.Models
 
         [Column("ContactID")]
         public int? RelativeContactId { get; set; }
-
-        [Column("Opmerking")]  // kept in sync with offer comment in frontend
-        public string Comment { get; set; }
 
         [Column("AfspraakOnderwerp")]
         public string CalendarSubject { get; set; }

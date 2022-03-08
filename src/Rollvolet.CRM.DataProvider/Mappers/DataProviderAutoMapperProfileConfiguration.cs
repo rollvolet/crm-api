@@ -93,8 +93,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences();
 
             CreateMap<Models.Request, Domain.Models.Request>()
-                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Visit != null ? src.Visit.Comment : null))
-                .ForMember(dest => dest.Visitor, opt => opt.MapFrom(src => src.Visit != null ? src.Visit.Visitor : null))
                 .ForMember(dest => dest.CalendarEvent, opt => opt.MapFrom(src => src.Visit))
                 .PreserveReferences()
                 .ReverseMap()
@@ -119,8 +117,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
 
             CreateMap<Models.Visit, Domain.Models.Request>()
                 // only merge the fields from visit that needs to be public in the request object
-                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
-                .ForMember(dest => dest.Visitor, opt => opt.MapFrom(src => src.Visitor))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<Models.Visit, Domain.Models.CalendarEvent>()

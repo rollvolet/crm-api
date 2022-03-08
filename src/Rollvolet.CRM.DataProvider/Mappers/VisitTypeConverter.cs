@@ -12,9 +12,7 @@ namespace Rollvolet.CRM.DataProvider.Mappers
             Domain.Models.Request request = null;
             if (src.Request != null)
                 request = new Domain.Models.Request() {
-                    Id = (int) src.Request.Id,
-                    Comment = src.Comment,
-                    Visitor = src.Visitor
+                    Id = (int) src.Request.Id
                 };
             else if (src.RequestId != null)
                 request = new Domain.Models.Request() { Id = (int) src.RequestId };

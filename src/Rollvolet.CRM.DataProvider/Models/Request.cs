@@ -21,6 +21,12 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Bezoek")]
         public bool RequiresVisit { get; set; }
 
+        [Column("Bezoeker")]
+        public string Visitor { get; set; }
+
+        [Column("Bediende")]
+        public string Employee { get; set; }
+
         [Column("AanmeldingID")]
         public int? WayOfEntryId { get; set; }
 
@@ -30,12 +36,8 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Aanvraagdatum")]
         public DateTime RequestDate { get; set; }
 
-        // @Deprecated Visit.Comment is used for comments on requests
-        // [Column("Opmerking")]
-        // public string Comment { get; set; }
-
-        [Column("Bediende")]
-        public string Employee { get; set; }
+        [Column("Opmerking")]  // kept in sync with offer comment in frontend
+        public string Comment { get; set; }
 
 
         // Include resources
