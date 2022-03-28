@@ -84,8 +84,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Include.Fields.Contains("customer.honorific-prefix"))
                 source = source.Include(x => x.Customer).ThenInclude(x => x.HonorificPrefix);
 
-            if (querySet.Include.Fields.Contains("request") || querySet.Include.Fields.Contains("request.calendar-event"))
-                source = source.Include(x => x.Request).ThenInclude(x => x.Visit);
+            if (querySet.Include.Fields.Contains("request"))
+                source = source.Include(x => x.Request);
 
             var selectors = new Dictionary<string, Expression<Func<Offer, object>>>();
 

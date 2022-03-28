@@ -16,30 +16,25 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly ICustomerDataProvider _customerDataProvider;
         private readonly IContactDataProvider _contactDataProvider;
         private readonly IBuildingDataProvider _buildingDataProvider;
-        private readonly IVisitDataProvider _visitDataProvider;
         private readonly IOfferDataProvider _offerDataProvider;
         private readonly IWayOfEntryDataProvider _wayOfEntryDataProvider;
         private readonly IInterventionDataProvider _interventionDataProvider;
-        private readonly ICalendarEventManager _calendarEventManager;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly ILogger _logger;
 
         public RequestManager(IRequestDataProvider requestDataProvider, ICustomerDataProvider customerDataProvider,
                                 IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
-                                IVisitDataProvider visitDataProvider, IOfferDataProvider offerDataProvider,
+                                IOfferDataProvider offerDataProvider,
                                 IWayOfEntryDataProvider wayOfEntryDataProvider, IInterventionDataProvider interventionDataProvider,
-                                ICalendarEventManager calendarEventManager, IDocumentGenerationManager documentGenerationManager,
-                                ILogger<RequestManager> logger)
+                                IDocumentGenerationManager documentGenerationManager, ILogger<RequestManager> logger)
         {
             _requestDataProvider = requestDataProvider;
             _customerDataProvider = customerDataProvider;
             _contactDataProvider = contactDataProvider;
             _buildingDataProvider = buildingDataProvider;
-            _visitDataProvider = visitDataProvider;
             _offerDataProvider = offerDataProvider;
             _wayOfEntryDataProvider = wayOfEntryDataProvider;
             _interventionDataProvider = interventionDataProvider;
-            _calendarEventManager = calendarEventManager;
             _documentGenerationManager = documentGenerationManager;
             _logger = logger;
         }
@@ -185,9 +180,6 @@ namespace Rollvolet.CRM.Domain.Managers
 
             request = await _requestDataProvider.UpdateAsync(request);
 
-            if (request.Comment != existingRequest.Comment)
-                await SyncCalendarEventAsync(request.Id);
-
             return request;
         }
 
@@ -204,21 +196,6 @@ namespace Rollvolet.CRM.Domain.Managers
             {
                 await _documentGenerationManager.DeleteVisitReportAsync(id);
                 await _requestDataProvider.DeleteByIdAsync(id);
-            }
-        }
-
-        public async Task SyncCalendarEventAsync(int requestId)
-        {
-            try
-            {
-                var calendarEvent = await _calendarEventManager.GetByRequestIdAsync(requestId);
-
-                if (!calendarEvent.IsMasteredByAccess)
-                    await _calendarEventManager.UpdateAsync(calendarEvent, true);
-            }
-            catch (EntityNotFoundException)
-            {
-                // No calendar event to update
             }
         }
 

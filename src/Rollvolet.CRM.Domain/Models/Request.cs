@@ -15,7 +15,6 @@ namespace Rollvolet.CRM.Domain.Models
         public Customer Customer { get; set; }
         public Building Building { get; set; }
         public Contact Contact { get; set; }
-        public CalendarEvent CalendarEvent { get; set; }
         public WayOfEntry WayOfEntry { get; set; }
         public Offer Offer { get; set; }
         public Intervention Origin { get; set; }

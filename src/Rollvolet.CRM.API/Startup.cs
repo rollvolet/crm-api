@@ -126,8 +126,6 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IWayOfEntryDataProvider, WayOfEntryDataProvider>();
             services.AddTransient<IAccountancyExportManager, AccountancyExportManager>();
             services.AddTransient<IAccountancyExportDataProvider, AccountancyExportDataProvider>();
-            services.AddTransient<ICalendarEventManager, CalendarEventManager>();
-            services.AddTransient<IVisitDataProvider, VisitDataProvider>();
             services.AddTransient<IWorkingHourManager, WorkingHourManager>();
             services.AddTransient<IWorkingHourDataProvider, WorkingHourDataProvider>();
             services.AddTransient<IPlanningEventManager, PlanningEventManager>();

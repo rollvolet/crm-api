@@ -17,6 +17,5 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<Request> CreateAsync(Request request);
         Task<Request> UpdateAsync(Request request);
         Task DeleteAsync(int id);
-        Task SyncCalendarEventAsync(int requestId);
     }
 }

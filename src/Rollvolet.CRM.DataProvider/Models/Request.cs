@@ -45,7 +45,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Building Building { get; set; }
         public Contact Contact { get; set; }
         public WayOfEntry WayOfEntry { get; set; }
-        public Visit Visit { get; set; }
         public Offer Offer { get; set; }
         public Intervention Origin { get; set; }
 

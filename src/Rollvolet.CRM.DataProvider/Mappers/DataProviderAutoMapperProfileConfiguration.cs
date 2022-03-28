@@ -93,7 +93,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences();
 
             CreateMap<Models.Request, Domain.Models.Request>()
-                .ForMember(dest => dest.CalendarEvent, opt => opt.MapFrom(src => src.Visit))
                 .PreserveReferences()
                 .ReverseMap()
                 .ForMember(dest => dest.Customer, opt => opt.Ignore())
@@ -106,7 +105,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .ForMember(dest => dest.RelativeBuildingId, opt => opt.MapFrom(src => src.Building != null ? src.Building.Number : (int?) null))
                 .ForMember(dest => dest.OriginId, opt => opt.MapFrom(src => src.Origin.Id))
                 .ForMember(dest => dest.Origin, opt => opt.Ignore())
-                .ForMember(dest => dest.Visit, opt => opt.Ignore())
                 .ForMember(dest => dest.Offer, opt => opt.Ignore())
                 .PreserveReferences();
 
@@ -114,23 +112,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 .PreserveReferences()
                 .ReverseMap()
                 .PreserveReferences();
-
-            CreateMap<Models.Visit, Domain.Models.Request>()
-                // only merge the fields from visit that needs to be public in the request object
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<Models.Visit, Domain.Models.CalendarEvent>()
-                .ConvertUsing(new VisitTypeConverter());
-
-            CreateMap<Domain.Models.CalendarEvent, Models.Visit>()
-                // don't map the Id, Request and Customer properties.
-                // They are managed by the RequestDataProvider which creates Visit records without using the mapper
-                // Also don't map the fields that are set by the request domain model (visitor, comment)
-                .ForMember(dest => dest.VisitDate, opt => opt.MapFrom(src => src.VisitDate))
-                .ForMember(dest => dest.CalendarId, opt => opt.MapFrom(src => src.CalendarId))
-                .ForMember(dest => dest.MsObjectId, opt => opt.MapFrom(src => src.MsObjectId))
-                .ForMember(dest => dest.CalendarSubject, opt => opt.MapFrom(src => src.CalendarSubject))
-                .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<Models.Intervention, Domain.Models.Intervention>()
                 .ForMember(dest => dest.Technicians, opt => opt.Ignore())

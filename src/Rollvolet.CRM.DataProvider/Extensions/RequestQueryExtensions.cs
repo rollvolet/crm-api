@@ -78,7 +78,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("building", c => c.Building);
             selectors.Add("contact", c => c.Contact);
             selectors.Add("way-of-entry", c => c.WayOfEntry);
-            selectors.Add("calendar-event", x => x.Visit);
             selectors.Add("offer", x => x.Offer);
             selectors.Add("origin", x => x.Origin);
 

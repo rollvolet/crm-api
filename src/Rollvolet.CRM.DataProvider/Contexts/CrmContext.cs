@@ -28,7 +28,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Employee> Employees { get; set; }
         public DbSet<InterventionTechnician> InterventionTechnicians { get; set; }
         public DbSet<OrderTechnician> OrderTechnicians { get; set; }
-        public DbSet<Visit> Visits { get; set; }
         public DbSet<PlanningEvent> PlanningEvents { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<AccountancyExport> AccountancyExports { get; set; }
@@ -230,26 +229,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithOne(e => e.FollowUpRequest)
                 .HasForeignKey<Request>(e => e.OriginId)
                 .HasPrincipalKey<Intervention>(e => e.Id);
-
-
-            // Visit
-
-            modelBuilder.Entity<Visit>()
-                .ToTable("TblBezoek", schema: "dbo");
-
-            modelBuilder.Entity<Visit>()
-                .HasKey(e => e.Id)
-                .HasName("TblBezoek$PrimaryKey");
-
-            modelBuilder.Entity<Visit>()
-                .HasOne(e => e.Request)
-                .WithOne(e => e.Visit)
-                .HasForeignKey<Visit>(e => e.RequestId);
-
-            modelBuilder.Entity<Visit>()
-                .HasOne(e => e.Customer)
-                .WithMany()
-                .HasForeignKey(e => e.CustomerId);
 
 
             // Way of Entry

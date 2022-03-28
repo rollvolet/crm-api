@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
@@ -11,7 +10,6 @@ using Rollvolet.CRM.APIContracts.DTO.Contacts;
 using Rollvolet.CRM.APIContracts.DTO.Customers;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
-using Rollvolet.CRM.APIContracts.DTO.CalendarEvents;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
@@ -31,7 +29,6 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IBuildingManager _buildingManager;
         private readonly IOfferManager _offerManager;
         private readonly IInterventionManager _interventionManager;
-        private readonly ICalendarEventManager _calendarEventManager;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly IIncludedCollector _includedCollector;
         private readonly IMapper _mapper;
@@ -39,8 +36,7 @@ namespace Rollvolet.CRM.API.Controllers
 
         public RequestsController(IRequestManager requestManager, IOfferManager offerManager, IWayOfEntryManager wayOfEntryManager,
                                     ICustomerManager customerManager, IContactManager contactManager, IBuildingManager buildingManager,
-                                    IInterventionManager interventionManager, ICalendarEventManager calendarEventManager,
-                                    IDocumentGenerationManager documentGenerationManager,
+                                    IInterventionManager interventionManager, IDocumentGenerationManager documentGenerationManager,
                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _requestManager = requestManager;
@@ -50,7 +46,6 @@ namespace Rollvolet.CRM.API.Controllers
             _contactManager = contactManager;
             _buildingManager = buildingManager;
             _interventionManager = interventionManager;
-            _calendarEventManager = calendarEventManager;
             _documentGenerationManager = documentGenerationManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
@@ -129,13 +124,6 @@ namespace Rollvolet.CRM.API.Controllers
         {
             await _documentGenerationManager.CreateAndStoreVisitReportAsync(id);
             // TODO return download location in Location header
-            return NoContent();
-        }
-
-        [HttpPut("{id}/calendar-event")]
-        public async Task<IActionResult> UpdateCalendarEventAsync(int id)
-        {
-            await _requestManager.SyncCalendarEventAsync(id);
             return NoContent();
         }
 
@@ -251,25 +239,6 @@ namespace Rollvolet.CRM.API.Controllers
 
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
             return Ok(new ResourceResponse() { Links = links, Data = interventionDto });
-        }
-
-        [HttpGet("{requestId}/calendar-event")]
-        [HttpGet("{requestId}/links/calendar-event")]
-        public async Task<IActionResult> GetRelatedCalendarEventByIdAsync(int requestId)
-        {
-            CalendarEventDto calendarEventDto;
-            try
-            {
-                var calendarEvent = await _calendarEventManager.GetByRequestIdAsync(requestId);
-                calendarEventDto = _mapper.Map<CalendarEventDto>(calendarEvent);
-            }
-            catch (EntityNotFoundException)
-            {
-                calendarEventDto = null;
-            }
-
-            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
-            return Ok(new ResourceResponse() { Links = links, Data = calendarEventDto });
         }
     }
 }

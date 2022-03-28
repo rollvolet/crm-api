@@ -85,7 +85,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 if (requestId != null)
                 {
                     await _requestDataProvider.UpdateContactAndBuildingAsync((int) requestId, relativeContactId, relativeBuildingId);
-                    await _requestManager.SyncCalendarEventAsync((int) requestId);
                 }
 
                 if (interventionId != null)

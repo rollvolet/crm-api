@@ -36,7 +36,6 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly ICustomerDataProvider _customerDataProvider;
         private readonly IContactDataProvider _contactDataProvider;
         private readonly IBuildingDataProvider _buildingDataProvider;
-        private readonly IVisitDataProvider _visitDataProvider;
         private readonly IEmployeeDataProvider _employeeDataProvider;
         private readonly HttpClient _httpClient;
         private readonly IFileStorageService _fileStorageService;
@@ -59,8 +58,7 @@ namespace Rollvolet.CRM.Domain.Managers
                                          IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                                          IOrderDataProvider orderDataProvider, IInvoiceDataProvider invoiceDataProvider,
                                          IDepositInvoiceDataProvider depositInvoiceDataProvider,
-                                         IVisitDataProvider visitDataProvider, IEmployeeDataProvider employeeDataProvider,
-                                         IFileStorageService fileStorageService,
+                                         IEmployeeDataProvider employeeDataProvider, IFileStorageService fileStorageService,
                                          IOptions<DocumentGenerationConfiguration> documentGenerationConfiguration,
                                          ILogger<DocumentGenerationManager> logger)
         {
@@ -73,7 +71,6 @@ namespace Rollvolet.CRM.Domain.Managers
             _customerDataProvider = customerDataProvider;
             _contactDataProvider = contactDataProvider;
             _buildingDataProvider = buildingDataProvider;
-            _visitDataProvider = visitDataProvider;
             _employeeDataProvider = employeeDataProvider;
             _httpClient = new HttpClient();
             _fileStorageService = fileStorageService;
