@@ -174,8 +174,6 @@ namespace Rollvolet.CRM.API.Collectors
                 included.Add(_mapper.Map<RequestDto>(intervention.FollowUpRequest));
             if (includeQuery.Contains("origin") && intervention.Origin != null)
                 included.Add(_mapper.Map<OrderDto>(intervention.Origin));
-            if (includeQuery.Contains("planning-event") && intervention.PlanningEvent != null)
-                included.Add(_mapper.Map<PlanningEventDto>(intervention.PlanningEvent));
 
             // many-relations
             if (includeQuery.Contains("technicians") && intervention.Technicians.Count() > 0)
@@ -440,8 +438,6 @@ namespace Rollvolet.CRM.API.Collectors
             ISet<IResource> included = new HashSet<IResource>();
 
             // one-relations
-            if (includeQuery.Contains("intervention") && planningEvent.Intervention != null)
-                included.Add(_mapper.Map<InterventionDto>(planningEvent.Intervention));
             if (includeQuery.Contains("order") && planningEvent.Order != null)
                 included.Add(_mapper.Map<OrderDto>(planningEvent.Order));
 

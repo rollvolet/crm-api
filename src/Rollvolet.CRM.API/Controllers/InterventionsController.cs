@@ -271,25 +271,6 @@ namespace Rollvolet.CRM.API.Controllers
             return Ok(new ResourceResponse() { Links = links, Data = wayOfEntryDto });
         }
 
-        [HttpGet("{interventionId}/planning-event")]
-        [HttpGet("{interventionId}/links/planning-event")]
-        public async Task<IActionResult> GetRelatedPlanningEventByIdAsync(int interventionId)
-        {
-            PlanningEventDto planningEventDto;
-            try
-            {
-                var planningEvent = await _planningEventManager.GetByInterventionIdAsync(interventionId);
-                planningEventDto = _mapper.Map<PlanningEventDto>(planningEvent);
-            }
-            catch (EntityNotFoundException)
-            {
-                planningEventDto = null;
-            }
-
-            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
-            return Ok(new ResourceResponse() { Links = links, Data = planningEventDto });
-        }
-
 
         [HttpGet("{interventionId}/employee")]
         [HttpGet("{interventionId}/links/employee")]

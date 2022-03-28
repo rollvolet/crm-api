@@ -160,7 +160,7 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] {
-                "planning-event", "customer", "customer.honorific-prefix", "customer.language", "building", "contact", "way-of-entry", "employee"
+                "customer", "customer.honorific-prefix", "customer.language", "building", "contact", "way-of-entry", "employee"
             };
             var intervention = await _interventionDataProvider.GetByIdAsync(interventionId, query);
 

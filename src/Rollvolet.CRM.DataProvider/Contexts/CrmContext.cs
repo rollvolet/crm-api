@@ -578,12 +578,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .HasKey(e => e.Id)
                 .HasName("TblPlanningEvent$PrimaryKey");
 
-            modelBuilder.Entity<PlanningEvent>()
-                .HasOne(e => e.Intervention)
-                .WithOne(e => e.PlanningEvent)
-                .HasForeignKey<PlanningEvent>(e => e.InterventionId)
-                .HasPrincipalKey<Intervention>(e => e.Id);
-
 
             // Accountancy export
             modelBuilder.Entity<AccountancyExport>()

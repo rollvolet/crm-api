@@ -12,8 +12,7 @@ namespace Rollvolet.CRM.Domain.Models
         public string FromHour { get; set; }
         public string UntilHour { get; set; }
         public bool IsNotAvailableInCalendar { get; set; }
-
-        public Intervention Intervention { get; set; }
+        
         public Order Order { get; set; }
 
         public PlanningEvent()

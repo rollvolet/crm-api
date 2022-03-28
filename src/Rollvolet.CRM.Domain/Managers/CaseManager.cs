@@ -90,8 +90,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 if (interventionId != null)
                 {
                     await _interventionDataProvider.UpdateContactAndBuildingAsync((int) interventionId, relativeContactId, relativeBuildingId);
-                    var planningEvent = await _planningEventManager.GetByInterventionIdAsync((int) interventionId);
-                    await _planningEventManager.UpdateAsync(planningEvent);
                 }
 
                 if (offerId != null)

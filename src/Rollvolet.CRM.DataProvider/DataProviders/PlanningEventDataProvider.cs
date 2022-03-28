@@ -39,19 +39,6 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Domain.Models.PlanningEvent>(planningEvent);
         }
 
-        public async Task<Domain.Models.PlanningEvent> GetByInterventionIdAsync(int id)
-        {
-            var planningEvent = await FindWhereAsync(c => c.InterventionId == id);
-
-            if (planningEvent == null)
-            {
-                _logger.LogError($"No planning-event found for intervention with id {id}");
-                throw new EntityNotFoundException();
-            }
-
-            return _mapper.Map<Domain.Models.PlanningEvent>(planningEvent);
-        }
-
         // Creation of a Planning is handled by the InterventionDataProvider/OrderDataProvider
         // PlanningEvent can only be created on creation of a new intervention/order
 

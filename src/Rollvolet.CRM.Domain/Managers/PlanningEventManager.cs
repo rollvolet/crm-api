@@ -36,17 +36,6 @@ namespace Rollvolet.CRM.Domain.Managers
 
             return planningEvent;
         }
-
-        public async Task<PlanningEvent> GetByInterventionIdAsync(int planningEventId)
-        {
-            var planningEvent = await _planningEventDataProvider.GetByInterventionIdAsync(planningEventId);
-
-            if (planningEvent.MsObjectId != null)
-                planningEvent = await _calendarService.EnrichPlanningEventAsync(planningEvent);
-
-            return planningEvent;
-        }
-
         public async Task<PlanningEvent> UpdateAsync(PlanningEvent planningEvent)
         {
             var query = new QuerySet();
@@ -88,12 +77,6 @@ namespace Rollvolet.CRM.Domain.Managers
         private async Task EmbedRelations(PlanningEvent planningEvent, PlanningEvent oldPlanningEvent = null)
         {
             try {
-                // Intervention cannot be updated. Take intervention of oldPlanningEvent on update.
-                if (oldPlanningEvent != null)
-                    planningEvent.Intervention = oldPlanningEvent.Intervention;
-                else
-                    planningEvent.Intervention = null;
-
                 // Order cannot be updated. Take order of oldPlanningEvent on update.
                 if (oldPlanningEvent != null)
                     planningEvent.Order = oldPlanningEvent.Order;

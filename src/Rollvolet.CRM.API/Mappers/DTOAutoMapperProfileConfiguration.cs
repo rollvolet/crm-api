@@ -350,7 +350,6 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.WayOfEntry, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.WayOfEntry : null))
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Origin : null))
                 .ForMember(dest => dest.FollowUpRequest, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.FollowUpRequest : null))
-                .ForMember(dest => dest.PlanningEvent, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.PlanningEvent : null))
                 .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Invoice : null))
                 .ForMember(dest => dest.Employee, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Employee : null))
                 .ForMember(dest => dest.Technicians, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Technicians : null))
@@ -744,7 +743,6 @@ namespace Rollvolet.CRM.API.Mappers
             CreateMap<PlanningEventRequestDto, PlanningEvent>()
                 .ConstructUsing((src, context) => context.Mapper.Map<PlanningEvent>(src.Attributes))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Intervention, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Intervention : null))
                 .ForMember(dest => dest.Order, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Order : null))
                 .ForAllOtherMembers(opt => opt.Ignore());
 

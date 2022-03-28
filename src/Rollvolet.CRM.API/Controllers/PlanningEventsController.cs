@@ -1,14 +1,11 @@
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rollvolet.CRM.API.Builders.Interfaces;
 using Rollvolet.CRM.API.Collectors;
 using Rollvolet.CRM.APIContracts.JsonApi;
-using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
-using Rollvolet.CRM.APIContracts.DTO.Interventions;
 using Microsoft.AspNetCore.Http;
 using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
 
@@ -61,25 +58,6 @@ namespace Rollvolet.CRM.API.Controllers
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
 
             return Ok(new ResourceResponse() { Links = links, Data = planningEventDto });
-        }
-
-        [HttpGet("{planningEventId}/intervention")]
-        [HttpGet("{planningEventId}/links/intervention")]
-        public async Task<IActionResult> GetRelatedInterventionByIdAsync(int planningEventId)
-        {
-            InterventionDto interventionDto;
-            try
-            {
-                var intervention = await _interventionManager.GetByPlanningEventIdAsync(planningEventId);
-                interventionDto = _mapper.Map<InterventionDto>(intervention);
-            }
-            catch (EntityNotFoundException)
-            {
-                interventionDto = null;
-            }
-
-            var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
-            return Ok(new ResourceResponse() { Links = links, Data = interventionDto });
         }
     }
 }

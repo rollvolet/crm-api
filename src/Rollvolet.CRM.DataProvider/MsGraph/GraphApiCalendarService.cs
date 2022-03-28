@@ -70,8 +70,6 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
             }
 
             var subject = planningEvent.Subject;
-            if (planningEvent.Intervention != null)
-               subject = subject.Substring(INTERVENTION_SUBJECT_PREFIX.Length).Trim();
             planningEvent = ParsePeriodMessage(planningEvent, subject);
 
             return planningEvent;
@@ -307,11 +305,7 @@ namespace Rollvolet.CRM.DataProvider.MsGraph
         private async Task<string> GeneratePlanningEventSubjectAsync(PlanningEvent planningEvent)
         {
             var period = FormatPeriodMessage(planningEvent.Period, planningEvent.FromHour, planningEvent.UntilHour);
-
-            if (planningEvent.Intervention != null)
-                return $"{INTERVENTION_SUBJECT_PREFIX} {period} {planningEvent.Intervention.CalendarSubject}";
-            else
-                return "";
+            return "";
         }
 
         private async Task<Event> GenerateCreatePlanningEventAsync(Order order)
