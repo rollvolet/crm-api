@@ -16,7 +16,5 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
         Task<Order> CreateAsync(Order order);
         Task<Order> UpdateAsync(Order order);
         Task DeleteAsync(int id);
-        Task SyncPlanningEventAsync(Order order, bool requiresUpdate = false, bool requiresReschedule = false);
-        Task SyncPlanningEventAsync(int orderId, bool requiresUpdate = false);
     }
 }

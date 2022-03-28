@@ -90,12 +90,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("VastgelegdeDatum")]
         public string PlanningDate { get; set; }
 
-        [Column("PlanningId")]
-        public string PlanningId { get; set; }
-
-        [Column("PlanningMsObjectId")]
-        public string PlanningMsObjectId { get; set; }
-
         // @Deprecated
         // [Column("UrenGerekend")]
         // public float? InvoicableHours { get; set; }

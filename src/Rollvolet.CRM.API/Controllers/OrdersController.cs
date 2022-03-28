@@ -135,13 +135,6 @@ namespace Rollvolet.CRM.API.Controllers
             return NoContent();
         }
 
-        [HttpPut("{orderId}/planning-event")]
-        public async Task<IActionResult> UpdatePlanningEventAsync(int orderId)
-        {
-            await _orderManager.SyncPlanningEventAsync(orderId, true);
-            return NoContent();
-        }
-
         [HttpPost("{id}/documents")]
         public async Task<IActionResult> CreateOrderDocumentAsync(int id)
         {

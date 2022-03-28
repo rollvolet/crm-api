@@ -94,7 +94,7 @@ namespace Rollvolet.CRM.Domain.Managers
         {
             var query = new QuerySet();
             query.Include.Fields = new string[] {
-                "calendar-event", "customer", "customer.honorific-prefix", "customer.language", "building", "contact", "way-of-entry"
+                "customer", "customer.honorific-prefix", "customer.language", "building", "contact", "way-of-entry"
             };
             var request = await _requestDataProvider.GetByIdAsync(requestId, query);
 

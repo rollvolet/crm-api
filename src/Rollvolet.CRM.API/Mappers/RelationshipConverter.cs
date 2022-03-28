@@ -15,7 +15,6 @@ using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
-using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
 using Rollvolet.CRM.Business.Models;
 
 namespace Rollvolet.CRM.API.Mappers
@@ -31,7 +30,6 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<DepositInvoice, DepositInvoiceRelationshipsDto>,
                                             ITypeConverter<Deposit, DepositRelationshipsDto>,
                                             ITypeConverter<WorkingHour, WorkingHourRelationshipsDto>,
-                                            ITypeConverter<PlanningEvent, PlanningEventRelationshipsDto>,
                                             ITypeConverter<Employee, EmployeeDto.RelationshipsDto>,
                                             ITypeConverter<Country, EmptyRelationshipsDto>,
                                             ITypeConverter<Language, EmptyRelationshipsDto>,
@@ -182,13 +180,6 @@ namespace Rollvolet.CRM.API.Mappers
             var relationships = new WorkingHourRelationshipsDto();
             relationships.Employee = GetOneRelationship<Employee>("working-hours", source.Id, "employee", source.Employee, context);
             relationships.Invoice = GetOneRelationship<Invoice>("working-hours", source.Id, "invoice", source.Invoice, context);
-            return relationships;
-        }
-
-        PlanningEventRelationshipsDto ITypeConverter<PlanningEvent, PlanningEventRelationshipsDto>.Convert(PlanningEvent source, PlanningEventRelationshipsDto destination, ResolutionContext context)
-        {
-            var relationships = new PlanningEventRelationshipsDto();
-            relationships.Order = GetOneRelationship<Order>("planning-events", source.Id, "order", source.Order, context);
             return relationships;
         }
 

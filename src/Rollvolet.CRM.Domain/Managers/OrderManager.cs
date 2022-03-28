@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Contracts.DataProviders;
-using Rollvolet.CRM.Domain.Contracts.MsGraph;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
 using Rollvolet.CRM.Domain.Models;
@@ -23,7 +22,6 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
         private readonly IVatRateDataProvider _vatRateDataProvider;
         private readonly IEmployeeDataProvider _employeeDataProvider;
-        private readonly IGraphApiCalendarService _calendarService;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly ILogger _logger;
 
@@ -32,8 +30,7 @@ namespace Rollvolet.CRM.Domain.Managers
                                 IBuildingDataProvider buildingDataProvider, IOfferDataProvider offerDataProvider,
                                 IVatRateDataProvider vatRateDataProvider,
                                 IDepositDataProvider depositDataProvider, IDepositInvoiceDataProvider depositInvoiceDataProvider,
-                                IEmployeeDataProvider employeeDataProvider,
-                                IGraphApiCalendarService calendarService, IDocumentGenerationManager documentGenerationManager,
+                                IEmployeeDataProvider employeeDataProvider, IDocumentGenerationManager documentGenerationManager,
                                 ILogger<OrderManager> logger)
         {
             _orderDataProvider = orderDataProvider;
@@ -46,7 +43,6 @@ namespace Rollvolet.CRM.Domain.Managers
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
             _vatRateDataProvider = vatRateDataProvider;
             _employeeDataProvider = employeeDataProvider;
-            _calendarService = calendarService;
             _documentGenerationManager = documentGenerationManager;
             _logger = logger;
         }
@@ -115,8 +111,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogDebug(message);
                 throw new IllegalArgumentException("IllegalAttribute", message);
             }
-            if (order.PlanningMsObjectId != null)
-                throw new IllegalArgumentException("IllegalAttribute", "Calendar properties cannot be set.");
 
             await EmbedRelations(order);
 
@@ -124,9 +118,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", $"Contact is not attached to customer {order.Contact.Id}.");
             if (order.Building != null && order.Building.Customer.Id != order.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {order.Customer.Id}.");
-
-            if (order.PlanningDate != null)
-                await SyncPlanningEventAsync(order);
 
             return await _orderDataProvider.CreateAsync(order);
         }
@@ -145,8 +136,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", "Request number cannot be updated.");
             if (order.OrderDate == null)
                 throw new IllegalArgumentException("IllegalAttribute", "Order-date is required.");
-            if (order.PlanningMsObjectId != existingOrder.PlanningMsObjectId)
-                throw new IllegalArgumentException("IllegalAttribute", "Calendar properties cannot be updated.");
 
             await EmbedRelations(order, existingOrder);
 
@@ -158,10 +147,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", $"Contact is not attached to customer {order.Contact.Id}.");
             if (order.Building != null && order.Building.Customer != null && order.Building.Customer.Id != order.Customer.Id)
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {order.Customer.Id}.");
-
-            var requiresUpdate = RequiresPlanningEventUpdate(existingOrder, order);
-            var requiresReschedule = existingOrder.PlanningDate != order.PlanningDate;
-            await SyncPlanningEventAsync(order, requiresUpdate, requiresReschedule);
 
             return await _orderDataProvider.UpdateAsync(order);
         }
@@ -199,7 +184,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 try
                 {
                     var order = await _orderDataProvider.GetByIdAsync(id);
-                    await _calendarService.DeleteEventForPlanningAsync(order);
                     await _documentGenerationManager.DeleteOrderDocumentAsync(id);
                     await _documentGenerationManager.DeleteDeliveryNoteAsync(id);
                     await _documentGenerationManager.DeleteProductionTicketTemplateAsync(id);
@@ -210,39 +194,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 {
                     // Order not found. Nothing should happen.
                 }
-            }
-        }
-
-        public async Task SyncPlanningEventAsync(Order order, bool requiresUpdate = false, bool requiresReschedule = false)
-        {
-            if (order.PlanningMsObjectId != null && order.PlanningDate == null)
-            {
-                await _calendarService.DeleteEventForPlanningAsync(order);
-            }
-            else if (order.PlanningMsObjectId != null && requiresUpdate)
-            {
-                await _calendarService.UpdateEventForPlanningAsync(order, requiresReschedule);
-            }
-            else if (order.PlanningMsObjectId == null && String.IsNullOrEmpty(order.PlanningId) && order.PlanningDate != null)
-            {
-                await _calendarService.CreateEventForPlanningAsync(order);
-            }
-        }
-
-        public async Task SyncPlanningEventAsync(int orderId, bool requiresUpdate = false)
-        {
-            try
-            {
-                var query = new QuerySet();
-                query.Include.Fields = new string[] { "customer", "building", "contact" };
-                var order = await GetByIdAsync(orderId, query);
-                var requiresReschedule = false; // Update triggered by change outside the order, so order.PlanningDate didn't change
-                await SyncPlanningEventAsync(order, requiresUpdate, requiresReschedule);
-                await _orderDataProvider.UpdateAsync(order);
-            }
-            catch (EntityNotFoundException)
-            {
-                // No calendar event to update
             }
         }
 
@@ -313,14 +264,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogDebug($"Failed to find a related entity");
                 throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
             }
-        }
-
-        private bool RequiresPlanningEventUpdate(Order existingOrder, Order order)
-        {
-            return order.PlanningDate != existingOrder.PlanningDate
-              || order.ScheduledHours != existingOrder.ScheduledHours
-              || order.ScheduledNbOfPersons != existingOrder.ScheduledNbOfPersons
-              || order.MustBeDelivered != existingOrder.MustBeDelivered;
         }
     }
 }

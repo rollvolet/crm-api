@@ -21,7 +21,6 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly IWayOfEntryDataProvider _wayOfEntryDataProvider;
         private readonly IEmployeeDataProvider _employeeDataProvider;
-        private readonly IPlanningEventManager _planningEventManager;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly ILogger _logger;
 
@@ -30,7 +29,7 @@ namespace Rollvolet.CRM.Domain.Managers
                                 IInvoiceDataProvider invoiceDataProvider, IOrderDataProvider orderDataProvider,
                                 IRequestDataProvider requestDataProvider,
                                 IWayOfEntryDataProvider wayOfEntryDataProvider, IEmployeeDataProvider employeeDataProvider,
-                                IPlanningEventManager planningEventManager, IDocumentGenerationManager documentGenerationManager,
+                                IDocumentGenerationManager documentGenerationManager,
                                 ILogger<InterventionManager> logger)
         {
             _interventionDataProvider = interventionDataProvider;
@@ -42,7 +41,6 @@ namespace Rollvolet.CRM.Domain.Managers
             _requestDataProvider = requestDataProvider;
             _wayOfEntryDataProvider = wayOfEntryDataProvider;
             _employeeDataProvider = employeeDataProvider;
-            _planningEventManager = planningEventManager;
             _documentGenerationManager = documentGenerationManager;
             _logger = logger;
         }
@@ -290,11 +288,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogDebug($"Failed to find a related entity");
                 throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
             }
-        }
-
-        private bool RequiresPlanningEventUpdate(Intervention existingIntervention, Intervention intervention)
-        {
-            return intervention.Comment != existingIntervention.Comment;
         }
     }
 }

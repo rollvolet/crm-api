@@ -16,7 +16,6 @@ using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
-using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
 
 namespace Rollvolet.CRM.API.Collectors
 {
@@ -429,27 +428,6 @@ namespace Rollvolet.CRM.API.Collectors
 
             foreach (var workingHour in workingHours)
                 included.UnionWith(CollectIncluded(workingHour, includeQuery));
-
-            return included;
-        }
-
-        public IEnumerable<IResource> CollectIncluded(PlanningEvent planningEvent, IncludeQuery includeQuery)
-        {
-            ISet<IResource> included = new HashSet<IResource>();
-
-            // one-relations
-            if (includeQuery.Contains("order") && planningEvent.Order != null)
-                included.Add(_mapper.Map<OrderDto>(planningEvent.Order));
-
-            return included;
-        }
-
-        public IEnumerable<IResource> CollectIncluded(IEnumerable<PlanningEvent> planningEvents, IncludeQuery includeQuery)
-        {
-            ISet<IResource> included = new HashSet<IResource>();
-
-            foreach (var planningEvent in planningEvents)
-                included.UnionWith(CollectIncluded(planningEvent, includeQuery));
 
             return included;
         }

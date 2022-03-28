@@ -20,13 +20,12 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IInvoiceDataProvider _invoiceDataProvider;
         private readonly IRequestManager _requestManager;
         private readonly IOrderManager _orderManager;
-        private readonly IPlanningEventManager _planningEventManager;
 
         public CaseManager(ICaseDataProvider caseDataProvider, IContactDataProvider contactDataProvider, IBuildingDataProvider buildingDataProvider,
                             IDepositInvoiceDataProvider depositInvoiceDataProvider,
                             IRequestDataProvider requestDataProvider, IInterventionDataProvider interventionDataProvider,
                             IOfferDataProvider offerDataProvider, IInvoiceDataProvider invoiceDataProvider,
-                            IRequestManager requestManager, IOrderManager orderManager, IPlanningEventManager planningEventManager)
+                            IRequestManager requestManager, IOrderManager orderManager)
         {
             _caseDataProvider = caseDataProvider;
             _contactDataProvider = contactDataProvider;
@@ -38,7 +37,6 @@ namespace Rollvolet.CRM.Domain.Managers
             _invoiceDataProvider = invoiceDataProvider;
             _requestManager = requestManager;
             _orderManager = orderManager;
-            _planningEventManager = planningEventManager;
         }
 
         public async Task<Case> GetCaseAsync(int? requestId, int? interventionId, int? offerId, int? orderId, int? invoiceId)
@@ -97,8 +95,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 if (orderId != null)
                 {
                     // updating the offer automatically updates the contact/building of the order too. No need to do that explicitly here.
-
-                    await _orderManager.SyncPlanningEventAsync((int) orderId, true);
 
                     var query = new QuerySet();
                     query.Page.Size = 1000; // TODO we assume 1 case doesn't have more than 1000 deposit invoices. Ideally, we should query by page.

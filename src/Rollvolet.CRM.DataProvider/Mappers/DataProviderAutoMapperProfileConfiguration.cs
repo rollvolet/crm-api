@@ -140,21 +140,6 @@ namespace Rollvolet.CRM.DataProvider.Mappers
                 })
                 .PreserveReferences();
 
-            CreateMap<Models.PlanningEvent, Domain.Models.PlanningEvent>()
-                .ForMember(dest => dest.Period, opt => opt.Ignore())
-                .ForMember(dest => dest.FromHour, opt => opt.Ignore())
-                .ForMember(dest => dest.UntilHour, opt => opt.Ignore())
-                .ForMember(dest => dest.IsNotAvailableInCalendar, opt => opt.Ignore())
-                .PreserveReferences()
-                .ReverseMap()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
-                .ForMember(dest => dest.MsObjectId, opt => opt.MapFrom(src => src.MsObjectId))
-                .ForMember(dest => dest.Subject, opt => opt.MapFrom(src => src.Subject))
-                .ForMember(dest => dest.Order, opt => opt.Ignore())
-                .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.Order.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
             CreateMap<Models.Offer, Domain.Models.Offer>()
                 .ForMember(dest => dest.RequestNumber, opt => opt.MapFrom(src => src.RequestId))
                 .PreserveReferences()

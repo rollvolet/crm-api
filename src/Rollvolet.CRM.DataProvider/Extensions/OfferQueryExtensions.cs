@@ -97,7 +97,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("customer", null);
             selectors.Add("customer.honorific-prefix", null);
             selectors.Add("request", null);
-            selectors.Add("request.calendar-event", null);
 
             return source.Include<Offer>(querySet, selectors);
         }

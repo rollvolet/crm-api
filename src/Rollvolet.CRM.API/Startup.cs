@@ -60,7 +60,6 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IDbConnection>(sp => new SqlConnection(connectionString));
 
             services.Configure<ConfidentialClientApplicationOptions>(Configuration.GetSection("AzureAd"));
-            services.Configure<CalendarConfiguration>(Configuration.GetSection("Calendar"));
             services.Configure<DocumentGenerationConfiguration>(Configuration.GetSection("DocumentGeneration"));
             services.Configure<FileStorageConfiguration>(Configuration.GetSection("FileStorage"));
             services.Configure<AccountancyConfiguration>(Configuration.GetSection("Accountancy"));
@@ -128,8 +127,6 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IAccountancyExportDataProvider, AccountancyExportDataProvider>();
             services.AddTransient<IWorkingHourManager, WorkingHourManager>();
             services.AddTransient<IWorkingHourDataProvider, WorkingHourDataProvider>();
-            services.AddTransient<IPlanningEventManager, PlanningEventManager>();
-            services.AddTransient<IPlanningEventDataProvider, PlanningEventDataProvider>();
             services.AddTransient<IDocumentGenerationManager, DocumentGenerationManager>();
             services.AddTransient<ISystemTaskManager, SystemTaskManager>();
             services.AddTransient<IGraphApiSystemTaskService, GraphApiFileStorageService>();
@@ -140,7 +137,6 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IIncludedCollector, IncludedCollector>();
             services.AddTransient<IReportManager, ReportManager>();
             services.AddTransient<ISystemTaskExecutor, SystemTaskExecutor>();
-            services.AddTransient<IGraphApiCalendarService, GraphApiCalendarService>();
 
             var fileStorageLocation = Configuration["FileStorage:Location"];
             if (fileStorageLocation.ToLower() == "cloud")
