@@ -39,6 +39,12 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Opmerking")]  // kept in sync with offer comment in frontend
         public string Comment { get; set; }
 
+        [Column("CancellationDate")]
+        public DateTime? CancellationDate { get; set; }
+
+        [Column("CancellationReason")]
+        public string CancellationReason { get; set; }
+
 
         // Include resources
         public Customer Customer { get; set; }

@@ -57,9 +57,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("isCancelled"))
             {
                 if (Int32.Parse(querySet.Filter.Fields["isCancelled"]) == 0)
-                    source = source.Where(e => e.CancellationDate == null && e.FollowUpRequest.OriginId == null);
+                    source = source.Where(e => e.CancellationDate == null);
                 else if (Int32.Parse(querySet.Filter.Fields["isCancelled"]) == 1)
-                    source = source.Where(e => e.CancellationDate != null || e.FollowUpRequest.OriginId != null);
+                    source = source.Where(e => e.CancellationDate != null);
             }
 
             if (querySet.Filter.Fields.ContainsKey("isPlanned"))

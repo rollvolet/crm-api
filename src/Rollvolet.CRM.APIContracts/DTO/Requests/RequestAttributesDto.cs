@@ -9,5 +9,7 @@ namespace Rollvolet.CRM.APIContracts.DTO.Requests
         public string Comment { get; set; }
         public string Employee { get; set; }
         public string Visitor { get; set; }
+        public DateTime? CancellationDate { get; set; }
+        public string CancellationReason { get; set; }
     }
 }
