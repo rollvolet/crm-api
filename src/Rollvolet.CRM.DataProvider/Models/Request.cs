@@ -39,6 +39,12 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Opmerking")]  // kept in sync with offer comment in frontend
         public string Comment { get; set; }
 
+        // Kept in sync with calendar-event date by frontend.
+        // Still required in SQL DB for reporting purposes.
+        // Can be removed once requests are converted to triplestore.
+        [Column("VisitDate")]
+        public DateTime? VisitDate { get; set; }
+
         [Column("CancellationDate")]
         public DateTime? CancellationDate { get; set; }
 

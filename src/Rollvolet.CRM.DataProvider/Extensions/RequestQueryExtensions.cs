@@ -51,6 +51,12 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 source = source.Where(e => e.RequestDate > filterValue);
             }
 
+            if (querySet.Filter.Fields.ContainsKey(":lte:visit-date"))
+            {
+                var filterValue = DateTimeOffset.Parse(querySet.Filter.Fields[":lte:visit-date"]);
+                source = source.Where(e => e.VisitDate <= filterValue);
+            }
+
             if (querySet.Filter.Fields.ContainsKey("hasOffer"))
             {
                 if (Int32.Parse(querySet.Filter.Fields["hasOffer"]) == 0)
@@ -103,6 +109,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             selectors.Add("number", new List<Expression<Func<Request, object>>> { x => x.Id });
             selectors.Add("request-date", new List<Expression<Func<Request, object>>> { x => x.RequestDate, x => x.Id });
+            selectors.Add("visit-date", new List<Expression<Func<Request, object>>> { x => x.VisitDate, x => x.Id });
             selectors.Add("employee", new List<Expression<Func<Request, object>>> { x => x.Employee });
             selectors.Add("customer.name", new List<Expression<Func<Request, object>>> { x => x.Customer.Name });
             selectors.Add("customer.street", new List<Expression<Func<Request, object>>> { x => x.Customer.Address1 });
