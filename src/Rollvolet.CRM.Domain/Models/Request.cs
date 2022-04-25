@@ -12,6 +12,8 @@ namespace Rollvolet.CRM.Domain.Models
         public string Employee { get; set; }
         public bool OfferExpected { get; set; }
         public string Visitor { get; set; }
+        public DateTime? CancellationDate { get; set; }
+        public string CancellationReason { get; set; }
 
         public Customer Customer { get; set; }
         public Building Building { get; set; }
