@@ -90,6 +90,63 @@ namespace Rollvolet.CRM.Domain.Managers
             _certificateUploadSourceLocation = _fileStorageService.EnsureDirectory(_documentGenerationConfig.CertificateUploadSourceLocation);
         }
 
+        public async Task<Stream> CreateVisitSummaryAsync(IEnumerable<int> requestIds)
+        {
+            var requests = new List<ExpandoObject>();
+
+            foreach (var requestId in requestIds)
+            {
+                var query = new QuerySet();
+                query.Include.Fields = new string[] {
+                    "customer", "customer.honorific-prefix", "customer.language", "building", "contact", "way-of-entry"
+                };
+                var request = await _requestDataProvider.GetByIdAsync(requestId, query);
+
+                await EmbedCustomerAndContactAsync(request);
+
+                var offerQuery = new QuerySet();
+                offerQuery.Sort.Order = SortQuery.ORDER_DESC;
+                offerQuery.Sort.Field = "offer-date";
+                offerQuery.Page.Size = 5;
+
+                var pagedOffers = await _offerDataProvider.GetAllByCustomerIdAsync(request.Customer.Id, offerQuery);
+
+                var history = new List<Object>();
+                foreach (var offer in pagedOffers.Items)
+                {
+                    Order order = null;
+                    try
+                    {
+                        order = await _orderDataProvider.GetByOfferIdAsync(offer.Id);
+                    }
+                    catch (EntityNotFoundException)
+                    {
+                        order = null; // No order attached to offer
+                    }
+
+                    var historicEntry = new {
+                        Offer = offer,
+                        Visitor = await GetVisitorInitialsByOfferIdAsync(offer.Id),
+                        IsOrdered = order != null
+                    };
+
+                    // Remove nested data before sending
+                    offer.Customer = null;
+
+                    history.Add(historicEntry);
+                }
+
+                dynamic documentData = new ExpandoObject();
+                documentData.Request = request;
+                documentData.History = history;          
+
+                requests.Add(documentData);      
+            }
+
+            var url = $"{_documentGenerationConfig.BaseUrl}/documents/visit-summary";       
+            return await this.GenerateDocumentAsync(url, requests);     
+        }
+
         public async Task CreateAndStoreVisitReportAsync(int requestId)
         {
             var query = new QuerySet();
@@ -877,6 +934,25 @@ namespace Rollvolet.CRM.Domain.Managers
             catch (EntityNotFoundException)
             {
                 return null;
+            }
+        }
+
+        private async Task<Stream> GenerateDocumentAsync(string url, Object data)
+        {
+            var body = GenerateJsonBody(data);
+            _logger.LogDebug("Send request to document generation service at {0}", url);
+
+            var response = await _httpClient.PostAsync(url, body);
+
+            try
+            {
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStreamAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning("Something went wrong while generating document: {1}", e.Message);
+                throw e;
             }
         }
 

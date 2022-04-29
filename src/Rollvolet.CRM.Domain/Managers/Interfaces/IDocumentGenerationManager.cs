@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -5,6 +6,7 @@ namespace Rollvolet.CRM.Domain.Managers.Interfaces
 {
     public interface IDocumentGenerationManager
     {
+        Task<Stream> CreateVisitSummaryAsync(IEnumerable<int> requestIds);
         Task CreateAndStoreVisitReportAsync(int requestId);
         Task<Stream> DownloadVisitReportAsync(int requestId);
         Task DeleteVisitReportAsync(int requestId);
