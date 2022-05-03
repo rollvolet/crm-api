@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Rollvolet.CRM.API.Builders.Interfaces;
@@ -176,7 +175,7 @@ namespace Rollvolet.CRM.API.Controllers
             CustomerDto customerDto;
             try
             {
-                var customer = await _customerManager.GetByInvoiceIdAsync(invoiceId);
+                var customer = await _customerManager.GetByDepositInvoiceIdAsync(invoiceId);
                 customerDto = _mapper.Map<CustomerDto>(customer);
             }
             catch (EntityNotFoundException)
@@ -195,7 +194,7 @@ namespace Rollvolet.CRM.API.Controllers
             ContactDto contactDto;
             try
             {
-                var contact = await _contactManager.GetByOfferIdAsync(invoiceId);
+                var contact = await _contactManager.GetByDepositInvoiceIdAsync(invoiceId);
                 contactDto = _mapper.Map<ContactDto>(contact);
             }
             catch (EntityNotFoundException)
@@ -214,7 +213,7 @@ namespace Rollvolet.CRM.API.Controllers
             BuildingDto buildingDto;
             try
             {
-                var building = await _buildingManager.GetByOfferIdAsync(invoiceId);
+                var building = await _buildingManager.GetByDepositInvoiceIdAsync(invoiceId);
                 buildingDto = _mapper.Map<BuildingDto>(building);
             }
             catch (EntityNotFoundException)
@@ -233,7 +232,7 @@ namespace Rollvolet.CRM.API.Controllers
             OrderDto orderDto;
             try
             {
-                var order = await _orderManager.GetByInvoiceIdAsync(invoiceId);
+                var order = await _orderManager.GetByDepositInvoiceIdAsync(invoiceId);
                 orderDto = _mapper.Map<OrderDto>(order);
             }
             catch (EntityNotFoundException)
@@ -252,7 +251,7 @@ namespace Rollvolet.CRM.API.Controllers
             VatRateDto vatRateDto;
             try
             {
-                var vatRate = await _vatRateManager.GetByInvoiceIdAsync(invoiceId);
+                var vatRate = await _vatRateManager.GetByDepositInvoiceIdAsync(invoiceId);
                 vatRateDto = _mapper.Map<VatRateDto>(vatRate);
             }
             catch (EntityNotFoundException)
