@@ -10,13 +10,11 @@ using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
-using Rollvolet.CRM.APIContracts.DTO.CalendarEvents;
 using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
-using Rollvolet.CRM.APIContracts.DTO.PlanningEvents;
 using Rollvolet.CRM.Business.Models;
 
 namespace Rollvolet.CRM.API.Mappers
@@ -25,7 +23,6 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Contact, ContactRelationshipsDto>,
                                             ITypeConverter<Building, BuildingRelationshipsDto>,
                                             ITypeConverter<Request, RequestRelationshipsDto>,
-                                            ITypeConverter<CalendarEvent, CalendarEventRelationshipsDto>,
                                             ITypeConverter<Intervention, InterventionRelationshipsDto>,
                                             ITypeConverter<Offer, OfferRelationshipsDto>,
                                             ITypeConverter<Order, OrderRelationshipsDto>,
@@ -33,7 +30,6 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<DepositInvoice, DepositInvoiceRelationshipsDto>,
                                             ITypeConverter<Deposit, DepositRelationshipsDto>,
                                             ITypeConverter<WorkingHour, WorkingHourRelationshipsDto>,
-                                            ITypeConverter<PlanningEvent, PlanningEventRelationshipsDto>,
                                             ITypeConverter<Employee, EmployeeDto.RelationshipsDto>,
                                             ITypeConverter<Country, EmptyRelationshipsDto>,
                                             ITypeConverter<Language, EmptyRelationshipsDto>,
@@ -95,7 +91,6 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.Building = GetOneRelationship<Building>("requests", source.Id, "building", source.Building, context);
             relationships.Contact = GetOneRelationship<Contact>("requests", source.Id, "contact", source.Contact, context);
             relationships.WayOfEntry = GetOneRelationship<WayOfEntry>("requests", source.Id, "way-of-entry", source.WayOfEntry, context);
-            relationships.CalendarEvent = GetOneRelationship<CalendarEvent>("requests", source.Id, "calendar-event", source.CalendarEvent, context);
             relationships.Offer = GetOneRelationship<Offer>("requests", source.Id, "offer", source.Offer, context);
             relationships.Origin = GetOneRelationship<Intervention>("requests", source.Id, "origin", source.Origin, context);
             return relationships;
@@ -110,7 +105,6 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.WayOfEntry = GetOneRelationship<WayOfEntry>("interventions", source.Id, "way-of-entry", source.WayOfEntry, context);
             relationships.FollowUpRequest = GetOneRelationship<Request>("interventions", source.Id, "follow-up-request", source.FollowUpRequest, context);
             relationships.Origin = GetOneRelationship<Order>("interventions", source.Id, "origin", source.Origin, context);
-            relationships.PlanningEvent = GetOneRelationship<PlanningEvent>("interventions", source.Id, "planning-event", source.PlanningEvent, context);
             relationships.Invoice = GetOneRelationship<Invoice>("interventions", source.Id, "invoice", source.Invoice, context);
             relationships.Employee = GetOneRelationship<Employee>("interventions", source.Id, "employee", source.Employee, context);
             relationships.Technicians = GetManyRelationship<Employee>("interventions", source.Id, "technicians", source.Technicians, context);
@@ -186,22 +180,6 @@ namespace Rollvolet.CRM.API.Mappers
             var relationships = new WorkingHourRelationshipsDto();
             relationships.Employee = GetOneRelationship<Employee>("working-hours", source.Id, "employee", source.Employee, context);
             relationships.Invoice = GetOneRelationship<Invoice>("working-hours", source.Id, "invoice", source.Invoice, context);
-            return relationships;
-        }
-
-        PlanningEventRelationshipsDto ITypeConverter<PlanningEvent, PlanningEventRelationshipsDto>.Convert(PlanningEvent source, PlanningEventRelationshipsDto destination, ResolutionContext context)
-        {
-            var relationships = new PlanningEventRelationshipsDto();
-            relationships.Intervention = GetOneRelationship<Intervention>("planning-events", source.Id, "intervention", source.Intervention, context);
-            relationships.Order = GetOneRelationship<Order>("planning-events", source.Id, "order", source.Order, context);
-            return relationships;
-        }
-
-        CalendarEventRelationshipsDto ITypeConverter<CalendarEvent, CalendarEventRelationshipsDto>.Convert(CalendarEvent source, CalendarEventRelationshipsDto destination, ResolutionContext context)
-        {
-            var relationships = new CalendarEventRelationshipsDto();
-            relationships.Customer = GetOneRelationship<Customer>("calendar-events", source.Id, "customer", source.Customer, context);
-            relationships.Request = GetOneRelationship<Request>("calendar-events", source.Id, "request", source.Request, context);
             return relationships;
         }
 

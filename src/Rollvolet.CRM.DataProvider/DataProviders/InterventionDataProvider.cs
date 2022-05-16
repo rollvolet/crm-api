@@ -110,27 +110,11 @@ namespace Rollvolet.CRM.DataProviders
             return _mapper.Map<Intervention>(intervention);
         }
 
-        public async Task<Intervention> GetByPlanningEventIdAsync(int planningEventId)
-        {
-            var intervention = await _context.PlanningEvents.Where(r => r.Id == planningEventId)
-                                    .Select(r => r.Intervention).FirstOrDefaultAsync();
-
-            if (intervention == null)
-            {
-                _logger.LogError($"No intervention found for planning event id {planningEventId}");
-                throw new EntityNotFoundException();
-            }
-
-            return _mapper.Map<Intervention>(intervention);
-        }
-
         public async Task<Intervention> CreateAsync(Intervention intervention)
         {
             var interventionRecord = _mapper.Map<DataProvider.Models.Intervention>(intervention);
             _context.Interventions.Add(interventionRecord);
             await _context.SaveChangesAsync();
-
-            var planningEventRecord = await CreatePlanningEventAsync(interventionRecord);
 
             return _mapper.Map<Intervention>(interventionRecord);
         }
@@ -164,11 +148,6 @@ namespace Rollvolet.CRM.DataProviders
 
             if (intervention != null)
             {
-                var planningEvent = await _context.PlanningEvents.Where(c => c.InterventionId == id).FirstOrDefaultAsync();
-
-                if (planningEvent != null)
-                    _context.PlanningEvents.Remove(planningEvent);
-
                 _context.Interventions.Remove(intervention);
                 await _context.SaveChangesAsync();
            }
@@ -209,18 +188,6 @@ namespace Rollvolet.CRM.DataProviders
                 source = source.Include(query);
 
             return await source.FirstOrDefaultAsync();
-        }
-
-        private async Task<DataProvider.Models.PlanningEvent> CreatePlanningEventAsync(DataProvider.Models.Intervention interventionRecord)
-        {
-            var planningEvent = new DataProvider.Models.PlanningEvent {
-                InterventionId = interventionRecord.Id
-            };
-
-            _context.PlanningEvents.Add(planningEvent);
-            await _context.SaveChangesAsync();
-
-            return planningEvent;
         }
     }
 }

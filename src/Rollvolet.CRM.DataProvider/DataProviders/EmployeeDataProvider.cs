@@ -61,29 +61,29 @@ namespace Rollvolet.CRM.DataProviders
 
         public async Task<Employee> GetVisitorByOfferIdAsync(int offerId)
         {
-            var visit = await _context.Offers.Where(o => o.Id == offerId).Take(1).Select(o => o.Request).Select(r => r.Visit).FirstOrDefaultAsync();
+            var request = await _context.Offers.Where(o => o.Id == offerId).Take(1).Select(o => o.Request).FirstOrDefaultAsync();
 
-            if (visit == null)
+            if (request == null)
             {
                 _logger.LogError($"No employee found for order {offerId}");
                 throw new EntityNotFoundException();
             }
 
-            return await GetByFirstNameAsync(visit.Visitor);
+            return await GetByFirstNameAsync(request.Visitor);
         }
 
         public async Task<Employee> GetVisitorByOrderIdAsync(int orderId)
         {
-            var visit = await _context.Orders.Where(o => o.Id == orderId).Take(1)
-                                .Select(o => o.Offer).Select(o => o.Request).Select(r => r.Visit).FirstOrDefaultAsync();
+            var request = await _context.Orders.Where(o => o.Id == orderId).Take(1)
+                                .Select(o => o.Offer).Select(o => o.Request).FirstOrDefaultAsync();
 
-            if (visit == null)
+            if (request == null)
             {
                 _logger.LogError($"No employee found for order {orderId}");
                 throw new EntityNotFoundException();
             }
 
-            return await GetByFirstNameAsync(visit.Visitor);
+            return await GetByFirstNameAsync(request.Visitor);
         }
 
         public async Task<Employee> GetByWorkingHourIdAsync(int workingHourId)

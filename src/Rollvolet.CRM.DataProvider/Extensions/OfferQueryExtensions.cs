@@ -54,7 +54,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("request.visitor"))
             {
                 var filterValue = querySet.Filter.Fields["request.visitor"].FilterWildcard();
-                source = source.Where(e => EF.Functions.Like(e.Request.Visit.Visitor, filterValue));
+                source = source.Where(e => EF.Functions.Like(e.Request.Visitor, filterValue));
             }
 
             if (querySet.Filter.Fields.ContainsKey(":gt:offer-date"))
@@ -84,8 +84,8 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Include.Fields.Contains("customer.honorific-prefix"))
                 source = source.Include(x => x.Customer).ThenInclude(x => x.HonorificPrefix);
 
-            if (querySet.Include.Fields.Contains("request") || querySet.Include.Fields.Contains("request.calendar-event"))
-                source = source.Include(x => x.Request).ThenInclude(x => x.Visit);
+            if (querySet.Include.Fields.Contains("request"))
+                source = source.Include(x => x.Request);
 
             var selectors = new Dictionary<string, Expression<Func<Offer, object>>>();
 
@@ -97,7 +97,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("customer", null);
             selectors.Add("customer.honorific-prefix", null);
             selectors.Add("request", null);
-            selectors.Add("request.calendar-event", null);
 
             return source.Include<Offer>(querySet, selectors);
         }

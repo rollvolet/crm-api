@@ -5,7 +5,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Interventions
     public class InterventionRelationshipsDto
     {
         public IRelationship FollowUpRequest { get; set; }
-        public IRelationship PlanningEvent { get; set; }
         public IRelationship Invoice { get; set; }
         public IRelationship Origin { get; set; }
         public IRelationship Customer { get; set; }

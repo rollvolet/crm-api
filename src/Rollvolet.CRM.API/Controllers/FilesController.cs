@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Rollvolet.CRM.Domain.Exceptions;
@@ -20,6 +19,12 @@ namespace Rollvolet.CRM.API.Controllers
         {
             _documentGenerationManager = documentGenerationManager;
             _logger = logger;
+        }
+
+        [HttpGet("visit-summary")]
+        public async Task<IActionResult> ViewVisitSummary([FromQuery] int[] ids)
+        {
+            return await ViewStreamAsync(_documentGenerationManager.CreateVisitSummaryAsync, ids);
         }
 
         [HttpGet("requests/{id}")]
@@ -101,6 +106,21 @@ namespace Rollvolet.CRM.API.Controllers
         public async Task<IActionResult> ViewVatCertificateForDepositInvoiceAsync(int id)
         {
             return await ViewStreamAsync(_documentGenerationManager.DownloadCertificateForDepositInvoiceAsync, id);
+        }
+
+        private async Task<IActionResult> ViewStreamAsync<T>(Func<int[], Task<T>> downloadFileAsync, int[] ids) where T : Stream
+        {
+            try
+            {
+                var fileStream = await downloadFileAsync(ids);
+                var file = new FileStreamResult(fileStream, "application/pdf");
+                // file.FileDownloadName = fileStream.Name;  // this makes file being served with disposition=attachment
+                return file;
+            }
+            catch (EntityNotFoundException)
+            {
+                return Ok("Document bestaat niet.");
+            }
         }
 
         private async Task<IActionResult> ViewStreamAsync<T>(Func<int, Task<T>> downloadFileAsync, int id) where T : Stream

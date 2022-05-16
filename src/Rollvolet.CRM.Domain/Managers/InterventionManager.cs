@@ -21,7 +21,6 @@ namespace Rollvolet.CRM.Domain.Managers
         private readonly IRequestDataProvider _requestDataProvider;
         private readonly IWayOfEntryDataProvider _wayOfEntryDataProvider;
         private readonly IEmployeeDataProvider _employeeDataProvider;
-        private readonly IPlanningEventManager _planningEventManager;
         private readonly IDocumentGenerationManager _documentGenerationManager;
         private readonly ILogger _logger;
 
@@ -30,7 +29,7 @@ namespace Rollvolet.CRM.Domain.Managers
                                 IInvoiceDataProvider invoiceDataProvider, IOrderDataProvider orderDataProvider,
                                 IRequestDataProvider requestDataProvider,
                                 IWayOfEntryDataProvider wayOfEntryDataProvider, IEmployeeDataProvider employeeDataProvider,
-                                IPlanningEventManager planningEventManager, IDocumentGenerationManager documentGenerationManager,
+                                IDocumentGenerationManager documentGenerationManager,
                                 ILogger<InterventionManager> logger)
         {
             _interventionDataProvider = interventionDataProvider;
@@ -42,7 +41,6 @@ namespace Rollvolet.CRM.Domain.Managers
             _requestDataProvider = requestDataProvider;
             _wayOfEntryDataProvider = wayOfEntryDataProvider;
             _employeeDataProvider = employeeDataProvider;
-            _planningEventManager = planningEventManager;
             _documentGenerationManager = documentGenerationManager;
             _logger = logger;
         }
@@ -149,11 +147,6 @@ namespace Rollvolet.CRM.Domain.Managers
             return await _interventionDataProvider.GetByFollowUpRequestIdAsync(requestId);
         }
 
-        public async Task<Intervention> GetByPlanningEventIdAsync(int planningEventId)
-        {
-            return await _interventionDataProvider.GetByPlanningEventIdAsync(planningEventId);
-        }
-
         public async Task<Intervention> CreateAsync(Intervention intervention)
         {
             if (intervention.Id != 0)
@@ -180,7 +173,7 @@ namespace Rollvolet.CRM.Domain.Managers
         public async Task<Intervention> UpdateAsync(Intervention intervention)
         {
             var query = new QuerySet();
-            query.Include.Fields = new string[] { "customer", "way-of-entry", "building", "contact", "invoice", "origin", "technicians", "planning-event" };
+            query.Include.Fields = new string[] { "customer", "way-of-entry", "building", "contact", "invoice", "origin", "technicians" };
             var existingIntervention = await _interventionDataProvider.GetByIdAsync(intervention.Id, query);
 
             if (intervention.Id != existingIntervention.Id)
@@ -198,9 +191,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 throw new IllegalArgumentException("IllegalAttribute", $"Building is not attached to customer {intervention.Customer.Id}.");
 
             intervention = await _interventionDataProvider.UpdateAsync(intervention);
-
-            if (intervention.PlanningEvent.IsPlanned && RequiresPlanningEventUpdate(existingIntervention, intervention))
-                await _planningEventManager.UpdateAsync(intervention.PlanningEvent);
 
             return intervention;
         }
@@ -257,12 +247,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 }
                 intervention.Technicians = technicians;
 
-                // Planning-event cannot be updated. Take planning-event of oldIntervention on update.
-                if (oldIntervention != null)
-                    intervention.PlanningEvent = oldIntervention.PlanningEvent;
-                else
-                    intervention.PlanningEvent = null;
-
                 // Invoice cannot be updated. Take invoice of oldRequest on update.
                 if (oldIntervention != null)
                     intervention.Invoice = oldIntervention.Invoice;
@@ -304,11 +288,6 @@ namespace Rollvolet.CRM.Domain.Managers
                 _logger.LogDebug($"Failed to find a related entity");
                 throw new IllegalArgumentException("IllegalAttribute", "Not all related entities exist.");
             }
-        }
-
-        private bool RequiresPlanningEventUpdate(Intervention existingIntervention, Intervention intervention)
-        {
-            return intervention.Comment != existingIntervention.Comment;
         }
     }
 }

@@ -42,13 +42,19 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("visitor"))
             {
                 var filterValue = querySet.Filter.Fields["visitor"].FilterWildcard();
-                source = source.Where(e => EF.Functions.Like(e.Visit.Visitor, filterValue));
+                source = source.Where(e => EF.Functions.Like(e.Visitor, filterValue));
             }
 
             if (querySet.Filter.Fields.ContainsKey(":gt:request-date"))
             {
                 var filterValue = DateTimeOffset.Parse(querySet.Filter.Fields[":gt:request-date"]);
                 source = source.Where(e => e.RequestDate > filterValue);
+            }
+
+            if (querySet.Filter.Fields.ContainsKey(":lte:visit-date"))
+            {
+                var filterValue = DateTimeOffset.Parse(querySet.Filter.Fields[":lte:visit-date"]);
+                source = source.Where(e => e.VisitDate <= filterValue);
             }
 
             if (querySet.Filter.Fields.ContainsKey("hasOffer"))
@@ -86,7 +92,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("building", c => c.Building);
             selectors.Add("contact", c => c.Contact);
             selectors.Add("way-of-entry", c => c.WayOfEntry);
-            selectors.Add("calendar-event", x => x.Visit);
             selectors.Add("offer", x => x.Offer);
             selectors.Add("origin", x => x.Origin);
 
@@ -104,6 +109,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             selectors.Add("number", new List<Expression<Func<Request, object>>> { x => x.Id });
             selectors.Add("request-date", new List<Expression<Func<Request, object>>> { x => x.RequestDate, x => x.Id });
+            selectors.Add("visit-date", new List<Expression<Func<Request, object>>> { x => x.VisitDate, x => x.Id });
             selectors.Add("employee", new List<Expression<Func<Request, object>>> { x => x.Employee });
             selectors.Add("customer.name", new List<Expression<Func<Request, object>>> { x => x.Customer.Name });
             selectors.Add("customer.street", new List<Expression<Func<Request, object>>> { x => x.Customer.Address1 });

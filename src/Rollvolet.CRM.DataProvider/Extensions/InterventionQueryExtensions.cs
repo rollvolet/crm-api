@@ -65,9 +65,9 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             if (querySet.Filter.Fields.ContainsKey("isPlanned"))
             {
                 if (Int32.Parse(querySet.Filter.Fields["isPlanned"]) == 0)
-                    source = source.Where(e => e.PlanningEvent.Date == null);
+                    source = source.Where(e => e.PlanningDate == null);
                 else if (Int32.Parse(querySet.Filter.Fields["isPlanned"]) == 1)
-                    source = source.Where(e => e.PlanningEvent.Date != null);
+                    source = source.Where(e => e.PlanningDate != null);
             }
 
             source = source.FilterCase(querySet, context);
@@ -95,7 +95,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
             selectors.Add("invoice", x => x.Invoice);
             selectors.Add("origin", x => x.Origin);
             selectors.Add("follow-up-request", x => x.FollowUpRequest);
-            selectors.Add("planning-event", x => x.PlanningEvent);
 
             // dummy entries for resources that are already included
             selectors.Add("customer", null);
@@ -112,7 +111,7 @@ namespace Rollvolet.CRM.DataProvider.Extensions
 
             selectors.Add("number", new List<Expression<Func<Intervention, object>>> { x => x.Id });
             selectors.Add("date", new List<Expression<Func<Intervention, object>>> { x => x.Date, x => x.Id });
-            selectors.Add("planning-event.date", new List<Expression<Func<Intervention, object>>> { x => x.PlanningEvent.Date, x => x.Date, x => x.Id });
+            selectors.Add("planning-date", new List<Expression<Func<Intervention, object>>> { x => x.PlanningDate, x => x.Id });
             selectors.Add("customer.name", new List<Expression<Func<Intervention, object>>> { x => x.Customer.Name });
             selectors.Add("customer.street", new List<Expression<Func<Intervention, object>>> { x => x.Customer.Address1 });
             selectors.Add("customer.postal-code", new List<Expression<Func<Intervention, object>>> { x => x.Customer.EmbeddedPostalCode });

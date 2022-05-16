@@ -87,14 +87,11 @@ namespace Rollvolet.CRM.DataProvider.Models
         public bool IsOrdered { get; set; }
 
         // TODO convert to DateTime
+        // Kept in sync with calendar-event date by frontend.
+        // Still required in SQL DB for reporting purposes.
+        // Can be removed once orders are converted to triplestore.
         [Column("VastgelegdeDatum")]
         public string PlanningDate { get; set; }
-
-        [Column("PlanningId")]
-        public string PlanningId { get; set; }
-
-        [Column("PlanningMsObjectId")]
-        public string PlanningMsObjectId { get; set; }
 
         // @Deprecated
         // [Column("UrenGerekend")]

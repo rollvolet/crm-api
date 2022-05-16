@@ -36,7 +36,5 @@ namespace Rollvolet.CRM.Domain.Models
         public bool Canceled { get; set; }
         public string CancellationReason { get; set; }
         public DateTime? PlanningDate { get; set; }
-        public string PlanningId { get; set; }
-        public string PlanningMsObjectId { get; set; }
     }
 }

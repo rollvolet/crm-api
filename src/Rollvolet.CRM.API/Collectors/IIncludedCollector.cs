@@ -33,7 +33,5 @@ namespace Rollvolet.CRM.API.Collectors
         IEnumerable<IResource> CollectIncluded(IEnumerable<DepositInvoice> depositInvoices, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(WorkingHour workingHour, IncludeQuery includeQuery);
         IEnumerable<IResource> CollectIncluded(IEnumerable<WorkingHour> workingHours, IncludeQuery includeQuery);
-        IEnumerable<IResource> CollectIncluded(PlanningEvent planningEvent, IncludeQuery includeQuery);
-        IEnumerable<IResource> CollectIncluded(IEnumerable<PlanningEvent> planningEvents, IncludeQuery includeQuery);
     }
 }

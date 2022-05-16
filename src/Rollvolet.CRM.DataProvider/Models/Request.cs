@@ -21,6 +21,12 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Bezoek")]
         public bool RequiresVisit { get; set; }
 
+        [Column("Bezoeker")]
+        public string Visitor { get; set; }
+
+        [Column("Bediende")]
+        public string Employee { get; set; }
+
         [Column("AanmeldingID")]
         public int? WayOfEntryId { get; set; }
 
@@ -30,12 +36,14 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Aanvraagdatum")]
         public DateTime RequestDate { get; set; }
 
-        // @Deprecated Visit.Comment is used for comments on requests
-        // [Column("Opmerking")]
-        // public string Comment { get; set; }
+        [Column("Opmerking")]  // kept in sync with offer comment in frontend
+        public string Comment { get; set; }
 
-        [Column("Bediende")]
-        public string Employee { get; set; }
+        // Kept in sync with calendar-event date by frontend.
+        // Still required in SQL DB for reporting purposes.
+        // Can be removed once requests are converted to triplestore.
+        [Column("VisitDate")]
+        public DateTime? VisitDate { get; set; }
 
         [Column("CancellationDate")]
         public DateTime? CancellationDate { get; set; }
@@ -49,7 +57,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Building Building { get; set; }
         public Contact Contact { get; set; }
         public WayOfEntry WayOfEntry { get; set; }
-        public Visit Visit { get; set; }
         public Offer Offer { get; set; }
         public Intervention Origin { get; set; }
 

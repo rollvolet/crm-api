@@ -31,6 +31,9 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Date")]
         public DateTime Date { get; set; }
 
+        [Column("PlanningDate")]
+        public DateTime? PlanningDate { get; set; }
+
         [Column("Description")]
         public string Description { get; set; }
 
@@ -56,7 +59,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Invoice Invoice { get; set; }
         public Request FollowUpRequest { get; set; }
         public Employee Employee { get; set; }
-        public PlanningEvent PlanningEvent { get; set; }
 
         public ICollection<InterventionTechnician> InterventionTechnicians { get; set; }
     }

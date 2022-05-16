@@ -10,6 +10,7 @@ namespace Rollvolet.CRM.Domain.Models
     {
         public int Id { get; set; }
         public DateTime? Date { get; set; }
+        public DateTime? PlanningDate { get; set; }
         public string Comment { get; set; }
         public string Description { get; set; }
         public float? NbOfPersons { get; set; }
@@ -24,7 +25,6 @@ namespace Rollvolet.CRM.Domain.Models
         public Request FollowUpRequest { get; set; }
         public WayOfEntry WayOfEntry { get; set; }
         public Employee Employee { get; set; }
-        public PlanningEvent PlanningEvent { get; set; }
         public IEnumerable<Employee> Technicians { get; set; }
 
         [JsonIgnore]
