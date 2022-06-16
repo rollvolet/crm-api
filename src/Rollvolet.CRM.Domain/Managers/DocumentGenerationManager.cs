@@ -155,6 +155,13 @@ namespace Rollvolet.CRM.Domain.Managers
             };
             var request = await _requestDataProvider.GetByIdAsync(requestId, query);
 
+            string initials = null;
+            if (request.Visitor != null)
+            {
+                var visitor = await _employeeDataProvider.GetByFirstNameAsync(request.Visitor);
+                initials = visitor.Initials;
+            }
+
             await EmbedCustomerAndContactAsync(request);
 
             var offerQuery = new QuerySet();
@@ -191,6 +198,7 @@ namespace Rollvolet.CRM.Domain.Managers
 
             dynamic documentData = new ExpandoObject();
             documentData.Request = request;
+            documentData.VisitorInitials = initials;
             documentData.History = history;
 
             var url = $"{_documentGenerationConfig.BaseUrl}/documents/visit-report";
