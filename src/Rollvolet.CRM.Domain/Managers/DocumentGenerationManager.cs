@@ -101,44 +101,8 @@ namespace Rollvolet.CRM.Domain.Managers
                     "customer", "customer.honorific-prefix", "customer.language", "building", "contact", "way-of-entry"
                 };
                 var request = await _requestDataProvider.GetByIdAsync(requestId, query);
-
-                await EmbedCustomerAndContactAsync(request);
-
-                var offerQuery = new QuerySet();
-                offerQuery.Sort.Order = SortQuery.ORDER_DESC;
-                offerQuery.Sort.Field = "offer-date";
-                offerQuery.Page.Size = 5;
-
-                var pagedOffers = await _offerDataProvider.GetAllByCustomerIdAsync(request.Customer.Id, offerQuery);
-
-                var history = new List<Object>();
-                foreach (var offer in pagedOffers.Items)
-                {
-                    Order order = null;
-                    try
-                    {
-                        order = await _orderDataProvider.GetByOfferIdAsync(offer.Id);
-                    }
-                    catch (EntityNotFoundException)
-                    {
-                        order = null; // No order attached to offer
-                    }
-
-                    var historicEntry = new {
-                        Offer = offer,
-                        Visitor = await GetVisitorInitialsByOfferIdAsync(offer.Id),
-                        IsOrdered = order != null
-                    };
-
-                    // Remove nested data before sending
-                    offer.Customer = null;
-
-                    history.Add(historicEntry);
-                }
-
-                dynamic documentData = new ExpandoObject();
-                documentData.Request = request;
-                documentData.History = history;          
+                
+                var documentData = await ConstructVisitReportData(request);
 
                 requests.Add(documentData);      
             }
@@ -155,6 +119,16 @@ namespace Rollvolet.CRM.Domain.Managers
             };
             var request = await _requestDataProvider.GetByIdAsync(requestId, query);
 
+            var documentData = await ConstructVisitReportData(request);
+
+            var url = $"{_documentGenerationConfig.BaseUrl}/documents/visit-report";
+            var fileDescriptor = await ConstructVisitReportFilePathAsync(request);
+
+            await GenerateAndStoreDocumentAsync(url, documentData, fileDescriptor);
+        }
+
+        private async Task<ExpandoObject> ConstructVisitReportData(Request request)
+        {
             string initials = null;
             if (request.Visitor != null)
             {
@@ -201,10 +175,7 @@ namespace Rollvolet.CRM.Domain.Managers
             documentData.VisitorInitials = initials;
             documentData.History = history;
 
-            var url = $"{_documentGenerationConfig.BaseUrl}/documents/visit-report";
-            var fileDescriptor = await ConstructVisitReportFilePathAsync(request);
-
-            await GenerateAndStoreDocumentAsync(url, documentData, fileDescriptor);
+            return documentData;
         }
 
         public async Task<Stream> DownloadVisitReportAsync(int requestId)
