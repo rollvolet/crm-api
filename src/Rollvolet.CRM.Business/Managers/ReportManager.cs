@@ -131,7 +131,7 @@ namespace Rollvolet.CRM.Business.Managers
             ";
 
             var sql = $@"
-                SELECT o.OfferteID as orderId, o.OfferteNr as offerNumber, r.AanvraagID as requestId, b.Bezoeker as visitor,
+                SELECT o.OfferteID as orderId, o.OfferteNr as offerNumber, r.AanvraagID as requestId, r.Bezoeker as visitor,
                     o.BestelDatum as orderDate, c.ID as customerNumber, c.Naam as customerName,
                     c.Adres1 as customerAddress1, c.Adres2 as customerAddress2, c.Adres3 as customerAddress3,
                     c.Postcode as customerPostalCode, c.Gemeente as customerCity, g.Naam as buildingName,
@@ -199,7 +199,7 @@ namespace Rollvolet.CRM.Business.Managers
             var filterFields = querySet.Filter.Fields;
             var filters = new List<string>();
             if (filterFields.ContainsKey("visitor"))
-                filters.Add($" AND b.Bezoeker = '{filterFields["visitor"].Replace("'", "''")}'");
+                filters.Add($" AND r.Bezoeker = '{filterFields["visitor"].Replace("'", "''")}'");
             if (filterFields.ContainsKey("hasProductionTicket") && Int32.Parse(filterFields["hasProductionTicket"]) >= 0)
                 filters.Add($" AND o.Produktiebon = {Int32.Parse(filterFields["hasProductionTicket"])}");
             if (filterFields.ContainsKey("mustBeInstalled") && Int32.Parse(filterFields["mustBeInstalled"]) >= 0)
@@ -219,7 +219,6 @@ namespace Rollvolet.CRM.Business.Managers
                 LEFT JOIN tblData g ON g.ID = o.GebouwID AND g.ParentID = c.ID AND g.DataType = 'GEB'
                 LEFT JOIN TblFactuur f ON f.OfferteID = o.OfferteID
                 INNER JOIN TblAanvraag r ON o.AanvraagId = r.AanvraagID
-                LEFT JOIN TblBezoek b ON b.AanvraagId = r.AanvraagID
                 WHERE
                     o.Afgesloten = 0
                     AND o.AfgeslotenBestelling = 0
