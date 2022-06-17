@@ -36,7 +36,10 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Aanvraagdatum")]
         public DateTime RequestDate { get; set; }
 
-        [Column("Opmerking")]  // kept in sync with offer comment in frontend
+        [Column("Beschrijving")]
+        public string Description { get; set; }
+
+        [Column("Opmerking")]
         public string Comment { get; set; }
 
         // Kept in sync with calendar-event date by frontend.

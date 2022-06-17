@@ -6,6 +6,7 @@ namespace Rollvolet.CRM.APIContracts.DTO.Requests
     {
         public DateTime? RequestDate { get; set; }
         public bool RequiresVisit { get; set; }
+        public string Description { get; set; }
         public string Comment { get; set; }
         public string Employee { get; set; }
         public string Visitor { get; set; }
