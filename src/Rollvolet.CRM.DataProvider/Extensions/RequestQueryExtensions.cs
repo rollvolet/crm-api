@@ -57,12 +57,6 @@ namespace Rollvolet.CRM.DataProvider.Extensions
                 source = source.Where(e => e.VisitDate == null || e.VisitDate <= filterValue);
             }
 
-            if (querySet.Filter.Fields.ContainsKey(":gt:visit-date"))
-            {
-                var filterValue = DateTimeOffset.Parse(querySet.Filter.Fields[":gt:visit-date"]);
-                source = source.Where(e => e.VisitDate > filterValue);
-            }
-
             if (querySet.Filter.Fields.ContainsKey("hasOffer"))
             {
                 if (Int32.Parse(querySet.Filter.Fields["hasOffer"]) == 0)
