@@ -10,7 +10,6 @@ using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
-using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.APIContracts.DTO.AccountancyExports;
@@ -539,7 +538,6 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForMember(dest => dest.VatRate, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.VatRate : null))
                 .ForMember(dest => dest.Deposits, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Deposits : null))
                 .ForMember(dest => dest.DepositInvoices, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.DepositInvoices : null))
-                .ForMember(dest => dest.WorkingHours, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.WorkingHours : null))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<OneRelationship, Invoice>()
@@ -654,42 +652,6 @@ namespace Rollvolet.CRM.API.Mappers
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<RelatedResource, Employee>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-
-
-            // Working hour mappings
-
-            CreateMap<WorkingHour, WorkingHourDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "working-hours"))
-                .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.Relationships, opt => opt.MapFrom(src => src));
-
-            CreateMap<WorkingHour, WorkingHourAttributesDto>().ReverseMap();
-
-            CreateMap<WorkingHour, WorkingHourRelationshipsDto>().ConvertUsing<RelationshipsConverter>();
-
-            CreateMap<WorkingHour, RelatedResource>()
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => "working-hours"));
-
-            CreateMap<WorkingHourRequestDto, WorkingHour>()
-                .ConstructUsing((src, context) => context.Mapper.Map<WorkingHour>(src.Attributes))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Invoice : null))
-                .ForMember(dest => dest.Employee, opt => opt.MapFrom(src => src.Relationships != null ? src.Relationships.Employee : null))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<OneRelationship, WorkingHour>()
-                .ConstructUsing((src, context) => context.Mapper.Map<WorkingHour>(src.Data))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<ManyRelationship, IEnumerable<WorkingHour>>()
-                .ConstructUsing((src, context) => context.Mapper.Map<IEnumerable<WorkingHour>>(src.Data))
-                .ForAllOtherMembers(opt => opt.Ignore());
-
-            CreateMap<RelatedResource, WorkingHour>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForAllOtherMembers(opt => opt.Ignore());
 

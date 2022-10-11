@@ -119,7 +119,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         public Intervention Intervention { get; set; }
         public VatRate VatRate { get; set; }
         public IEnumerable<Deposit> Deposits { get; set; }
-        public IEnumerable<WorkingHour> WorkingHours { get; set; }
         public IEnumerable<DepositInvoiceHub> DepositInvoiceHubs { get; set; } // only set on normal invoices
         public DepositInvoiceHub MainInvoiceHub { get; set; } // only set on deposit invoices
 

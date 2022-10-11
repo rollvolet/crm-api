@@ -23,7 +23,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<Deposit> Deposits { get; set; }
         public DbSet<DepositInvoiceHub> DepositInvoices { get; set; }
-        public DbSet<WorkingHour> WorkingHours { get; set; }
         public DbSet<VatRate> VatRates { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<InterventionTechnician> InterventionTechnicians { get; set; }
@@ -536,26 +535,6 @@ namespace Rollvolet.CRM.DataProvider.Contexts
                 .WithMany(e => e.OrderTechnicians)
                 .HasForeignKey(e => e.EmployeeId);
 
-
-            // WorkingHour
-
-            modelBuilder.Entity<WorkingHour>()
-                .ToTable("tblWerkUren", schema: "dbo");
-
-            modelBuilder.Entity<WorkingHour>()
-                .HasKey(e => e.Id);
-
-            modelBuilder.Entity<WorkingHour>()
-                .HasOne(e => e.Employee)
-                .WithMany(e => e.WorkingHours)
-                .HasForeignKey(e => e.EmployeeName)
-                .HasPrincipalKey(e => e.FirstName);
-
-            modelBuilder.Entity<WorkingHour>()
-                .HasOne(e => e.Invoice)
-                .WithMany(e => e.WorkingHours)
-                .HasForeignKey(e => e.InvoiceId)
-                .HasPrincipalKey(e => e.Id);
 
 
             // Payment

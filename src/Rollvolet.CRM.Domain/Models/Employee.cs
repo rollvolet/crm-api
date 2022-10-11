@@ -15,7 +15,6 @@ namespace Rollvolet.CRM.Domain.Models
 
 
         // Included resources
-        public IEnumerable<WorkingHour> WorkingHours { get; set; }
         public IEnumerable<Intervention> Interventions { get; set; }
         public IEnumerable<Order> Orders { get; set; }
     }

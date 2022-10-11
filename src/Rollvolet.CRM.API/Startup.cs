@@ -115,8 +115,6 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IPostalCodeManager, PostalCodeManager>();
             services.AddTransient<IPaymentDataProvider, PaymentDataProvider>();
             services.AddTransient<IPaymentManager, PaymentManager>();
-            services.AddTransient<IWorkingHourManager, WorkingHourManager>();
-            services.AddTransient<IWorkingHourDataProvider, WorkingHourDataProvider>();
             services.AddTransient<IVatRateManager, VatRateManager>();
             services.AddTransient<IVatRateDataProvider, VatRateDataProvider>();
             services.AddTransient<IEmployeeManager, EmployeeManager>();
@@ -125,8 +123,6 @@ namespace Rollvolet.CRM.API
             services.AddTransient<IWayOfEntryDataProvider, WayOfEntryDataProvider>();
             services.AddTransient<IAccountancyExportManager, AccountancyExportManager>();
             services.AddTransient<IAccountancyExportDataProvider, AccountancyExportDataProvider>();
-            services.AddTransient<IWorkingHourManager, WorkingHourManager>();
-            services.AddTransient<IWorkingHourDataProvider, WorkingHourDataProvider>();
             services.AddTransient<IDocumentGenerationManager, DocumentGenerationManager>();
             services.AddTransient<ISystemTaskManager, SystemTaskManager>();
             services.AddTransient<IGraphApiSystemTaskService, GraphApiFileStorageService>();
