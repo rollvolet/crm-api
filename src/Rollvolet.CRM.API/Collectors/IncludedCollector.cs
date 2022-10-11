@@ -14,7 +14,6 @@ using Rollvolet.CRM.APIContracts.DTO.Requests;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
-using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
 
 namespace Rollvolet.CRM.API.Collectors
@@ -276,7 +275,6 @@ namespace Rollvolet.CRM.API.Collectors
             ISet<IResource> included = new HashSet<IResource>();
 
             var customerIncludeQuery = includeQuery.NestedInclude("customer");
-            var workingHoursIncludeQuery = includeQuery.NestedInclude("working-hours");
 
             // one-relations
             if (includeQuery.Contains("order") && invoice.Order != null)
@@ -297,10 +295,6 @@ namespace Rollvolet.CRM.API.Collectors
                 included.UnionWith(_mapper.Map<IEnumerable<DepositDto>>(invoice.Deposits));
             if (includeQuery.Contains("deposit-invoices") && invoice.DepositInvoices.Count() > 0)
                 included.UnionWith(_mapper.Map<IEnumerable<DepositInvoiceDto>>(invoice.DepositInvoices));
-            if (includeQuery.Contains("working-hours") && invoice.WorkingHours.Count() > 0)
-                included.UnionWith(_mapper.Map<IEnumerable<WorkingHourDto>>(invoice.WorkingHours, opt => opt.Items["include"] = workingHoursIncludeQuery));
-            if (includeQuery.Contains("working-hours.employee") && invoice.WorkingHours.Count() > 0)
-                included.UnionWith(_mapper.Map<IEnumerable<EmployeeDto>>(invoice.WorkingHours.Select(x => x.Employee).Where(x => x != null)));
 
             return included;
         }
@@ -405,29 +399,6 @@ namespace Rollvolet.CRM.API.Collectors
 
             foreach (var invoice in depositInvoices)
                 included.UnionWith(CollectIncluded(invoice, includeQuery));
-
-            return included;
-        }
-
-        public IEnumerable<IResource> CollectIncluded(WorkingHour workingHour, IncludeQuery includeQuery)
-        {
-            ISet<IResource> included = new HashSet<IResource>();
-
-            // one-relations
-            if (includeQuery.Contains("employee") && workingHour.Employee != null)
-                included.Add(_mapper.Map<EmployeeDto>(workingHour.Employee));
-            if (includeQuery.Contains("invoice") && workingHour.Invoice != null)
-                included.Add(_mapper.Map<InvoiceDto>(workingHour.Invoice));
-
-            return included;
-        }
-
-        public IEnumerable<IResource> CollectIncluded(IEnumerable<WorkingHour> workingHours, IncludeQuery includeQuery)
-        {
-            ISet<IResource> included = new HashSet<IResource>();
-
-            foreach (var workingHour in workingHours)
-                included.UnionWith(CollectIncluded(workingHour, includeQuery));
 
             return included;
         }

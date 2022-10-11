@@ -9,6 +9,5 @@ namespace Rollvolet.CRM.Domain.Models
         public Intervention Intervention { get; set; }
         public IEnumerable<Deposit> Deposits { get; set; }
         public IEnumerable<DepositInvoice> DepositInvoices { get; set; }
-        public IEnumerable<WorkingHour> WorkingHours { get; set; }
     }
 }

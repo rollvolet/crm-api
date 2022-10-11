@@ -10,7 +10,6 @@ using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.DTO.Offers;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
 using Rollvolet.CRM.APIContracts.DTO.Requests;
-using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Models;
 using Rollvolet.CRM.Domain.Models.Query;
@@ -29,7 +28,6 @@ namespace Rollvolet.CRM.API.Mappers
                                             ITypeConverter<Invoice, InvoiceRelationshipsDto>,
                                             ITypeConverter<DepositInvoice, DepositInvoiceRelationshipsDto>,
                                             ITypeConverter<Deposit, DepositRelationshipsDto>,
-                                            ITypeConverter<WorkingHour, WorkingHourRelationshipsDto>,
                                             ITypeConverter<Employee, EmployeeDto.RelationshipsDto>,
                                             ITypeConverter<Country, EmptyRelationshipsDto>,
                                             ITypeConverter<Language, EmptyRelationshipsDto>,
@@ -150,7 +148,6 @@ namespace Rollvolet.CRM.API.Mappers
             relationships.VatRate = GetOneRelationship<VatRate>("invoices", source.Id, "vat-rate", source.VatRate, context);
             relationships.Deposits = GetManyRelationship<Deposit>("invoices", source.Id, "deposits", source.Deposits, context);
             relationships.DepositInvoices = GetManyRelationship<DepositInvoice>("invoices", source.Id, "deposit-invoices", source.DepositInvoices, context);
-            relationships.WorkingHours = GetManyRelationship<WorkingHour>("invoices", source.Id, "working-hours", source.WorkingHours, context);
             return relationships;
         }
 
@@ -175,18 +172,9 @@ namespace Rollvolet.CRM.API.Mappers
             return relationships;
         }
 
-        WorkingHourRelationshipsDto ITypeConverter<WorkingHour, WorkingHourRelationshipsDto>.Convert(WorkingHour source, WorkingHourRelationshipsDto destination, ResolutionContext context)
-        {
-            var relationships = new WorkingHourRelationshipsDto();
-            relationships.Employee = GetOneRelationship<Employee>("working-hours", source.Id, "employee", source.Employee, context);
-            relationships.Invoice = GetOneRelationship<Invoice>("working-hours", source.Id, "invoice", source.Invoice, context);
-            return relationships;
-        }
-
         EmployeeDto.RelationshipsDto ITypeConverter<Employee, EmployeeDto.RelationshipsDto>.Convert(Employee source, EmployeeDto.RelationshipsDto destination, ResolutionContext context)
         {
             var relationships = new EmployeeDto.RelationshipsDto();
-            relationships.WorkingHours = GetManyRelationship<WorkingHour>("employees", source.Id, "working-hours", source.WorkingHours, context);
             return relationships;
         }
 

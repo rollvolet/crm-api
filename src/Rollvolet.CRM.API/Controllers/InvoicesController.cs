@@ -16,7 +16,6 @@ using Rollvolet.CRM.APIContracts.DTO.Deposits;
 using Rollvolet.CRM.APIContracts.DTO.Interventions;
 using Rollvolet.CRM.APIContracts.DTO.Invoices;
 using Rollvolet.CRM.APIContracts.DTO.Orders;
-using Rollvolet.CRM.APIContracts.DTO.WorkingHours;
 using Rollvolet.CRM.APIContracts.JsonApi;
 using Rollvolet.CRM.Domain.Exceptions;
 using Rollvolet.CRM.Domain.Managers.Interfaces;
@@ -35,7 +34,6 @@ namespace Rollvolet.CRM.API.Controllers
         private readonly IOrderManager _orderManager;
         private readonly IInterventionManager _interventionManager;
         private readonly IVatRateManager _vatRateManager;
-        private readonly IWorkingHourManager _workingHourManager;
         private readonly IDepositManager _depositManager;
         private readonly IDepositInvoiceManager _depositInvoiceManager;
         private readonly IDocumentGenerationManager _documentGenerationManager;
@@ -46,7 +44,7 @@ namespace Rollvolet.CRM.API.Controllers
         public InvoicesController(IInvoiceManager invoiceManager, ICustomerManager customerManager, IContactManager contactManager,
                                     IBuildingManager buildingManager, IOrderManager orderManager, IInterventionManager interventionManager,
                                     IVatRateManager vatRateManager, IDepositManager depositManager, IDepositInvoiceManager depositInvoiceManager,
-                                    IWorkingHourManager workingHourManager, IDocumentGenerationManager documentGenerationManager,
+                                    IDocumentGenerationManager documentGenerationManager,
                                     IIncludedCollector includedCollector, IMapper mapper, IJsonApiBuilder jsonApiBuilder)
         {
             _invoiceManager = invoiceManager;
@@ -58,7 +56,6 @@ namespace Rollvolet.CRM.API.Controllers
             _vatRateManager = vatRateManager;
             _depositManager = depositManager;
             _depositInvoiceManager = depositInvoiceManager;
-            _workingHourManager = workingHourManager;
             _documentGenerationManager = documentGenerationManager;
             _includedCollector = includedCollector;
             _mapper = mapper;
@@ -293,22 +290,6 @@ namespace Rollvolet.CRM.API.Controllers
 
             var links = _jsonApiBuilder.BuildSingleResourceLinks(HttpContext.Request.Path);
             return Ok(new ResourceResponse() { Links = links, Data = vatRateDto });
-        }
-
-        [HttpGet("{invoiceId}/working-hours")]
-        [HttpGet("{invoiceId}/links/working-hours")]
-        public async Task<IActionResult> GetRelatedWorkingHoursByInvoiceIdAsync(int invoiceId)
-        {
-            var querySet = _jsonApiBuilder.BuildQuerySet(HttpContext.Request.Query);
-
-            var pagedWorkingHours = await _workingHourManager.GetAllByInvoiceIdAsync(invoiceId, querySet);
-
-            var workingHourDtos = _mapper.Map<IEnumerable<WorkingHourDto>>(pagedWorkingHours.Items, opt => opt.Items["include"] = querySet.Include);
-            var included = _includedCollector.CollectIncluded(pagedWorkingHours.Items, querySet.Include);
-            var links = _jsonApiBuilder.BuildCollectionLinks(HttpContext.Request.Path, querySet, pagedWorkingHours);
-            var meta = _jsonApiBuilder.BuildCollectionMetadata(pagedWorkingHours);
-
-            return Ok(new ResourceResponse() { Meta = meta, Links = links, Data = workingHourDtos, Included = included });
         }
 
         [HttpGet("{invoiceId}/deposits")]

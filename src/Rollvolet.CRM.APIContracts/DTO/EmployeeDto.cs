@@ -18,7 +18,6 @@ namespace Rollvolet.CRM.APIContracts.DTO
 
         public class RelationshipsDto
         {
-            public IRelationship WorkingHours { get; set; }
             public IRelationship Interventions { get; set; }
         }
     }

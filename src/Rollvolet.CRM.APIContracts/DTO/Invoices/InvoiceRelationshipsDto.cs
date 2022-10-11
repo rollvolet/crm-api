@@ -12,6 +12,5 @@ namespace Rollvolet.CRM.APIContracts.DTO.Invoices
         public IRelationship VatRate { get; set; }
         public IRelationship Deposits { get; set; }
         public IRelationship DepositInvoices { get; set; }
-        public IRelationship WorkingHours { get; set; }
     }
 }
