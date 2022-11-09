@@ -87,6 +87,21 @@ namespace Rollvolet.CRM.DataProviders
                 invoice.BuildingSuffix = building.Suffix;
                 // TODO embed phone, mobile and fax number
                 invoice.BuildingSearchName = building.SearchName;
+            } 
+            else
+            {
+                invoice.BuildingName = null;
+                invoice.BuildingAddress1 = null;
+                invoice.BuildingAddress2 = null;
+                invoice.BuildingAddress3 = null;
+                invoice.BuildingPostalCodeId = null;
+                invoice.BuildingPostalCode = null;
+                invoice.BuildingCity = null;
+                invoice.BuildingCountryId = null;
+                invoice.BuildingPrefix = null;
+                invoice.BuildingSuffix = null;
+                // TODO embed phone, mobile and fax number
+                invoice.BuildingSearchName = null;                
             }
 
             if (invoice.RelativeContactId != null)
@@ -108,6 +123,24 @@ namespace Rollvolet.CRM.DataProviders
                 // TODO embed phone, mobile and fax number
                 invoice.ContactSearchName = contact.SearchName;
             }
+            else
+            {
+                invoice.ContactName = null;
+                invoice.ContactAddress1 = null;
+                invoice.ContactAddress2 = null;
+                invoice.ContactAddress3 = null;
+                invoice.ContactPostalCodeId = null;
+                invoice.ContactPostalCode = null;
+                invoice.ContactCity = null;
+                invoice.ContactLanguageId = null;
+                invoice.ContactCountryId = null;
+                invoice.ContactHonorificPrefixId = null;
+                invoice.ContactPrefix = null;
+                invoice.ContactSuffix = null;
+                // TODO embed phone, mobile and fax number
+                invoice.ContactSearchName = null;                
+            }
+
 
             if (invoice.BuildingCountryId == null)
                 invoice.BuildingCountryId = customer.CountryId; // not-NULL DB contstraint
