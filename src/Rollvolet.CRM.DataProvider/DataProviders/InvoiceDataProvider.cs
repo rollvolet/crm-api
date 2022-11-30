@@ -13,19 +13,26 @@ using System;
 using Rollvolet.CRM.Domain.Exceptions;
 using System.Linq.Expressions;
 using Z.EntityFramework.Plus;
+using VDS.RDF.Query;
+using Microsoft.Extensions.Options;
+using Rollvolet.CRM.Domain.Configuration;
+using VDS.RDF;
 
 namespace Rollvolet.CRM.DataProviders
 {
     public class InvoiceDataProvider : BaseInvoiceDataProvider, IInvoiceDataProvider
     {
         private readonly IDepositInvoiceDataProvider _depositInvoiceDataProvider;
+        private readonly SparqlRemoteEndpoint _sparqlEndpoint;
 
         public InvoiceDataProvider(IDepositInvoiceDataProvider depositInvoiceDataProvider,
                                     ISequenceDataProvider sequenceDataProvider, IVatRateDataProvider vatRateDataProvider,
-                                    CrmContext context, IMapper mapper, ILogger<InvoiceDataProvider> logger)
+                                    CrmContext context, IOptions<SparqlConfiguration> sparqlConfiguration,
+                                    IMapper mapper, ILogger<InvoiceDataProvider> logger)
                                     : base(sequenceDataProvider, vatRateDataProvider, context, mapper, logger)
         {
             _depositInvoiceDataProvider = depositInvoiceDataProvider;
+            _sparqlEndpoint = new SparqlRemoteEndpoint(new Uri(sparqlConfiguration.Value.Endpoint));
         }
 
         private new IQueryable<DataProvider.Models.Invoice> BaseQuery() {
@@ -231,6 +238,59 @@ namespace Rollvolet.CRM.DataProviders
                 PageNumber = query.Page.Number,
                 PageSize = query.Page.Size
             };
+        }
+
+        public async Task<Invoice> UpdateCachedInvoiceAmountsAsync(int id)
+        {
+            var invoice = await FindByIdAsync(id);
+
+            if (invoice.Origin == "RKB")
+            {
+                _logger.LogDebug("Recalculating base amount of invoice {0} as sum of the invoicelines", invoice.Id);
+
+                var totalInvoicelinesAmount = 0.0;
+
+                var invoiceUri = $"http://data.rollvolet.be/invoices/{invoice.Id}";
+                var query = $@"
+                    PREFIX schema: <http://schema.org/>
+                    PREFIX dct: <http://purl.org/dc/terms/>
+                    PREFIX crm: <http://data.rollvolet.be/vocabularies/crm/>
+                    PREFIX price: <http://data.rollvolet.be/vocabularies/pricing/>
+                    PREFIX prov: <http://www.w3.org/ns/prov#>
+                    SELECT ?invoiceline ?amount
+                    WHERE {{
+                        GRAPH <http://mu.semte.ch/graphs/rollvolet> {{
+                            ?invoiceline a crm:Invoiceline ;
+                            schema:amount ?amount ;
+                            dct:isPartOf <{invoiceUri}> .
+                        }}
+                    }}";           
+                var resultSet = _sparqlEndpoint.QueryWithResultSet(query);
+
+                foreach (var result in resultSet.Results)
+                {
+                    var amountStr = ((ILiteralNode) result["amount"]).Value;
+                    double amount;
+                    if (double.TryParse(amountStr, out amount))
+                    {
+                        totalInvoicelinesAmount += amount;
+                    }
+                    else
+                    {
+                        var invoiceline = result["invoiceline"].ToString();
+                        _logger.LogWarning($"Unable to parse amount of invoiceline <{invoiceline}> as double.");
+                    }
+                }
+
+                invoice.BaseAmount = totalInvoicelinesAmount;
+            } // else: base amount is the ordered amount. No need to recalculate
+
+            await CalculateAmountAndVatAsync(invoice);
+
+            _context.Invoices.Update(invoice);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<Invoice>(invoice);
         }
 
         private async Task CalculateAmountAndVatAsync(DataProvider.Models.Invoice invoice)
