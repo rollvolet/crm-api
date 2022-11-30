@@ -27,17 +27,20 @@ namespace Rollvolet.CRM.DataProviders
         private readonly IMapper _mapper;
         private readonly AccountancyConfiguration _accountancyConfig;
         private readonly IFileStorageService _fileStorageService;
+        private readonly IInvoiceDataProvider _invoiceDataProvider;
         private readonly ILogger _logger;
 
         public AccountancyExportDataProvider(CrmContext context, IMapper mapper,
                                         IOptions<AccountancyConfiguration> accountancyConfiguration,
                                         IFileStorageService fileStorageService,
+                                        IInvoiceDataProvider invoiceDataProvider,
                                         ILogger<AccountancyExportDataProvider> logger)
         {
             _context = context;
             _mapper = mapper;
             _accountancyConfig = accountancyConfiguration.Value;
             _fileStorageService = fileStorageService;
+            _invoiceDataProvider = invoiceDataProvider;
             _logger = logger;
 
             _accountancyConfig.WinbooksExportLocation = _fileStorageService.EnsureDirectory(_accountancyConfig.WinbooksExportLocation);
@@ -129,6 +132,8 @@ namespace Rollvolet.CRM.DataProviders
             foreach (var invoiceRecord in invoiceRecords)
             {
                 EnsureValidityForExport(invoiceRecord);
+                // Ensure cached amounts are up-to-date before export
+                await _invoiceDataProvider.UpdateCachedInvoiceAmountsAsync(invoiceRecord.Id);
                 invoiceLines.AddRange(GenerateInvoiceExportLines(invoiceRecord));
                 _logger.LogDebug($"Exported invoice {invoiceRecord.Number} for accountancy export.");
 
@@ -361,7 +366,7 @@ namespace Rollvolet.CRM.DataProviders
                 CivName1 = "",
                 CivName2 = "",
                 Address1 = FormatAsName(customer.Address1),
-                Address2 =FormatAsName(customer.Address2),
+                Address2 = FormatAsName(customer.Address2),
                 VATCat = customer.IsCompany ? "1" : "3",
                 Country = customer.Country != null ? customer.Country.Code : "??",
                 VatNumber = FormatVatNumber(customer.VatNumber),
