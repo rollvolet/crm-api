@@ -107,7 +107,8 @@ namespace Rollvolet.CRM.DataProviders
         private async Task GenerateExportFilesAsync(int fromNumber, int untilNumber, bool isDryRun)
         {
             var invoiceQuery = (IQueryable<DataProvider.Models.Invoice>) _context.Invoices // invoices and deposit-invoices
-                                    .Include(i => i.VatRate);
+                                    .Include(i => i.VatRate)
+                                    .Include(i => i.MainInvoiceHub);
             if (isDryRun)
             {
                 invoiceQuery = invoiceQuery.Where(i => i.Number >= fromNumber && i.Number <= untilNumber);
