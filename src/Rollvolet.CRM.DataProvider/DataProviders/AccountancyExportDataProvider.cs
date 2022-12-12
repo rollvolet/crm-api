@@ -106,9 +106,17 @@ namespace Rollvolet.CRM.DataProviders
 
         private async Task GenerateExportFilesAsync(int fromNumber, int untilNumber, bool isDryRun)
         {
-            var invoiceQuery = _context.Invoices
-                                    .Where(i => i.Number >= fromNumber && i.Number <= untilNumber && i.BookingDate == null)
+            var invoiceQuery = (IQueryable<DataProvider.Models.Invoice>) _context.Invoices // invoices and deposit-invoices
                                     .Include(i => i.VatRate);
+            if (isDryRun)
+            {
+                invoiceQuery = invoiceQuery.Where(i => i.Number >= fromNumber && i.Number <= untilNumber);
+            }
+            else
+            {
+                invoiceQuery = invoiceQuery.Where(i => i.Number >= fromNumber && i.Number <= untilNumber && i.BookingDate == null);
+            }
+
             var invoiceRecords = await invoiceQuery.ToListAsync();
             var customerRecordIds = invoiceRecords.Select(i => i.CustomerId).Where(id => id != null).Distinct().ToList();
             var customerRecords = await _context.Customers
@@ -132,10 +140,13 @@ namespace Rollvolet.CRM.DataProviders
             foreach (var invoiceRecord in invoiceRecords)
             {
                 EnsureValidityForExport(invoiceRecord);
-                // Ensure cached amounts are up-to-date before export
-                await _invoiceDataProvider.UpdateCachedInvoiceAmountsAsync(invoiceRecord.Id);
-                invoiceLines.AddRange(GenerateInvoiceExportLines(invoiceRecord));
-                _logger.LogDebug($"Exported invoice {invoiceRecord.Number} for accountancy export.");
+                if (invoiceRecord.MainInvoiceHub == null)
+                    {
+                    // Ensure cached amounts are up-to-date before export
+                    await _invoiceDataProvider.UpdateCachedInvoiceAmountsAsync(invoiceRecord.Id);
+                    invoiceLines.AddRange(GenerateInvoiceExportLines(invoiceRecord));
+                    _logger.LogDebug($"Exported invoice {invoiceRecord.Number} for accountancy export.");
+                }
 
                 if (!isDryRun)
                     invoiceRecord.BookingDate = now;
