@@ -132,10 +132,13 @@ namespace Rollvolet.CRM.DataProviders
             foreach (var invoiceRecord in invoiceRecords)
             {
                 EnsureValidityForExport(invoiceRecord);
-                // Ensure cached amounts are up-to-date before export
-                await _invoiceDataProvider.UpdateCachedInvoiceAmountsAsync(invoiceRecord.Id);
-                invoiceLines.AddRange(GenerateInvoiceExportLines(invoiceRecord));
-                _logger.LogDebug($"Exported invoice {invoiceRecord.Number} for accountancy export.");
+                if (invoiceRecord.MainInvoiceHub == null)
+                    {
+                    // Ensure cached amounts are up-to-date before export
+                    await _invoiceDataProvider.UpdateCachedInvoiceAmountsAsync(invoiceRecord.Id);
+                    invoiceLines.AddRange(GenerateInvoiceExportLines(invoiceRecord));
+                    _logger.LogDebug($"Exported invoice {invoiceRecord.Number} for accountancy export.");
+                }
 
                 if (!isDryRun)
                     invoiceRecord.BookingDate = now;
