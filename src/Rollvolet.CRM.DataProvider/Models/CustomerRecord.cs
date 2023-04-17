@@ -47,12 +47,6 @@ namespace Rollvolet.CRM.DataProvider.Models
         [Column("Suffix")]
         public string Suffix { get; set; }
 
-        [Column("email")]
-        public string Email { get; set; }
-
-        [Column("email2")]
-        public string Email2 { get; set; }
-
         [Column("URL")]
         public string Url { get; set; }
 

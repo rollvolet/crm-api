@@ -51,12 +51,6 @@ namespace Rollvolet.CRM.DataProviders
             if (string.IsNullOrEmpty(customerEntity.Prefix) || string.IsNullOrEmpty(customerEntity.Prefix.Trim()))
                 customerRecord.Prefix = null;
 
-            if (string.IsNullOrEmpty(customerEntity.Email) || string.IsNullOrEmpty(customerEntity.Email.Trim()))
-                customerRecord.Email = null;
-
-            if (string.IsNullOrEmpty(customerEntity.Email2) || string.IsNullOrEmpty(customerEntity.Email2.Trim()))
-                customerRecord.Email2 = null;
-
             if (string.IsNullOrEmpty(customerEntity.Comment) || string.IsNullOrEmpty(customerEntity.Comment.Trim()))
                 customerRecord.Comment = null;
         }
