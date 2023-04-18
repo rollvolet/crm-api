@@ -16,9 +16,6 @@ namespace Rollvolet.CRM.APIContracts.DTO.Buildings
         public string City { get; set; }
         public string Prefix { get; set; }
         public string Suffix { get; set; }
-        public string Email { get; set; }
-        [JsonPropertyName("email2")]
-        public string Email2 { get; set; }
         public string Url { get; set; }
         public bool PrintPrefix { get; set; }
         public bool PrintSuffix { get; set; }
